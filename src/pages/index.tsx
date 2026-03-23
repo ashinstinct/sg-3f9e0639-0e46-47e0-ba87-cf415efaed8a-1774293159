@@ -1,12 +1,21 @@
-import React from 'react'
+import { Navigation } from "@/components/Navigation";
+import { Hero } from "@/components/Hero";
+import { ToolsGrid } from "@/components/ToolsGrid";
+import { SEO } from "@/components/SEO";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background flex items-center justify-center">
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold text-foreground">Hello World</h1>
-        <p className="text-lg text-muted-foreground">This is going to be your softgen app, start by describing your project.</p>
+    <>
+      <SEO 
+        title="Back2Life.Studio - AI Image & Video Generation SaaS"
+        description="Professional AI tools for image generation, video creation, audio editing, and more. 14 free tools + premium AI models."
+        image="/og-image.png"
+      />
+      <div className="min-h-screen">
+        <Navigation />
+        <Hero />
+        <ToolsGrid />
       </div>
-    </main>
-  )
+    </>
+  );
 }
