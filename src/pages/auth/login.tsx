@@ -103,6 +103,14 @@ export default function Login() {
                     )}
                   </Button>
                 </div>
+                <div className="text-right">
+                  <Link 
+                    href="/auth/forgot-password" 
+                    className="text-sm text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
               </div>
 
               <Button
