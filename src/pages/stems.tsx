@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
-import { Upload, Music, Download, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { Upload, Music, Download, Play, Pause, Volume2, VolumeX, AlertCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface Stem {
   name: string;
@@ -27,10 +28,30 @@ export default function StemSeparator() {
     { name: "other", label: "Other", url: null, volume: 100, muted: false, playing: false }
   ]);
   const [error, setError] = useState("");
+  const [backendAvailable, setBackendAvailable] = useState<boolean | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
+  const { toast } = useToast();
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const checkBackendHealth = async () => {
+    const backendUrl = process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL;
+    if (!backendUrl) {
+      setBackendAvailable(false);
+      return false;
+    }
+
+    try {
+      const response = await fetch(`${backendUrl}/health`);
+      const data = await response.json();
+      setBackendAvailable(data.status === "healthy" && data.spleeter_available);
+      return data.status === "healthy" && data.spleeter_available;
+    } catch (err) {
+      setBackendAvailable(false);
+      return false;
+    }
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       const validTypes = ["audio/", "video/"];
@@ -41,40 +62,100 @@ export default function StemSeparator() {
       setFile(selectedFile);
       setError("");
       setStems(stems.map(stem => ({ ...stem, url: null })));
+      await checkBackendHealth();
     }
   };
 
   const processSeparation = async () => {
     if (!file) return;
 
+    const backendUrl = process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL;
+    if (!backendUrl) {
+      setError("Backend URL not configured. Please set NEXT_PUBLIC_PYTHON_BACKEND_URL in your environment variables.");
+      toast({
+        title: "Configuration Error",
+        description: "Python backend URL is not configured. Please deploy the backend and add the URL to .env.local",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setProcessing(true);
     setProgress(0);
     setError("");
 
     try {
-      // Simulate processing progress
+      // Check backend health first
+      const isHealthy = await checkBackendHealth();
+      if (!isHealthy) {
+        throw new Error("Backend service is not available. Please ensure the Python backend is running and accessible.");
+      }
+
+      // Simulate progress while processing
       const progressInterval = setInterval(() => {
         setProgress(prev => {
-          if (prev >= 95) {
+          if (prev >= 90) {
             clearInterval(progressInterval);
             return prev;
           }
-          return prev + 5;
+          return prev + 10;
         });
-      }, 500);
+      }, 2000);
 
-      // TODO: Implement actual Spleeter API call
-      // For now, show mock processing
-      await new Promise(resolve => setTimeout(resolve, 10000));
-      
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch(`${backendUrl}/api/separate-stems`, {
+        method: "POST",
+        body: formData,
+      });
+
       clearInterval(progressInterval);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Stem separation failed");
+      }
+
+      setProgress(95);
+
+      // Backend returns a ZIP file containing all stems
+      const zipBlob = await response.blob();
+      
+      // Extract individual stems from ZIP (we'll download the ZIP and let user extract)
+      // For now, we'll create object URLs from the ZIP for download
+      const zipUrl = URL.createObjectURL(zipBlob);
+
+      // Update stems with mock URLs (in production, you'd extract from ZIP)
+      // For demo, we'll just show the download ZIP option
       setProgress(100);
       
-      // Mock result - in production, these would be actual separated audio files
-      setError("Backend API not yet configured. This requires Spleeter (Python/TensorFlow) on the server. The UI is ready - just needs the processing endpoint.");
+      toast({
+        title: "Success!",
+        description: "Stems separated successfully. Download the ZIP file to access all stems.",
+      });
+
+      // Download ZIP automatically
+      const a = document.createElement("a");
+      a.href = zipUrl;
+      a.download = `${file.name.split(".")[0]}_stems.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      // Mark stems as available (you could extract and create individual URLs here)
+      setStems(stems.map(stem => ({ ...stem, url: "available" })));
       
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Separation failed");
+      clearInterval(progressInterval);
+      const errorMessage = err instanceof Error ? err.message : "Separation failed";
+      setError(errorMessage);
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive"
+      });
+      console.error("Stem separation error:", err);
     } finally {
       setProcessing(false);
     }
@@ -126,12 +207,8 @@ export default function StemSeparator() {
     a.click();
   };
 
-  const downloadAllStems = () => {
-    stems.forEach(stem => {
-      if (stem.url) {
-        setTimeout(() => downloadStem(stem), 100);
-      }
-    });
+  const reprocessStems = async () => {
+    await processSeparation();
   };
 
   return (
@@ -152,6 +229,20 @@ export default function StemSeparator() {
                 Isolate vocals, drums, bass, and instruments from any audio track using AI-powered separation
               </p>
             </div>
+
+            {backendAvailable === false && (
+              <Card className="border-yellow-500/30 bg-yellow-500/5">
+                <CardContent className="p-4 flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Backend Not Connected</p>
+                    <p className="text-xs text-muted-foreground">
+                      Python backend is not running. Deploy the Flask app from <code className="bg-muted px-1 rounded">python-backend/</code> folder and add the URL to <code className="bg-muted px-1 rounded">.env.local</code>
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             <Card className="border-purple-500/20">
               <CardHeader>
@@ -187,126 +278,62 @@ export default function StemSeparator() {
                   </div>
                 )}
 
-                {file && !processing && stems.every(s => !s.url) && (
+                {file && !processing && !stems.some(s => s.url) && (
                   <Button
                     onClick={processSeparation}
                     className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                     size="lg"
+                    disabled={backendAvailable === false}
                   >
                     <Music className="w-5 h-5 mr-2" />
-                    Separate Stems
+                    Separate Stems with AI
                   </Button>
                 )}
 
                 {processing && (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Separating audio...</span>
+                      <span className="text-muted-foreground">AI is separating audio into stems...</span>
                       <span className="font-medium">{progress}%</span>
                     </div>
                     <Progress value={progress} className="h-2" />
+                    <p className="text-xs text-muted-foreground text-center">
+                      This may take 30-90 seconds depending on file length
+                    </p>
                   </div>
                 )}
 
                 {stems.some(s => s.url) && (
                   <div className="space-y-6">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-semibold">Separated Stems</h3>
+                      <h3 className="text-lg font-semibold">Stems Separated ✓</h3>
                       <Button
-                        onClick={downloadAllStems}
+                        onClick={reprocessStems}
                         variant="outline"
                         size="sm"
                       >
                         <Download className="w-4 h-4 mr-2" />
-                        Download All
+                        Download ZIP Again
                       </Button>
                     </div>
 
-                    <div className="grid gap-4">
-                      {stems.map(stem => (
-                        <Card key={stem.name} className="bg-muted/30">
-                          <CardContent className="p-4">
-                            <div className="flex items-center gap-4">
-                              <Button
-                                onClick={() => toggleStemPlay(stem.name)}
-                                variant="outline"
-                                size="icon"
-                                disabled={!stem.url}
-                              >
-                                {stem.playing ? (
-                                  <Pause className="w-4 h-4" />
-                                ) : (
-                                  <Play className="w-4 h-4" />
-                                )}
-                              </Button>
-
-                              <div className="flex-1 space-y-2">
-                                <div className="flex items-center justify-between">
-                                  <span className="font-medium">{stem.label}</span>
-                                  <Button
-                                    onClick={() => downloadStem(stem)}
-                                    variant="ghost"
-                                    size="sm"
-                                    disabled={!stem.url}
-                                  >
-                                    <Download className="w-4 h-4" />
-                                  </Button>
-                                </div>
-
-                                <div className="flex items-center gap-4">
-                                  <Button
-                                    onClick={() => toggleStemMute(stem.name)}
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8"
-                                    disabled={!stem.url}
-                                  >
-                                    {stem.muted ? (
-                                      <VolumeX className="w-4 h-4" />
-                                    ) : (
-                                      <Volume2 className="w-4 h-4" />
-                                    )}
-                                  </Button>
-
-                                  <div className="flex-1">
-                                    <Slider
-                                      value={[stem.volume]}
-                                      onValueChange={([value]) => updateStemVolume(stem.name, value)}
-                                      max={100}
-                                      step={1}
-                                      disabled={!stem.url}
-                                    />
-                                  </div>
-
-                                  <span className="text-sm text-muted-foreground w-12 text-right">
-                                    {stem.volume}%
-                                  </span>
-                                </div>
-                              </div>
-
-                              {stem.url && (
-                                <audio
-                                  ref={el => {
-                                    if (el) audioRefs.current[stem.name] = el;
-                                  }}
-                                  src={stem.url}
-                                  onEnded={() => {
-                                    setStems(stems.map(s => 
-                                      s.name === stem.name ? { ...s, playing: false } : s
-                                    ));
-                                  }}
-                                />
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
+                    <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4">
+                      <p className="text-sm font-medium mb-2">✅ Stems Ready</p>
+                      <p className="text-xs text-muted-foreground">
+                        Your stems have been downloaded as a ZIP file. Extract the ZIP to access:
+                      </p>
+                      <ul className="text-xs text-muted-foreground mt-2 space-y-1 ml-4">
+                        <li>• vocals.wav - Isolated vocals</li>
+                        <li>• drums.wav - Drum track</li>
+                        <li>• bass.wav - Bass line</li>
+                        <li>• other.wav - Other instruments</li>
+                      </ul>
                     </div>
 
                     <div className="bg-muted/30 rounded-lg p-4 space-y-2">
                       <h4 className="font-medium">💡 Pro Tip</h4>
                       <p className="text-sm text-muted-foreground">
-                        Use the volume sliders to create custom mixes. Mute stems you don't need, or adjust volumes for the perfect balance.
+                        Import the separated stems into your DAW (FL Studio, Ableton, Logic Pro) for remixing, sampling, or karaoke creation.
                       </p>
                     </div>
                   </div>
@@ -315,10 +342,11 @@ export default function StemSeparator() {
                 <div className="bg-muted/30 rounded-lg p-4 space-y-2">
                   <h4 className="font-medium">How it works</h4>
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Free version uses Spleeter (open-source AI model)</li>
+                    <li>• Free version uses Spleeter (open-source AI model by Deezer)</li>
                     <li>• Pro version uses lalal.ai for higher quality separation</li>
-                    <li>• Processing typically takes 30-60 seconds per track</li>
-                    <li>• Download individual stems or all at once as separate files</li>
+                    <li>• Processing typically takes 30-90 seconds per track</li>
+                    <li>• All 4 stems are downloaded as WAV files in a ZIP</li>
+                    <li>• Works with any audio format (MP3, WAV, FLAC, etc.)</li>
                   </ul>
                 </div>
               </CardContent>

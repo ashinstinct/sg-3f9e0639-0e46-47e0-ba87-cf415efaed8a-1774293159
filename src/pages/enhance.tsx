@@ -6,23 +6,42 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, Sparkles, Download, Play, Pause, Volume2 } from "lucide-react";
+import { Upload, Sparkles, Download, Play, Pause, AlertCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AudioEnhancer() {
   const [file, setFile] = useState<File | null>(null);
   const [processing, setProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [enhancedAudioUrl, setEnhancedAudioUrl] = useState<string | null>(null);
-  const [denoiseLevel, setDenoiseLevel] = useState(80);
-  const [normalizeLevel, setNormalizeLevel] = useState(-16);
   const [error, setError] = useState("");
   const [playingOriginal, setPlayingOriginal] = useState(false);
   const [playingEnhanced, setPlayingEnhanced] = useState(false);
+  const [backendAvailable, setBackendAvailable] = useState<boolean | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const originalAudioRef = useRef<HTMLAudioElement>(null);
   const enhancedAudioRef = useRef<HTMLAudioElement>(null);
+  const { toast } = useToast();
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const checkBackendHealth = async () => {
+    const backendUrl = process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL;
+    if (!backendUrl) {
+      setBackendAvailable(false);
+      return false;
+    }
+
+    try {
+      const response = await fetch(`${backendUrl}/health`);
+      const data = await response.json();
+      setBackendAvailable(data.status === "healthy" && data.deepfilternet_available);
+      return data.status === "healthy" && data.deepfilternet_available;
+    } catch (err) {
+      setBackendAvailable(false);
+      return false;
+    }
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       const validTypes = ["audio/", "video/"];
@@ -34,40 +53,84 @@ export default function AudioEnhancer() {
       setError("");
       setEnhancedAudioUrl(null);
       setProgress(0);
+      await checkBackendHealth();
     }
   };
 
   const processEnhancement = async () => {
     if (!file) return;
 
+    const backendUrl = process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL;
+    if (!backendUrl) {
+      setError("Backend URL not configured. Please set NEXT_PUBLIC_PYTHON_BACKEND_URL in your environment variables.");
+      toast({
+        title: "Configuration Error",
+        description: "Python backend URL is not configured. Please deploy the backend and add the URL to .env.local",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setProcessing(true);
     setProgress(0);
     setError("");
 
     try {
-      // Simulate processing progress
+      // Check backend health first
+      const isHealthy = await checkBackendHealth();
+      if (!isHealthy) {
+        throw new Error("Backend service is not available. Please ensure the Python backend is running and accessible.");
+      }
+
+      // Simulate progress while processing
       const progressInterval = setInterval(() => {
         setProgress(prev => {
-          if (prev >= 95) {
+          if (prev >= 90) {
             clearInterval(progressInterval);
             return prev;
           }
-          return prev + 5;
+          return prev + 10;
         });
-      }, 500);
+      }, 2000);
 
-      // TODO: Implement actual DeepFilterNet + FFmpeg API call
-      // For now, show mock processing
-      await new Promise(resolve => setTimeout(resolve, 10000));
-      
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch(`${backendUrl}/api/enhance-audio`, {
+        method: "POST",
+        body: formData,
+      });
+
       clearInterval(progressInterval);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Audio enhancement failed");
+      }
+
+      setProgress(95);
+
+      // Backend returns enhanced WAV file
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      setEnhancedAudioUrl(audioUrl);
+
       setProgress(100);
       
-      // Mock result - in production, this would be the enhanced audio file
-      setError("Backend API not yet configured. Free version requires DeepFilterNet (Python/PyTorch) + FFmpeg. Pro version will use Adobe Podcast Enhancer API. The UI is ready - just needs the processing endpoint.");
+      toast({
+        title: "Success!",
+        description: "Audio enhanced successfully. Compare the before/after to hear the difference.",
+      });
       
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Enhancement failed");
+      const errorMessage = err instanceof Error ? err.message : "Enhancement failed";
+      setError(errorMessage);
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive"
+      });
+      console.error("Audio enhancement error:", err);
     } finally {
       setProcessing(false);
     }
@@ -132,11 +195,25 @@ export default function AudioEnhancer() {
               </p>
             </div>
 
+            {backendAvailable === false && (
+              <Card className="border-yellow-500/30 bg-yellow-500/5">
+                <CardContent className="p-4 flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Backend Not Connected</p>
+                    <p className="text-xs text-muted-foreground">
+                      Python backend is not running. Deploy the Flask app from <code className="bg-muted px-1 rounded">python-backend/</code> folder and add the URL to <code className="bg-muted px-1 rounded">.env.local</code>
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             <Card className="border-emerald-500/20">
               <CardHeader>
                 <CardTitle>Upload Audio</CardTitle>
                 <CardDescription>
-                  Select an audio or video file to enhance with AI noise removal and normalization
+                  Select an audio or video file to enhance with AI noise removal
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -161,51 +238,15 @@ export default function AudioEnhancer() {
                 </div>
 
                 {file && !processing && !enhancedAudioUrl && (
-                  <div className="space-y-6">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <label className="text-sm font-medium">Denoise Strength</label>
-                          <span className="text-sm text-muted-foreground">{denoiseLevel}%</span>
-                        </div>
-                        <Slider
-                          value={[denoiseLevel]}
-                          onValueChange={([value]) => setDenoiseLevel(value)}
-                          max={100}
-                          step={5}
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          Higher values remove more noise but may affect voice quality
-                        </p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <label className="text-sm font-medium">Target Loudness (LUFS)</label>
-                          <span className="text-sm text-muted-foreground">{normalizeLevel} LUFS</span>
-                        </div>
-                        <Slider
-                          value={[normalizeLevel]}
-                          onValueChange={([value]) => setNormalizeLevel(value)}
-                          min={-24}
-                          max={-12}
-                          step={1}
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          Standard: -16 LUFS (podcasts/videos), -23 LUFS (broadcast)
-                        </p>
-                      </div>
-                    </div>
-
-                    <Button
-                      onClick={processEnhancement}
-                      className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
-                      size="lg"
-                    >
-                      <Sparkles className="w-5 h-5 mr-2" />
-                      Enhance Audio
-                    </Button>
-                  </div>
+                  <Button
+                    onClick={processEnhancement}
+                    className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
+                    size="lg"
+                    disabled={backendAvailable === false}
+                  >
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    Enhance Audio with AI
+                  </Button>
                 )}
 
                 {error && (
@@ -217,12 +258,12 @@ export default function AudioEnhancer() {
                 {processing && (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Enhancing audio...</span>
+                      <span className="text-muted-foreground">AI is removing noise and enhancing audio...</span>
                       <span className="font-medium">{progress}%</span>
                     </div>
                     <Progress value={progress} className="h-2" />
                     <p className="text-xs text-muted-foreground text-center">
-                      Removing noise and normalizing loudness...
+                      This may take 30-60 seconds depending on file length
                     </p>
                   </div>
                 )}
@@ -305,10 +346,10 @@ export default function AudioEnhancer() {
                     <div className="bg-muted/30 rounded-lg p-4 space-y-2">
                       <h4 className="font-medium">✨ Enhancements Applied</h4>
                       <ul className="text-sm text-muted-foreground space-y-1">
-                        <li>• AI noise removal at {denoiseLevel}% strength</li>
-                        <li>• Loudness normalized to {normalizeLevel} LUFS</li>
-                        <li>• High-pass filter applied to remove rumble</li>
-                        <li>• Dynamic range compression for consistency</li>
+                        <li>• AI-powered noise removal (DeepFilterNet)</li>
+                        <li>• Background noise and hum reduction</li>
+                        <li>• Echo and reverb removal</li>
+                        <li>• Voice clarity enhancement</li>
                       </ul>
                     </div>
                   </div>
@@ -319,8 +360,9 @@ export default function AudioEnhancer() {
                   <ul className="text-sm text-muted-foreground space-y-1">
                     <li>• Free version uses DeepFilterNet AI for noise removal</li>
                     <li>• Pro version uses Adobe Podcast Enhancer for studio quality</li>
-                    <li>• Automatic loudness normalization (EBU R128 standard)</li>
+                    <li>• Removes background noise, hum, echo, and reverb</li>
                     <li>• Processing typically takes 30-60 seconds</li>
+                    <li>• Perfect for podcasts, interviews, and voice recordings</li>
                   </ul>
                 </div>
               </CardContent>
