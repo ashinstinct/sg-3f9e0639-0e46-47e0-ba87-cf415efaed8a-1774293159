@@ -8,6 +8,7 @@ from pathlib import Path
 import logging
 import zipfile
 import shutil
+import subprocess
 
 # Import AI models
 try:
@@ -37,7 +38,8 @@ CORS(app)  # Enable CORS for Next.js frontend
 # Configuration
 UPLOAD_FOLDER = tempfile.gettempdir()
 MAX_CONTENT_LENGTH = 100 * 1024 * 1024  # 100MB max file size
-ALLOWED_EXTENSIONS = {'mp3', 'wav', 'flac', 'ogg', 'm4a', 'aiff'}
+ALLOWED_EXTENSIONS = {'mp3', 'wav', 'flac', 'ogg', 'm4a', 'aiff', 'opus'}
+ALLOWED_OUTPUT_FORMATS = {'mp3', 'wav', 'flac', 'ogg', 'm4a', 'aiff', 'opus'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
@@ -236,6 +238,132 @@ def enhance_audio():
 
     except Exception as e:
         logger.error(f"Audio enhancement error: {e}")
+        # Clean up on error
+        try:
+            if 'temp_dir' in locals():
+                shutil.rmtree(temp_dir, ignore_errors=True)
+        except:
+            pass
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/convert-audio', methods=['POST'])
+def convert_audio():
+    """
+    Convert audio files between different formats using FFmpeg
+    Expects: audio file, output_format, bitrate (optional)
+    Returns: converted audio file
+    """
+    # Check if file is present
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+
+    if not allowed_file(file.filename):
+        return jsonify({'error': 'Invalid file type'}), 400
+
+    # Get conversion parameters
+    output_format = request.form.get('output_format', 'mp3').lower()
+    bitrate = request.form.get('bitrate', '192')  # Default 192kbps
+
+    if output_format not in ALLOWED_OUTPUT_FORMATS:
+        return jsonify({'error': f'Unsupported output format: {output_format}'}), 400
+
+    try:
+        # Create unique temporary directory
+        job_id = str(uuid.uuid4())
+        temp_dir = Path(tempfile.mkdtemp(prefix=f'convert_{job_id}_'))
+
+        # Save uploaded file
+        filename = secure_filename(file.filename)
+        input_path = temp_dir / filename
+        file.save(str(input_path))
+
+        logger.info(f"Converting audio: {filename} -> {output_format}")
+
+        # Prepare output path
+        output_filename = f"{Path(filename).stem}_converted.{output_format}"
+        output_path = temp_dir / output_filename
+
+        # Build FFmpeg command based on output format
+        ffmpeg_cmd = ['ffmpeg', '-i', str(input_path)]
+
+        # Add codec and quality settings based on format
+        if output_format == 'mp3':
+            ffmpeg_cmd.extend(['-codec:a', 'libmp3lame', '-b:a', f'{bitrate}k'])
+        elif output_format == 'wav':
+            ffmpeg_cmd.extend(['-codec:a', 'pcm_s16le'])
+        elif output_format == 'ogg':
+            ffmpeg_cmd.extend(['-codec:a', 'libvorbis', '-b:a', f'{bitrate}k'])
+        elif output_format == 'flac':
+            ffmpeg_cmd.extend(['-codec:a', 'flac'])
+        elif output_format == 'm4a':
+            ffmpeg_cmd.extend(['-codec:a', 'aac', '-b:a', f'{bitrate}k'])
+        elif output_format == 'aiff':
+            ffmpeg_cmd.extend(['-codec:a', 'pcm_s16be'])
+        elif output_format == 'opus':
+            ffmpeg_cmd.extend(['-codec:a', 'libopus', '-b:a', f'{bitrate}k'])
+
+        # Add output path and overwrite flag
+        ffmpeg_cmd.extend(['-y', str(output_path)])
+
+        # Run FFmpeg conversion
+        result = subprocess.run(
+            ffmpeg_cmd,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+
+        if not output_path.exists():
+            raise Exception("Conversion failed - output file not created")
+
+        logger.info(f"Audio conversion completed: {output_path}")
+
+        # Determine MIME type
+        mime_types = {
+            'mp3': 'audio/mpeg',
+            'wav': 'audio/wav',
+            'ogg': 'audio/ogg',
+            'flac': 'audio/flac',
+            'm4a': 'audio/mp4',
+            'aiff': 'audio/aiff',
+            'opus': 'audio/opus'
+        }
+        mime_type = mime_types.get(output_format, 'audio/mpeg')
+
+        # Send converted file and clean up
+        response = send_file(
+            str(output_path),
+            mimetype=mime_type,
+            as_attachment=True,
+            download_name=output_filename
+        )
+
+        # Clean up temporary files after sending response
+        @response.call_on_close
+        def cleanup():
+            try:
+                shutil.rmtree(temp_dir, ignore_errors=True)
+            except Exception as e:
+                logger.error(f"Cleanup error: {e}")
+
+        return response
+
+    except subprocess.CalledProcessError as e:
+        logger.error(f"FFmpeg conversion error: {e.stderr}")
+        # Clean up on error
+        try:
+            if 'temp_dir' in locals():
+                shutil.rmtree(temp_dir, ignore_errors=True)
+        except:
+            pass
+        return jsonify({'error': f'Conversion failed: {e.stderr}'}), 500
+    except Exception as e:
+        logger.error(f"Audio conversion error: {e}")
         # Clean up on error
         try:
             if 'temp_dir' in locals():
