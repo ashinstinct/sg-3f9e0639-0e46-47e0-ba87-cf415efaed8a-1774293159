@@ -13,13 +13,15 @@ export function Navigation() {
             <span className="font-heading font-bold text-xl">Back2Life.Studio</span>
           </Link>
 
-          <div className="flex items-center gap-4">
-            <Link href="/#tools">
+          <div className="flex items-center gap-3">
+            <Link href="/#tools" className="hidden sm:block">
               <Button variant="ghost">Tools</Button>
             </Link>
-            <Button variant="ghost">Pricing</Button>
-            <ThemeSwitch />
-            <Button className="bg-gradient-to-r from-brand-indigo to-brand-purple hover:opacity-90">
+            <Button variant="ghost" className="hidden sm:block">Pricing</Button>
+            <div className="flex items-center">
+              <ThemeSwitch />
+            </div>
+            <Button className="hidden sm:inline-flex bg-gradient-to-r from-brand-indigo to-brand-purple hover:opacity-90">
               Get Started
             </Button>
           </div>
