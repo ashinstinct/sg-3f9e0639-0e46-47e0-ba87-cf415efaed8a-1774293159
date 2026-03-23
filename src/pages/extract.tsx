@@ -4,30 +4,16 @@ import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Upload, Scissors, Download, Trash2, Image as ImageIcon, Loader2 } from "lucide-react";
-import JSZip from "jszip";
-import { saveAs } from "file-saver";
-
-interface ExtractedFrame {
-  id: string;
-  blob: Blob;
-  url: string;
-  timestamp: number;
-}
+import { Upload, Download, Trash2, Image as ImageIcon, SkipForward, SkipBack } from "lucide-react";
 
 export default function FrameExtractor() {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string>("");
-  const [frames, setFrames] = useState<ExtractedFrame[]>([]);
-  const [isExtracting, setIsExtracting] = useState(false);
-  const [extractionMode, setExtractionMode] = useState<"interval" | "total">("interval");
-  const [intervalSeconds, setIntervalSeconds] = useState(1);
-  const [totalFrames, setTotalFrames] = useState(10);
-  const [progress, setProgress] = useState(0);
+  const [currentFrame, setCurrentFrame] = useState<string>("");
+  const [currentTime, setCurrentTime] = useState(0);
   const [videoDuration, setVideoDuration] = useState(0);
+  const [selectedFrameType, setSelectedFrameType] = useState<"first" | "last" | "custom" | null>(null);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -39,20 +25,20 @@ export default function FrameExtractor() {
       return;
     }
 
-    // Clean up previous video URL
     if (videoUrl) {
       URL.revokeObjectURL(videoUrl);
     }
-
-    // Clean up previous frames
-    frames.forEach(frame => URL.revokeObjectURL(frame.url));
-    setFrames([]);
+    if (currentFrame) {
+      URL.revokeObjectURL(currentFrame);
+    }
 
     const url = URL.createObjectURL(file);
     setVideoFile(file);
     setVideoUrl(url);
-    setProgress(0);
-  }, [videoUrl, frames]);
+    setCurrentFrame("");
+    setSelectedFrameType(null);
+    setCurrentTime(0);
+  }, [videoUrl, currentFrame]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -66,93 +52,87 @@ export default function FrameExtractor() {
     }
   };
 
-  const extractFrames = async () => {
+  const captureFrame = useCallback((time?: number) => {
     if (!videoRef.current || !canvasRef.current) return;
-
-    setIsExtracting(true);
-    setFrames([]);
-    setProgress(0);
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    const extractedFrames: ExtractedFrame[] = [];
-    const duration = video.duration;
-
-    let timestamps: number[];
-    if (extractionMode === "interval") {
-      timestamps = [];
-      for (let t = 0; t < duration; t += intervalSeconds) {
-        timestamps.push(t);
-      }
-    } else {
-      timestamps = Array.from({ length: totalFrames }, (_, i) => (i * duration) / (totalFrames - 1));
-    }
-
-    for (let i = 0; i < timestamps.length; i++) {
-      const timestamp = timestamps[i];
+    return new Promise<void>((resolve) => {
+      const targetTime = time !== undefined ? time : video.currentTime;
+      video.currentTime = targetTime;
       
-      await new Promise<void>((resolve) => {
-        video.currentTime = timestamp;
-        video.onseeked = () => {
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-          
-          canvas.toBlob((blob) => {
-            if (blob) {
-              const url = URL.createObjectURL(blob);
-              extractedFrames.push({
-                id: `frame-${i}`,
-                blob,
-                url,
-                timestamp,
-              });
-              setFrames([...extractedFrames]);
-              setProgress(((i + 1) / timestamps.length) * 100);
-            }
-            resolve();
-          }, "image/png");
-        };
-      });
-    }
+      video.onseeked = () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        const dataUrl = canvas.toDataURL("image/png");
+        if (currentFrame) {
+          URL.revokeObjectURL(currentFrame);
+        }
+        setCurrentFrame(dataUrl);
+        setCurrentTime(targetTime);
+        resolve();
+      };
+    });
+  }, [currentFrame]);
 
-    setIsExtracting(false);
+  const extractFirstFrame = async () => {
+    setSelectedFrameType("first");
+    await captureFrame(0);
   };
 
-  const downloadFrame = (frame: ExtractedFrame, index: number) => {
+  const extractLastFrame = async () => {
+    setSelectedFrameType("last");
+    if (videoRef.current) {
+      await captureFrame(videoRef.current.duration - 0.1);
+    }
+  };
+
+  const handleSliderChange = async (value: number[]) => {
+    setSelectedFrameType("custom");
+    await captureFrame(value[0]);
+  };
+
+  const downloadFrame = () => {
+    if (!currentFrame) return;
+
     const link = document.createElement("a");
-    link.href = frame.url;
-    link.download = `frame-${index + 1}.png`;
+    link.href = currentFrame;
+    const frameLabel = selectedFrameType === "first" ? "first" : selectedFrameType === "last" ? "last" : `${currentTime.toFixed(2)}s`;
+    link.download = `frame-${frameLabel}-${Date.now()}.png`;
     link.click();
   };
 
-  const downloadAllFrames = async () => {
-    if (frames.length === 0) return;
-
-    const zip = new JSZip();
-    frames.forEach((frame, index) => {
-      zip.file(`frame-${index + 1}.png`, frame.blob);
-    });
-
-    const content = await zip.generateAsync({ type: "blob" });
-    saveAs(content, `frames-${Date.now()}.zip`);
+  const clearVideo = () => {
+    if (videoUrl) {
+      URL.revokeObjectURL(videoUrl);
+    }
+    if (currentFrame) {
+      URL.revokeObjectURL(currentFrame);
+    }
+    setVideoFile(null);
+    setVideoUrl("");
+    setCurrentFrame("");
+    setSelectedFrameType(null);
+    setCurrentTime(0);
+    setVideoDuration(0);
   };
 
-  const clearFrames = () => {
-    frames.forEach(frame => URL.revokeObjectURL(frame.url));
-    setFrames([]);
-    setProgress(0);
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = (seconds % 60).toFixed(2);
+    return `${mins}:${secs.padStart(5, "0")}`;
   };
 
   return (
     <>
       <SEO
         title="Frame Extractor - Back2Life.Studio"
-        description="Extract frames from videos instantly in your browser. No upload required - 100% client-side processing."
+        description="Extract first frame, last frame, or any custom frame from videos instantly in your browser. No upload required."
       />
       <div className="min-h-screen bg-background">
         <Navigation />
@@ -162,7 +142,7 @@ export default function FrameExtractor() {
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500">
-                  <Scissors className="w-6 h-6 text-white" />
+                  <ImageIcon className="w-6 h-6 text-white" />
                 </div>
                 <h1 className="font-heading font-bold text-4xl">Frame Extractor</h1>
                 <Badge variant="secondary" className="bg-green-500/10 text-green-600 border-green-500/20">
@@ -170,7 +150,7 @@ export default function FrameExtractor() {
                 </Badge>
               </div>
               <p className="text-muted-foreground text-lg">
-                Extract frames from videos instantly in your browser. No upload required - 100% client-side processing.
+                Extract first frame, last frame, or pick any custom frame from your video. 100% client-side processing.
               </p>
             </div>
 
@@ -202,7 +182,9 @@ export default function FrameExtractor() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Video Preview</CardTitle>
-                    <CardDescription>{videoFile.name} ({(videoFile.size / 1024 / 1024).toFixed(2)} MB)</CardDescription>
+                    <CardDescription>
+                      {videoFile.name} ({(videoFile.size / 1024 / 1024).toFixed(2)} MB) · Duration: {formatTime(videoDuration)}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <video
@@ -218,80 +200,71 @@ export default function FrameExtractor() {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Extraction Settings</CardTitle>
+                    <CardTitle>Frame Extraction</CardTitle>
+                    <CardDescription>Select which frame to extract from your video</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    <div className="space-y-4">
-                      <div className="flex gap-4">
-                        <Button
-                          variant={extractionMode === "interval" ? "default" : "outline"}
-                          onClick={() => setExtractionMode("interval")}
-                          className="flex-1"
-                        >
-                          Extract by Interval
-                        </Button>
-                        <Button
-                          variant={extractionMode === "total" ? "default" : "outline"}
-                          onClick={() => setExtractionMode("total")}
-                          className="flex-1"
-                        >
-                          Extract Total Frames
-                        </Button>
-                      </div>
-
-                      {extractionMode === "interval" ? (
-                        <div className="space-y-2">
-                          <Label>Extract every {intervalSeconds} second{intervalSeconds !== 1 ? "s" : ""}</Label>
-                          <Slider
-                            value={[intervalSeconds]}
-                            onValueChange={([value]) => setIntervalSeconds(value)}
-                            min={0.5}
-                            max={10}
-                            step={0.5}
-                            className="w-full"
-                          />
-                          <p className="text-sm text-muted-foreground">
-                            ~{Math.ceil(videoDuration / intervalSeconds)} frames will be extracted
-                          </p>
+                    {/* Quick Extract Buttons */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <Button
+                        onClick={extractFirstFrame}
+                        size="lg"
+                        variant={selectedFrameType === "first" ? "default" : "outline"}
+                        className="h-16"
+                      >
+                        <SkipBack className="w-5 h-5 mr-2" />
+                        <div className="text-left">
+                          <div className="font-semibold">First Frame</div>
+                          <div className="text-xs opacity-70">0:00.00</div>
                         </div>
-                      ) : (
-                        <div className="space-y-2">
-                          <Label>Total frames to extract: {totalFrames}</Label>
-                          <Slider
-                            value={[totalFrames]}
-                            onValueChange={([value]) => setTotalFrames(value)}
-                            min={5}
-                            max={100}
-                            step={5}
-                            className="w-full"
-                          />
+                      </Button>
+                      <Button
+                        onClick={extractLastFrame}
+                        size="lg"
+                        variant={selectedFrameType === "last" ? "default" : "outline"}
+                        className="h-16"
+                      >
+                        <div className="text-right flex-1">
+                          <div className="font-semibold">Last Frame</div>
+                          <div className="text-xs opacity-70">{formatTime(videoDuration)}</div>
                         </div>
-                      )}
+                        <SkipForward className="w-5 h-5 ml-2" />
+                      </Button>
                     </div>
 
+                    {/* Custom Frame Slider */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-medium">Pick Custom Frame</label>
+                        <span className="text-sm text-muted-foreground">
+                          {formatTime(currentTime)}
+                        </span>
+                      </div>
+                      <Slider
+                        value={[currentTime]}
+                        onValueChange={handleSliderChange}
+                        min={0}
+                        max={videoDuration}
+                        step={0.1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>0:00.00</span>
+                        <span>{formatTime(videoDuration)}</span>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
                     <div className="flex gap-3">
                       <Button
-                        onClick={extractFrames}
-                        disabled={isExtracting}
-                        className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90"
+                        onClick={downloadFrame}
+                        disabled={!currentFrame}
+                        className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 h-12"
                       >
-                        {isExtracting ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Extracting... {Math.round(progress)}%
-                          </>
-                        ) : (
-                          <>
-                            <Scissors className="w-4 h-4 mr-2" />
-                            Extract Frames
-                          </>
-                        )}
+                        <Download className="w-4 h-4 mr-2" />
+                        Download Frame
                       </Button>
-                      <Button variant="outline" onClick={() => {
-                        setVideoFile(null);
-                        setVideoUrl("");
-                        clearFrames();
-                      }}>
+                      <Button variant="outline" onClick={clearVideo} className="h-12">
                         <Trash2 className="w-4 h-4 mr-2" />
                         Remove Video
                       </Button>
@@ -299,46 +272,30 @@ export default function FrameExtractor() {
                   </CardContent>
                 </Card>
 
-                {frames.length > 0 && (
+                {/* Frame Preview */}
+                {currentFrame && (
                   <Card>
                     <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <CardTitle>Extracted Frames ({frames.length})</CardTitle>
-                          <CardDescription>Click to download individual frames</CardDescription>
-                        </div>
-                        <Button onClick={downloadAllFrames}>
-                          <Download className="w-4 h-4 mr-2" />
-                          Download All (ZIP)
-                        </Button>
-                      </div>
+                      <CardTitle>Extracted Frame Preview</CardTitle>
+                      <CardDescription>
+                        {selectedFrameType === "first" && "First frame of the video"}
+                        {selectedFrameType === "last" && "Last frame of the video"}
+                        {selectedFrameType === "custom" && `Custom frame at ${formatTime(currentTime)}`}
+                      </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                        {frames.map((frame, index) => (
-                          <div
-                            key={frame.id}
-                            className="group relative aspect-video rounded-lg overflow-hidden border border-border hover:border-primary transition-colors cursor-pointer"
-                            onClick={() => downloadFrame(frame, index)}
-                          >
-                            <img
-                              src={frame.url}
-                              alt={`Frame ${index + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <Download className="w-6 h-6 text-white" />
-                            </div>
-                            <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
-                              <Badge variant="secondary" className="text-xs bg-black/80 text-white border-none">
-                                {frame.timestamp.toFixed(1)}s
-                              </Badge>
-                              <Badge variant="secondary" className="text-xs bg-black/80 text-white border-none">
-                                #{index + 1}
-                              </Badge>
-                            </div>
-                          </div>
-                        ))}
+                      <div className="relative rounded-lg overflow-hidden border border-border">
+                        <img
+                          src={currentFrame}
+                          alt="Extracted frame"
+                          className="w-full h-auto"
+                        />
+                        <Badge 
+                          variant="secondary" 
+                          className="absolute top-4 right-4 bg-black/80 text-white border-none"
+                        >
+                          {formatTime(currentTime)}
+                        </Badge>
                       </div>
                     </CardContent>
                   </Card>
