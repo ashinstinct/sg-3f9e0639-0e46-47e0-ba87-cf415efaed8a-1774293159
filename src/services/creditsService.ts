@@ -55,7 +55,7 @@ export const creditsService = {
         user_id: userId,
         tool_name: tool,
         credits_used: amount,
-        tier: "free",
+        tool_type: "free",
       });
 
       return true;
