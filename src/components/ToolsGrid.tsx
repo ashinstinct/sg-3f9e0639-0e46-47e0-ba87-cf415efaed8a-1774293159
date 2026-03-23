@@ -10,21 +10,19 @@ import Link from "next/link";
 const tools = [
   {
     title: "Frame Extractor",
-    description: "Extract frames from videos instantly in your browser",
-    icon: Scissors,
+    description: "Extract frames from videos at custom intervals",
+    icon: Film,
     href: "/extract",
-    category: "Video",
-    free: true,
-    color: "from-purple-500 to-pink-500",
+    gradient: "from-purple-500 to-pink-500",
+    badge: "Free",
   },
   {
     title: "Video Downloader",
-    description: "Download videos from YouTube and other platforms",
+    description: "Download videos from YouTube, TikTok, and 50+ platforms",
     icon: Download,
     href: "/download",
-    category: "Video",
-    free: true,
-    color: "from-blue-500 to-cyan-500",
+    gradient: "from-blue-500 to-cyan-500",
+    badge: "Free",
   },
   {
     title: "Video Splitter",
