@@ -149,18 +149,24 @@ const tools = [
   },
 ];
 
-export function ToolsGrid() {
+interface ToolsGridProps {
+  showAuthenticatedView?: boolean;
+}
+
+export function ToolsGrid({ showAuthenticatedView = false }: ToolsGridProps) {
   return (
-    <section id="tools" className="py-20 bg-surface-tint">
+    <section id="tools" className={showAuthenticatedView ? "py-2" : "py-20 bg-surface-tint"}>
       <div className="container mx-auto px-4">
-        <div className="max-w-3xl mx-auto text-center mb-12">
-          <h2 className="font-heading font-bold text-4xl md:text-5xl mb-4">
-            All Tools in One Place
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            Professional media tools that work in your browser or powered by cutting-edge AI
-          </p>
-        </div>
+        {!showAuthenticatedView && (
+          <div className="max-w-3xl mx-auto text-center mb-12">
+            <h2 className="font-heading font-bold text-4xl md:text-5xl mb-4">
+              All Tools in One Place
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Professional media tools that work in your browser or powered by cutting-edge AI
+            </p>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
           {tools.map((tool) => {
