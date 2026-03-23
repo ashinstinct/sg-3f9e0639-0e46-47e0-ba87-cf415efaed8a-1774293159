@@ -52,12 +52,15 @@ export const authService = {
   },
 
   // Sign up with email and password
-  async signUp(email: string, password: string): Promise<{ user: AuthUser | null; error: AuthError | null }> {
+  async signUp(email: string, password: string, fullName?: string): Promise<{ user: AuthUser | null; error: AuthError | null }> {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          data: {
+            full_name: fullName || "",
+          },
           emailRedirectTo: `${getURL()}auth/confirm-email`
         }
       });
@@ -106,6 +109,54 @@ export const authService = {
       return { 
         user: null, 
         error: { message: "An unexpected error occurred during sign in" } 
+      };
+    }
+  },
+
+  // Sign in with Google OAuth
+  async signInWithGoogle(): Promise<{ error: AuthError | null }> {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${getURL()}dashboard`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
+        }
+      });
+
+      if (error) {
+        return { error: { message: error.message } };
+      }
+
+      return { error: null };
+    } catch (error) {
+      return { 
+        error: { message: "An unexpected error occurred during Google sign in" } 
+      };
+    }
+  },
+
+  // Sign in with Facebook OAuth
+  async signInWithFacebook(): Promise<{ error: AuthError | null }> {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'facebook',
+        options: {
+          redirectTo: `${getURL()}dashboard`,
+        }
+      });
+
+      if (error) {
+        return { error: { message: error.message } };
+      }
+
+      return { error: null };
+    } catch (error) {
+      return { 
+        error: { message: "An unexpected error occurred during Facebook sign in" } 
       };
     }
   },
