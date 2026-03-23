@@ -84,6 +84,8 @@ export default function StemSeparator() {
     setProgress(0);
     setError("");
 
+    let progressInterval: NodeJS.Timeout;
+
     try {
       // Check backend health first
       const isHealthy = await checkBackendHealth();
@@ -92,7 +94,7 @@ export default function StemSeparator() {
       }
 
       // Simulate progress while processing
-      const progressInterval = setInterval(() => {
+      progressInterval = setInterval(() => {
         setProgress(prev => {
           if (prev >= 90) {
             clearInterval(progressInterval);
@@ -147,7 +149,7 @@ export default function StemSeparator() {
       setStems(stems.map(stem => ({ ...stem, url: "available" })));
       
     } catch (err) {
-      clearInterval(progressInterval);
+      if (progressInterval) clearInterval(progressInterval);
       const errorMessage = err instanceof Error ? err.message : "Separation failed";
       setError(errorMessage);
       toast({

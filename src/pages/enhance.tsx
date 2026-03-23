@@ -75,6 +75,8 @@ export default function AudioEnhancer() {
     setProgress(0);
     setError("");
 
+    let progressInterval: NodeJS.Timeout;
+
     try {
       // Check backend health first
       const isHealthy = await checkBackendHealth();
@@ -83,7 +85,7 @@ export default function AudioEnhancer() {
       }
 
       // Simulate progress while processing
-      const progressInterval = setInterval(() => {
+      progressInterval = setInterval(() => {
         setProgress(prev => {
           if (prev >= 90) {
             clearInterval(progressInterval);
@@ -123,6 +125,7 @@ export default function AudioEnhancer() {
       });
       
     } catch (err) {
+      if (progressInterval) clearInterval(progressInterval);
       const errorMessage = err instanceof Error ? err.message : "Enhancement failed";
       setError(errorMessage);
       toast({
