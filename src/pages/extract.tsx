@@ -88,7 +88,7 @@ export default function FrameExtractor() {
   const extractLastFrame = async () => {
     setSelectedFrameType("last");
     if (videoRef.current) {
-      await captureFrame(videoRef.current.duration - 0.1);
+      await captureFrame(videoRef.current.duration);
     }
   };
 
