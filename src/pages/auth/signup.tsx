@@ -31,10 +31,11 @@ export default function Signup() {
 
       toast({
         title: "Account created!",
-        description: "Welcome to Back2Life.Studio. You've received 100 free credits!",
+        description: "Please check your email to verify your account.",
       });
 
-      router.push("/dashboard");
+      // Redirect to verify email page with email in query
+      router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`);
     } catch (error: any) {
       toast({
         title: "Signup failed",

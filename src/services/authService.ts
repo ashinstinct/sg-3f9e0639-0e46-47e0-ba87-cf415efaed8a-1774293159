@@ -6,6 +6,7 @@ export interface AuthUser {
   email: string;
   user_metadata?: any;
   created_at?: string;
+  email_confirmed_at?: string;
 }
 
 export interface AuthError {
@@ -73,7 +74,8 @@ export const authService = {
         id: data.user.id,
         email: data.user.email || "",
         user_metadata: data.user.user_metadata,
-        created_at: data.user.created_at
+        created_at: data.user.created_at,
+        email_confirmed_at: data.user.email_confirmed_at
       } : null;
 
       return { user: authUser, error: null };
@@ -240,6 +242,29 @@ export const authService = {
       return { 
         user: null, 
         error: { message: "An unexpected error occurred during email confirmation" } 
+      };
+    }
+  },
+
+  // Resend verification email
+  async resendVerificationEmail(email: string): Promise<{ error: AuthError | null }> {
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: `${getURL()}auth/confirm-email`
+        }
+      });
+
+      if (error) {
+        return { error: { message: error.message } };
+      }
+
+      return { error: null };
+    } catch (error) {
+      return { 
+        error: { message: "An unexpected error occurred while resending verification email" } 
       };
     }
   },
