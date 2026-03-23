@@ -4,25 +4,35 @@ import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, Scissors, Download, Loader2, PlayCircle, FileVideo } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Upload, Video, Download, Loader2, Scissors, Plus, Trash2, CheckCircle2, AlertCircle } from "lucide-react";
 
-type SplitMode = "segments" | "duration";
+interface TimeSegment {
+  id: string;
+  start: string;
+  end: string;
+}
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL || "http://localhost:5000";
 
 export default function VideoSplitter() {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [videoDuration, setVideoDuration] = useState<number>(0);
-  const [splitMode, setSplitMode] = useState<SplitMode>("segments");
-  const [segmentCount, setSegmentCount] = useState<number>(3);
-  const [segmentDuration, setSegmentDuration] = useState<number>(30);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [segments, setSegments] = useState<Array<{ start: number; end: number; duration: number }>>([]);
+  const [segments, setSegments] = useState<TimeSegment[]>([
+    { id: "1", start: "00:00:00", end: "00:00:30" }
+  ]);
+  const [isSplitting, setIsSplitting] = useState(false);
+  const [progress, setProgress] = useState<number>(0);
+  const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
+  const [downloadUrl, setDownloadUrl] = useState<string>("");
   
-  const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -30,7 +40,12 @@ export default function VideoSplitter() {
       setVideoFile(file);
       const url = URL.createObjectURL(file);
       setVideoUrl(url);
-      setSegments([]);
+      setDownloadUrl("");
+      setError("");
+      setSuccess("");
+      setProgress(0);
+    } else {
+      setError("Please select a valid video file");
     }
   };
 
@@ -40,58 +55,143 @@ export default function VideoSplitter() {
     }
   };
 
-  const calculateSegments = () => {
-    if (videoDuration === 0) return;
+  const formatTime = (seconds: number): string => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${hrs.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
 
-    const newSegments: Array<{ start: number; end: number; duration: number }> = [];
+  const parseTime = (timeStr: string): number => {
+    const parts = timeStr.split(":").map(Number);
+    if (parts.length === 3) {
+      return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    }
+    return 0;
+  };
 
-    if (splitMode === "segments") {
-      const segDuration = videoDuration / segmentCount;
-      for (let i = 0; i < segmentCount; i++) {
-        const start = i * segDuration;
-        const end = Math.min((i + 1) * segDuration, videoDuration);
-        newSegments.push({
-          start,
-          end,
-          duration: end - start
-        });
+  const addSegment = () => {
+    const lastSegment = segments[segments.length - 1];
+    const lastEndTime = parseTime(lastSegment.end);
+    const newStartTime = formatTime(lastEndTime);
+    const newEndTime = formatTime(Math.min(lastEndTime + 30, videoDuration));
+    
+    setSegments([
+      ...segments,
+      {
+        id: Date.now().toString(),
+        start: newStartTime,
+        end: newEndTime
       }
-    } else {
-      let currentTime = 0;
-      while (currentTime < videoDuration) {
-        const end = Math.min(currentTime + segmentDuration, videoDuration);
-        newSegments.push({
-          start: currentTime,
-          end,
-          duration: end - currentTime
-        });
-        currentTime = end;
+    ]);
+  };
+
+  const removeSegment = (id: string) => {
+    if (segments.length > 1) {
+      setSegments(segments.filter(seg => seg.id !== id));
+    }
+  };
+
+  const updateSegment = (id: string, field: "start" | "end", value: string) => {
+    setSegments(segments.map(seg => 
+      seg.id === id ? { ...seg, [field]: value } : seg
+    ));
+  };
+
+  const validateSegments = (): boolean => {
+    for (const segment of segments) {
+      const start = parseTime(segment.start);
+      const end = parseTime(segment.end);
+      
+      if (start >= end) {
+        setError("Start time must be before end time for all segments");
+        return false;
+      }
+      
+      if (end > videoDuration) {
+        setError("End time cannot exceed video duration");
+        return false;
       }
     }
-
-    setSegments(newSegments);
+    return true;
   };
 
   const handleSplit = async () => {
-    if (!videoFile) return;
+    if (!videoFile) {
+      setError("Please select a video file first");
+      return;
+    }
 
-    setIsProcessing(true);
-    
-    // This would call your FFmpeg API endpoint
-    // For now, we'll show the preview of what segments would be created
-    calculateSegments();
-    
-    // Simulate processing delay
-    setTimeout(() => {
-      setIsProcessing(false);
-      alert("Video splitting requires server-side FFmpeg processing. This feature will be implemented when you set up the backend API.");
-    }, 2000);
+    if (!validateSegments()) {
+      return;
+    }
+
+    setIsSplitting(true);
+    setError("");
+    setSuccess("");
+    setProgress(10);
+    setDownloadUrl("");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", videoFile);
+      formData.append("segments", JSON.stringify(segments.map(seg => ({
+        start: seg.start,
+        end: seg.end
+      }))));
+
+      setProgress(30);
+
+      const response = await fetch(`${BACKEND_URL}/api/split-video`, {
+        method: "POST",
+        body: formData,
+      });
+
+      setProgress(60);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Video splitting failed");
+      }
+
+      setProgress(80);
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setDownloadUrl(url);
+      setProgress(100);
+      setSuccess(`Successfully split video into ${segments.length} segments!`);
+    } catch (err) {
+      console.error("Split error:", err);
+      setError(err instanceof Error ? err.message : "Failed to split video. Please try again.");
+      setProgress(0);
+    } finally {
+      setIsSplitting(false);
+    }
   };
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  const handleDownload = () => {
+    if (!downloadUrl || !videoFile) return;
+
+    const a = document.createElement("a");
+    a.href = downloadUrl;
+    a.download = `${videoFile.name.split(".")[0]}_segments.zip`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const handleReset = () => {
+    setVideoFile(null);
+    setVideoUrl("");
+    setDownloadUrl("");
+    setProgress(0);
+    setError("");
+    setSuccess("");
+    setSegments([{ id: "1", start: "00:00:00", end: "00:00:30" }]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const formatFileSize = (bytes: number) => {
@@ -106,13 +206,13 @@ export default function VideoSplitter() {
     <>
       <SEO
         title="Video Splitter - Back2Life.Studio"
-        description="Split videos into multiple segments by count or duration. Perfect for social media content creation."
+        description="Split videos into multiple segments with precise time controls using FFmpeg."
       />
       <div className="min-h-screen bg-background">
         <Navigation />
         
         <div className="container mx-auto px-4 pt-24 pb-12">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-4xl mx-auto">
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 rounded-lg bg-gradient-to-r from-orange-500 to-red-500">
@@ -124,13 +224,27 @@ export default function VideoSplitter() {
                 </Badge>
               </div>
               <p className="text-muted-foreground text-lg">
-                Split videos into multiple segments by count or duration. Perfect for social media content.
+                Split videos into multiple segments with precise time controls.
               </p>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-6">
-              {/* Left Column - Upload & Settings */}
-              <div className="space-y-6">
+            {error && (
+              <Alert variant="destructive" className="mb-6">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            {success && (
+              <Alert className="mb-6 border-green-500/50 bg-green-500/10">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-600">{success}</AlertDescription>
+              </Alert>
+            )}
+
+            <div className="grid lg:grid-cols-5 gap-6">
+              {/* Left Column - Upload & Segments */}
+              <div className="lg:col-span-3 space-y-6">
                 <Card>
                   <CardHeader>
                     <CardTitle>Upload Video</CardTitle>
@@ -148,7 +262,7 @@ export default function VideoSplitter() {
                         Click to upload or drag and drop
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        MP4, WebM, MOV (max 500MB)
+                        MP4, WebM, AVI, MOV, MKV (Max 100MB)
                       </p>
                       <input
                         ref={fileInputRef}
@@ -161,7 +275,7 @@ export default function VideoSplitter() {
 
                     {videoFile && (
                       <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                        <FileVideo className="w-8 h-8 text-primary" />
+                        <Video className="w-8 h-8 text-primary" />
                         <div className="flex-1 min-w-0">
                           <p className="font-medium truncate">{videoFile.name}</p>
                           <p className="text-sm text-muted-foreground">
@@ -170,102 +284,97 @@ export default function VideoSplitter() {
                         </div>
                       </div>
                     )}
+
+                    {videoUrl && (
+                      <video
+                        ref={videoRef}
+                        src={videoUrl}
+                        controls
+                        onLoadedMetadata={handleVideoLoad}
+                        className="w-full rounded-lg"
+                      />
+                    )}
                   </CardContent>
                 </Card>
 
                 {videoFile && (
                   <Card>
                     <CardHeader>
-                      <CardTitle>Split Settings</CardTitle>
-                      <CardDescription>
-                        Choose how to split your video
-                      </CardDescription>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle>Time Segments</CardTitle>
+                          <CardDescription>
+                            Define where to split the video (HH:MM:SS format)
+                          </CardDescription>
+                        </div>
+                        <Button onClick={addSegment} size="sm" variant="outline">
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Segment
+                        </Button>
+                      </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <Tabs value={splitMode} onValueChange={(v) => setSplitMode(v as SplitMode)}>
-                        <TabsList className="grid w-full grid-cols-2">
-                          <TabsTrigger value="segments">By Segments</TabsTrigger>
-                          <TabsTrigger value="duration">By Duration</TabsTrigger>
-                        </TabsList>
-                        
-                        <TabsContent value="segments" className="space-y-4 mt-4">
-                          <div className="space-y-2">
-                            <Label>Number of Segments</Label>
-                            <div className="flex gap-2">
-                              {[2, 3, 4, 5].map((count) => (
-                                <Button
-                                  key={count}
-                                  variant={segmentCount === count ? "default" : "outline"}
-                                  size="sm"
-                                  onClick={() => setSegmentCount(count)}
-                                  className="flex-1"
-                                >
-                                  {count}
-                                </Button>
-                              ))}
+                      {segments.map((segment, index) => (
+                        <div key={segment.id} className="flex items-end gap-3 p-4 bg-muted/50 rounded-lg">
+                          <div className="flex-1 grid grid-cols-2 gap-3">
+                            <div className="space-y-2">
+                              <Label className="text-xs">Start Time</Label>
+                              <Input
+                                value={segment.start}
+                                onChange={(e) => updateSegment(segment.id, "start", e.target.value)}
+                                placeholder="00:00:00"
+                                className="font-mono"
+                              />
                             </div>
-                            <Input
-                              type="number"
-                              min="2"
-                              max="20"
-                              value={segmentCount}
-                              onChange={(e) => setSegmentCount(parseInt(e.target.value) || 2)}
-                              placeholder="Custom count"
-                            />
-                            <p className="text-sm text-muted-foreground">
-                              Each segment will be ~{formatTime(videoDuration / segmentCount)} long
-                            </p>
+                            <div className="space-y-2">
+                              <Label className="text-xs">End Time</Label>
+                              <Input
+                                value={segment.end}
+                                onChange={(e) => updateSegment(segment.id, "end", e.target.value)}
+                                placeholder="00:00:30"
+                                className="font-mono"
+                              />
+                            </div>
                           </div>
-                        </TabsContent>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="whitespace-nowrap">
+                              Segment {index + 1}
+                            </Badge>
+                            {segments.length > 1 && (
+                              <Button
+                                onClick={() => removeSegment(segment.id)}
+                                size="icon"
+                                variant="ghost"
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
 
-                        <TabsContent value="duration" className="space-y-4 mt-4">
-                          <div className="space-y-2">
-                            <Label>Segment Duration (seconds)</Label>
-                            <div className="flex gap-2">
-                              {[15, 30, 60, 120].map((duration) => (
-                                <Button
-                                  key={duration}
-                                  variant={segmentDuration === duration ? "default" : "outline"}
-                                  size="sm"
-                                  onClick={() => setSegmentDuration(duration)}
-                                  className="flex-1"
-                                >
-                                  {duration}s
-                                </Button>
-                              ))}
-                            </div>
-                            <Input
-                              type="number"
-                              min="5"
-                              max="600"
-                              value={segmentDuration}
-                              onChange={(e) => setSegmentDuration(parseInt(e.target.value) || 30)}
-                              placeholder="Custom duration"
-                            />
-                            <p className="text-sm text-muted-foreground">
-                              Will create ~{Math.ceil(videoDuration / segmentDuration)} segments
-                            </p>
+                      {isSplitting && (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Splitting video...</span>
+                            <span className="font-medium">{progress}%</span>
                           </div>
-                        </TabsContent>
-                      </Tabs>
+                          <Progress value={progress} className="h-2" />
+                        </div>
+                      )}
 
                       <div className="flex gap-3">
                         <Button
-                          onClick={calculateSegments}
-                          variant="outline"
-                          className="flex-1"
-                        >
-                          Preview Segments
-                        </Button>
-                        <Button
                           onClick={handleSplit}
-                          disabled={isProcessing}
+                          disabled={isSplitting || !videoFile}
                           className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:opacity-90"
+                          size="lg"
                         >
-                          {isProcessing ? (
+                          {isSplitting ? (
                             <>
                               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Processing...
+                              Splitting...
                             </>
                           ) : (
                             <>
@@ -274,102 +383,90 @@ export default function VideoSplitter() {
                             </>
                           )}
                         </Button>
+
+                        {videoFile && !isSplitting && (
+                          <Button
+                            onClick={handleReset}
+                            variant="outline"
+                            size="lg"
+                          >
+                            Reset
+                          </Button>
+                        )}
                       </div>
+
+                      {downloadUrl && (
+                        <Button
+                          onClick={handleDownload}
+                          variant="outline"
+                          className="w-full border-green-500/50 bg-green-500/10 hover:bg-green-500/20 text-green-600"
+                          size="lg"
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          Download All Segments (ZIP)
+                        </Button>
+                      )}
                     </CardContent>
                   </Card>
                 )}
               </div>
 
-              {/* Right Column - Preview & Results */}
-              <div className="space-y-6">
-                {videoUrl && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Video Preview</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <video
-                        ref={videoRef}
-                        src={videoUrl}
-                        controls
-                        onLoadedMetadata={handleVideoLoad}
-                        className="w-full rounded-lg"
-                      />
-                    </CardContent>
-                  </Card>
-                )}
+              {/* Right Column - Info */}
+              <div className="lg:col-span-2">
+                <Card className="sticky top-24">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Split Info</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                        <span className="text-sm text-muted-foreground">Segments</span>
+                        <Badge className="bg-gradient-to-r from-orange-500 to-red-500">
+                          {segments.length}
+                        </Badge>
+                      </div>
+                      {videoDuration > 0 && (
+                        <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                          <span className="text-sm text-muted-foreground">Duration</span>
+                          <Badge variant="outline">{formatTime(videoDuration)}</Badge>
+                        </div>
+                      )}
+                    </div>
 
-                {segments.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Segment Preview</CardTitle>
-                      <CardDescription>
-                        {segments.length} segments will be created
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2 max-h-[400px] overflow-y-auto">
-                        {segments.map((segment, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                                <span className="text-sm font-semibold text-primary">
-                                  {index + 1}
-                                </span>
-                              </div>
-                              <div>
-                                <p className="font-medium text-sm">
-                                  Segment {index + 1}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  {formatTime(segment.start)} → {formatTime(segment.end)}
-                                </p>
-                              </div>
-                            </div>
-                            <Badge variant="secondary">
-                              {formatTime(segment.duration)}
-                            </Badge>
-                          </div>
+                    <div className="pt-4 border-t space-y-2">
+                      <p className="text-sm font-medium">Supported Formats:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {["MP4", "WebM", "AVI", "MOV", "MKV"].map((format) => (
+                          <Badge key={format} variant="outline" className="text-xs">
+                            {format}
+                          </Badge>
                         ))}
                       </div>
-                    </CardContent>
-                  </Card>
-                )}
+                    </div>
 
-                {!videoFile && (
-                  <Card className="border-dashed">
-                    <CardContent className="flex flex-col items-center justify-center py-16">
-                      <Scissors className="w-16 h-16 text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground text-center">
-                        Upload a video to get started
-                      </p>
-                    </CardContent>
-                  </Card>
-                )}
+                    <div className="pt-4 border-t space-y-2">
+                      <p className="text-sm font-medium">Features:</p>
+                      <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+                        <li>Precise time control (HH:MM:SS)</li>
+                        <li>Multiple segments support</li>
+                        <li>No quality loss</li>
+                        <li>Fast processing with FFmpeg</li>
+                        <li>ZIP download for convenience</li>
+                        <li>Up to 100MB file size</li>
+                      </ul>
+                    </div>
+
+                    {videoFile && (
+                      <div className="pt-4 border-t">
+                        <p className="text-xs text-muted-foreground">
+                          <strong>Backend:</strong> Flask + FFmpeg processing
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               </div>
             </div>
-
-            {/* Info Card */}
-            <Card className="mt-6 bg-muted/50">
-              <CardContent className="pt-6">
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">How it works:</p>
-                  <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                    <li>Upload your video file (MP4, WebM, MOV)</li>
-                    <li>Choose to split by number of segments or duration</li>
-                    <li>Preview the segments before processing</li>
-                    <li>Download all segments as a ZIP file</li>
-                    <li>Each segment maintains original quality</li>
-                  </ul>
-                  <p className="text-xs text-muted-foreground mt-4">
-                    Note: This tool requires FFmpeg backend processing. Contact support to enable this feature.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>
