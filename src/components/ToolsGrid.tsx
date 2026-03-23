@@ -144,8 +144,10 @@ const tools = [
     description: "Reverse engineer images into text prompts or JSON metadata",
     icon: ImageIcon,
     href: "/image-to-prompt",
-    gradient: "from-indigo-500 to-purple-500",
-    badge: "Free",
+    category: "AI",
+    free: true,
+    pro: true,
+    color: "from-indigo-500 to-purple-500",
   },
 ];
 
