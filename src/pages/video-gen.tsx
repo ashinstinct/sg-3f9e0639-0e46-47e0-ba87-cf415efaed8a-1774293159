@@ -10,7 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Upload, Sparkles, Download, Play, Film, Wand2 } from "lucide-react";
+import { Upload, Sparkles, Download, Play, Film, Wand2, Loader2 } from "lucide-react";
+
+const HUGGINGFACE_TOKEN = process.env.NEXT_PUBLIC_HF_TOKEN || "";
+const OPENAI_API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY || "";
 
 interface VideoGeneration {
   id: string;
@@ -25,16 +28,75 @@ interface VideoGeneration {
 }
 
 export default function VideoGenerator() {
-  const [prompt, setPrompt] = useState("");
+  const [prompt, setPrompt] = useState<string>("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [model, setModel] = useState("sdk");
   const [duration, setDuration] = useState("5");
   const [style, setStyle] = useState("realistic");
   const [generations, setGenerations] = useState<VideoGeneration[]>([]);
   const [processing, setProcessing] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handleEnhancePrompt = async () => {
+    if (!prompt.trim()) {
+      setError("Please enter a prompt first");
+      return;
+    }
+
+    if (!OPENAI_API_KEY) {
+      setError("OpenAI API key not configured. Add NEXT_PUBLIC_OPENAI_API_KEY to your .env.local file");
+      return;
+    }
+
+    setIsEnhancing(true);
+    setError("");
+
+    try {
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            {
+              role: "system",
+              content: "You are an expert AI video prompt engineer. Enhance the user's prompt to create stunning, cinematic videos. Add camera movements, scene descriptions, mood, lighting, and quality modifiers. Keep it concise but vivid. Return ONLY the enhanced prompt, no explanations."
+            },
+            {
+              role: "user",
+              content: prompt
+            }
+          ],
+          max_tokens: 200,
+          temperature: 0.8,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to enhance prompt");
+      }
+
+      const data = await response.json();
+      const enhancedPrompt = data.choices[0]?.message?.content || prompt;
+      setPrompt(enhancedPrompt);
+      setSuccess("Prompt enhanced successfully!");
+      
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      console.error("Enhance error:", err);
+      setError("Failed to enhance prompt. Please try again.");
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
 
   const models = [
     { value: "sdk", label: "SDK (Free)", tier: "free", description: "Fast, good quality" },
@@ -177,20 +239,33 @@ export default function VideoGenerator() {
                     
                     <TabsContent value="text" className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="prompt">Video Description</Label>
+                        <Label>Video Prompt</Label>
                         <Textarea
-                          id="prompt"
-                          placeholder="Describe the video you want to generate... (e.g., 'A serene mountain landscape at sunrise with flowing clouds')"
+                          placeholder="Describe the video you want to generate..."
                           value={prompt}
                           onChange={(e) => setPrompt(e.target.value)}
-                          className="min-h-32 resize-none"
-                          maxLength={500}
+                          className="min-h-[120px] resize-none"
                         />
-                        <div className="flex justify-between text-sm text-muted-foreground">
-                          <span>{prompt.length} / 500 characters</span>
-                          {prompt.length > 0 && prompt.length < 10 && (
-                            <span className="text-destructive">Minimum 10 characters</span>
-                          )}
+                        <p className="text-xs text-muted-foreground">
+                          {prompt.length} characters
+                        </p>
+                        <div className="flex justify-between items-center">
+                          <p className="text-xs text-muted-foreground">
+                            {prompt.length} characters
+                          </p>
+                          <Button
+                            onClick={handleEnhancePrompt}
+                            disabled={isEnhancing || !prompt.trim()}
+                            variant="outline"
+                            size="sm"
+                            className="gap-2"
+                          >
+                            {isEnhancing ? (
+                              <><Loader2 className="w-3 h-3 animate-spin" /> Enhancing...</>
+                            ) : (
+                              <><Wand2 className="w-3 h-3" /> Enhance Prompt</>
+                            )}
+                          </Button>
                         </div>
                       </div>
                     </TabsContent>

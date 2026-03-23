@@ -3,361 +3,416 @@ import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, Mic, Play, Pause, Download, Sparkles } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Upload, Mic, Download, Loader2, Sparkles, CheckCircle2, AlertCircle, Wand2 } from "lucide-react";
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL || "http://localhost:5000";
+const OPENAI_API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY || "";
 
 export default function VoiceCloner() {
-  const [voiceSample, setVoiceSample] = useState<File | null>(null);
-  const [text, setText] = useState("");
-  const [processing, setProcessing] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [clonedAudioUrl, setClonedAudioUrl] = useState<string | null>(null);
-  const [error, setError] = useState("");
-  const [playingSample, setPlayingSample] = useState(false);
-  const [playingCloned, setPlayingCloned] = useState(false);
+  const [referenceFile, setReferenceFile] = useState<File | null>(null);
+  const [referenceUrl, setReferenceUrl] = useState<string>("");
+  const [text, setText] = useState<string>("");
+  
+  const [isCloning, setIsCloning] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
+  const [progress, setProgress] = useState<number>(0);
+  const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
+  
+  const [clonedAudioUrl, setClonedAudioUrl] = useState<string>("");
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const sampleAudioRef = useRef<HTMLAudioElement>(null);
-  const clonedAudioRef = useRef<HTMLAudioElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      if (!selectedFile.type.startsWith("audio/")) {
-        setError("Please select an audio file");
-        return;
-      }
-      
-      // Check duration (should be 5-60 seconds for best results)
-      const audio = new Audio(URL.createObjectURL(selectedFile));
-      audio.onloadedmetadata = () => {
-        if (audio.duration < 5) {
-          setError("Voice sample should be at least 5 seconds long");
-          return;
-        }
-        if (audio.duration > 120) {
-          setError("Voice sample should be under 2 minutes for best results");
-          return;
-        }
-        setVoiceSample(selectedFile);
-        setError("");
-        setClonedAudioUrl(null);
-      };
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith("audio/")) {
+      setReferenceFile(file);
+      const url = URL.createObjectURL(file);
+      setReferenceUrl(url);
+      setError("");
+      setSuccess("");
+      setClonedAudioUrl("");
+    } else {
+      setError("Please select a valid audio file");
     }
   };
 
-  const processCloning = async () => {
-    if (!voiceSample || !text.trim()) {
-      setError("Please upload a voice sample and enter text to clone");
+  const handleEnhancePrompt = async () => {
+    if (!text.trim()) {
+      setError("Please enter some text first");
       return;
     }
 
-    if (text.length < 10) {
-      setError("Text should be at least 10 characters long");
+    if (!OPENAI_API_KEY) {
+      setError("OpenAI API key not configured. Add NEXT_PUBLIC_OPENAI_API_KEY to your .env.local file");
       return;
     }
 
-    setProcessing(true);
-    setProgress(0);
+    setIsEnhancing(true);
     setError("");
 
     try {
-      // Simulate processing progress
-      const progressInterval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 95) {
-            clearInterval(progressInterval);
-            return prev;
-          }
-          return prev + 5;
-        });
-      }, 500);
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            {
+              role: "system",
+              content: "You are a voice cloning script writer. Enhance the user's text to make it more natural, expressive, and suitable for voice synthesis. Keep the core message but improve flow, emotion, and clarity. Return ONLY the enhanced text, no explanations."
+            },
+            {
+              role: "user",
+              content: text
+            }
+          ],
+          max_tokens: 500,
+          temperature: 0.7,
+        }),
+      });
 
-      // TODO: Implement E2-F5-TTS API call via Hugging Face Gradio
-      // For now, show mock processing
-      await new Promise(resolve => setTimeout(resolve, 10000));
+      if (!response.ok) {
+        throw new Error("Failed to enhance text");
+      }
+
+      const data = await response.json();
+      const enhancedText = data.choices[0]?.message?.content || text;
+      setText(enhancedText);
+      setSuccess("Text enhanced successfully!");
       
-      clearInterval(progressInterval);
-      setProgress(100);
-      
-      // Mock result - in production, this would be the cloned voice audio
-      setError("Backend API not yet configured. Free version requires E2-F5-TTS hosted on Hugging Face Space (Gradio REST API). Pro version will use Fish Audio API. The UI is ready - just needs the processing endpoint.");
-      
+      setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Voice cloning failed");
+      console.error("Enhance error:", err);
+      setError("Failed to enhance text. Please try again.");
     } finally {
-      setProcessing(false);
+      setIsEnhancing(false);
     }
   };
 
-  const toggleSamplePlay = () => {
-    const audio = sampleAudioRef.current;
-    if (!audio) return;
-    
-    if (playingSample) {
-      audio.pause();
-    } else {
-      audio.play();
-      if (clonedAudioRef.current) {
-        clonedAudioRef.current.pause();
-        setPlayingCloned(false);
+  const handleClone = async () => {
+    if (!referenceFile) {
+      setError("Please upload a reference audio file first");
+      return;
+    }
+
+    if (!text.trim()) {
+      setError("Please enter the text you want to speak");
+      return;
+    }
+
+    setIsCloning(true);
+    setError("");
+    setSuccess("");
+    setProgress(10);
+    setClonedAudioUrl("");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", referenceFile);
+      formData.append("text", text);
+
+      setProgress(30);
+
+      const response = await fetch(`${BACKEND_URL}/api/clone-voice`, {
+        method: "POST",
+        body: formData,
+      });
+
+      setProgress(60);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Voice cloning failed");
       }
+
+      setProgress(80);
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setClonedAudioUrl(url);
+
+      setProgress(100);
+      setSuccess("Voice cloned successfully! You can now download or play the audio.");
+    } catch (err) {
+      console.error("Clone error:", err);
+      setError(err instanceof Error ? err.message : "Failed to clone voice. Please try again.");
+      setProgress(0);
+    } finally {
+      setIsCloning(false);
     }
-    setPlayingSample(!playingSample);
   };
 
-  const toggleClonedPlay = () => {
-    const audio = clonedAudioRef.current;
-    if (!audio) return;
-    
-    if (playingCloned) {
-      audio.pause();
-    } else {
-      audio.play();
-      if (sampleAudioRef.current) {
-        sampleAudioRef.current.pause();
-        setPlayingSample(false);
-      }
-    }
-    setPlayingCloned(!playingCloned);
-  };
-
-  const downloadCloned = () => {
-    if (!clonedAudioUrl) return;
+  const handleDownload = () => {
+    if (!clonedAudioUrl || !referenceFile) return;
     const a = document.createElement("a");
     a.href = clonedAudioUrl;
-    a.download = "cloned_voice.wav";
+    a.download = `${referenceFile.name.split(".")[0]}_cloned.wav`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
+  };
+
+  const handleReset = () => {
+    setReferenceFile(null);
+    setReferenceUrl("");
+    setText("");
+    setClonedAudioUrl("");
+    setProgress(0);
+    setError("");
+    setSuccess("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
 
   return (
     <>
-      <SEO 
-        title="Voice Cloner - Back2Life.Studio"
-        description="Clone any voice with AI and make it speak your custom text using advanced voice synthesis"
+      <SEO
+        title="AI Voice Cloner - Back2Life.Studio"
+        description="Clone any voice with AI. Upload a reference recording and generate speech in that voice."
       />
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-blue-500/5">
+      <div className="min-h-screen bg-background">
         <Navigation />
-        <div className="container mx-auto px-4 py-24">
-          <div className="max-w-4xl mx-auto space-y-8">
-            <div className="text-center space-y-4">
-              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Voice Cloner
-              </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Upload a voice sample and clone it to speak any text you want using AI voice synthesis
+        
+        <div className="container mx-auto px-4 pt-24 pb-12">
+          <div className="max-w-5xl mx-auto">
+            <div className="mb-8">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500">
+                  <Mic className="w-6 h-6 text-white" />
+                </div>
+                <h1 className="font-heading font-bold text-4xl">AI Voice Cloner</h1>
+                <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20">
+                  Pro
+                </Badge>
+              </div>
+              <p className="text-muted-foreground text-lg">
+                Clone any voice using AI. Upload a reference recording and generate speech in that voice.
               </p>
             </div>
 
-            <Card className="border-blue-500/20">
-              <CardHeader>
-                <CardTitle>Step 1: Upload Voice Sample</CardTitle>
-                <CardDescription>
-                  Upload 5-60 seconds of clear speech for best cloning results
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-blue-500/30 rounded-lg p-12 text-center cursor-pointer hover:border-blue-500/50 transition-colors"
-                >
-                  <Upload className="w-12 h-12 mx-auto mb-4 text-blue-500" />
-                  <p className="text-lg font-medium mb-2">
-                    {voiceSample ? voiceSample.name : "Click to upload voice sample"}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Supports MP3, WAV, M4A, OGG (5-60 seconds recommended)
-                  </p>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="audio/*"
-                    onChange={handleFileSelect}
-                    className="hidden"
-                  />
-                </div>
+            {error && (
+              <Alert variant="destructive" className="mb-6">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-                {voiceSample && (
-                  <Card className="bg-muted/30">
-                    <CardContent className="p-4 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Mic className="w-5 h-5 text-blue-500" />
-                        <span className="font-medium">Voice Sample Ready</span>
-                      </div>
-                      <Button
-                        onClick={toggleSamplePlay}
-                        variant="outline"
-                        size="sm"
-                      >
-                        {playingSample ? (
-                          <Pause className="w-4 h-4 mr-2" />
-                        ) : (
-                          <Play className="w-4 h-4 mr-2" />
-                        )}
-                        {playingSample ? "Pause" : "Play"}
-                      </Button>
-                      <audio
-                        ref={sampleAudioRef}
-                        src={voiceSample ? URL.createObjectURL(voiceSample) : ""}
-                        onEnded={() => setPlayingSample(false)}
+            {success && (
+              <Alert className="mb-6 border-green-500/50 bg-green-500/10">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-600">{success}</AlertDescription>
+              </Alert>
+            )}
+
+            <div className="grid lg:grid-cols-5 gap-6">
+              {/* Left Column - Upload & Input */}
+              <div className="lg:col-span-2 space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>1. Upload Reference Audio</CardTitle>
+                    <CardDescription>
+                      Upload a clear voice sample (5-30 seconds recommended)
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div
+                      onClick={() => fileInputRef.current?.click()}
+                      className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-primary/50 transition-colors"
+                    >
+                      <Upload className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground mb-1">
+                        Click to upload reference audio
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        MP3, WAV, M4A (Max 10MB)
+                      </p>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="audio/*"
+                        onChange={handleFileSelect}
+                        className="hidden"
                       />
+                    </div>
+
+                    {referenceFile && (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                          <Mic className="w-8 h-8 text-primary" />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate">{referenceFile.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatFileSize(referenceFile.size)}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        {referenceUrl && (
+                          <audio
+                            ref={audioRef}
+                            src={referenceUrl}
+                            controls
+                            className="w-full"
+                          />
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {referenceFile && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>2. Enter Text to Speak</CardTitle>
+                      <CardDescription>
+                        Type the text you want the cloned voice to say
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Text to Speak</Label>
+                        <Textarea
+                          placeholder="Enter the text you want to generate in the cloned voice..."
+                          value={text}
+                          onChange={(e) => setText(e.target.value)}
+                          className="min-h-[120px] resize-none"
+                        />
+                        <div className="flex justify-between items-center">
+                          <p className="text-xs text-muted-foreground">
+                            {text.length} characters
+                          </p>
+                          <Button
+                            onClick={handleEnhancePrompt}
+                            disabled={isEnhancing || !text.trim()}
+                            variant="outline"
+                            size="sm"
+                            className="gap-2"
+                          >
+                            {isEnhancing ? (
+                              <><Loader2 className="w-3 h-3 animate-spin" /> Enhancing...</>
+                            ) : (
+                              <><Wand2 className="w-3 h-3" /> Enhance Text</>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+
+                      {isCloning && (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Cloning voice...</span>
+                            <span className="font-medium">{progress}%</span>
+                          </div>
+                          <Progress value={progress} className="h-2" />
+                        </div>
+                      )}
+
+                      <div className="flex gap-3">
+                        <Button
+                          onClick={handleClone}
+                          disabled={isCloning || !text.trim()}
+                          className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90"
+                        >
+                          {isCloning ? (
+                            <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Cloning...</>
+                          ) : (
+                            <><Sparkles className="w-4 h-4 mr-2" /> Clone Voice</>
+                          )}
+                        </Button>
+                        {!isCloning && (
+                          <Button onClick={handleReset} variant="outline" size="icon">
+                            <AlertCircle className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
                     </CardContent>
                   </Card>
                 )}
-              </CardContent>
-            </Card>
+              </div>
 
-            <Card className="border-blue-500/20">
-              <CardHeader>
-                <CardTitle>Step 2: Enter Text to Clone</CardTitle>
-                <CardDescription>
-                  Type or paste the text you want the cloned voice to speak
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <Textarea
-                  placeholder="Enter the text you want the cloned voice to speak... (minimum 10 characters)"
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  className="min-h-32 resize-none"
-                  maxLength={1000}
-                />
-                
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <span>{text.length} / 1000 characters</span>
-                  {text.length > 0 && text.length < 10 && (
-                    <span className="text-destructive">Minimum 10 characters required</span>
-                  )}
-                </div>
+              {/* Right Column - Results */}
+              <div className="lg:col-span-3">
+                <Card className="min-h-[400px] h-full">
+                  <CardHeader>
+                    <CardTitle>Cloned Voice Output</CardTitle>
+                    <CardDescription>
+                      {clonedAudioUrl 
+                        ? "Your cloned voice is ready!" 
+                        : "Your cloned audio will appear here"}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {!clonedAudioUrl && !isCloning && (
+                      <div className="flex flex-col items-center justify-center h-full text-center p-8 text-muted-foreground border-2 border-dashed rounded-lg">
+                        <Mic className="w-12 h-12 mb-4 opacity-50" />
+                        <p>Upload reference audio and enter text to clone voice</p>
+                      </div>
+                    )}
 
-                {error && (
-                  <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
-                    <p className="text-sm text-destructive">{error}</p>
-                  </div>
-                )}
+                    {isCloning && (
+                      <div className="flex flex-col items-center justify-center h-full text-center p-8">
+                        <Loader2 className="w-12 h-12 mb-4 animate-spin text-primary" />
+                        <p className="font-medium">Cloning voice with AI...</p>
+                        <p className="text-sm text-muted-foreground">This may take a few moments</p>
+                      </div>
+                    )}
 
-                {voiceSample && text.length >= 10 && !processing && !clonedAudioUrl && (
-                  <Button
-                    onClick={processCloning}
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                    size="lg"
-                  >
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    Clone Voice
-                  </Button>
-                )}
-
-                {processing && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Cloning voice...</span>
-                      <span className="font-medium">{progress}%</span>
-                    </div>
-                    <Progress value={progress} className="h-2" />
-                    <p className="text-xs text-muted-foreground text-center">
-                      Analyzing voice patterns and synthesizing speech...
-                    </p>
-                  </div>
-                )}
-
-                {clonedAudioUrl && (
-                  <div className="space-y-6">
-                    <Tabs defaultValue="cloned" className="w-full">
-                      <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="sample">Original Sample</TabsTrigger>
-                        <TabsTrigger value="cloned">Cloned Voice</TabsTrigger>
-                      </TabsList>
-                      
-                      <TabsContent value="sample" className="space-y-4">
-                        <Card className="bg-muted/30">
-                          <CardContent className="p-6 space-y-4">
-                            <div className="flex items-center justify-between">
-                              <h3 className="font-medium">Original Voice Sample</h3>
-                              <Button
-                                onClick={toggleSamplePlay}
-                                variant="outline"
-                                size="sm"
-                              >
-                                {playingSample ? (
-                                  <Pause className="w-4 h-4 mr-2" />
-                                ) : (
-                                  <Play className="w-4 h-4 mr-2" />
-                                )}
-                                {playingSample ? "Pause" : "Play"}
-                              </Button>
+                    {clonedAudioUrl && (
+                      <div className="space-y-6">
+                        <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 p-6 rounded-xl border border-purple-500/20">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500">
+                              <Sparkles className="w-5 h-5 text-white" />
                             </div>
-                          </CardContent>
-                        </Card>
-                      </TabsContent>
-                      
-                      <TabsContent value="cloned" className="space-y-4">
-                        <Card className="bg-blue-500/5 border-blue-500/20">
-                          <CardContent className="p-6 space-y-4">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <Sparkles className="w-5 h-5 text-blue-500" />
-                                <h3 className="font-medium">Cloned Voice</h3>
-                              </div>
-                              <Button
-                                onClick={toggleClonedPlay}
-                                variant="outline"
-                                size="sm"
-                              >
-                                {playingCloned ? (
-                                  <Pause className="w-4 h-4 mr-2" />
-                                ) : (
-                                  <Play className="w-4 h-4 mr-2" />
-                                )}
-                                {playingCloned ? "Pause" : "Play"}
-                              </Button>
+                            <div>
+                              <h3 className="font-semibold">Cloned Voice Ready</h3>
+                              <p className="text-sm text-muted-foreground">AI-generated speech in your voice</p>
                             </div>
-                            <audio
-                              ref={clonedAudioRef}
-                              src={clonedAudioUrl}
-                              onEnded={() => setPlayingCloned(false)}
-                            />
-                          </CardContent>
-                        </Card>
-                      </TabsContent>
-                    </Tabs>
+                          </div>
+                          
+                          <audio
+                            src={clonedAudioUrl}
+                            controls
+                            className="w-full mb-4"
+                          />
 
-                    <Button
-                      onClick={downloadCloned}
-                      className="w-full"
-                      variant="outline"
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Download Cloned Voice
-                    </Button>
+                          <Button
+                            onClick={handleDownload}
+                            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90"
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Download Cloned Voice
+                          </Button>
+                        </div>
 
-                    <div className="bg-muted/30 rounded-lg p-4 space-y-2">
-                      <h4 className="font-medium">🎭 Text Spoken</h4>
-                      <p className="text-sm text-muted-foreground">{text}</p>
-                    </div>
-                  </div>
-                )}
-
-                <div className="bg-muted/30 rounded-lg p-4 space-y-2">
-                  <h4 className="font-medium">💡 Tips for Best Results</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Use 10-30 seconds of clear, high-quality speech</li>
-                    <li>• Avoid background noise in the voice sample</li>
-                    <li>• Single speaker works better than multiple voices</li>
-                    <li>• Consistent tone and volume throughout sample</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="bg-muted/30 rounded-lg p-4 space-y-2">
-              <h4 className="font-medium">How it works</h4>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• Free version uses E2-F5-TTS (Hugging Face Gradio API)</li>
-                <li>• Pro version uses Fish Audio API for higher quality</li>
-                <li>• Processing typically takes 20-40 seconds</li>
-                <li>• Supports multiple languages and accents</li>
-              </ul>
+                        <div className="bg-muted/30 p-4 rounded-lg">
+                          <h4 className="font-semibold mb-2 text-sm">Generated Text:</h4>
+                          <p className="text-sm text-muted-foreground">{text}</p>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </div>
         </div>
