@@ -21,7 +21,6 @@ export type Database = {
           free_credits: number
           id: string
           paid_credits: number
-          total_used: number
           updated_at: string | null
           user_id: string
         }
@@ -30,7 +29,6 @@ export type Database = {
           free_credits?: number
           id?: string
           paid_credits?: number
-          total_used?: number
           updated_at?: string | null
           user_id: string
         }
@@ -39,19 +37,10 @@ export type Database = {
           free_credits?: number
           id?: string
           paid_credits?: number
-          total_used?: number
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "credits_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -82,10 +71,8 @@ export type Database = {
       }
       subscriptions: {
         Row: {
-          cancel_at_period_end: boolean | null
           created_at: string | null
           current_period_end: string | null
-          current_period_start: string | null
           id: string
           plan_type: string
           status: string
@@ -95,23 +82,19 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          cancel_at_period_end?: boolean | null
           created_at?: string | null
           current_period_end?: string | null
-          current_period_start?: string | null
           id?: string
-          plan_type: string
-          status: string
+          plan_type?: string
+          status?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
-          cancel_at_period_end?: boolean | null
           created_at?: string | null
           current_period_end?: string | null
-          current_period_start?: string | null
           id?: string
           plan_type?: string
           status?: string
@@ -120,59 +103,34 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "subscriptions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       usage_logs: {
         Row: {
           created_at: string | null
           credits_used: number
-          error_message: string | null
           id: string
-          metadata: Json | null
-          success: boolean | null
           tool_name: string
-          tool_type: string
+          tool_type: string | null
           user_id: string
         }
         Insert: {
           created_at?: string | null
           credits_used?: number
-          error_message?: string | null
           id?: string
-          metadata?: Json | null
-          success?: boolean | null
           tool_name: string
-          tool_type: string
+          tool_type?: string | null
           user_id: string
         }
         Update: {
           created_at?: string | null
           credits_used?: number
-          error_message?: string | null
           id?: string
-          metadata?: Json | null
-          success?: boolean | null
           tool_name?: string
-          tool_type?: string
+          tool_type?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "usage_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
