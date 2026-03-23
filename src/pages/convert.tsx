@@ -6,7 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, FileAudio, Download, Loader2, RefreshCw } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Upload, FileAudio, Download, Loader2, RefreshCw, CheckCircle2, AlertCircle } from "lucide-react";
 
 type AudioFormat = "mp3" | "wav" | "m4a" | "aiff" | "ogg" | "flac" | "opus";
 type BitRate = "128" | "192" | "256" | "320";
@@ -21,6 +23,8 @@ const formatInfo: Record<AudioFormat, { name: string; description: string }> = {
   opus: { name: "Opus", description: "Modern codec, best for voice" }
 };
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL || "http://localhost:5000";
+
 export default function AudioConverter() {
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioUrl, setAudioUrl] = useState<string>("");
@@ -29,6 +33,9 @@ export default function AudioConverter() {
   const [bitRate, setBitRate] = useState<BitRate>("192");
   const [isConverting, setIsConverting] = useState(false);
   const [convertedUrl, setConvertedUrl] = useState<string>("");
+  const [progress, setProgress] = useState<number>(0);
+  const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -40,6 +47,11 @@ export default function AudioConverter() {
       const url = URL.createObjectURL(file);
       setAudioUrl(url);
       setConvertedUrl("");
+      setError("");
+      setSuccess("");
+      setProgress(0);
+    } else {
+      setError("Please select a valid audio file");
     }
   };
 
@@ -50,16 +62,74 @@ export default function AudioConverter() {
   };
 
   const handleConvert = async () => {
-    if (!audioFile) return;
+    if (!audioFile) {
+      setError("Please select an audio file first");
+      return;
+    }
 
     setIsConverting(true);
-    
-    // This would call your FFmpeg API endpoint
-    // For now, we'll simulate the process
-    setTimeout(() => {
+    setError("");
+    setSuccess("");
+    setProgress(10);
+    setConvertedUrl("");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", audioFile);
+      formData.append("output_format", outputFormat);
+      formData.append("bitrate", bitRate);
+
+      setProgress(30);
+
+      const response = await fetch(`${BACKEND_URL}/api/convert-audio`, {
+        method: "POST",
+        body: formData,
+      });
+
+      setProgress(60);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Conversion failed");
+      }
+
+      setProgress(80);
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setConvertedUrl(url);
+      setProgress(100);
+      setSuccess(`Successfully converted to ${outputFormat.toUpperCase()}!`);
+    } catch (err) {
+      console.error("Conversion error:", err);
+      setError(err instanceof Error ? err.message : "Failed to convert audio. Please try again.");
+      setProgress(0);
+    } finally {
       setIsConverting(false);
-      alert(`Audio conversion requires server-side FFmpeg processing.\n\nWhen ready, implement:\nPOST /api/convert-audio\n\nPayload:\n- File: ${audioFile.name}\n- Format: ${outputFormat.toUpperCase()}\n- Bitrate: ${bitRate}kbps`);
-    }, 2000);
+    }
+  };
+
+  const handleDownload = () => {
+    if (!convertedUrl || !audioFile) return;
+
+    const a = document.createElement("a");
+    a.href = convertedUrl;
+    a.download = `${audioFile.name.split(".")[0]}_converted.${outputFormat}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const handleReset = () => {
+    setAudioFile(null);
+    setAudioUrl("");
+    setConvertedUrl("");
+    setProgress(0);
+    setError("");
+    setSuccess("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const formatFileSize = (bytes: number) => {
@@ -107,6 +177,20 @@ export default function AudioConverter() {
                 Convert audio files between popular formats with quality control.
               </p>
             </div>
+
+            {error && (
+              <Alert variant="destructive" className="mb-6">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            {success && (
+              <Alert className="mb-6 border-green-500/50 bg-green-500/10">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-600">{success}</AlertDescription>
+              </Alert>
+            )}
 
             <div className="grid lg:grid-cols-5 gap-6">
               {/* Left Column - Upload & Settings */}
@@ -191,7 +275,7 @@ export default function AudioConverter() {
                         </Select>
                       </div>
 
-                      {(outputFormat === "mp3" || outputFormat === "ogg" || outputFormat === "opus") && (
+                      {(outputFormat === "mp3" || outputFormat === "ogg" || outputFormat === "opus" || outputFormat === "m4a") && (
                         <div className="space-y-2">
                           <Label>Bitrate (Quality)</Label>
                           <Select value={bitRate} onValueChange={(v) => setBitRate(v as BitRate)}>
@@ -208,30 +292,52 @@ export default function AudioConverter() {
                         </div>
                       )}
 
-                      <Button
-                        onClick={handleConvert}
-                        disabled={isConverting}
-                        className="w-full bg-gradient-to-r from-violet-500 to-purple-500 hover:opacity-90"
-                        size="lg"
-                      >
-                        {isConverting ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Converting...
-                          </>
-                        ) : (
-                          <>
-                            <RefreshCw className="w-4 h-4 mr-2" />
-                            Convert Audio
-                          </>
+                      {isConverting && (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Converting...</span>
+                            <span className="font-medium">{progress}%</span>
+                          </div>
+                          <Progress value={progress} className="h-2" />
+                        </div>
+                      )}
+
+                      <div className="flex gap-3">
+                        <Button
+                          onClick={handleConvert}
+                          disabled={isConverting || !audioFile}
+                          className="flex-1 bg-gradient-to-r from-violet-500 to-purple-500 hover:opacity-90"
+                          size="lg"
+                        >
+                          {isConverting ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Converting...
+                            </>
+                          ) : (
+                            <>
+                              <RefreshCw className="w-4 h-4 mr-2" />
+                              Convert Audio
+                            </>
+                          )}
+                        </Button>
+
+                        {audioFile && !isConverting && (
+                          <Button
+                            onClick={handleReset}
+                            variant="outline"
+                            size="lg"
+                          >
+                            Reset
+                          </Button>
                         )}
-                      </Button>
+                      </div>
 
                       {convertedUrl && (
                         <Button
-                          onClick={() => {/* Download logic */}}
+                          onClick={handleDownload}
                           variant="outline"
-                          className="w-full"
+                          className="w-full border-green-500/50 bg-green-500/10 hover:bg-green-500/20 text-green-600"
                           size="lg"
                         >
                           <Download className="w-4 h-4 mr-2" />
@@ -283,16 +389,19 @@ export default function AudioConverter() {
                         <li>High-quality conversion</li>
                         <li>Preserves metadata</li>
                         <li>Customizable bitrate</li>
-                        <li>Fast processing</li>
+                        <li>Fast processing with FFmpeg</li>
                         <li>No quality loss (lossless formats)</li>
+                        <li>Support for 7 audio formats</li>
                       </ul>
                     </div>
 
-                    <div className="pt-4 border-t">
-                      <p className="text-xs text-muted-foreground">
-                        Note: This tool requires FFmpeg backend processing. Contact support to enable this feature.
-                      </p>
-                    </div>
+                    {audioFile && (
+                      <div className="pt-4 border-t">
+                        <p className="text-xs text-muted-foreground">
+                          <strong>Backend:</strong> Flask + FFmpeg processing
+                        </p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
