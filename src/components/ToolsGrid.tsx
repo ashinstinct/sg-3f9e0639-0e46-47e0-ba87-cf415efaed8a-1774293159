@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Image, Video, Scissors, Music, Wand2, Mic, 
   MonitorPlay, Film, Sparkles, Download, SplitSquareHorizontal,
-  AudioLines, Settings, FileText
+  AudioLines, Settings, FileText, ImageIcon
 } from "lucide-react";
 import Link from "next/link";
 
@@ -138,6 +138,14 @@ const tools = [
     free: true,
     pro: true,
     color: "from-violet-500 to-fuchsia-500",
+  },
+  {
+    title: "Image to Prompt",
+    description: "Reverse engineer images into text prompts or JSON metadata",
+    icon: ImageIcon,
+    href: "/image-to-prompt",
+    gradient: "from-indigo-500 to-purple-500",
+    badge: "Free",
   },
 ];
 
