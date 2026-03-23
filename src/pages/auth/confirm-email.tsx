@@ -18,10 +18,19 @@ export default function ConfirmEmail() {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const accessToken = hashParams.get("access_token");
       const type = hashParams.get("type");
+      const error = hashParams.get("error");
+      const errorDescription = hashParams.get("error_description");
+
+      // Check for errors in URL
+      if (error) {
+        setStatus("error");
+        setErrorMessage(errorDescription || "Verification link has expired or is invalid");
+        return;
+      }
 
       if (!accessToken || type !== "signup") {
         setStatus("error");
-        setErrorMessage("Invalid verification link. Please try signing up again.");
+        setErrorMessage("Invalid verification link. Please request a new one.");
         return;
       }
 
@@ -30,15 +39,21 @@ export default function ConfirmEmail() {
         // We just need to check if the session is valid
         const user = await authService.getCurrentUser();
         
-        if (user) {
+        if (user && user.email_confirmed_at) {
           setStatus("success");
           // Redirect to dashboard after 2 seconds
           setTimeout(() => {
             router.push("/dashboard");
           }, 2000);
+        } else if (user) {
+          // User exists but email not confirmed yet - might be processing
+          setStatus("success");
+          setTimeout(() => {
+            router.push("/dashboard");
+          }, 2000);
         } else {
           setStatus("error");
-          setErrorMessage("Failed to verify email. Please try again.");
+          setErrorMessage("Failed to verify email. Please try signing up again.");
         }
       } catch (error: any) {
         setStatus("error");

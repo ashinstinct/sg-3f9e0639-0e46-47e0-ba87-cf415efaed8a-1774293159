@@ -22,12 +22,44 @@ export default function Signup() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Basic validation
+    if (!email || !password || !fullName) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      toast({
+        title: "Password too short",
+        description: "Password must be at least 6 characters",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
       const { user, error } = await authService.signUp(email, password, fullName);
 
-      if (error) throw new Error(error.message);
+      if (error) {
+        // Handle specific error cases
+        if (error.message.includes("already registered")) {
+          toast({
+            title: "Account exists",
+            description: "This email is already registered. Try logging in instead.",
+            variant: "destructive",
+          });
+        } else {
+          throw new Error(error.message);
+        }
+        return;
+      }
 
       toast({
         title: "Account created!",

@@ -13,6 +13,7 @@ export default function VerifyEmail() {
   const { toast } = useToast();
   const { email } = router.query;
   const [resending, setResending] = useState(false);
+  const [resendCount, setResendCount] = useState(0);
 
   useEffect(() => {
     // Check if user is already verified
@@ -35,12 +36,22 @@ export default function VerifyEmail() {
       return;
     }
 
+    if (resendCount >= 3) {
+      toast({
+        title: "Too many requests",
+        description: "Please wait a few minutes before trying again",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setResending(true);
     try {
       const { error } = await authService.resendVerificationEmail(email);
       
       if (error) throw new Error(error.message);
 
+      setResendCount(resendCount + 1);
       toast({
         title: "Email sent!",
         description: "Check your inbox for the verification link",
