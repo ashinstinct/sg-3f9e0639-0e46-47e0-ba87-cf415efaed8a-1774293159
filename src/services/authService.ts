@@ -121,7 +121,7 @@ export const authService = {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${getURL()}dashboard`,
+          redirectTo: `${getURL()}auth/callback`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -147,7 +147,7 @@ export const authService = {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'facebook',
         options: {
-          redirectTo: `${getURL()}dashboard`,
+          redirectTo: `${getURL()}auth/callback`,
         }
       });
 
