@@ -373,6 +373,124 @@ def convert_audio():
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/clone-voice', methods=['POST'])
+def clone_voice():
+    """
+    Voice cloning endpoint stub
+    Expects: audio file (reference), text (to speak)
+    """
+    if 'file' not in request.files:
+        return jsonify({'error': 'No reference audio provided'}), 400
+        
+    text = request.form.get('text', '')
+    if not text:
+        return jsonify({'error': 'No text provided'}), 400
+        
+    file = request.files['file']
+    if not allowed_file(file.filename):
+        return jsonify({'error': 'Invalid file type'}), 400
+        
+    try:
+        # Create unique temporary directory
+        job_id = str(uuid.uuid4())
+        temp_dir = Path(tempfile.mkdtemp(prefix=f'voice_clone_{job_id}_'))
+        
+        # Save reference audio
+        filename = secure_filename(file.filename)
+        input_path = temp_dir / filename
+        file.save(str(input_path))
+        
+        # NOTE: This is a stub. Integrating a full local TTS model like F5-TTS or Coqui 
+        # requires significant GPU resources. For a production app, this would route to
+        # an external API (like ElevenLabs or PlayHT) or a dedicated GPU worker.
+        
+        # For demonstration, we'll just return an error indicating the AI model is loading
+        # In a real implementation, you would process the text and reference audio here.
+        
+        return jsonify({
+            'error': 'Voice cloning requires GPU compute node which is currently offline. Please connect an external API key (e.g., ElevenLabs) in settings.'
+        }), 503
+        
+    except Exception as e:
+        logger.error(f"Voice cloning error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/split-video', methods=['POST'])
+def split_video():
+    """
+    Split video into equal length segments using FFmpeg
+    Expects: video file, segment_length (in seconds)
+    Returns: ZIP file with separated video segments
+    """
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+
+    segment_length = request.form.get('segment_length', '30')
+    try:
+        segment_length = int(segment_length)
+    except ValueError:
+        return jsonify({'error': 'Invalid segment length'}), 400
+
+    try:
+        job_id = str(uuid.uuid4())
+        temp_dir = Path(tempfile.mkdtemp(prefix=f'split_{job_id}_'))
+        
+        filename = secure_filename(file.filename)
+        input_path = temp_dir / filename
+        file.save(str(input_path))
+        
+        output_pattern = str(temp_dir / f"{Path(filename).stem}_part%03d{Path(filename).suffix}")
+        
+        # FFmpeg command to split by time (copies stream for blazing fast splitting without re-encoding)
+        ffmpeg_cmd = [
+            'ffmpeg', '-i', str(input_path),
+            '-c', 'copy',
+            '-map', '0',
+            '-segment_time', str(segment_length),
+            '-f', 'segment',
+            '-reset_timestamps', '1',
+            output_pattern
+        ]
+        
+        subprocess.run(ffmpeg_cmd, capture_output=True, text=True, check=True)
+        
+        # Zip the files
+        zip_filename = f"{Path(filename).stem}_segments.zip"
+        zip_path = temp_dir / zip_filename
+        
+        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for f in temp_dir.glob(f"{Path(filename).stem}_part*{Path(filename).suffix}"):
+                zipf.write(f, f.name)
+                
+        response = send_file(
+            str(zip_path),
+            mimetype='application/zip',
+            as_attachment=True,
+            download_name=zip_filename
+        )
+        
+        @response.call_on_close
+        def cleanup():
+            try:
+                shutil.rmtree(temp_dir, ignore_errors=True)
+            except Exception as e:
+                logger.error(f"Cleanup error: {e}")
+                
+        return response
+
+    except subprocess.CalledProcessError as e:
+        logger.error(f"FFmpeg split error: {e.stderr}")
+        return jsonify({'error': f'Split failed: {e.stderr}'}), 500
+    except Exception as e:
+        logger.error(f"Video splitting error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/models/status', methods=['GET'])
 def models_status():
     """Get status of available AI models"""

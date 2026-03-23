@@ -3,373 +3,370 @@ import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Slider } from "@/components/ui/slider";
+import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, Sparkles, Download, Play, Pause, AlertCircle } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Upload, FileAudio, Download, Loader2, Sparkles, Volume2, Activity, CheckCircle2, AlertCircle } from "lucide-react";
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL || "http://localhost:5000";
 
 export default function AudioEnhancer() {
-  const [file, setFile] = useState<File | null>(null);
-  const [processing, setProcessing] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [enhancedAudioUrl, setEnhancedAudioUrl] = useState<string | null>(null);
-  const [error, setError] = useState("");
-  const [playingOriginal, setPlayingOriginal] = useState(false);
-  const [playingEnhanced, setPlayingEnhanced] = useState(false);
-  const [backendAvailable, setBackendAvailable] = useState<boolean | null>(null);
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string>("");
+  const [audioDuration, setAudioDuration] = useState<number>(0);
+  const [isEnhancing, setIsEnhancing] = useState(false);
+  const [enhancedUrl, setEnhancedUrl] = useState<string>("");
+  const [progress, setProgress] = useState<number>(0);
+  const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const originalAudioRef = useRef<HTMLAudioElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const enhancedAudioRef = useRef<HTMLAudioElement>(null);
-  const { toast } = useToast();
 
-  const checkBackendHealth = async () => {
-    const backendUrl = process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL;
-    if (!backendUrl) {
-      setBackendAvailable(false);
-      return false;
-    }
-
-    try {
-      const response = await fetch(`${backendUrl}/health`);
-      const data = await response.json();
-      setBackendAvailable(data.status === "healthy" && data.deepfilternet_available);
-      return data.status === "healthy" && data.deepfilternet_available;
-    } catch (err) {
-      setBackendAvailable(false);
-      return false;
-    }
-  };
-
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      const validTypes = ["audio/", "video/"];
-      if (!validTypes.some(type => selectedFile.type.startsWith(type))) {
-        setError("Please select an audio or video file");
-        return;
-      }
-      setFile(selectedFile);
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith("audio/")) {
+      setAudioFile(file);
+      const url = URL.createObjectURL(file);
+      setAudioUrl(url);
+      setEnhancedUrl("");
       setError("");
-      setEnhancedAudioUrl(null);
+      setSuccess("");
       setProgress(0);
-      await checkBackendHealth();
+    } else {
+      setError("Please select a valid audio file");
     }
   };
 
-  const processEnhancement = async () => {
-    if (!file) return;
+  const handleAudioLoad = () => {
+    if (audioRef.current) {
+      setAudioDuration(audioRef.current.duration);
+    }
+  };
 
-    const backendUrl = process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL;
-    if (!backendUrl) {
-      setError("Backend URL not configured. Please set NEXT_PUBLIC_PYTHON_BACKEND_URL in your environment variables.");
-      toast({
-        title: "Configuration Error",
-        description: "Python backend URL is not configured. Please deploy the backend and add the URL to .env.local",
-        variant: "destructive"
-      });
+  const handleEnhance = async () => {
+    if (!audioFile) {
+      setError("Please select an audio file first");
       return;
     }
 
-    setProcessing(true);
-    setProgress(0);
+    setIsEnhancing(true);
     setError("");
-
-    let progressInterval: NodeJS.Timeout;
+    setSuccess("");
+    setProgress(10);
+    setEnhancedUrl("");
 
     try {
-      // Check backend health first
-      const isHealthy = await checkBackendHealth();
-      if (!isHealthy) {
-        throw new Error("Backend service is not available. Please ensure the Python backend is running and accessible.");
-      }
-
-      // Simulate progress while processing
-      progressInterval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            return prev;
-          }
-          return prev + 10;
-        });
-      }, 2000);
-
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", audioFile);
 
-      const response = await fetch(`${backendUrl}/api/enhance-audio`, {
+      setProgress(30);
+
+      const response = await fetch(`${BACKEND_URL}/api/enhance-audio`, {
         method: "POST",
         body: formData,
       });
 
-      clearInterval(progressInterval);
+      setProgress(60);
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Audio enhancement failed");
       }
 
-      setProgress(95);
+      setProgress(80);
 
-      // Backend returns enhanced WAV file
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
-      setEnhancedAudioUrl(audioUrl);
-
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setEnhancedUrl(url);
       setProgress(100);
-      
-      toast({
-        title: "Success!",
-        description: "Audio enhanced successfully. Compare the before/after to hear the difference.",
-      });
-      
+      setSuccess("Audio enhanced successfully! Listen to the before/after comparison.");
     } catch (err) {
-      if (progressInterval) clearInterval(progressInterval);
-      const errorMessage = err instanceof Error ? err.message : "Enhancement failed";
-      setError(errorMessage);
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive"
-      });
-      console.error("Audio enhancement error:", err);
+      console.error("Enhancement error:", err);
+      setError(err instanceof Error ? err.message : "Failed to enhance audio. Please try again.");
+      setProgress(0);
     } finally {
-      setProcessing(false);
+      setIsEnhancing(false);
     }
   };
 
-  const toggleOriginalPlay = () => {
-    const audio = originalAudioRef.current;
-    if (!audio) return;
-    
-    if (playingOriginal) {
-      audio.pause();
-    } else {
-      audio.play();
-      if (enhancedAudioRef.current) {
-        enhancedAudioRef.current.pause();
-        setPlayingEnhanced(false);
-      }
-    }
-    setPlayingOriginal(!playingOriginal);
-  };
+  const handleDownload = () => {
+    if (!enhancedUrl || !audioFile) return;
 
-  const toggleEnhancedPlay = () => {
-    const audio = enhancedAudioRef.current;
-    if (!audio) return;
-    
-    if (playingEnhanced) {
-      audio.pause();
-    } else {
-      audio.play();
-      if (originalAudioRef.current) {
-        originalAudioRef.current.pause();
-        setPlayingOriginal(false);
-      }
-    }
-    setPlayingEnhanced(!playingEnhanced);
-  };
-
-  const downloadEnhanced = () => {
-    if (!enhancedAudioUrl) return;
     const a = document.createElement("a");
-    a.href = enhancedAudioUrl;
-    a.download = `${file?.name.split(".")[0]}_enhanced.wav`;
+    a.href = enhancedUrl;
+    a.download = `${audioFile.name.split(".")[0]}_enhanced.wav`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
+  };
+
+  const handleReset = () => {
+    setAudioFile(null);
+    setAudioUrl("");
+    setEnhancedUrl("");
+    setProgress(0);
+    setError("");
+    setSuccess("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   return (
     <>
-      <SEO 
+      <SEO
         title="Audio Enhancer - Back2Life.Studio"
-        description="Remove noise and enhance audio quality with AI-powered audio enhancement tools"
+        description="Remove noise and enhance audio quality using AI-powered DeepFilterNet technology."
       />
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-emerald-500/5">
+      <div className="min-h-screen bg-background">
         <Navigation />
-        <div className="container mx-auto px-4 py-24">
-          <div className="max-w-4xl mx-auto space-y-8">
-            <div className="text-center space-y-4">
-              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
-                Audio Enhancer
-              </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Remove background noise and enhance audio quality using AI-powered processing
+        
+        <div className="container mx-auto px-4 pt-24 pb-12">
+          <div className="max-w-4xl mx-auto">
+            <div className="mb-8">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500">
+                  <Sparkles className="w-6 h-6 text-white" />
+                </div>
+                <h1 className="font-heading font-bold text-4xl">Audio Enhancer</h1>
+                <Badge variant="secondary" className="bg-green-500/10 text-green-600 border-green-500/20">
+                  Free
+                </Badge>
+              </div>
+              <p className="text-muted-foreground text-lg">
+                Remove background noise and enhance audio quality using AI.
               </p>
             </div>
 
-            {backendAvailable === false && (
-              <Card className="border-yellow-500/30 bg-yellow-500/5">
-                <CardContent className="p-4 flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">Backend Not Connected</p>
-                    <p className="text-xs text-muted-foreground">
-                      Python backend is not running. Deploy the Flask app from <code className="bg-muted px-1 rounded">python-backend/</code> folder and add the URL to <code className="bg-muted px-1 rounded">.env.local</code>
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+            {error && (
+              <Alert variant="destructive" className="mb-6">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
             )}
 
-            <Card className="border-emerald-500/20">
-              <CardHeader>
-                <CardTitle>Upload Audio</CardTitle>
-                <CardDescription>
-                  Select an audio or video file to enhance with AI noise removal
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-emerald-500/30 rounded-lg p-12 text-center cursor-pointer hover:border-emerald-500/50 transition-colors"
-                >
-                  <Upload className="w-12 h-12 mx-auto mb-4 text-emerald-500" />
-                  <p className="text-lg font-medium mb-2">
-                    {file ? file.name : "Click to upload audio or video file"}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Supports MP3, WAV, M4A, OGG, FLAC, MP4, MOV, AVI
-                  </p>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="audio/*,video/*"
-                    onChange={handleFileSelect}
-                    className="hidden"
-                  />
-                </div>
+            {success && (
+              <Alert className="mb-6 border-green-500/50 bg-green-500/10">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-600">{success}</AlertDescription>
+              </Alert>
+            )}
 
-                {file && !processing && !enhancedAudioUrl && (
-                  <Button
-                    onClick={processEnhancement}
-                    className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
-                    size="lg"
-                    disabled={backendAvailable === false}
-                  >
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    Enhance Audio with AI
-                  </Button>
-                )}
-
-                {error && (
-                  <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
-                    <p className="text-sm text-destructive">{error}</p>
-                  </div>
-                )}
-
-                {processing && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">AI is removing noise and enhancing audio...</span>
-                      <span className="font-medium">{progress}%</span>
-                    </div>
-                    <Progress value={progress} className="h-2" />
-                    <p className="text-xs text-muted-foreground text-center">
-                      This may take 30-60 seconds depending on file length
-                    </p>
-                  </div>
-                )}
-
-                {enhancedAudioUrl && file && (
-                  <div className="space-y-6">
-                    <Tabs defaultValue="enhanced" className="w-full">
-                      <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="original">Original</TabsTrigger>
-                        <TabsTrigger value="enhanced">Enhanced</TabsTrigger>
-                      </TabsList>
-                      
-                      <TabsContent value="original" className="space-y-4">
-                        <Card className="bg-muted/30">
-                          <CardContent className="p-6 space-y-4">
-                            <div className="flex items-center justify-between">
-                              <h3 className="font-medium">Original Audio</h3>
-                              <Button
-                                onClick={toggleOriginalPlay}
-                                variant="outline"
-                                size="sm"
-                              >
-                                {playingOriginal ? (
-                                  <Pause className="w-4 h-4 mr-2" />
-                                ) : (
-                                  <Play className="w-4 h-4 mr-2" />
-                                )}
-                                {playingOriginal ? "Pause" : "Play"}
-                              </Button>
-                            </div>
-                            <audio
-                              ref={originalAudioRef}
-                              src={URL.createObjectURL(file)}
-                              onEnded={() => setPlayingOriginal(false)}
-                            />
-                          </CardContent>
-                        </Card>
-                      </TabsContent>
-                      
-                      <TabsContent value="enhanced" className="space-y-4">
-                        <Card className="bg-emerald-500/5 border-emerald-500/20">
-                          <CardContent className="p-6 space-y-4">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <Sparkles className="w-5 h-5 text-emerald-500" />
-                                <h3 className="font-medium">Enhanced Audio</h3>
-                              </div>
-                              <Button
-                                onClick={toggleEnhancedPlay}
-                                variant="outline"
-                                size="sm"
-                              >
-                                {playingEnhanced ? (
-                                  <Pause className="w-4 h-4 mr-2" />
-                                ) : (
-                                  <Play className="w-4 h-4 mr-2" />
-                                )}
-                                {playingEnhanced ? "Pause" : "Play"}
-                              </Button>
-                            </div>
-                            <audio
-                              ref={enhancedAudioRef}
-                              src={enhancedAudioUrl}
-                              onEnded={() => setPlayingEnhanced(false)}
-                            />
-                          </CardContent>
-                        </Card>
-                      </TabsContent>
-                    </Tabs>
-
-                    <Button
-                      onClick={downloadEnhanced}
-                      className="w-full"
-                      variant="outline"
+            <div className="grid lg:grid-cols-5 gap-6">
+              {/* Left Column - Upload & Process */}
+              <div className="lg:col-span-3 space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Upload Audio</CardTitle>
+                    <CardDescription>
+                      Choose an audio file to enhance
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div
+                      onClick={() => fileInputRef.current?.click()}
+                      className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
                     >
-                      <Download className="w-4 h-4 mr-2" />
-                      Download Enhanced Audio
-                    </Button>
+                      <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Click to upload or drag and drop
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        MP3, WAV, M4A, OGG, FLAC (Max 100MB)
+                      </p>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="audio/*"
+                        onChange={handleFileSelect}
+                        className="hidden"
+                      />
+                    </div>
 
-                    <div className="bg-muted/30 rounded-lg p-4 space-y-2">
-                      <h4 className="font-medium">✨ Enhancements Applied</h4>
-                      <ul className="text-sm text-muted-foreground space-y-1">
-                        <li>• AI-powered noise removal (DeepFilterNet)</li>
-                        <li>• Background noise and hum reduction</li>
-                        <li>• Echo and reverb removal</li>
-                        <li>• Voice clarity enhancement</li>
+                    {audioFile && (
+                      <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                        <FileAudio className="w-8 h-8 text-primary" />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">{audioFile.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {formatFileSize(audioFile.size)} • {formatTime(audioDuration)}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {audioUrl && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Volume2 className="w-4 h-4 text-muted-foreground" />
+                          <p className="text-sm font-medium">Original Audio</p>
+                        </div>
+                        <audio
+                          ref={audioRef}
+                          src={audioUrl}
+                          controls
+                          onLoadedMetadata={handleAudioLoad}
+                          className="w-full"
+                        />
+                      </div>
+                    )}
+
+                    {enhancedUrl && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-emerald-500" />
+                          <p className="text-sm font-medium text-emerald-500">Enhanced Audio</p>
+                        </div>
+                        <audio
+                          ref={enhancedAudioRef}
+                          src={enhancedUrl}
+                          controls
+                          className="w-full"
+                        />
+                      </div>
+                    )}
+
+                    {isEnhancing && (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Enhancing with AI...</span>
+                          <span className="font-medium">{progress}%</span>
+                        </div>
+                        <Progress value={progress} className="h-2" />
+                        <p className="text-xs text-muted-foreground text-center">
+                          AI is removing noise and enhancing clarity
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="flex gap-3">
+                      <Button
+                        onClick={handleEnhance}
+                        disabled={isEnhancing || !audioFile}
+                        className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90"
+                        size="lg"
+                      >
+                        {isEnhancing ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Enhancing...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4 mr-2" />
+                            Enhance Audio
+                          </>
+                        )}
+                      </Button>
+
+                      {audioFile && !isEnhancing && (
+                        <Button
+                          onClick={handleReset}
+                          variant="outline"
+                          size="lg"
+                        >
+                          Reset
+                        </Button>
+                      )}
+                    </div>
+
+                    {enhancedUrl && (
+                      <Button
+                        onClick={handleDownload}
+                        variant="outline"
+                        className="w-full border-green-500/50 bg-green-500/10 hover:bg-green-500/20 text-green-600"
+                        size="lg"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Download Enhanced Audio
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Right Column - Info */}
+              <div className="lg:col-span-2">
+                <Card className="sticky top-24">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Enhancement Info</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                        <Activity className="w-5 h-5 text-emerald-500" />
+                        <div>
+                          <p className="text-sm font-medium">Noise Reduction</p>
+                          <p className="text-xs text-muted-foreground">AI-powered denoising</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                        <Volume2 className="w-5 h-5 text-teal-500" />
+                        <div>
+                          <p className="text-sm font-medium">Clarity Boost</p>
+                          <p className="text-xs text-muted-foreground">Enhanced voice clarity</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                        <Sparkles className="w-5 h-5 text-cyan-500" />
+                        <div>
+                          <p className="text-sm font-medium">Quality Improve</p>
+                          <p className="text-xs text-muted-foreground">Professional audio quality</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t space-y-2">
+                      <p className="text-sm font-medium">Best For:</p>
+                      <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+                        <li>Podcast recordings</li>
+                        <li>Video voice-overs</li>
+                        <li>Phone call recordings</li>
+                        <li>Noisy interviews</li>
+                        <li>Low-quality recordings</li>
+                        <li>Background noise removal</li>
                       </ul>
                     </div>
-                  </div>
-                )}
 
-                <div className="bg-muted/30 rounded-lg p-4 space-y-2">
-                  <h4 className="font-medium">How it works</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Free version uses DeepFilterNet AI for noise removal</li>
-                    <li>• Pro version uses Adobe Podcast Enhancer for studio quality</li>
-                    <li>• Removes background noise, hum, echo, and reverb</li>
-                    <li>• Processing typically takes 30-60 seconds</li>
-                    <li>• Perfect for podcasts, interviews, and voice recordings</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
+                    <div className="pt-4 border-t space-y-2">
+                      <p className="text-sm font-medium">Features:</p>
+                      <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+                        <li>AI-powered noise reduction</li>
+                        <li>Voice clarity enhancement</li>
+                        <li>Automatic loudness normalization</li>
+                        <li>High-quality WAV output</li>
+                        <li>Before/after comparison</li>
+                        <li>Powered by DeepFilterNet</li>
+                      </ul>
+                    </div>
+
+                    <div className="pt-4 border-t">
+                      <p className="text-xs text-muted-foreground">
+                        <strong>Powered by:</strong> DeepFilterNet (PyTorch) + FFmpeg
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           </div>
         </div>
       </div>
