@@ -171,16 +171,16 @@ export function ToolsGrid() {
                   <CardHeader>
                     <div className="flex items-start justify-between mb-3">
                       <div className={`p-3 rounded-xl bg-gradient-to-br ${tool.color} shadow-lg group-hover:scale-110 transition-transform`}>
-                        <Icon className="w-6 h-6 text-white" />
+                        <Icon className="w-6 h-6 text-white drop-shadow-sm" />
                       </div>
                       <div className="flex gap-2">
                         {tool.free && (
-                          <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-600 border-green-500/20">
+                          <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20">
                             Free
                           </Badge>
                         )}
                         {tool.pro && (
-                          <Badge variant="secondary" className="text-xs bg-brand-purple/10 text-brand-purple border-brand-purple/20">
+                          <Badge variant="secondary" className="text-xs bg-brand-purple/10 text-brand-purple dark:text-purple-400 border-brand-purple/20">
                             Pro
                           </Badge>
                         )}
