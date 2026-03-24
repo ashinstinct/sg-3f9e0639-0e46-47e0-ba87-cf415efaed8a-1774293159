@@ -1,9 +1,8 @@
-FROM python:3.10-slim
+FROM python:3.11-slim
 
-# Install system dependencies
+# Install system dependencies including FFmpeg
 RUN apt-get update && apt-get install -y \
     ffmpeg \
-    libsndfile1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -18,8 +17,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Expose port
+# Expose port (Railway will set PORT env var)
 EXPOSE 5000
 
-# Run with gunicorn for production
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--timeout", "300", "app:app"]
+# Start command
+CMD gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 300 --log-level info app:app
