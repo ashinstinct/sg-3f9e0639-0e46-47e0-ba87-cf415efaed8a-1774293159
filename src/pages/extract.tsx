@@ -1,35 +1,38 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
-import { Scissors, Upload, Download, Loader2, AlertCircle, Play, Pause, Image as ImageIcon } from "lucide-react";
+import { Scissors, Upload, Download, Loader2, AlertCircle, Image as ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import JSZip from "jszip";
 
-type ExtractionMode = "start-end" | "slider" | "all";
+type ExtractionMode = "start" | "pick" | "end";
 
 export default function FrameExtractor() {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState("");
-  const [frameInterval, setFrameInterval] = useState(1);
   const [sliderValue, setSliderValue] = useState(0);
-  const [extractedFrames, setExtractedFrames] = useState<string[]>([]);
+  const [extractedFrame, setExtractedFrame] = useState<string>("");
   const [isExtracting, setIsExtracting] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [mode, setMode] = useState<ExtractionMode>("slider");
+  const [mode, setMode] = useState<ExtractionMode>("pick");
   const [error, setError] = useState("");
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // Update video position when slider changes (live preview)
+  useEffect(() => {
+    if (videoRef.current && duration > 0 && mode === "pick") {
+      const time = (sliderValue / 100) * duration;
+      videoRef.current.currentTime = time;
+    }
+  }, [sliderValue, duration, mode]);
 
   const handleFileSelect = (file: File) => {
     if (!file.type.startsWith("video/")) {
@@ -39,8 +42,9 @@ export default function FrameExtractor() {
 
     setVideoFile(file);
     setVideoUrl(URL.createObjectURL(file));
-    setExtractedFrames([]);
+    setExtractedFrame("");
     setError("");
+    setSliderValue(0);
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,60 +58,62 @@ export default function FrameExtractor() {
     if (file) handleFileSelect(file);
   };
 
-  const captureFrame = async (time: number): Promise<string> => {
-    return new Promise((resolve) => {
-      if (!videoRef.current || !canvasRef.current) return;
-      
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
+  const captureCurrentFrame = (): string => {
+    if (!videoRef.current || !canvasRef.current) return "";
+    
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return "";
 
-      video.currentTime = time;
-      video.onseeked = () => {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        ctx.drawImage(video, 0, 0);
-        resolve(canvas.toDataURL("image/png"));
-      };
-    });
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0);
+    return canvas.toDataURL("image/png");
   };
 
-  const extractStartEndFrames = async () => {
-    if (!videoRef.current || !canvasRef.current || duration === 0) return;
+  const extractStartFrame = async () => {
+    if (!videoRef.current || duration === 0) return;
 
     setIsExtracting(true);
     setError("");
 
     try {
-      const startFrame = await captureFrame(0);
-      const endFrame = await captureFrame(duration - 0.1);
+      // Seek to start
+      videoRef.current.currentTime = 0;
       
-      setExtractedFrames([startFrame, endFrame]);
-      
-      toast({
-        title: "Success!",
-        description: "Extracted start and end frames",
+      // Wait for seek to complete
+      await new Promise<void>((resolve) => {
+        if (!videoRef.current) return;
+        videoRef.current.onseeked = () => {
+          const frame = captureCurrentFrame();
+          setExtractedFrame(frame);
+          toast({
+            title: "Success!",
+            description: "Extracted start frame",
+          });
+          resolve();
+        };
       });
     } catch (err) {
-      setError("Failed to extract frames. Please try again.");
+      setError("Failed to extract start frame. Please try again.");
       console.error(err);
     } finally {
       setIsExtracting(false);
     }
   };
 
-  const extractSliderFrame = async () => {
-    if (!videoRef.current || !canvasRef.current || duration === 0) return;
+  const extractPickFrame = () => {
+    if (!videoRef.current || duration === 0) return;
 
     setIsExtracting(true);
     setError("");
 
     try {
+      const frame = captureCurrentFrame();
       const time = (sliderValue / 100) * duration;
-      const frame = await captureFrame(time);
       
-      setExtractedFrames([frame]);
+      setExtractedFrame(frame);
       
       toast({
         title: "Success!",
@@ -121,35 +127,31 @@ export default function FrameExtractor() {
     }
   };
 
-  const extractAllFrames = async () => {
-    if (!videoRef.current || !canvasRef.current || duration === 0) return;
+  const extractEndFrame = async () => {
+    if (!videoRef.current || duration === 0) return;
 
     setIsExtracting(true);
     setError("");
-    setExtractedFrames([]);
-
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
 
     try {
-      const frames: string[] = [];
-      const totalFrames = Math.floor(duration / frameInterval);
+      // Seek to end (slightly before to avoid black frame)
+      videoRef.current.currentTime = duration - 0.1;
       
-      for (let i = 0; i < totalFrames; i++) {
-        const time = i * frameInterval;
-        const frame = await captureFrame(time);
-        frames.push(frame);
-      }
-
-      setExtractedFrames(frames);
-      toast({
-        title: "Success!",
-        description: `Extracted ${frames.length} frames`,
+      // Wait for seek to complete
+      await new Promise<void>((resolve) => {
+        if (!videoRef.current) return;
+        videoRef.current.onseeked = () => {
+          const frame = captureCurrentFrame();
+          setExtractedFrame(frame);
+          toast({
+            title: "Success!",
+            description: "Extracted end frame",
+          });
+          resolve();
+        };
       });
     } catch (err) {
-      setError("Failed to extract frames. Please try again.");
+      setError("Failed to extract end frame. Please try again.");
       console.error(err);
     } finally {
       setIsExtracting(false);
@@ -157,62 +159,32 @@ export default function FrameExtractor() {
   };
 
   const handleExtract = () => {
-    if (mode === "start-end") {
-      extractStartEndFrames();
-    } else if (mode === "slider") {
-      extractSliderFrame();
+    if (mode === "start") {
+      extractStartFrame();
+    } else if (mode === "pick") {
+      extractPickFrame();
     } else {
-      extractAllFrames();
+      extractEndFrame();
     }
   };
 
-  const downloadAllFrames = async () => {
-    if (extractedFrames.length === 0) return;
+  const downloadFrame = () => {
+    if (!extractedFrame) return;
 
-    const zip = new JSZip();
-    const folder = zip.folder("frames");
-
-    extractedFrames.forEach((frame, index) => {
-      const base64Data = frame.split(",")[1];
-      const fileName = mode === "start-end" 
-        ? (index === 0 ? "start_frame.png" : "end_frame.png")
-        : `frame_${String(index + 1).padStart(4, "0")}.png`;
-      folder?.file(fileName, base64Data, { base64: true });
-    });
-
-    const blob = await zip.generateAsync({ type: "blob" });
-    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.href = url;
-    link.download = `frames_${Date.now()}.zip`;
+    link.href = extractedFrame;
+    const fileName = mode === "start" 
+      ? "start_frame.png" 
+      : mode === "end" 
+      ? "end_frame.png" 
+      : `frame_${Math.floor((sliderValue / 100) * duration)}s.png`;
+    link.download = fileName;
     link.click();
-    URL.revokeObjectURL(url);
 
     toast({
       title: "Downloaded!",
-      description: `${extractedFrames.length} frame(s) saved as ZIP`,
+      description: `Saved as ${fileName}`,
     });
-  };
-
-  const downloadFrame = (frame: string, index: number) => {
-    const link = document.createElement("a");
-    link.href = frame;
-    const fileName = mode === "start-end" 
-      ? (index === 0 ? "start_frame.png" : "end_frame.png")
-      : `frame_${String(index + 1).padStart(4, "0")}.png`;
-    link.download = fileName;
-    link.click();
-  };
-
-  const togglePlayPause = () => {
-    if (!videoRef.current) return;
-    
-    if (isPlaying) {
-      videoRef.current.pause();
-    } else {
-      videoRef.current.play();
-    }
-    setIsPlaying(!isPlaying);
   };
 
   const formatTime = (seconds: number) => {
@@ -253,7 +225,7 @@ export default function FrameExtractor() {
                 <CardHeader>
                   <CardTitle>Upload Video</CardTitle>
                   <CardDescription>
-                    Select a video file and choose extraction mode
+                    Select a video file and choose which frame to extract
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -295,40 +267,23 @@ export default function FrameExtractor() {
                             onLoadedMetadata={(e) => {
                               setDuration(e.currentTarget.duration);
                             }}
-                            onTimeUpdate={(e) => {
-                              setCurrentTime(e.currentTarget.currentTime);
-                            }}
-                            onEnded={() => setIsPlaying(false)}
                             className="w-full h-auto"
                           />
                           <canvas ref={canvasRef} className="hidden" />
                         </div>
                         
-                        <div className="flex gap-3">
-                          <Button
-                            onClick={togglePlayPause}
-                            variant="outline"
-                            size="sm"
-                          >
-                            {isPlaying ? (
-                              <><Pause className="w-4 h-4 mr-2" />Pause</>
-                            ) : (
-                              <><Play className="w-4 h-4 mr-2" />Play</>
-                            )}
-                          </Button>
-                          <Button
-                            onClick={() => fileInputRef.current?.click()}
-                            variant="outline"
-                            size="sm"
-                            className="flex-1"
-                          >
-                            <Upload className="w-4 h-4 mr-2" />
-                            Change Video
-                          </Button>
-                        </div>
+                        <Button
+                          onClick={() => fileInputRef.current?.click()}
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          Change Video
+                        </Button>
 
                         <div className="text-xs text-muted-foreground text-center">
-                          {formatTime(currentTime)} / {formatTime(duration)}
+                          Duration: {formatTime(duration)}
                         </div>
                       </div>
                     )}
@@ -338,74 +293,66 @@ export default function FrameExtractor() {
                   {videoFile && (
                     <div className="space-y-4">
                       <div className="space-y-3">
-                        <Label>Extraction Mode</Label>
+                        <Label>Choose Frame to Extract</Label>
                         <div className="grid grid-cols-3 gap-3">
                           <Button
-                            variant={mode === "start-end" ? "default" : "outline"}
+                            variant={mode === "start" ? "default" : "outline"}
                             size="sm"
-                            onClick={() => setMode("start-end")}
-                            className={mode === "start-end" ? "bg-gradient-to-r from-purple-500 to-pink-500" : ""}
+                            onClick={() => setMode("start")}
+                            className={mode === "start" ? "bg-gradient-to-r from-purple-500 to-pink-500" : ""}
                           >
-                            Start + End
+                            Start Frame
                           </Button>
                           <Button
-                            variant={mode === "slider" ? "default" : "outline"}
+                            variant={mode === "pick" ? "default" : "outline"}
                             size="sm"
-                            onClick={() => setMode("slider")}
-                            className={mode === "slider" ? "bg-gradient-to-r from-purple-500 to-pink-500" : ""}
+                            onClick={() => setMode("pick")}
+                            className={mode === "pick" ? "bg-gradient-to-r from-purple-500 to-pink-500" : ""}
                           >
                             Pick Frame
                           </Button>
                           <Button
-                            variant={mode === "all" ? "default" : "outline"}
+                            variant={mode === "end" ? "default" : "outline"}
                             size="sm"
-                            onClick={() => setMode("all")}
-                            className={mode === "all" ? "bg-gradient-to-r from-purple-500 to-pink-500" : ""}
+                            onClick={() => setMode("end")}
+                            className={mode === "end" ? "bg-gradient-to-r from-purple-500 to-pink-500" : ""}
                           >
-                            All Frames
+                            End Frame
                           </Button>
                         </div>
                       </div>
 
                       {/* Mode-Specific Controls */}
-                      {mode === "start-end" && (
+                      {mode === "start" && (
                         <div className="bg-muted/50 rounded-lg p-4">
                           <p className="text-sm text-muted-foreground">
-                            Extract the first and last frame of the video
+                            Extract the first frame of the video
                           </p>
                         </div>
                       )}
 
-                      {mode === "slider" && (
+                      {mode === "pick" && (
                         <div className="space-y-3">
-                          <Label>Pick Frame Position ({Math.floor((sliderValue / 100) * duration)}s)</Label>
+                          <Label>
+                            Pick Frame Position: {formatTime((sliderValue / 100) * duration)}
+                          </Label>
                           <Slider
                             value={[sliderValue]}
                             onValueChange={(value) => setSliderValue(value[0])}
                             max={100}
-                            step={1}
+                            step={0.1}
                             className="w-full"
                           />
                           <p className="text-xs text-muted-foreground">
-                            Use the slider to select any moment in the video
+                            Move the slider to see the video frames change above. The video will update in real-time as you move the slider.
                           </p>
                         </div>
                       )}
 
-                      {mode === "all" && (
-                        <div className="space-y-2">
-                          <Label htmlFor="interval">Frame Interval (seconds)</Label>
-                          <Input
-                            id="interval"
-                            type="number"
-                            min="0.1"
-                            step="0.1"
-                            value={frameInterval}
-                            onChange={(e) => setFrameInterval(parseFloat(e.target.value))}
-                            className="w-full"
-                          />
-                          <p className="text-xs text-muted-foreground">
-                            Extract one frame every {frameInterval} second(s). Estimated: ~{Math.floor(duration / frameInterval)} frames
+                      {mode === "end" && (
+                        <div className="bg-muted/50 rounded-lg p-4">
+                          <p className="text-sm text-muted-foreground">
+                            Extract the last frame of the video
                           </p>
                         </div>
                       )}
@@ -424,7 +371,7 @@ export default function FrameExtractor() {
                         ) : (
                           <>
                             <ImageIcon className="w-5 h-5 mr-2" />
-                            Extract {mode === "start-end" ? "Start + End" : mode === "slider" ? "Frame" : "All Frames"}
+                            Extract {mode === "start" ? "Start" : mode === "end" ? "End" : "This"} Frame
                           </>
                         )}
                       </Button>
@@ -444,70 +391,61 @@ export default function FrameExtractor() {
                     <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
                       <li>100% browser-based (no upload to server)</li>
                       <li>Uses HTML5 Canvas API</li>
+                      <li>Live video preview when using slider</li>
                       <li>Extracts high-quality PNG frames</li>
-                      <li>Download individually or as ZIP</li>
                     </ul>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Extracted Frames */}
+              {/* Extracted Frame */}
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle>Extracted Frames</CardTitle>
+                      <CardTitle>Extracted Frame</CardTitle>
                       <CardDescription>
-                        {extractedFrames.length > 0
-                          ? `${extractedFrames.length} frame(s) extracted`
-                          : "Frames will appear here"}
+                        {extractedFrame
+                          ? "Frame extracted successfully"
+                          : "Frame will appear here"}
                       </CardDescription>
                     </div>
-                    {extractedFrames.length > 0 && (
+                    {extractedFrame && (
                       <Button
-                        onClick={downloadAllFrames}
+                        onClick={downloadFrame}
                         size="sm"
                         className="bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90"
                       >
                         <Download className="w-4 h-4 mr-2" />
-                        Download {extractedFrames.length > 1 ? "ZIP" : "Frame"}
+                        Download
                       </Button>
                     )}
                   </div>
                 </CardHeader>
                 <CardContent>
-                  {extractedFrames.length === 0 ? (
+                  {!extractedFrame ? (
                     <div className="h-[400px] bg-muted/50 rounded-lg flex items-center justify-center">
                       <div className="text-center text-muted-foreground">
                         <Scissors className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                        <p className="text-sm">No frames extracted yet</p>
-                        <p className="text-xs mt-1">Upload a video and select extraction mode</p>
+                        <p className="text-sm">No frame extracted yet</p>
+                        <p className="text-xs mt-1">Upload a video and choose which frame to extract</p>
                       </div>
                     </div>
                   ) : (
-                    <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
-                      {extractedFrames.map((frame, index) => (
-                        <div key={index} className="group relative rounded-lg overflow-hidden border bg-muted/50">
-                          <img
-                            src={frame}
-                            alt={`Frame ${index + 1}`}
-                            className="w-full h-auto"
-                          />
-                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                            <Button
-                              onClick={() => downloadFrame(frame, index)}
-                              size="sm"
-                              variant="secondary"
-                            >
-                              <Download className="w-4 h-4 mr-2" />
-                              Download {mode === "start-end" ? (index === 0 ? "Start" : "End") : `Frame ${index + 1}`}
-                            </Button>
-                          </div>
-                          <div className="absolute top-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
-                            {mode === "start-end" ? (index === 0 ? "Start Frame" : "End Frame") : `Frame ${index + 1}/${extractedFrames.length}`}
-                          </div>
-                        </div>
-                      ))}
+                    <div className="space-y-4">
+                      <div className="relative rounded-lg overflow-hidden border bg-muted/50">
+                        <img
+                          src={extractedFrame}
+                          alt="Extracted frame"
+                          className="w-full h-auto"
+                        />
+                      </div>
+                      <div className="flex justify-between items-center text-xs text-muted-foreground">
+                        <span>
+                          {mode === "start" ? "Start Frame" : mode === "end" ? "End Frame" : `Frame at ${formatTime((sliderValue / 100) * duration)}`}
+                        </span>
+                        <span>PNG format</span>
+                      </div>
                     </div>
                   )}
                 </CardContent>
