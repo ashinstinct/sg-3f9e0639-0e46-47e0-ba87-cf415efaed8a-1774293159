@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
@@ -29,12 +29,36 @@ export default function VideoSplitter() {
   const [progress, setProgress] = useState<number>(0);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
+  const [backendStatus, setBackendStatus] = useState<"checking" | "online" | "offline">("checking");
   
   const [segments, setSegments] = useState<VideoSegment[]>([]);
   const [zipBlob, setZipBlob] = useState<Blob | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Check backend health on mount
+  useEffect(() => {
+    const checkBackend = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/health`, {
+          method: "GET",
+          signal: AbortSignal.timeout(5000) // 5 second timeout
+        });
+        if (response.ok) {
+          setBackendStatus("online");
+        } else {
+          setBackendStatus("offline");
+          setError(`Backend is responding but not healthy. Status: ${response.status}`);
+        }
+      } catch (err) {
+        setBackendStatus("offline");
+        setError(`Cannot connect to backend at ${BACKEND_URL}. Please check if Railway deployment is active.`);
+        console.error("Backend health check failed:", err);
+      }
+    };
+    checkBackend();
+  }, []);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -66,6 +90,11 @@ export default function VideoSplitter() {
       return;
     }
 
+    if (backendStatus === "offline") {
+      setError("Backend server is offline. Please check Railway deployment status.");
+      return;
+    }
+
     setIsSplitting(true);
     setError("");
     setSuccess("");
@@ -88,8 +117,18 @@ export default function VideoSplitter() {
       setProgress(60);
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "Video splitting failed");
+        const contentType = response.headers.get("content-type");
+        let errorMessage = "Video splitting failed";
+        
+        if (contentType && contentType.includes("application/json")) {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } else {
+          const errorText = await response.text();
+          errorMessage = errorText || `Server error: ${response.status} ${response.statusText}`;
+        }
+        
+        throw new Error(errorMessage);
       }
 
       setProgress(80);
@@ -117,7 +156,17 @@ export default function VideoSplitter() {
       setSuccess(`Successfully split video into ${extractedSegments.length} clips!`);
     } catch (err) {
       console.error("Split error:", err);
-      setError(err instanceof Error ? err.message : "Failed to split video. Please try again.");
+      let errorMessage = "Failed to split video. ";
+      
+      if (err instanceof TypeError && err.message.includes("fetch")) {
+        errorMessage += `Cannot connect to backend at ${BACKEND_URL}. Please verify Railway deployment is active.`;
+      } else if (err instanceof Error) {
+        errorMessage += err.message;
+      } else {
+        errorMessage += "Unknown error occurred. Check console for details.";
+      }
+      
+      setError(errorMessage);
       setProgress(0);
     } finally {
       setIsSplitting(false);
