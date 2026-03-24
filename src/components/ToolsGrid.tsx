@@ -3,26 +3,26 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Image, Video, Scissors, Music, Wand2, Mic, 
   MonitorPlay, Film, Sparkles, Download, SplitSquareHorizontal,
-  AudioLines, Settings, FileText, ImageIcon
+  AudioLines, Settings, FileText, ImageIcon, Camera
 } from "lucide-react";
 import Link from "next/link";
 
 const tools = [
   {
     title: "Frame Extractor",
-    description: "Extract frames from videos at custom intervals",
-    icon: Film,
+    description: "Extract frames from videos with precision",
+    icon: Camera,
     href: "/extract",
-    gradient: "from-purple-500 to-pink-500",
     badge: "Free",
+    badgeVariant: "success" as const,
   },
   {
     title: "Video Downloader",
-    description: "Download videos from YouTube, TikTok, and 50+ platforms",
+    description: "Download videos from YouTube and other platforms",
     icon: Download,
     href: "/download",
-    gradient: "from-blue-500 to-cyan-500",
     badge: "Free",
+    badgeVariant: "success" as const,
   },
   {
     title: "Video Splitter",

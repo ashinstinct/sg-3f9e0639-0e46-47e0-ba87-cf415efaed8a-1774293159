@@ -133,11 +133,10 @@ export default function VideoDownloader() {
           <div className="max-w-4xl mx-auto">
             {/* Header */}
             <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-4">
-                <Download className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-primary">Free Tool</span>
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 mb-4">
+                <Download className="w-8 h-8 text-white" />
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+              <h1 className="font-heading font-bold text-4xl text-white">
                 Video Downloader
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">

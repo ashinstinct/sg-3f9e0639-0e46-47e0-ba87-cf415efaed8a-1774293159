@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
-import { Scissors, Upload, Download, Loader2, AlertCircle, Image as ImageIcon } from "lucide-react";
+import { Camera, Upload, Download, Loader2, AlertCircle, Image as ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 type ExtractionMode = "start" | "pick" | "end";
@@ -205,12 +205,11 @@ export default function FrameExtractor() {
         <div className="container mx-auto px-4 pt-24 pb-12">
           <div className="max-w-6xl mx-auto">
             <div className="mb-8">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500">
-                  <Scissors className="w-6 h-6 text-white" />
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                  <Camera className="w-6 h-6 text-white" />
                 </div>
-                <h1 className="font-heading font-bold text-4xl">Frame Extractor</h1>
-                <Badge variant="secondary" className="bg-green-500/10 text-green-600 border-green-500/20">
+                <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-green-500/20">
                   Free
                 </Badge>
               </div>
@@ -426,7 +425,7 @@ export default function FrameExtractor() {
                   {!extractedFrame ? (
                     <div className="h-[400px] bg-muted/50 rounded-lg flex items-center justify-center">
                       <div className="text-center text-muted-foreground">
-                        <Scissors className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                        <Camera className="w-12 h-12 mx-auto mb-3 opacity-50" />
                         <p className="text-sm">No frame extracted yet</p>
                         <p className="text-xs mt-1">Upload a video and choose which frame to extract</p>
                       </div>

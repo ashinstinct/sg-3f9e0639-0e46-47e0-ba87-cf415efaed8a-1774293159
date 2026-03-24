@@ -15,16 +15,11 @@ export function Hero() {
             14 Free Tools + Premium AI Models
           </Badge>
 
-          <h1 className="font-heading font-bold text-5xl md:text-7xl mb-6 leading-tight">
-            Create Stunning{" "}
-            <span className="text-gradient">AI Media</span>
-            <br />
-            In Seconds
+          <h1 className="font-heading font-bold text-5xl md:text-7xl mb-6 bg-gradient-to-r from-primary via-purple-400 to-accent bg-clip-text text-transparent">
+            Back2Life.Studio
           </h1>
-
-          <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-            Professional-grade AI tools for image generation, video creation, audio editing, and more. 
-            Start with powerful free tools, upgrade for cutting-edge AI models.
+          <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Professional AI tools for creators. 14 free tools + premium AI models for image generation, video creation, and audio editing.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
