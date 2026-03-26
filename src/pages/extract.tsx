@@ -244,6 +244,9 @@ export default function FrameExtractor() {
                   Free
                 </Badge>
               </div>
+              <h1 className="font-heading font-bold text-4xl md:text-5xl mb-4">
+                Frame Extractor
+              </h1>
               <p className="text-muted-foreground text-lg">
                 Extract frames from videos instantly in your browser. No upload required, 100% client-side processing.
               </p>

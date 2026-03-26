@@ -15,6 +15,9 @@ const tools = [
     href: "/extract",
     badge: "Free",
     badgeVariant: "success" as const,
+    category: "Video",
+    free: true,
+    color: "from-purple-500 to-pink-500",
   },
   {
     title: "Video Downloader",
@@ -23,6 +26,9 @@ const tools = [
     href: "/download",
     badge: "Free",
     badgeVariant: "success" as const,
+    category: "Video",
+    free: true,
+    color: "from-blue-500 to-cyan-500",
   },
   {
     title: "Video Splitter",
