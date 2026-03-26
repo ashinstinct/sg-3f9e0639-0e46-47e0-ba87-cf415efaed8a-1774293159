@@ -5,8 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Download, Link as LinkIcon, CheckCircle2, AlertCircle, Loader2, Video, Music, Image as ImageIcon } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Download, Link as LinkIcon, CheckCircle2, AlertCircle, Loader2, Video, Music, Share2, Play, ExternalLink } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useToast } from "@/hooks/use-toast";
 
 interface DownloadResult {
   url: string;
@@ -16,17 +19,40 @@ interface DownloadResult {
   thumbnail?: string;
 }
 
+type VideoQuality = "max" | "2160" | "1440" | "1080" | "720" | "480" | "360" | "240" | "144";
+type AudioBitrate = "320" | "192" | "128" | "64";
+
 export default function VideoDownloader() {
   const [videoUrl, setVideoUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<DownloadResult | null>(null);
   const [downloadType, setDownloadType] = useState<"video" | "audio">("video");
+  const [videoQuality, setVideoQuality] = useState<VideoQuality>("720");
+  const [audioBitrate, setAudioBitrate] = useState<AudioBitrate>("192");
+  const [showPreview, setShowPreview] = useState(false);
+  const { toast } = useToast();
 
   const supportedPlatforms = [
     "YouTube", "TikTok", "Instagram", "Twitter/X", "Facebook",
     "Reddit", "Vimeo", "Twitch", "SoundCloud", "Dailymotion",
     "Bilibili", "Twitter Spaces", "VK", "OK.ru", "Pinterest"
+  ];
+
+  const qualityOptions = [
+    { value: "2160", label: "4K (2160p)", size: "~800-1200 MB/min" },
+    { value: "1440", label: "2K (1440p)", size: "~400-600 MB/min" },
+    { value: "1080", label: "Full HD (1080p)", size: "~200-300 MB/min" },
+    { value: "720", label: "HD (720p)", size: "~100-150 MB/min" },
+    { value: "480", label: "SD (480p)", size: "~50-70 MB/min" },
+    { value: "360", label: "Low (360p)", size: "~30-40 MB/min" },
+  ];
+
+  const audioBitrateOptions = [
+    { value: "320", label: "320 kbps (Best)", size: "~2.4 MB/min" },
+    { value: "192", label: "192 kbps (High)", size: "~1.4 MB/min" },
+    { value: "128", label: "128 kbps (Standard)", size: "~1 MB/min" },
+    { value: "64", label: "64 kbps (Low)", size: "~0.5 MB/min" },
   ];
 
   const handleDownload = async () => {
@@ -38,9 +64,9 @@ export default function VideoDownloader() {
     setLoading(true);
     setError("");
     setResult(null);
+    setShowPreview(false);
 
     try {
-      // cobalt.tools API endpoint
       const response = await fetch("https://api.cobalt.tools/api/json", {
         method: "POST",
         headers: {
@@ -50,8 +76,9 @@ export default function VideoDownloader() {
         body: JSON.stringify({
           url: videoUrl.trim(),
           isAudioOnly: downloadType === "audio",
-          videoQuality: "max", // max, 4320, 2160, 1440, 1080, 720, 480, 360, 240, 144
-          filenamePattern: "classic", // classic, pretty, basic, nerdy
+          videoQuality: videoQuality,
+          audioBitrate: downloadType === "audio" ? audioBitrate : undefined,
+          filenamePattern: "classic",
           isAudioMuted: false,
           dubLang: false,
           disableMetadata: false,
@@ -69,21 +96,27 @@ export default function VideoDownloader() {
       }
 
       if (data.status === "redirect" || data.status === "stream") {
-        // Direct download URL
         setResult({
           url: data.url,
           filename: extractFilename(videoUrl),
-          quality: "Best Available",
+          quality: videoQuality === "max" ? "Best Available" : `${videoQuality}p`,
           thumbnail: data.thumb,
         });
+        toast({
+          title: "Ready to download!",
+          description: `${downloadType === "audio" ? "Audio" : "Video"} processed successfully`,
+        });
       } else if (data.status === "picker") {
-        // Multiple quality options (use first one)
         const firstPick = data.picker[0];
         setResult({
           url: firstPick.url,
           filename: extractFilename(videoUrl),
-          quality: "Best Available",
+          quality: videoQuality === "max" ? "Best Available" : `${videoQuality}p`,
           thumbnail: firstPick.thumb,
+        });
+        toast({
+          title: "Ready to download!",
+          description: `${downloadType === "audio" ? "Audio" : "Video"} processed successfully`,
         });
       } else {
         throw new Error("Unexpected response format");
@@ -91,6 +124,11 @@ export default function VideoDownloader() {
     } catch (err) {
       console.error("Download error:", err);
       setError(err instanceof Error ? err.message : "Failed to download video. Please check the URL and try again.");
+      toast({
+        variant: "destructive",
+        title: "Download failed",
+        description: err instanceof Error ? err.message : "Please try again",
+      });
     } finally {
       setLoading(false);
     }
@@ -110,7 +148,6 @@ export default function VideoDownloader() {
   const handleDirectDownload = () => {
     if (!result) return;
 
-    // Create temporary link and trigger download
     const link = document.createElement("a");
     link.href = result.url;
     link.download = result.filename;
@@ -118,6 +155,44 @@ export default function VideoDownloader() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
+    toast({
+      title: "Download started!",
+      description: "Check your downloads folder",
+    });
+  };
+
+  const handleShare = async () => {
+    const shareUrl = window.location.href;
+    const shareText = "Check out this free video downloader - download from YouTube, TikTok, Instagram & more!";
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "Back2Life.Studio - Video Downloader",
+          text: shareText,
+          url: shareUrl,
+        });
+        toast({
+          title: "Shared successfully!",
+          description: "Thanks for spreading the word",
+        });
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") {
+          handleCopyLink();
+        }
+      }
+    } else {
+      handleCopyLink();
+    }
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast({
+      title: "Link copied!",
+      description: "Share this tool with your friends",
+    });
   };
 
   return (
@@ -136,13 +211,17 @@ export default function VideoDownloader() {
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 mb-4">
                 <Download className="w-8 h-8 text-white" />
               </div>
-              <h1 className="font-heading font-bold text-4xl text-white">
+              <h1 className="font-heading font-bold text-4xl text-white mb-3">
                 Video Downloader
               </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
                 Download videos from YouTube, TikTok, Instagram, and 50+ platforms. 
                 High quality, fast, and no watermarks.
               </p>
+              <Button onClick={handleShare} variant="outline" size="sm" className="gap-2">
+                <Share2 className="w-4 h-4" />
+                Share This Tool
+              </Button>
             </div>
 
             {/* Main Card */}
@@ -174,13 +253,56 @@ export default function VideoDownloader() {
                   </Button>
                 </div>
 
+                {/* Quality & Bitrate Settings */}
+                <div className="grid md:grid-cols-2 gap-4">
+                  {downloadType === "video" ? (
+                    <div className="space-y-2">
+                      <Label>Video Quality</Label>
+                      <Select value={videoQuality} onValueChange={(value) => setVideoQuality(value as VideoQuality)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {qualityOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                              <span className="text-xs text-muted-foreground ml-2">
+                                {option.size}
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Label>Audio Bitrate</Label>
+                      <Select value={audioBitrate} onValueChange={(value) => setAudioBitrate(value as AudioBitrate)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {audioBitrateOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                              <span className="text-xs text-muted-foreground ml-2">
+                                {option.size}
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+
                 {/* URL Input */}
                 <div className="flex gap-2">
                   <div className="relative flex-1">
                     <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                       type="url"
-                      placeholder="https://youtube.com/watch?v=..."
+                      placeholder="https://youtube.com/watch?v=... or https://tiktok.com/@user/video/..."
                       value={videoUrl}
                       onChange={(e) => setVideoUrl(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && handleDownload()}
@@ -220,14 +342,40 @@ export default function VideoDownloader() {
                 {result && (
                   <Alert className="border-green-500/50 bg-green-500/10">
                     <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    <AlertDescription className="flex items-center justify-between">
+                    <AlertDescription className="flex items-center justify-between gap-2 flex-wrap">
                       <span className="text-green-500">Ready to download!</span>
-                      <Button onClick={handleDirectDownload} size="sm" variant="outline">
-                        <Download className="w-4 h-4 mr-2" />
-                        Download Now
-                      </Button>
+                      <div className="flex gap-2">
+                        {downloadType === "video" && result.url && (
+                          <Button 
+                            onClick={() => setShowPreview(!showPreview)} 
+                            size="sm" 
+                            variant="outline"
+                          >
+                            <Play className="w-4 h-4 mr-2" />
+                            {showPreview ? "Hide" : "Preview"}
+                          </Button>
+                        )}
+                        <Button onClick={handleDirectDownload} size="sm" variant="outline">
+                          <Download className="w-4 h-4 mr-2" />
+                          Download Now
+                        </Button>
+                      </div>
                     </AlertDescription>
                   </Alert>
+                )}
+
+                {/* Video Preview */}
+                {result && showPreview && downloadType === "video" && (
+                  <Card className="border-primary/20 overflow-hidden">
+                    <CardContent className="p-0">
+                      <video
+                        src={result.url}
+                        controls
+                        className="w-full h-auto bg-black"
+                        controlsList="nodownload"
+                      />
+                    </CardContent>
+                  </Card>
                 )}
 
                 {/* Download Result Card */}
@@ -249,15 +397,32 @@ export default function VideoDownloader() {
                             <h3 className="font-semibold truncate">{result.filename}</h3>
                             <Badge variant="secondary">{result.quality}</Badge>
                           </div>
-                          {result.filesize && (
-                            <p className="text-sm text-muted-foreground mb-3">
-                              Size: {result.filesize}
-                            </p>
-                          )}
-                          <Button onClick={handleDirectDownload} className="w-full">
-                            <Download className="w-4 h-4 mr-2" />
-                            Download {downloadType === "audio" ? "Audio" : "Video"}
-                          </Button>
+                          <div className="flex items-center gap-2 mb-3 text-sm text-muted-foreground">
+                            {downloadType === "video" ? (
+                              <>
+                                <Video className="w-4 h-4" />
+                                <span>Quality: {result.quality}</span>
+                              </>
+                            ) : (
+                              <>
+                                <Music className="w-4 h-4" />
+                                <span>Bitrate: {audioBitrate} kbps</span>
+                              </>
+                            )}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button onClick={handleDirectDownload} className="flex-1">
+                              <Download className="w-4 h-4 mr-2" />
+                              Download {downloadType === "audio" ? "Audio" : "Video"}
+                            </Button>
+                            <Button 
+                              onClick={() => window.open(result.url, "_blank")} 
+                              variant="outline"
+                              size="icon"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </CardContent>
@@ -286,7 +451,7 @@ export default function VideoDownloader() {
                       <Video className="w-4 h-4 text-primary" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-sm mb-1">Best Quality</h4>
+                      <h4 className="font-semibold text-sm mb-1">Multiple Qualities</h4>
                       <p className="text-xs text-muted-foreground">Up to 4K resolution</p>
                     </div>
                   </div>
@@ -296,7 +461,7 @@ export default function VideoDownloader() {
                     </div>
                     <div>
                       <h4 className="font-semibold text-sm mb-1">Audio Extract</h4>
-                      <p className="text-xs text-muted-foreground">Download MP3 audio</p>
+                      <p className="text-xs text-muted-foreground">Up to 320 kbps</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -316,9 +481,9 @@ export default function VideoDownloader() {
                   <ol className="list-decimal list-inside space-y-1 pl-2">
                     <li>Copy video URL from any supported platform</li>
                     <li>Choose Video or Audio Only mode</li>
+                    <li>Select quality (default 720p) or bitrate (default 192 kbps)</li>
                     <li>Paste URL and click Download</li>
-                    <li>Wait for processing (5-30 seconds)</li>
-                    <li>Download your file</li>
+                    <li>Preview video (optional) or download directly</li>
                   </ol>
                 </div>
               </CardContent>
