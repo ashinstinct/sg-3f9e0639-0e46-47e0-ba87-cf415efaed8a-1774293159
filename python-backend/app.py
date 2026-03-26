@@ -29,7 +29,7 @@ ALLOWED_OUTPUT_FORMATS = {'mp3', 'wav', 'flac', 'ogg', 'm4a', 'aiff', 'opus'}
 ALLOWED_AUDIO_FORMATS = {'mp3', 'wav', 'flac', 'ogg', 'm4a', 'aiff', 'opus'}
 
 # Hugging Face API Configuration
-HF_TOKEN = os.getenv('HF_TOKEN', '')
+HF_TOKEN = os.getenv('HUGGINGFACE_API_TOKEN', '')
 HF_ENHANCE_API_URL = "https://api-inference.huggingface.co/models/ResembleAI/resemble-enhance"
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -56,12 +56,12 @@ def health_check():
         logger.warning(f"FFmpeg check failed: {e}")
     
     # Check if HF API token is configured - WITH DEBUG INFO
-    hf_token_value = os.getenv('HF_TOKEN', '')
+    hf_token_value = os.getenv('HUGGINGFACE_API_TOKEN', '')
     hf_configured = bool(hf_token_value and hf_token_value != 'your_hugging_face_token_here')
     
     # Debug logging (only log first 7 chars for security)
     token_preview = hf_token_value[:7] + '...' if len(hf_token_value) > 7 else hf_token_value
-    logger.info(f"HF_TOKEN check - Exists: {bool(hf_token_value)}, Preview: '{token_preview}', Length: {len(hf_token_value)}")
+    logger.info(f"HUGGINGFACE_API_TOKEN check - Exists: {bool(hf_token_value)}, Preview: '{token_preview}', Length: {len(hf_token_value)}")
     
     return jsonify({
         'status': 'healthy',
