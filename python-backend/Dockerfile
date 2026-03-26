@@ -11,16 +11,14 @@ RUN apt-get update && \
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
 
-# Make start script executable
-RUN chmod +x start.sh
+# Expose port (Render will set $PORT env variable)
+EXPOSE 10000
 
-# Expose port (Railway will override with $PORT)
-EXPOSE 5000
-
-# Use start.sh script to handle PORT variable properly
-CMD ["./start.sh"]
+# Use Gunicorn directly - Render sets $PORT automatically
+CMD gunicorn --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 300 --log-level info app:app
