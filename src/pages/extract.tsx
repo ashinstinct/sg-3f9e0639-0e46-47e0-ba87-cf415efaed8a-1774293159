@@ -235,8 +235,8 @@ export default function FrameExtractor() {
         
         <div className="container mx-auto px-4 pt-24 pb-12">
           <div className="max-w-6xl mx-auto">
-            <div className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
+            <div className="mb-8 text-center">
+              <div className="flex items-center gap-3 mb-4 justify-center">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
                   <Camera className="w-6 h-6 text-white" />
                 </div>
@@ -247,7 +247,7 @@ export default function FrameExtractor() {
               <h1 className="font-heading font-bold text-4xl md:text-5xl mb-4">
                 Frame Extractor
               </h1>
-              <p className="text-muted-foreground text-lg">
+              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
                 Extract frames from videos instantly in your browser. No upload required, 100% client-side processing.
               </p>
             </div>
