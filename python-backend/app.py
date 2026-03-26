@@ -442,13 +442,5 @@ def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
 
 
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    debug = os.environ.get('FLASK_ENV') == 'development'
-    
-    print(f"Starting Flask server on port {port}...")
-    print(f"Debug mode: {debug}")
-    print("Backend ready - FFmpeg-based tools available")
-    
-    # Use simpler Flask server for Railway
-    app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
+# App is ready - no __main__ block needed for Gunicorn
+# Gunicorn will import 'app' directly
