@@ -17,6 +17,7 @@ export default function FrameExtractor() {
   const [sliderValue, setSliderValue] = useState(0);
   const [extractedFrame, setExtractedFrame] = useState<string>("");
   const [isExtracting, setIsExtracting] = useState(false);
+  const [isSeeking, setIsSeeking] = useState(false);
   const [duration, setDuration] = useState(0);
   const [mode, setMode] = useState<ExtractionMode>("pick");
   const [error, setError] = useState("");
@@ -24,15 +25,45 @@ export default function FrameExtractor() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const seekTimeoutRef = useRef<NodeJS.Timeout>();
   const { toast } = useToast();
 
-  // Update video position when slider changes (live preview)
+  // Smooth video seek with debounce
   useEffect(() => {
     if (videoRef.current && duration > 0 && mode === "pick") {
-      const time = (sliderValue / 100) * duration;
-      videoRef.current.currentTime = time;
+      if (seekTimeoutRef.current) {
+        clearTimeout(seekTimeoutRef.current);
+      }
+
+      setIsSeeking(true);
+      
+      seekTimeoutRef.current = setTimeout(() => {
+        if (videoRef.current) {
+          const time = (sliderValue / 100) * duration;
+          videoRef.current.currentTime = time;
+        }
+      }, 50); // Debounce for smoother seeking
     }
+
+    return () => {
+      if (seekTimeoutRef.current) {
+        clearTimeout(seekTimeoutRef.current);
+      }
+    };
   }, [sliderValue, duration, mode]);
+
+  // Handle video seeked event
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleSeeked = () => {
+      setIsSeeking(false);
+    };
+
+    video.addEventListener("seeked", handleSeeked);
+    return () => video.removeEventListener("seeked", handleSeeked);
+  }, []);
 
   const handleFileSelect = (file: File) => {
     if (!file.type.startsWith("video/")) {
@@ -247,10 +278,10 @@ export default function FrameExtractor() {
                         onClick={() => fileInputRef.current?.click()}
                         variant="outline"
                         size="lg"
-                        className="w-full h-48 border-dashed"
+                        className="w-full h-48 border-dashed hover:border-primary/50 hover:bg-primary/5 transition-all duration-300"
                       >
                         <div className="text-center">
-                          <Upload className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
+                          <Upload className="w-12 h-12 mx-auto mb-3 text-muted-foreground transition-transform duration-300 group-hover:scale-110" />
                           <p className="text-sm font-medium">Click to upload or drag & drop</p>
                           <p className="text-xs text-muted-foreground mt-2">
                             MP4, MOV, WebM, AVI, MKV
@@ -259,23 +290,36 @@ export default function FrameExtractor() {
                       </Button>
                     ) : (
                       <div className="space-y-3">
-                        <div className="relative rounded-lg overflow-hidden border bg-black">
+                        <div className="relative rounded-lg overflow-hidden border bg-black group">
                           <video
                             ref={videoRef}
                             src={videoUrl}
                             onLoadedMetadata={(e) => {
                               setDuration(e.currentTarget.duration);
                             }}
-                            className="w-full h-auto"
+                            className={`w-full h-auto transition-opacity duration-300 ${
+                              isSeeking ? "opacity-90" : "opacity-100"
+                            }`}
                           />
                           <canvas ref={canvasRef} className="hidden" />
+                          
+                          {/* Seeking Indicator */}
+                          {isSeeking && mode === "pick" && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[2px] transition-all duration-200">
+                              <div className="bg-black/70 px-4 py-2 rounded-lg">
+                                <p className="text-white text-sm font-medium">
+                                  {formatTime((sliderValue / 100) * duration)}
+                                </p>
+                              </div>
+                            </div>
+                          )}
                         </div>
                         
                         <Button
                           onClick={() => fileInputRef.current?.click()}
                           variant="outline"
                           size="sm"
-                          className="w-full"
+                          className="w-full hover:bg-primary/5 transition-colors duration-200"
                         >
                           <Upload className="w-4 h-4 mr-2" />
                           Change Video
@@ -332,16 +376,30 @@ export default function FrameExtractor() {
 
                       {mode === "pick" && (
                         <div className="space-y-3">
-                          <Label>
-                            Pick Frame Position: {formatTime((sliderValue / 100) * duration)}
+                          <Label className="flex items-center justify-between">
+                            <span>Pick Frame Position</span>
+                            <span className="text-sm font-mono bg-muted px-2 py-0.5 rounded">
+                              {formatTime((sliderValue / 100) * duration)}
+                            </span>
                           </Label>
-                          <Slider
-                            value={[sliderValue]}
-                            onValueChange={(value) => setSliderValue(value[0])}
-                            max={100}
-                            step={0.1}
-                            className="w-full"
-                          />
+                          <div className="relative">
+                            <Slider
+                              value={[sliderValue]}
+                              onValueChange={(value) => setSliderValue(value[0])}
+                              max={100}
+                              step={0.1}
+                              className="w-full [&_[role=slider]]:transition-all [&_[role=slider]]:duration-150 [&_[role=slider]]:hover:scale-110 [&_[role=slider]]:active:scale-105"
+                            />
+                            {/* Progress indicator glow */}
+                            <div 
+                              className="absolute top-1/2 left-0 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 pointer-events-none transition-all duration-150 rounded-full"
+                              style={{ 
+                                width: `${sliderValue}%`,
+                                transform: "translateY(-50%)",
+                                boxShadow: "0 0 8px rgba(168, 85, 247, 0.6)"
+                              }}
+                            />
+                          </div>
                           <p className="text-xs text-muted-foreground">
                             Move the slider to see the video frames change above. The video will update in real-time as you move the slider.
                           </p>
@@ -360,7 +418,7 @@ export default function FrameExtractor() {
                         onClick={handleExtract}
                         disabled={isExtracting}
                         size="lg"
-                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90"
+                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
                       >
                         {isExtracting ? (
                           <>
@@ -413,7 +471,7 @@ export default function FrameExtractor() {
                       <Button
                         onClick={downloadFrame}
                         size="sm"
-                        className="bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90"
+                        className="bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 transition-all duration-300 hover:scale-105 active:scale-95"
                       >
                         <Download className="w-4 h-4 mr-2" />
                         Download
@@ -423,21 +481,23 @@ export default function FrameExtractor() {
                 </CardHeader>
                 <CardContent>
                   {!extractedFrame ? (
-                    <div className="h-[400px] bg-muted/50 rounded-lg flex items-center justify-center">
+                    <div className="h-[400px] bg-muted/50 rounded-lg flex items-center justify-center transition-all duration-300">
                       <div className="text-center text-muted-foreground">
-                        <Camera className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                        <Camera className="w-12 h-12 mx-auto mb-3 opacity-50 animate-pulse" />
                         <p className="text-sm">No frame extracted yet</p>
                         <p className="text-xs mt-1">Upload a video and choose which frame to extract</p>
                       </div>
                     </div>
                   ) : (
-                    <div className="space-y-4">
-                      <div className="relative rounded-lg overflow-hidden border bg-muted/50">
+                    <div className="space-y-4 animate-in fade-in duration-500">
+                      <div className="relative rounded-lg overflow-hidden border bg-muted/50 group">
                         <img
                           src={extractedFrame}
                           alt="Extracted frame"
-                          className="w-full h-auto"
+                          className="w-full h-auto transition-transform duration-300 group-hover:scale-[1.02]"
                         />
+                        {/* Hover overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       </div>
                       <div className="flex justify-between items-center text-xs text-muted-foreground">
                         <span>
