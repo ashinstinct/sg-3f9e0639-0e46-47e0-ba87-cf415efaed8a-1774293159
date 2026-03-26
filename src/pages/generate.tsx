@@ -203,9 +203,6 @@ export default function ImageGenerator() {
                       onChange={(e) => setPrompt(e.target.value)}
                       className="min-h-[100px] resize-none"
                     />
-                    <p className="text-xs text-muted-foreground">
-                      {prompt.length} characters
-                    </p>
                     <div className="flex justify-between items-center">
                       <p className="text-xs text-muted-foreground">
                         {prompt.length} characters
@@ -290,6 +287,17 @@ export default function ImageGenerator() {
                       <div className="flex-1">
                         <p className="text-sm font-medium text-destructive">Error</p>
                         <p className="text-sm text-destructive/80 mt-1">{error}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Success Message */}
+                  {success && (
+                    <div className="flex items-start gap-3 p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                      <Wand2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-green-600">Success</p>
+                        <p className="text-sm text-green-600/80 mt-1">{success}</p>
                       </div>
                     </div>
                   )}
