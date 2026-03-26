@@ -55,13 +55,24 @@ def health_check():
     except Exception as e:
         logger.warning(f"FFmpeg check failed: {e}")
     
-    # Check if HF API token is configured
-    hf_configured = bool(HF_TOKEN and HF_TOKEN != 'your_hugging_face_token_here')
+    # Check if HF API token is configured - WITH DEBUG INFO
+    hf_token_value = os.getenv('HF_TOKEN', '')
+    hf_configured = bool(hf_token_value and hf_token_value != 'your_hugging_face_token_here')
+    
+    # Debug logging (only log first 7 chars for security)
+    token_preview = hf_token_value[:7] + '...' if len(hf_token_value) > 7 else hf_token_value
+    logger.info(f"HF_TOKEN check - Exists: {bool(hf_token_value)}, Preview: '{token_preview}', Length: {len(hf_token_value)}")
     
     return jsonify({
         'status': 'healthy',
         'ffmpeg_available': ffmpeg_available,
         'hf_api_configured': hf_configured,
+        'hf_token_debug': {
+            'exists': bool(hf_token_value),
+            'length': len(hf_token_value),
+            'preview': token_preview,
+            'is_placeholder': hf_token_value == 'your_hugging_face_token_here'
+        },
         'message': 'Backend is online and ready'
     })
 
