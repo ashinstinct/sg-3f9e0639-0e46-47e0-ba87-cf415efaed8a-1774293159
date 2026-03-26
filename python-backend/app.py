@@ -286,7 +286,9 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     debug = os.environ.get('FLASK_ENV') == 'development'
     
-    logger.info(f"Starting Flask server on port {port}")
-    logger.info("Backend ready - FFmpeg-based tools available")
+    print(f"Starting Flask server on port {port}...")
+    print(f"Debug mode: {debug}")
+    print("Backend ready - FFmpeg-based tools available")
     
-    app.run(host='0.0.0.0', port=port, debug=debug)
+    # Use simpler Flask server for Railway
+    app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
