@@ -10,6 +10,6 @@ ffmpeg-python==0.2.0
 gunicorn==21.2.0
 python-dotenv==1.0.0
 
-# Note: FFmpeg binary will be installed by Railway's Nixpacks automatically
-# Heavy AI models (Spleeter, DeepFilterNet) removed to ensure successful Railway deployment
-# These can be added back incrementally or replaced with API integrations
+# Note: FFmpeg binary installed via Dockerfile apt-get
+# Heavy AI models removed to ensure Railway deployment success
+# Can be added incrementally or via API integrations
