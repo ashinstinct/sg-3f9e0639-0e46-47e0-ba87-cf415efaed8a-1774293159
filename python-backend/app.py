@@ -9,6 +9,9 @@ import logging
 import zipfile
 import shutil
 import subprocess
+import requests
+import base64
+import io
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -24,6 +27,10 @@ MAX_CONTENT_LENGTH = 100 * 1024 * 1024  # 100MB max file size
 ALLOWED_EXTENSIONS = {'mp3', 'wav', 'flac', 'ogg', 'm4a', 'aiff', 'opus', 'mp4', 'mov', 'avi', 'mkv', 'webm'}
 ALLOWED_OUTPUT_FORMATS = {'mp3', 'wav', 'flac', 'ogg', 'm4a', 'aiff', 'opus'}
 ALLOWED_AUDIO_FORMATS = {'mp3', 'wav', 'flac', 'ogg', 'm4a', 'aiff', 'opus'}
+
+# Hugging Face API Configuration
+HF_TOKEN = os.getenv('HF_TOKEN', '')
+HF_ENHANCE_API_URL = "https://api-inference.huggingface.co/models/ResembleAI/resemble-enhance"
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
@@ -48,9 +55,13 @@ def health_check():
     except Exception as e:
         logger.warning(f"FFmpeg check failed: {e}")
     
+    # Check if HF API token is configured
+    hf_configured = bool(HF_TOKEN and HF_TOKEN != 'your_hugging_face_token_here')
+    
     return jsonify({
         'status': 'healthy',
         'ffmpeg_available': ffmpeg_available,
+        'hf_api_configured': hf_configured,
         'message': 'Backend is online and ready'
     })
 
@@ -435,10 +446,9 @@ def edit_audio():
 @app.route('/api/enhance-audio', methods=['POST'])
 def enhance_audio():
     """
-    Enhance audio quality with noise reduction and loudness normalization
-    Uses FFmpeg filters for basic enhancement (can integrate HF API with token)
+    Enhance audio quality using Hugging Face API (ResembleAI) or FFmpeg fallback
     Expects: audio file
-    Returns: enhanced audio file (WAV format)
+    Returns: enhanced audio file
     """
     if 'file' not in request.files:
         return jsonify({'error': 'No file provided'}), 400
@@ -460,55 +470,112 @@ def enhance_audio():
 
         logger.info(f"Enhancing audio: {filename}")
 
-        output_filename = f"{Path(filename).stem}_enhanced.wav"
-        output_path = temp_dir / output_filename
+        # Check if HF API is configured
+        use_hf_api = bool(HF_TOKEN and HF_TOKEN != 'your_hugging_face_token_here')
 
-        # FFmpeg audio enhancement filters:
-        # 1. afftdn: FFT-based noise reduction
-        # 2. highpass: Remove low-frequency rumble (80Hz)
-        # 3. loudnorm: EBU R128 loudness normalization
-        # 4. compand: Dynamic range compression for clarity
-        
-        ffmpeg_cmd = [
-            'ffmpeg', '-i', str(input_path),
-            '-af', 'afftdn=nf=-25,highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11,compand=attacks=0.3:decays=0.8:points=-80/-80|-45/-15|-27/-9|0/-7|20/-7:soft-knee=6:gain=0:volume=0:delay=0.05',
-            '-ar', '44100',  # Standard sample rate
-            '-ac', '2',      # Stereo
-            '-y',
-            str(output_path)
-        ]
-
-        logger.info(f"Running FFmpeg enhancement...")
-
-        result = subprocess.run(
-            ffmpeg_cmd,
-            capture_output=True,
-            text=True,
-            check=True,
-            timeout=300
-        )
-
-        if not output_path.exists():
-            raise Exception("Audio enhancement failed - output file not created")
-
-        logger.info(f"Audio enhancement completed: {output_path}")
-
-        response = send_file(
-            str(output_path),
-            mimetype='audio/wav',
-            as_attachment=True,
-            download_name=output_filename
-        )
-
-        @response.call_on_close
-        def cleanup():
+        if use_hf_api:
+            logger.info("Using Hugging Face API for enhancement")
             try:
-                shutil.rmtree(temp_dir, ignore_errors=True)
-                logger.info(f"Cleaned up temp directory: {temp_dir}")
-            except Exception as e:
-                logger.error(f"Cleanup error: {e}")
+                # Read audio file as bytes
+                with open(input_path, 'rb') as f:
+                    audio_bytes = f.read()
 
-        return response
+                # Call Hugging Face API
+                headers = {
+                    "Authorization": f"Bearer {HF_TOKEN}",
+                    "Content-Type": "application/octet-stream"
+                }
+
+                logger.info(f"Calling HF API: {HF_ENHANCE_API_URL}")
+                response = requests.post(
+                    HF_ENHANCE_API_URL,
+                    headers=headers,
+                    data=audio_bytes,
+                    timeout=120
+                )
+
+                if response.status_code == 200:
+                    # Save enhanced audio
+                    output_filename = f"{Path(filename).stem}_enhanced.wav"
+                    output_path = temp_dir / output_filename
+
+                    with open(output_path, 'wb') as f:
+                        f.write(response.content)
+
+                    logger.info(f"HF API enhancement completed: {output_path}")
+
+                    response_file = send_file(
+                        str(output_path),
+                        mimetype='audio/wav',
+                        as_attachment=True,
+                        download_name=output_filename
+                    )
+
+                    @response_file.call_on_close
+                    def cleanup():
+                        try:
+                            shutil.rmtree(temp_dir, ignore_errors=True)
+                        except Exception as e:
+                            logger.error(f"Cleanup error: {e}")
+
+                    return response_file
+                else:
+                    logger.warning(f"HF API returned {response.status_code}: {response.text}")
+                    logger.info("Falling back to FFmpeg enhancement")
+                    use_hf_api = False
+
+            except requests.exceptions.Timeout:
+                logger.warning("HF API timeout - falling back to FFmpeg")
+                use_hf_api = False
+            except Exception as e:
+                logger.warning(f"HF API error: {e} - falling back to FFmpeg")
+                use_hf_api = False
+
+        # FFmpeg fallback (or primary if HF not configured)
+        if not use_hf_api:
+            logger.info("Using FFmpeg for audio enhancement")
+
+            output_filename = f"{Path(filename).stem}_enhanced.wav"
+            output_path = temp_dir / output_filename
+
+            # FFmpeg enhancement filters
+            ffmpeg_cmd = [
+                'ffmpeg', '-i', str(input_path),
+                '-af', 'afftdn=nf=-25,highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11,compand=attacks=0.3:decays=0.8:points=-80/-80|-45/-15|-27/-9|0/-7|20/-7:soft-knee=6:gain=0:volume=0:delay=0.05',
+                '-ar', '44100',
+                '-ac', '2',
+                '-y',
+                str(output_path)
+            ]
+
+            result = subprocess.run(
+                ffmpeg_cmd,
+                capture_output=True,
+                text=True,
+                check=True,
+                timeout=300
+            )
+
+            if not output_path.exists():
+                raise Exception("FFmpeg enhancement failed - output file not created")
+
+            logger.info(f"FFmpeg enhancement completed: {output_path}")
+
+            response_file = send_file(
+                str(output_path),
+                mimetype='audio/wav',
+                as_attachment=True,
+                download_name=output_filename
+            )
+
+            @response_file.call_on_close
+            def cleanup():
+                try:
+                    shutil.rmtree(temp_dir, ignore_errors=True)
+                except Exception as e:
+                    logger.error(f"Cleanup error: {e}")
+
+            return response_file
 
     except subprocess.CalledProcessError as e:
         logger.error(f"FFmpeg enhancement error: {e.stderr}")
