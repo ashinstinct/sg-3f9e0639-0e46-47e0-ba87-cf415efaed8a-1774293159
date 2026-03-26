@@ -8,16 +8,15 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, Video, Download, Loader2, Scissors, CheckCircle2, AlertCircle, PlayCircle } from "lucide-react";
-import JSZip from "jszip";
+import { Upload, Video, Download, Loader2, Scissors, CheckCircle2, AlertCircle, PlayCircle, Save } from "lucide-react";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { fetchFile, toBlobURL } from "@ffmpeg/util";
 
 interface VideoSegment {
   name: string;
   url: string;
   blob: Blob;
 }
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL || "http://localhost:5000";
 
 export default function VideoSplitter() {
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -26,39 +25,58 @@ export default function VideoSplitter() {
   const [segmentLength, setSegmentLength] = useState<string>("30");
   
   const [isSplitting, setIsSplitting] = useState(false);
+  const [isLoadingFFmpeg, setIsLoadingFFmpeg] = useState(false);
   const [progress, setProgress] = useState<number>(0);
+  const [progressText, setProgressText] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
-  const [backendStatus, setBackendStatus] = useState<"checking" | "online" | "offline">("checking");
   
   const [segments, setSegments] = useState<VideoSegment[]>([]);
-  const [zipBlob, setZipBlob] = useState<Blob | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const ffmpegRef = useRef<FFmpeg | null>(null);
+  const [ffmpegLoaded, setFfmpegLoaded] = useState(false);
 
-  // Check backend health on mount
   useEffect(() => {
-    const checkBackend = async () => {
-      try {
-        const response = await fetch(`${BACKEND_URL}/health`, {
-          method: "GET",
-          signal: AbortSignal.timeout(5000) // 5 second timeout
-        });
-        if (response.ok) {
-          setBackendStatus("online");
-        } else {
-          setBackendStatus("offline");
-          setError(`Backend is responding but not healthy. Status: ${response.status}`);
-        }
-      } catch (err) {
-        setBackendStatus("offline");
-        setError(`Cannot connect to backend at ${BACKEND_URL}. Please check if Railway deployment is active.`);
-        console.error("Backend health check failed:", err);
-      }
-    };
-    checkBackend();
+    loadFFmpeg();
   }, []);
+
+  const loadFFmpeg = async () => {
+    try {
+      setIsLoadingFFmpeg(true);
+      setProgressText("Loading FFmpeg...");
+      
+      const ffmpeg = new FFmpeg();
+      
+      ffmpeg.on("log", ({ message }) => {
+        console.log("FFmpeg:", message);
+      });
+
+      ffmpeg.on("progress", ({ progress: prog }) => {
+        const percentage = Math.round(prog * 100);
+        if (isSplitting) {
+          setProgress(percentage);
+          setProgressText(`Processing: ${percentage}%`);
+        }
+      });
+
+      const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
+      await ffmpeg.load({
+        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
+        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
+      });
+
+      ffmpegRef.current = ffmpeg;
+      setFfmpegLoaded(true);
+      setProgressText("");
+    } catch (err) {
+      console.error("FFmpeg load error:", err);
+      setError("Failed to load FFmpeg. Please refresh the page and try again.");
+    } finally {
+      setIsLoadingFFmpeg(false);
+    }
+  };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -67,9 +85,7 @@ export default function VideoSplitter() {
       const url = URL.createObjectURL(file);
       setVideoUrl(url);
       
-      // Reset states
       setSegments([]);
-      setZipBlob(null);
       setError("");
       setSuccess("");
       setProgress(0);
@@ -90,97 +106,78 @@ export default function VideoSplitter() {
       return;
     }
 
-    if (backendStatus === "offline") {
-      setError("Backend server is offline. Please check Railway deployment status.");
+    if (!ffmpegLoaded || !ffmpegRef.current) {
+      setError("FFmpeg is not loaded yet. Please wait and try again.");
       return;
     }
 
     setIsSplitting(true);
     setError("");
     setSuccess("");
-    setProgress(10);
+    setProgress(0);
     setSegments([]);
-    setZipBlob(null);
+    setProgressText("Preparing video...");
 
     try {
-      const formData = new FormData();
-      formData.append("file", videoFile);
-      formData.append("segment_length", segmentLength);
-
-      setProgress(30);
-
-      const response = await fetch(`${BACKEND_URL}/api/split-video`, {
-        method: "POST",
-        body: formData,
-      });
-
-      setProgress(60);
-
-      if (!response.ok) {
-        const contentType = response.headers.get("content-type");
-        let errorMessage = "Video splitting failed";
-        
-        if (contentType && contentType.includes("application/json")) {
-          const errorData = await response.json();
-          errorMessage = errorData.error || errorMessage;
-        } else {
-          const errorText = await response.text();
-          errorMessage = errorText || `Server error: ${response.status} ${response.statusText}`;
-        }
-        
-        throw new Error(errorMessage);
-      }
-
-      setProgress(80);
-
-      const blob = await response.blob();
-      setZipBlob(blob);
+      const ffmpeg = ffmpegRef.current;
+      const segmentDuration = parseInt(segmentLength);
+      const inputFileName = "input.mp4";
       
-      // Extract ZIP to show individual files
-      const zip = await JSZip.loadAsync(blob);
+      setProgressText("Loading video into memory...");
+      await ffmpeg.writeFile(inputFileName, await fetchFile(videoFile));
+
+      const numSegments = Math.ceil(videoDuration / segmentDuration);
       const extractedSegments: VideoSegment[] = [];
 
-      for (const [filename, fileData] of Object.entries(zip.files)) {
-        if (!fileData.dir) {
-          const fileBlob = await fileData.async("blob");
-          const url = URL.createObjectURL(fileBlob);
-          extractedSegments.push({ name: filename, url, blob: fileBlob });
-        }
-      }
+      setProgressText(`Splitting into ${numSegments} clips...`);
 
-      // Sort by filename to maintain order (part000, part001, etc.)
-      extractedSegments.sort((a, b) => a.name.localeCompare(b.name));
+      for (let i = 0; i < numSegments; i++) {
+        const startTime = i * segmentDuration;
+        const outputFileName = `clip_${String(i + 1).padStart(2, "0")}.mp4`;
+        
+        setProgressText(`Processing clip ${i + 1} of ${numSegments}...`);
+        
+        await ffmpeg.exec([
+          "-i", inputFileName,
+          "-ss", startTime.toString(),
+          "-t", segmentDuration.toString(),
+          "-c", "copy",
+          "-avoid_negative_ts", "1",
+          outputFileName
+        ]);
+
+        const data = await ffmpeg.readFile(outputFileName);
+        const blob = new Blob([data], { type: "video/mp4" });
+        const url = URL.createObjectURL(blob);
+
+        extractedSegments.push({
+          name: outputFileName,
+          url,
+          blob
+        });
+
+        const segmentProgress = ((i + 1) / numSegments) * 100;
+        setProgress(Math.round(segmentProgress));
+      }
       
       setSegments(extractedSegments);
       setProgress(100);
+      setProgressText("");
       setSuccess(`Successfully split video into ${extractedSegments.length} clips!`);
+
+      await ffmpeg.deleteFile(inputFileName);
+      for (const segment of extractedSegments) {
+        await ffmpeg.deleteFile(segment.name);
+      }
+
     } catch (err) {
       console.error("Split error:", err);
-      let errorMessage = "Failed to split video. ";
-      
-      if (err instanceof TypeError && err.message.includes("fetch")) {
-        errorMessage += `Cannot connect to backend at ${BACKEND_URL}. Please verify Railway deployment is active.`;
-      } else if (err instanceof Error) {
-        errorMessage += err.message;
-      } else {
-        errorMessage += "Unknown error occurred. Check console for details.";
-      }
-      
-      setError(errorMessage);
+      setError(err instanceof Error ? err.message : "Failed to split video. Please try again.");
       setProgress(0);
+      setProgressText("");
     } finally {
       setIsSplitting(false);
     }
-  };
-
-  const handleDownloadZip = () => {
-    if (!zipBlob || !videoFile) return;
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(zipBlob);
-    a.download = `${videoFile.name.split(".")[0]}_segments.zip`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
   };
 
   const handleDownloadSegment = (segment: VideoSegment) => {
@@ -192,12 +189,20 @@ export default function VideoSplitter() {
     document.body.removeChild(a);
   };
 
+  const handleSaveAllToDevice = () => {
+    segments.forEach((segment, index) => {
+      setTimeout(() => {
+        handleDownloadSegment(segment);
+      }, index * 300);
+    });
+  };
+
   const handleReset = () => {
     setVideoFile(null);
     setVideoUrl("");
-    setZipBlob(null);
     setSegments([]);
     setProgress(0);
+    setProgressText("");
     setError("");
     setSuccess("");
     if (fileInputRef.current) {
@@ -243,6 +248,14 @@ export default function VideoSplitter() {
               <p className="text-muted-foreground text-lg">
                 Automatically slice long videos into bite-sized clips perfect for Reels, Shorts, and Stories.
               </p>
+              {isLoadingFFmpeg && (
+                <Alert className="mt-4 border-blue-500/50 bg-blue-500/10">
+                  <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />
+                  <AlertDescription className="text-blue-600">
+                    Loading video processing engine... (First time may take 10-15 seconds)
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
 
             {error && (
@@ -260,13 +273,12 @@ export default function VideoSplitter() {
             )}
 
             <div className="grid lg:grid-cols-5 gap-6">
-              {/* Left Column - Upload & Settings */}
               <div className="lg:col-span-2 space-y-6">
                 <Card>
                   <CardHeader>
                     <CardTitle>1. Upload Video</CardTitle>
                     <CardDescription>
-                      Upload a video (1 to 10 minutes recommended)
+                      Upload a video (recommended under 100MB for best performance)
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -279,7 +291,7 @@ export default function VideoSplitter() {
                         Click to upload
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        MP4, MOV, WebM (Max 100MB)
+                        MP4, MOV, WebM (Recommended under 100MB)
                       </p>
                       <input
                         ref={fileInputRef}
@@ -342,7 +354,7 @@ export default function VideoSplitter() {
                       {isSplitting && (
                         <div className="space-y-2">
                           <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">Slicing video...</span>
+                            <span className="text-muted-foreground">{progressText}</span>
                             <span className="font-medium">{progress}%</span>
                           </div>
                           <Progress value={progress} className="h-2" />
@@ -352,7 +364,7 @@ export default function VideoSplitter() {
                       <div className="flex gap-3">
                         <Button
                           onClick={handleSplit}
-                          disabled={isSplitting || !videoFile}
+                          disabled={isSplitting || !videoFile || !ffmpegLoaded}
                           className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:opacity-90"
                         >
                           {isSplitting ? (
@@ -361,7 +373,7 @@ export default function VideoSplitter() {
                             <><Scissors className="w-4 h-4 mr-2" /> Split Video</>
                           )}
                         </Button>
-                        {!isSplitting && (
+                        {!isSplitting && segments.length === 0 && (
                           <Button onClick={handleReset} variant="outline" size="icon">
                             <AlertCircle className="w-4 h-4" />
                           </Button>
@@ -372,43 +384,42 @@ export default function VideoSplitter() {
                 )}
               </div>
 
-              {/* Right Column - Results */}
               <div className="lg:col-span-3 space-y-6">
-                <Card className="min-h-[400px] h-full">
+                <Card className="min-h-[400px]">
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div>
                         <CardTitle>Generated Clips</CardTitle>
                         <CardDescription>
                           {segments.length > 0 
-                            ? `Created ${segments.length} clips ready for upload` 
+                            ? `${segments.length} clips ready to download` 
                             : "Your split clips will appear here"}
                         </CardDescription>
                       </div>
-                      {segments.length > 0 && zipBlob && (
+                      {segments.length > 0 && (
                         <Button
-                          onClick={handleDownloadZip}
+                          onClick={handleSaveAllToDevice}
                           variant="default"
                           className="bg-green-600 hover:bg-green-700 text-white"
                         >
-                          <Download className="w-4 h-4 mr-2" />
-                          Download All (ZIP)
+                          <Save className="w-4 h-4 mr-2" />
+                          Save All to Device
                         </Button>
                       )}
                     </div>
                   </CardHeader>
                   <CardContent>
                     {segments.length === 0 && !isSplitting && (
-                      <div className="flex flex-col items-center justify-center h-full text-center p-8 text-muted-foreground border-2 border-dashed rounded-lg">
+                      <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center p-8 text-muted-foreground border-2 border-dashed rounded-lg">
                         <PlayCircle className="w-12 h-12 mb-4 opacity-50" />
                         <p>Upload a video and click Split to generate clips</p>
                       </div>
                     )}
 
                     {isSplitting && (
-                      <div className="flex flex-col items-center justify-center h-full text-center p-8">
+                      <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center p-8">
                         <Loader2 className="w-12 h-12 mb-4 animate-spin text-primary" />
-                        <p className="font-medium">Processing your video...</p>
+                        <p className="font-medium">{progressText}</p>
                         <p className="text-sm text-muted-foreground">Slicing perfectly without losing quality</p>
                       </div>
                     )}
