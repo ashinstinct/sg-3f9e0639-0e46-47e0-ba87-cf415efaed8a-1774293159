@@ -23,6 +23,7 @@ UPLOAD_FOLDER = tempfile.gettempdir()
 MAX_CONTENT_LENGTH = 100 * 1024 * 1024  # 100MB max file size
 ALLOWED_EXTENSIONS = {'mp3', 'wav', 'flac', 'ogg', 'm4a', 'aiff', 'opus', 'mp4', 'mov', 'avi', 'mkv', 'webm'}
 ALLOWED_OUTPUT_FORMATS = {'mp3', 'wav', 'flac', 'ogg', 'm4a', 'aiff', 'opus'}
+ALLOWED_AUDIO_FORMATS = {'mp3', 'wav', 'flac', 'ogg', 'm4a', 'aiff', 'opus'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
@@ -30,6 +31,10 @@ app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def allowed_audio_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_AUDIO_FORMATS
 
 
 @app.route('/health', methods=['GET'])
@@ -264,6 +269,155 @@ def convert_audio():
         return jsonify({'error': 'Processing timeout'}), 500
     except Exception as e:
         logger.error(f"Audio conversion error: {e}")
+        try:
+            if 'temp_dir' in locals():
+                shutil.rmtree(temp_dir, ignore_errors=True)
+        except:
+            pass
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/edit-audio', methods=['POST'])
+def edit_audio():
+    """
+    Edit audio with trim, fade, volume, and speed adjustments using FFmpeg
+    Expects: audio file, trim_start, trim_end, fade_in, fade_out, volume, speed
+    Returns: edited audio file
+    """
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+
+    if not allowed_audio_file(file.filename):
+        return jsonify({'error': 'Invalid audio file type'}), 400
+
+    try:
+        # Get editing parameters
+        trim_start = float(request.form.get('trim_start', 0))
+        trim_end = float(request.form.get('trim_end', 0))
+        fade_in = float(request.form.get('fade_in', 0))
+        fade_out = float(request.form.get('fade_out', 0))
+        volume = float(request.form.get('volume', 1.0))
+        speed = float(request.form.get('speed', 1.0))
+
+        job_id = str(uuid.uuid4())
+        temp_dir = Path(tempfile.mkdtemp(prefix=f'edit_{job_id}_'))
+
+        filename = secure_filename(file.filename)
+        input_path = temp_dir / filename
+        file.save(str(input_path))
+
+        logger.info(f"Editing audio: {filename}")
+        logger.info(f"Parameters - trim: {trim_start}-{trim_end}s, fade: {fade_in}/{fade_out}s, volume: {volume}, speed: {speed}")
+
+        output_filename = f"{Path(filename).stem}_edited.mp3"
+        output_path = temp_dir / output_filename
+
+        # Build FFmpeg filter complex
+        filters = []
+        
+        # Speed adjustment (atempo - must be between 0.5 and 2.0)
+        if speed != 1.0:
+            # FFmpeg atempo only supports 0.5-2.0 range, so we chain multiple if needed
+            if speed < 0.5:
+                speed = 0.5
+            elif speed > 2.0:
+                speed = 2.0
+            filters.append(f'atempo={speed}')
+
+        # Volume adjustment
+        if volume != 1.0:
+            filters.append(f'volume={volume}')
+
+        # Fade in
+        if fade_in > 0:
+            filters.append(f'afade=t=in:st=0:d={fade_in}')
+
+        # Fade out (calculate from end of trimmed audio)
+        if fade_out > 0 and trim_end > 0:
+            duration = trim_end - trim_start
+            fade_start = duration - fade_out
+            if fade_start > 0:
+                filters.append(f'afade=t=out:st={fade_start}:d={fade_out}')
+
+        # Build FFmpeg command
+        ffmpeg_cmd = ['ffmpeg', '-i', str(input_path)]
+
+        # Add trim if specified
+        if trim_start > 0:
+            ffmpeg_cmd.extend(['-ss', str(trim_start)])
+        if trim_end > 0:
+            duration = trim_end - trim_start
+            ffmpeg_cmd.extend(['-t', str(duration)])
+
+        # Add audio filters
+        if filters:
+            filter_chain = ','.join(filters)
+            ffmpeg_cmd.extend(['-af', filter_chain])
+
+        # Output settings
+        ffmpeg_cmd.extend([
+            '-codec:a', 'libmp3lame',
+            '-b:a', '192k',
+            '-y',
+            str(output_path)
+        ])
+
+        logger.info(f"FFmpeg command: {' '.join(ffmpeg_cmd)}")
+
+        result = subprocess.run(
+            ffmpeg_cmd,
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=300
+        )
+
+        if not output_path.exists():
+            raise Exception("Audio editing failed - output file not created")
+
+        logger.info(f"Audio editing completed: {output_path}")
+
+        response = send_file(
+            str(output_path),
+            mimetype='audio/mpeg',
+            as_attachment=True,
+            download_name=output_filename
+        )
+
+        @response.call_on_close
+        def cleanup():
+            try:
+                shutil.rmtree(temp_dir, ignore_errors=True)
+                logger.info(f"Cleaned up temp directory: {temp_dir}")
+            except Exception as e:
+                logger.error(f"Cleanup error: {e}")
+
+        return response
+
+    except subprocess.CalledProcessError as e:
+        logger.error(f"FFmpeg editing error: {e.stderr}")
+        try:
+            if 'temp_dir' in locals():
+                shutil.rmtree(temp_dir, ignore_errors=True)
+        except:
+            pass
+        return jsonify({'error': f'Audio editing failed: {e.stderr}'}), 500
+    except subprocess.TimeoutExpired:
+        logger.error("FFmpeg process timeout")
+        try:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+        except:
+            pass
+        return jsonify({'error': 'Processing timeout'}), 500
+    except ValueError as e:
+        logger.error(f"Invalid parameter: {e}")
+        return jsonify({'error': f'Invalid parameter: {str(e)}'}), 400
+    except Exception as e:
+        logger.error(f"Audio editing error: {e}")
         try:
             if 'temp_dir' in locals():
                 shutil.rmtree(temp_dir, ignore_errors=True)

@@ -9,10 +9,12 @@ import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Upload, FileAudio, Download, Loader2, Scissors, Volume2, Gauge, CheckCircle2, AlertCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL || "http://localhost:5000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 
 export default function AudioEditor() {
+  const { toast } = useToast();
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioUrl, setAudioUrl] = useState<string>("");
   const [audioDuration, setAudioDuration] = useState<number>(0);
@@ -29,6 +31,7 @@ export default function AudioEditor() {
   
   const [isProcessing, setIsProcessing] = useState(false);
   const [editedUrl, setEditedUrl] = useState<string>("");
+  const [processedAudio, setProcessedAudio] = useState<string | null>(null);
   const [progress, setProgress] = useState<number>(0);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
@@ -209,72 +212,79 @@ export default function AudioEditor() {
     setCurrentTime(clickTime);
   };
 
-  const handleApplyEdits = async () => {
+  const handleProcessAudio = async () => {
     if (!audioFile) {
-      setError("Please select an audio file first");
-      return;
-    }
-
-    if (trimStart >= trimEnd) {
-      setError("Trim start must be before trim end");
+      toast({
+        title: "No Audio File",
+        description: "Please upload an audio file first",
+        variant: "destructive",
+      });
       return;
     }
 
     setIsProcessing(true);
+    setProcessedAudio(null);
     setError("");
-    setSuccess("");
-    setProgress(10);
-    setEditedUrl("");
 
     try {
+      // Create FormData for backend
       const formData = new FormData();
       formData.append("file", audioFile);
       formData.append("trim_start", trimStart.toString());
       formData.append("trim_end", trimEnd.toString());
       formData.append("fade_in", fadeIn.toString());
       formData.append("fade_out", fadeOut.toString());
-      formData.append("volume", (volume / 100).toString());
+      formData.append("volume", volume.toString());
       formData.append("speed", speed.toString());
 
-      setProgress(30);
-
+      // Send to Python backend
       const response = await fetch(`${BACKEND_URL}/api/edit-audio`, {
         method: "POST",
         body: formData,
       });
-
-      setProgress(60);
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Audio editing failed");
       }
 
-      setProgress(80);
-
+      // Get the processed audio blob
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
-      setEditedUrl(url);
-      setProgress(100);
-      setSuccess("Audio edited successfully!");
+      setProcessedAudio(url);
+
+      toast({
+        title: "Success!",
+        description: "Audio edited successfully",
+      });
     } catch (err) {
-      console.error("Edit error:", err);
-      setError(err instanceof Error ? err.message : "Failed to edit audio. Please try again.");
-      setProgress(0);
+      console.error("Processing error:", err);
+      const errorMessage = err instanceof Error ? err.message : "Failed to process audio";
+      setError(errorMessage);
+      toast({
+        title: "Processing Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handleDownload = () => {
-    if (!editedUrl || !audioFile) return;
+    if (!processedAudio) return;
 
     const a = document.createElement("a");
-    a.href = editedUrl;
-    a.download = `${audioFile.name.split(".")[0]}_edited.mp3`;
+    a.href = processedAudio;
+    a.download = `${audioFile?.name.replace(/\.[^/.]+$/, "")}_edited.mp3`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+
+    toast({
+      title: "Downloaded!",
+      description: "Your edited audio has been downloaded",
+    });
   };
 
   const handleReset = () => {
@@ -557,20 +567,20 @@ export default function AudioEditor() {
 
                       <div className="flex gap-3">
                         <Button
-                          onClick={handleApplyEdits}
-                          disabled={isProcessing}
-                          className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:opacity-90"
+                          onClick={handleProcessAudio}
+                          disabled={isProcessing || !audioFile}
                           size="lg"
+                          className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 transition-all duration-300"
                         >
                           {isProcessing ? (
                             <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Processing...
+                              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                              Processing Audio...
                             </>
                           ) : (
                             <>
-                              <Scissors className="w-4 h-4 mr-2" />
-                              Apply Edits
+                              <Scissors className="w-5 h-5 mr-2" />
+                              Process Audio
                             </>
                           )}
                         </Button>
@@ -586,16 +596,47 @@ export default function AudioEditor() {
                         )}
                       </div>
 
-                      {editedUrl && (
-                        <Button
-                          onClick={handleDownload}
-                          variant="outline"
-                          className="w-full border-green-500/50 bg-green-500/10 hover:bg-green-500/20 text-green-600"
-                          size="lg"
-                        >
-                          <Download className="w-4 h-4 mr-2" />
-                          Download Edited Audio
-                        </Button>
+                      {/* Error Message */}
+                      {error && (
+                        <div className="flex items-start gap-3 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+                          <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-destructive">Error</p>
+                            <p className="text-sm text-destructive/80 mt-1">{error}</p>
+                            <p className="text-xs text-muted-foreground mt-2">
+                              Make sure the backend server is running at {BACKEND_URL}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Processed Audio Player */}
+                      {processedAudio && (
+                        <Card className="border-green-500/20 bg-green-500/5">
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                              <Volume2 className="w-5 h-5 text-green-600" />
+                              Edited Audio
+                            </CardTitle>
+                            <CardDescription>
+                              Your processed audio is ready to download
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            <audio
+                              src={processedAudio}
+                              controls
+                              className="w-full"
+                            />
+                            <Button
+                              onClick={handleDownload}
+                              className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:opacity-90"
+                            >
+                              <Download className="w-4 h-4 mr-2" />
+                              Download Edited Audio
+                            </Button>
+                          </CardContent>
+                        </Card>
                       )}
                     </CardContent>
                   </Card>

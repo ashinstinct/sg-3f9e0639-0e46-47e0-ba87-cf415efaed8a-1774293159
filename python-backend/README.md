@@ -1,193 +1,162 @@
-# Back2Life.Studio - Python Audio Processing Backend
+# Back2Life.Studio - Audio Processing Backend
 
-Flask microservice for AI-powered audio processing using Spleeter (stem separation) and DeepFilterNet (audio enhancement).
+Python Flask backend for audio/video processing using FFmpeg.
 
-## Features
+## 🚀 Deployment on Render.com
 
-- **Stem Separation** - Separate audio into vocals, drums, bass, and other instruments using Spleeter
-- **Audio Enhancement** - AI-powered noise reduction and quality improvement using DeepFilterNet
-- **Production Ready** - Docker support, gunicorn, health checks
-- **CORS Enabled** - Works seamlessly with Next.js frontend
+### Quick Deploy (Recommended)
 
-## API Endpoints
+1. **Create Render Account**: https://render.com/
+2. **Connect GitHub**:
+   - Click "New +" → "Web Service"
+   - Connect your GitHub repository
+   - Select the repository containing this backend
+
+3. **Configure Service**:
+   - **Name**: `back2life-audio-processing`
+   - **Region**: Oregon (US West)
+   - **Branch**: `main`
+   - **Root Directory**: `python-backend`
+   - **Runtime**: Python 3
+   - **Build Command**: (auto-detected from render.yaml)
+   - **Start Command**: `bash start.sh`
+
+4. **Deploy**:
+   - Click "Create Web Service"
+   - Wait 3-5 minutes for deployment
+   - Your backend URL will be: `https://back2life-audio-processing.onrender.com`
+
+5. **Update Frontend**:
+   - Copy your Render URL
+   - Add to `.env.local` in your Next.js project:
+     ```bash
+     NEXT_PUBLIC_BACKEND_URL=https://back2life-audio-processing.onrender.com
+     ```
+   - Redeploy your Vercel frontend
+
+### Alternative: Manual Deploy
+
+If auto-detection doesn't work:
+
+```bash
+# Build Command
+apt-get update && apt-get install -y ffmpeg && pip install -r requirements.txt
+
+# Start Command
+bash start.sh
+```
+
+## 📡 API Endpoints
 
 ### Health Check
-```
+```bash
 GET /health
 ```
-Returns service status and model availability.
 
-### Separate Stems
+**Response:**
+```json
+{
+  "status": "ok",
+  "ffmpeg_available": true,
+  "message": "Back2Life.Studio audio processing server is running"
+}
 ```
-POST /api/separate-stems
-Content-Type: multipart/form-data
-Body: file (audio file)
-```
-Returns: ZIP file with separated stems (vocals.wav, drums.wav, bass.wav, other.wav)
 
-### Enhance Audio
-```
-POST /api/enhance-audio
-Content-Type: multipart/form-data
-Body: file (audio file)
-```
-Returns: Enhanced audio file (WAV format)
-
-### Models Status
-```
-GET /api/models/status
-```
-Returns: Information about available AI models and their configuration.
-
-## Local Development
-
-### Prerequisites
-- Python 3.10+
-- FFmpeg installed
-- 4GB+ RAM recommended
-
-### Setup
-
-1. Install dependencies:
+### Split Video
 ```bash
+POST /api/split-video
+```
+
+**Request:**
+- `file`: Video file (MP4, MOV, AVI, MKV, WebM)
+- `duration`: Segment duration in seconds (default: 60)
+
+**Response:**
+- ZIP file containing video segments
+
+### Convert Audio
+```bash
+POST /api/convert-audio
+```
+
+**Request:**
+- `file`: Audio file (MP3, WAV, M4A, etc.)
+- `output_format`: Target format (mp3, wav, flac, ogg, etc.)
+- `quality`: Quality preset (low, standard, high, lossless)
+
+**Response:**
+- Converted audio file
+
+### Edit Audio
+```bash
+POST /api/edit-audio
+```
+
+**Request:**
+- `file`: Audio file
+- `trim_start`: Start time in seconds (default: 0)
+- `trim_end`: End time in seconds (default: duration)
+- `fade_in`: Fade in duration in seconds (default: 0)
+- `fade_out`: Fade out duration in seconds (default: 0)
+- `volume`: Volume multiplier 0-2 (default: 1.0)
+- `speed`: Playback speed 0.5-2.0 (default: 1.0)
+
+**Response:**
+- Edited MP3 file (192kbps)
+
+## 🧪 Testing Locally
+
+```bash
+# Install dependencies
 pip install -r requirements.txt
+
+# Make sure FFmpeg is installed
+# Mac: brew install ffmpeg
+# Ubuntu: sudo apt install ffmpeg
+# Windows: Download from ffmpeg.org
+
+# Start server
+PORT=5000 python app.py
+
+# Test endpoints
+curl http://localhost:5000/health
 ```
 
-2. Create `.env` file:
-```bash
-cp .env.example .env
-```
+## 📦 Dependencies
 
-3. Run the server:
-```bash
-python app.py
-```
+- **Flask**: Web framework
+- **flask-cors**: CORS support for Next.js frontend
+- **gunicorn**: Production WSGI server
+- **FFmpeg**: Audio/video processing (installed via buildCommand)
 
-Server will start on `http://localhost:5000`
+## 🔧 Environment Variables
 
-### Test the API
+None required! The server auto-configures based on Render's environment.
 
-**Test Spleeter:**
-```bash
-curl -X POST http://localhost:5000/api/separate-stems \
-  -F "file=@your-audio.mp3" \
-  -o stems.zip
-```
+## 💰 Render Pricing
 
-**Test DeepFilterNet:**
-```bash
-curl -X POST http://localhost:5000/api/enhance-audio \
-  -F "file=@your-audio.mp3" \
-  -o enhanced.wav
-```
+- **Free Tier**: 750 hours/month (sleeps after 15 min inactivity)
+- **Starter Plan**: $7/month (always-on, no sleep)
 
-## Deployment
+**Recommendation**: Start with free tier, upgrade to Starter if you need instant response times.
 
-### Option 1: Railway (Recommended)
+## 🐛 Troubleshooting
 
-1. Install Railway CLI:
-```bash
-npm install -g @railway/cli
-```
+### "FFmpeg not found"
+- Check Render build logs
+- Verify `buildCommand` includes `apt-get install -y ffmpeg`
 
-2. Login and deploy:
-```bash
-railway login
-railway init
-railway up
-```
+### "Service timeout"
+- Increase timeout in Render dashboard: Settings → Advanced → Timeout
+- Recommended: 300 seconds for large file processing
 
-3. Get your deployment URL from Railway dashboard
+### "502 Bad Gateway"
+- Service is sleeping (free tier)
+- First request wakes it up (~30 seconds)
+- Solution: Upgrade to Starter plan or keep service warm with cron job
 
-### Option 2: Render
+## 📚 Additional Resources
 
-1. Push code to GitHub
-2. Connect repository to Render
-3. Render will auto-detect `render.yaml` and deploy
-4. Get your deployment URL from Render dashboard
-
-### Option 3: Docker
-
-```bash
-docker build -t back2life-audio-backend .
-docker run -p 5000:5000 back2life-audio-backend
-```
-
-### Option 4: Replit
-
-1. Import this repository to Replit
-2. Replit will auto-install dependencies
-3. Run with `python app.py`
-4. Use the Replit URL in your Next.js frontend
-
-## Environment Variables
-
-```bash
-FLASK_ENV=production          # production or development
-PORT=5000                      # Server port
-ALLOWED_ORIGINS=*             # CORS origins (comma-separated)
-MAX_CONTENT_LENGTH=104857600  # Max file size (100MB)
-```
-
-## Model Information
-
-### Spleeter
-- Model: `spleeter:4stems`
-- Outputs: vocals, drums, bass, other
-- Processing time: ~30 seconds per minute of audio
-- Memory: ~2GB RAM required
-
-### DeepFilterNet
-- Model: `DeepFilterNet3`
-- Output: Enhanced audio with noise reduction
-- Processing time: ~10 seconds per minute of audio
-- Memory: ~1.5GB RAM required
-
-## Integration with Next.js
-
-Update your Next.js `.env.local`:
-```bash
-NEXT_PUBLIC_PYTHON_BACKEND_URL=https://your-backend-url.railway.app
-```
-
-Example usage in Next.js:
-```typescript
-const formData = new FormData();
-formData.append("file", audioFile);
-
-const response = await fetch(
-  `${process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL}/api/separate-stems`,
-  { method: "POST", body: formData }
-);
-
-const blob = await response.blob();
-// Handle ZIP file with stems
-```
-
-## Performance Notes
-
-- First request may be slow (model loading)
-- Subsequent requests are faster (models cached in memory)
-- Processing time scales with audio length
-- Recommended: 2GB+ RAM, 2+ CPU cores
-
-## Troubleshooting
-
-**Models not loading:**
-- Check logs for import errors
-- Verify all dependencies installed correctly
-- Ensure sufficient RAM available
-
-**Timeout errors:**
-- Increase gunicorn timeout (currently 300s)
-- Process shorter audio files
-- Use more powerful server instance
-
-**Out of memory:**
-- Reduce worker count in gunicorn
-- Process files sequentially
-- Upgrade server instance
-
-## License
-
-MIT License - Free for commercial use
+- [Render Documentation](https://render.com/docs)
+- [FFmpeg Documentation](https://ffmpeg.org/documentation.html)
+- [Flask Documentation](https://flask.palletsprojects.com/)

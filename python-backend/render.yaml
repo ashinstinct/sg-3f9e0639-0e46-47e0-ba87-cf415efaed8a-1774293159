@@ -1,12 +1,18 @@
 services:
   - type: web
     name: back2life-audio-processing
-    env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 300 app:app
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: |
+      apt-get update && apt-get install -y ffmpeg
+      pip install --upgrade pip
+      pip install -r requirements.txt
+    startCommand: bash start.sh
     envVars:
       - key: FLASK_ENV
         value: production
       - key: PYTHON_VERSION
-        value: 3.10.0
+        value: 3.11.0
     healthCheckPath: /health
+    autoDeploy: true
