@@ -432,6 +432,109 @@ def edit_audio():
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/enhance-audio', methods=['POST'])
+def enhance_audio():
+    """
+    Enhance audio quality with noise reduction and loudness normalization
+    Uses FFmpeg filters for basic enhancement (can integrate HF API with token)
+    Expects: audio file
+    Returns: enhanced audio file (WAV format)
+    """
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+
+    if not allowed_audio_file(file.filename):
+        return jsonify({'error': 'Invalid audio file type'}), 400
+
+    try:
+        job_id = str(uuid.uuid4())
+        temp_dir = Path(tempfile.mkdtemp(prefix=f'enhance_{job_id}_'))
+
+        filename = secure_filename(file.filename)
+        input_path = temp_dir / filename
+        file.save(str(input_path))
+
+        logger.info(f"Enhancing audio: {filename}")
+
+        output_filename = f"{Path(filename).stem}_enhanced.wav"
+        output_path = temp_dir / output_filename
+
+        # FFmpeg audio enhancement filters:
+        # 1. afftdn: FFT-based noise reduction
+        # 2. highpass: Remove low-frequency rumble (80Hz)
+        # 3. loudnorm: EBU R128 loudness normalization
+        # 4. compand: Dynamic range compression for clarity
+        
+        ffmpeg_cmd = [
+            'ffmpeg', '-i', str(input_path),
+            '-af', 'afftdn=nf=-25,highpass=f=80,loudnorm=I=-16:TP=-1.5:LRA=11,compand=attacks=0.3:decays=0.8:points=-80/-80|-45/-15|-27/-9|0/-7|20/-7:soft-knee=6:gain=0:volume=0:delay=0.05',
+            '-ar', '44100',  # Standard sample rate
+            '-ac', '2',      # Stereo
+            '-y',
+            str(output_path)
+        ]
+
+        logger.info(f"Running FFmpeg enhancement...")
+
+        result = subprocess.run(
+            ffmpeg_cmd,
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=300
+        )
+
+        if not output_path.exists():
+            raise Exception("Audio enhancement failed - output file not created")
+
+        logger.info(f"Audio enhancement completed: {output_path}")
+
+        response = send_file(
+            str(output_path),
+            mimetype='audio/wav',
+            as_attachment=True,
+            download_name=output_filename
+        )
+
+        @response.call_on_close
+        def cleanup():
+            try:
+                shutil.rmtree(temp_dir, ignore_errors=True)
+                logger.info(f"Cleaned up temp directory: {temp_dir}")
+            except Exception as e:
+                logger.error(f"Cleanup error: {e}")
+
+        return response
+
+    except subprocess.CalledProcessError as e:
+        logger.error(f"FFmpeg enhancement error: {e.stderr}")
+        try:
+            if 'temp_dir' in locals():
+                shutil.rmtree(temp_dir, ignore_errors=True)
+        except:
+            pass
+        return jsonify({'error': f'Audio enhancement failed: {e.stderr}'}), 500
+    except subprocess.TimeoutExpired:
+        logger.error("FFmpeg process timeout")
+        try:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+        except:
+            pass
+        return jsonify({'error': 'Processing timeout'}), 500
+    except Exception as e:
+        logger.error(f"Audio enhancement error: {e}")
+        try:
+            if 'temp_dir' in locals():
+                shutil.rmtree(temp_dir, ignore_errors=True)
+        except:
+            pass
+        return jsonify({'error': str(e)}), 500
+
+
 @app.errorhandler(413)
 def request_entity_too_large(error):
     return jsonify({'error': 'File too large. Maximum size is 100MB'}), 413
