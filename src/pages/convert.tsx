@@ -1,44 +1,85 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Upload, FileAudio, Download, Loader2, RefreshCw, CheckCircle2, AlertCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Upload, Music, Download, Loader2, RefreshCw, CheckCircle2, AlertCircle, Play, Pause } from "lucide-react";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { fetchFile, toBlobURL } from "@ffmpeg/util";
 
-type AudioFormat = "mp3" | "wav" | "m4a" | "aiff" | "ogg" | "flac" | "opus";
-type BitRate = "128" | "192" | "256" | "320";
-
-const formatInfo: Record<AudioFormat, { name: string; description: string }> = {
-  mp3: { name: "MP3", description: "Most compatible, good compression" },
-  wav: { name: "WAV", description: "Uncompressed, highest quality" },
-  m4a: { name: "M4A", description: "Apple format, good quality" },
-  aiff: { name: "AIFF", description: "Apple uncompressed format" },
-  ogg: { name: "OGG Vorbis", description: "Open source, good compression" },
-  flac: { name: "FLAC", description: "Lossless compression" },
-  opus: { name: "Opus", description: "Modern codec, best for voice" }
-};
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL || "http://localhost:5000";
+interface ConversionSettings {
+  format: string;
+  quality: string;
+}
 
 export default function AudioConverter() {
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioUrl, setAudioUrl] = useState<string>("");
-  const [audioDuration, setAudioDuration] = useState<number>(0);
-  const [outputFormat, setOutputFormat] = useState<AudioFormat>("mp3");
-  const [bitRate, setBitRate] = useState<BitRate>("192");
-  const [isConverting, setIsConverting] = useState(false);
   const [convertedUrl, setConvertedUrl] = useState<string>("");
+  const [convertedBlob, setConvertedBlob] = useState<Blob | null>(null);
+  
+  const [outputFormat, setOutputFormat] = useState<string>("mp3");
+  const [quality, setQuality] = useState<string>("standard");
+  
+  const [isConverting, setIsConverting] = useState(false);
+  const [isLoadingFFmpeg, setIsLoadingFFmpeg] = useState(false);
   const [progress, setProgress] = useState<number>(0);
+  const [progressText, setProgressText] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   
+  const [isPlaying, setIsPlaying] = useState(false);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const convertedAudioRef = useRef<HTMLAudioElement>(null);
+  const ffmpegRef = useRef<FFmpeg | null>(null);
+  const [ffmpegLoaded, setFfmpegLoaded] = useState(false);
+
+  useEffect(() => {
+    loadFFmpeg();
+  }, []);
+
+  const loadFFmpeg = async () => {
+    try {
+      setIsLoadingFFmpeg(true);
+      setProgressText("Loading audio engine...");
+      
+      const ffmpeg = new FFmpeg();
+      
+      ffmpeg.on("log", ({ message }) => {
+        console.log("FFmpeg:", message);
+      });
+
+      ffmpeg.on("progress", ({ progress: prog }) => {
+        const percentage = Math.round(prog * 100);
+        if (isConverting) {
+          setProgress(percentage);
+          setProgressText(`Converting: ${percentage}%`);
+        }
+      });
+
+      const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
+      await ffmpeg.load({
+        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
+        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
+      });
+
+      ffmpegRef.current = ffmpeg;
+      setFfmpegLoaded(true);
+      setProgressText("");
+    } catch (err) {
+      console.error("FFmpeg load error:", err);
+      setError("Failed to load audio engine. Please refresh and try again.");
+    } finally {
+      setIsLoadingFFmpeg(false);
+    }
+  };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -46,7 +87,9 @@ export default function AudioConverter() {
       setAudioFile(file);
       const url = URL.createObjectURL(file);
       setAudioUrl(url);
+      
       setConvertedUrl("");
+      setConvertedBlob(null);
       setError("");
       setSuccess("");
       setProgress(0);
@@ -55,10 +98,38 @@ export default function AudioConverter() {
     }
   };
 
-  const handleAudioLoad = () => {
-    if (audioRef.current) {
-      setAudioDuration(audioRef.current.duration);
+  const getFFmpegArgs = (inputExt: string, outputExt: string): string[] => {
+    const args = ["-i", `input.${inputExt}`];
+    
+    // Quality settings based on format and quality preset
+    switch (quality) {
+      case "low":
+        if (outputExt === "mp3") args.push("-b:a", "96k");
+        else if (outputExt === "ogg") args.push("-b:a", "96k");
+        else if (outputExt === "m4a") args.push("-b:a", "96k");
+        break;
+      
+      case "standard":
+        if (outputExt === "mp3") args.push("-b:a", "192k");
+        else if (outputExt === "ogg") args.push("-b:a", "160k");
+        else if (outputExt === "m4a") args.push("-b:a", "192k");
+        break;
+      
+      case "high":
+        if (outputExt === "mp3") args.push("-b:a", "320k");
+        else if (outputExt === "ogg") args.push("-b:a", "256k");
+        else if (outputExt === "m4a") args.push("-b:a", "256k");
+        break;
+      
+      case "lossless":
+        if (outputExt === "flac") args.push("-compression_level", "8");
+        else if (outputExt === "wav") args.push("-c:a", "pcm_s16le");
+        else args.push("-b:a", "320k");
+        break;
     }
+    
+    args.push(`output.${outputExt}`);
+    return args;
   };
 
   const handleConvert = async () => {
@@ -67,54 +138,63 @@ export default function AudioConverter() {
       return;
     }
 
+    if (!ffmpegLoaded || !ffmpegRef.current) {
+      setError("Audio engine not loaded. Please wait and try again.");
+      return;
+    }
+
     setIsConverting(true);
     setError("");
     setSuccess("");
-    setProgress(10);
+    setProgress(0);
     setConvertedUrl("");
+    setConvertedBlob(null);
+    setProgressText("Preparing audio...");
 
     try {
-      const formData = new FormData();
-      formData.append("file", audioFile);
-      formData.append("output_format", outputFormat);
-      formData.append("bitrate", bitRate);
+      const ffmpeg = ffmpegRef.current;
+      const inputExt = audioFile.name.split(".").pop() || "mp3";
+      const inputFileName = `input.${inputExt}`;
+      const outputFileName = `output.${outputFormat}`;
+      
+      setProgressText("Loading audio file...");
+      await ffmpeg.writeFile(inputFileName, await fetchFile(audioFile));
 
-      setProgress(30);
+      setProgressText("Converting audio...");
+      const args = getFFmpegArgs(inputExt, outputFormat);
+      await ffmpeg.exec(args);
 
-      const response = await fetch(`${BACKEND_URL}/api/convert-audio`, {
-        method: "POST",
-        body: formData,
-      });
-
-      setProgress(60);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Conversion failed");
-      }
-
-      setProgress(80);
-
-      const blob = await response.blob();
+      setProgressText("Finalizing...");
+      const data = await ffmpeg.readFile(outputFileName);
+      const mimeType = `audio/${outputFormat === "m4a" ? "mp4" : outputFormat}`;
+      const blob = new Blob([data], { type: mimeType });
       const url = URL.createObjectURL(blob);
+
+      setConvertedBlob(blob);
       setConvertedUrl(url);
       setProgress(100);
+      setProgressText("");
       setSuccess(`Successfully converted to ${outputFormat.toUpperCase()}!`);
+
+      await ffmpeg.deleteFile(inputFileName);
+      await ffmpeg.deleteFile(outputFileName);
+
     } catch (err) {
       console.error("Conversion error:", err);
       setError(err instanceof Error ? err.message : "Failed to convert audio. Please try again.");
       setProgress(0);
+      setProgressText("");
     } finally {
       setIsConverting(false);
     }
   };
 
   const handleDownload = () => {
-    if (!convertedUrl || !audioFile) return;
-
+    if (!convertedBlob || !audioFile) return;
     const a = document.createElement("a");
     a.href = convertedUrl;
-    a.download = `${audioFile.name.split(".")[0]}_converted.${outputFormat}`;
+    const baseName = audioFile.name.split(".").slice(0, -1).join(".");
+    a.download = `${baseName}_converted.${outputFormat}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -124,11 +204,24 @@ export default function AudioConverter() {
     setAudioFile(null);
     setAudioUrl("");
     setConvertedUrl("");
+    setConvertedBlob(null);
     setProgress(0);
+    setProgressText("");
     setError("");
     setSuccess("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
+    }
+  };
+
+  const togglePlayOriginal = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
     }
   };
 
@@ -140,42 +233,38 @@ export default function AudioConverter() {
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  const getInputFormat = (): string => {
-    if (!audioFile) return "Unknown";
-    const ext = audioFile.name.split(".").pop()?.toLowerCase() || "";
-    return ext.toUpperCase();
-  };
-
   return (
     <>
       <SEO
-        title="Audio Converter - Back2Life.Studio"
-        description="Convert audio files between MP3, WAV, M4A, AIFF, OGG, FLAC, and Opus formats with quality control."
+        title="Audio Format Converter - Back2Life.Studio"
+        description="Convert audio files between MP3, WAV, M4A, FLAC, OGG, AIFF, and Opus formats with quality presets."
       />
       <div className="min-h-screen bg-background">
         <Navigation />
         
         <div className="container mx-auto px-4 pt-24 pb-12">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-5xl mx-auto">
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-gradient-to-r from-violet-500 to-purple-500">
+                <div className="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500">
                   <RefreshCw className="w-6 h-6 text-white" />
                 </div>
-                <h1 className="font-heading font-bold text-4xl">Audio Converter</h1>
+                <h1 className="font-heading font-bold text-4xl">Audio Format Converter</h1>
                 <Badge variant="secondary" className="bg-green-500/10 text-green-600 border-green-500/20">
                   Free
                 </Badge>
               </div>
               <p className="text-muted-foreground text-lg">
-                Convert audio files between popular formats with quality control.
+                Convert audio files to any format with studio-quality encoding.
               </p>
+              {isLoadingFFmpeg && (
+                <Alert className="mt-4 border-blue-500/50 bg-blue-500/10">
+                  <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />
+                  <AlertDescription className="text-blue-600">
+                    Loading audio engine... (First time may take 10-15 seconds)
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
 
             {error && (
@@ -193,26 +282,25 @@ export default function AudioConverter() {
             )}
 
             <div className="grid lg:grid-cols-5 gap-6">
-              {/* Left Column - Upload & Settings */}
-              <div className="lg:col-span-3 space-y-6">
+              <div className="lg:col-span-2 space-y-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Upload Audio</CardTitle>
+                    <CardTitle>1. Upload Audio</CardTitle>
                     <CardDescription>
-                      Choose an audio file to convert
+                      Supports MP3, WAV, M4A, FLAC, OGG, AIFF, Opus
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div
                       onClick={() => fileInputRef.current?.click()}
-                      className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
+                      className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-primary/50 transition-colors"
                     >
-                      <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground mb-2">
-                        Click to upload or drag and drop
+                      <Upload className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground mb-1">
+                        Click to upload
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        MP3, WAV, M4A, AIFF, OGG, FLAC, Opus
+                        MP3, WAV, M4A, FLAC, OGG, AIFF, Opus
                       </p>
                       <input
                         ref={fileInputRef}
@@ -224,25 +312,31 @@ export default function AudioConverter() {
                     </div>
 
                     {audioFile && (
-                      <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                        <FileAudio className="w-8 h-8 text-primary" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate">{audioFile.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {formatFileSize(audioFile.size)} • {formatTime(audioDuration)} • {getInputFormat()}
-                          </p>
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                          <Music className="w-8 h-8 text-primary" />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate">{audioFile.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatFileSize(audioFile.size)}
+                            </p>
+                          </div>
+                          <Button
+                            onClick={togglePlayOriginal}
+                            variant="ghost"
+                            size="icon"
+                          >
+                            {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                          </Button>
                         </div>
+                        
+                        <audio
+                          ref={audioRef}
+                          src={audioUrl}
+                          onEnded={() => setIsPlaying(false)}
+                          className="w-full"
+                        />
                       </div>
-                    )}
-
-                    {audioUrl && (
-                      <audio
-                        ref={audioRef}
-                        src={audioUrl}
-                        controls
-                        onLoadedMetadata={handleAudioLoad}
-                        className="w-full"
-                      />
                     )}
                   </CardContent>
                 </Card>
@@ -250,52 +344,49 @@ export default function AudioConverter() {
                 {audioFile && (
                   <Card>
                     <CardHeader>
-                      <CardTitle>Conversion Settings</CardTitle>
+                      <CardTitle>2. Conversion Settings</CardTitle>
                       <CardDescription>
                         Choose output format and quality
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="space-y-2">
+                    <CardContent className="space-y-6">
+                      <div className="space-y-3">
                         <Label>Output Format</Label>
-                        <Select value={outputFormat} onValueChange={(v) => setOutputFormat(v as AudioFormat)}>
+                        <Select value={outputFormat} onValueChange={setOutputFormat}>
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {Object.entries(formatInfo).map(([format, info]) => (
-                              <SelectItem key={format} value={format}>
-                                <div className="flex flex-col items-start">
-                                  <span className="font-medium">{info.name}</span>
-                                  <span className="text-xs text-muted-foreground">{info.description}</span>
-                                </div>
-                              </SelectItem>
-                            ))}
+                            <SelectItem value="mp3">MP3 (Most Compatible)</SelectItem>
+                            <SelectItem value="wav">WAV (Uncompressed)</SelectItem>
+                            <SelectItem value="m4a">M4A (Apple/iTunes)</SelectItem>
+                            <SelectItem value="flac">FLAC (Lossless)</SelectItem>
+                            <SelectItem value="ogg">OGG (Open Source)</SelectItem>
+                            <SelectItem value="aiff">AIFF (Apple Lossless)</SelectItem>
+                            <SelectItem value="opus">Opus (High Efficiency)</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
 
-                      {(outputFormat === "mp3" || outputFormat === "ogg" || outputFormat === "opus" || outputFormat === "m4a") && (
-                        <div className="space-y-2">
-                          <Label>Bitrate (Quality)</Label>
-                          <Select value={bitRate} onValueChange={(v) => setBitRate(v as BitRate)}>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="128">128 kbps (Good)</SelectItem>
-                              <SelectItem value="192">192 kbps (Better)</SelectItem>
-                              <SelectItem value="256">256 kbps (High)</SelectItem>
-                              <SelectItem value="320">320 kbps (Maximum)</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      )}
+                      <div className="space-y-3">
+                        <Label>Quality Preset</Label>
+                        <Select value={quality} onValueChange={setQuality}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="low">Low (96kbps - Smaller file)</SelectItem>
+                            <SelectItem value="standard">Standard (192kbps - Balanced)</SelectItem>
+                            <SelectItem value="high">High (320kbps - Premium)</SelectItem>
+                            <SelectItem value="lossless">Lossless (Studio Quality)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
 
                       {isConverting && (
                         <div className="space-y-2">
                           <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">Converting...</span>
+                            <span className="text-muted-foreground">{progressText}</span>
                             <span className="font-medium">{progress}%</span>
                           </div>
                           <Progress value={progress} className="h-2" />
@@ -305,101 +396,117 @@ export default function AudioConverter() {
                       <div className="flex gap-3">
                         <Button
                           onClick={handleConvert}
-                          disabled={isConverting || !audioFile}
-                          className="flex-1 bg-gradient-to-r from-violet-500 to-purple-500 hover:opacity-90"
-                          size="lg"
+                          disabled={isConverting || !audioFile || !ffmpegLoaded}
+                          className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:opacity-90"
                         >
                           {isConverting ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Converting...
-                            </>
+                            <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Converting...</>
                           ) : (
-                            <>
-                              <RefreshCw className="w-4 h-4 mr-2" />
-                              Convert Audio
-                            </>
+                            <><RefreshCw className="w-4 h-4 mr-2" /> Convert Audio</>
                           )}
                         </Button>
-
-                        {audioFile && !isConverting && (
-                          <Button
-                            onClick={handleReset}
-                            variant="outline"
-                            size="lg"
-                          >
-                            Reset
+                        {!isConverting && !convertedUrl && (
+                          <Button onClick={handleReset} variant="outline" size="icon">
+                            <AlertCircle className="w-4 h-4" />
                           </Button>
                         )}
                       </div>
-
-                      {convertedUrl && (
-                        <Button
-                          onClick={handleDownload}
-                          variant="outline"
-                          className="w-full border-green-500/50 bg-green-500/10 hover:bg-green-500/20 text-green-600"
-                          size="lg"
-                        >
-                          <Download className="w-4 h-4 mr-2" />
-                          Download Converted File
-                        </Button>
-                      )}
                     </CardContent>
                   </Card>
                 )}
               </div>
 
-              {/* Right Column - Info */}
-              <div className="lg:col-span-2">
-                <Card className="sticky top-24">
+              <div className="lg:col-span-3 space-y-6">
+                <Card className="min-h-[400px]">
                   <CardHeader>
-                    <CardTitle className="text-lg">Conversion Info</CardTitle>
+                    <CardTitle>Converted Audio</CardTitle>
+                    <CardDescription>
+                      {convertedUrl 
+                        ? "Your converted audio is ready!" 
+                        : "Your converted file will appear here"}
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                        <span className="text-sm text-muted-foreground">Input</span>
-                        <Badge variant="secondary">{getInputFormat()}</Badge>
+                  <CardContent>
+                    {!convertedUrl && !isConverting && (
+                      <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center p-8 text-muted-foreground border-2 border-dashed rounded-lg">
+                        <Music className="w-12 h-12 mb-4 opacity-50" />
+                        <p>Upload an audio file and click Convert to get started</p>
                       </div>
-                      <div className="flex items-center justify-center text-muted-foreground">
-                        <RefreshCw className="w-4 h-4" />
-                      </div>
-                      <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                        <span className="text-sm text-muted-foreground">Output</span>
-                        <Badge className="bg-gradient-to-r from-violet-500 to-purple-500">
-                          {outputFormat.toUpperCase()}
-                        </Badge>
-                      </div>
-                    </div>
+                    )}
 
-                    <div className="pt-4 border-t space-y-2">
-                      <p className="text-sm font-medium">Supported Formats:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {Object.keys(formatInfo).map((format) => (
-                          <Badge key={format} variant="outline" className="text-xs">
-                            {format.toUpperCase()}
-                          </Badge>
-                        ))}
+                    {isConverting && (
+                      <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center p-8">
+                        <Loader2 className="w-12 h-12 mb-4 animate-spin text-primary" />
+                        <p className="font-medium">{progressText}</p>
+                        <p className="text-sm text-muted-foreground">Processing with studio-quality encoding</p>
                       </div>
-                    </div>
+                    )}
 
-                    <div className="pt-4 border-t space-y-2">
-                      <p className="text-sm font-medium">Features:</p>
-                      <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
-                        <li>High-quality conversion</li>
-                        <li>Preserves metadata</li>
-                        <li>Customizable bitrate</li>
-                        <li>Fast processing with FFmpeg</li>
-                        <li>No quality loss (lossless formats)</li>
-                        <li>Support for 7 audio formats</li>
-                      </ul>
-                    </div>
+                    {convertedUrl && convertedBlob && (
+                      <div className="space-y-6">
+                        <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-2 border-blue-500/20 rounded-xl p-6 space-y-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="p-3 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500">
+                                <Music className="w-6 h-6 text-white" />
+                              </div>
+                              <div>
+                                <p className="font-semibold text-lg">
+                                  {audioFile?.name.split(".").slice(0, -1).join(".")}_converted.{outputFormat}
+                                </p>
+                                <p className="text-sm text-muted-foreground">
+                                  {formatFileSize(convertedBlob.size)} • {outputFormat.toUpperCase()} • {quality.charAt(0).toUpperCase() + quality.slice(1)} Quality
+                                </p>
+                              </div>
+                            </div>
+                            <Badge className="bg-green-500/20 text-green-700 border-green-500/30">
+                              <CheckCircle2 className="w-3 h-3 mr-1" />
+                              Ready
+                            </Badge>
+                          </div>
 
-                    {audioFile && (
-                      <div className="pt-4 border-t">
-                        <p className="text-xs text-muted-foreground">
-                          <strong>Backend:</strong> Flask + FFmpeg processing
-                        </p>
+                          <audio
+                            ref={convertedAudioRef}
+                            src={convertedUrl}
+                            controls
+                            className="w-full"
+                          />
+
+                          <div className="flex gap-3">
+                            <Button
+                              onClick={handleDownload}
+                              className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:opacity-90"
+                            >
+                              <Download className="w-4 h-4 mr-2" />
+                              Download {outputFormat.toUpperCase()}
+                            </Button>
+                            <Button
+                              onClick={handleReset}
+                              variant="outline"
+                            >
+                              Convert Another
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg">
+                          <div>
+                            <p className="text-xs text-muted-foreground mb-1">Original Format</p>
+                            <p className="font-medium">{audioFile?.name.split(".").pop()?.toUpperCase()}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground mb-1">Original Size</p>
+                            <p className="font-medium">{formatFileSize(audioFile?.size || 0)}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground mb-1">Output Format</p>
+                            <p className="font-medium">{outputFormat.toUpperCase()}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground mb-1">Output Size</p>
+                            <p className="font-medium">{formatFileSize(convertedBlob.size)}</p>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </CardContent>
