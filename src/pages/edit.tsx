@@ -43,7 +43,9 @@ export default function AudioEditor() {
 
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.volume = volume / 100;
+      // Clamp volume to [0, 1] for HTML audio element (max browser supports)
+      // Processing can still boost to 200% via FFmpeg
+      audioRef.current.volume = Math.min(volume / 100, 1.0);
       audioRef.current.playbackRate = speed;
     }
   }, [volume, speed]);
