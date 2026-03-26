@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Upload, FileAudio, Download, Loader2, Scissors, Volume2, Gauge, CheckCircle2, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://back2life-audio-processing.onrender.com";
 
 export default function AudioEditor() {
   const { toast } = useToast();
@@ -234,7 +234,7 @@ export default function AudioEditor() {
       formData.append("trim_end", trimEnd.toString());
       formData.append("fade_in", fadeIn.toString());
       formData.append("fade_out", fadeOut.toString());
-      formData.append("volume", volume.toString());
+      formData.append("volume", (volume / 100).toString()); // Convert percentage to decimal (100% = 1.0)
       formData.append("speed", speed.toString());
 
       // Send to Python backend

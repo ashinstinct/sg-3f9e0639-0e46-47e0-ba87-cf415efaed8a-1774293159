@@ -300,8 +300,14 @@ def edit_audio():
         trim_end = float(request.form.get('trim_end', 0))
         fade_in = float(request.form.get('fade_in', 0))
         fade_out = float(request.form.get('fade_out', 0))
-        volume = float(request.form.get('volume', 1.0))
+        volume = float(request.form.get('volume', 1.0))  # 1.0 = 100%, 0.5 = 50%, 2.0 = 200%
         speed = float(request.form.get('speed', 1.0))
+
+        # Validate parameters
+        if volume < 0 or volume > 2.0:
+            return jsonify({'error': 'Volume must be between 0 and 2.0'}), 400
+        if speed < 0.5 or speed > 2.0:
+            return jsonify({'error': 'Speed must be between 0.5 and 2.0'}), 400
 
         job_id = str(uuid.uuid4())
         temp_dir = Path(tempfile.mkdtemp(prefix=f'edit_{job_id}_'))
@@ -311,7 +317,7 @@ def edit_audio():
         file.save(str(input_path))
 
         logger.info(f"Editing audio: {filename}")
-        logger.info(f"Parameters - trim: {trim_start}-{trim_end}s, fade: {fade_in}/{fade_out}s, volume: {volume}, speed: {speed}")
+        logger.info(f"Parameters - trim: {trim_start}-{trim_end}s, fade: {fade_in}/{fade_out}s, volume: {volume:.2f}x, speed: {speed}x")
 
         output_filename = f"{Path(filename).stem}_edited.mp3"
         output_path = temp_dir / output_filename
