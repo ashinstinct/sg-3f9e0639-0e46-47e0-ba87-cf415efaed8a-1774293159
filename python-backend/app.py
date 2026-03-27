@@ -631,12 +631,13 @@ def get_video_formats():
         
         logger.info(f"Fetching video formats for: {url}")
         
-        # yt-dlp options for metadata extraction
+        # yt-dlp options for metadata extraction - NO FORMAT SELECTION YET
         ydl_opts = {
             'quiet': True,
             'no_warnings': True,
             'extract_flat': False,
             'skip_download': True,
+            'no_check_certificate': True,
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
