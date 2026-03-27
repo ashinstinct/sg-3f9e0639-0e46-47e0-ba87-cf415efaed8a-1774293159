@@ -1,6 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const PYTHON_BACKEND_URL = process.env.PYTHON_BACKEND_URL || "http://localhost:5328";
+const PYTHON_BACKEND_URL = process.env.PYTHON_BACKEND_URL || 
+                          process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL || 
+                          "https://back2life-audio-processing.onrender.com";
 
 export default async function handler(
   req: NextApiRequest,
@@ -17,25 +19,26 @@ export default async function handler(
   }
 
   try {
-    // Call Python backend yt-dlp download endpoint
     const response = await fetch(`${PYTHON_BACKEND_URL}/api/video-download`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        url,
+        url: url.trim(),
         format_id: formatId || "best",
         is_audio_only: isAudioOnly || false,
       }),
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      return res.status(response.status).json(errorData);
+      const data = await response.json();
+      return res.status(response.status).json({
+        error: data.error || "Failed to download video",
+      });
     }
 
-    // Stream the file from Python backend to client
+    // Stream the file back to client
     const contentType = response.headers.get("content-type") || "application/octet-stream";
     const contentDisposition = response.headers.get("content-disposition") || "";
 
@@ -46,11 +49,9 @@ export default async function handler(
 
     // Pipe the response
     const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    
-    return res.send(buffer);
+    res.send(Buffer.from(arrayBuffer));
   } catch (error) {
-    console.error("Video download API error:", error);
+    console.error("Download API error:", error);
     return res.status(500).json({
       error: error instanceof Error ? error.message : "Failed to download video",
     });

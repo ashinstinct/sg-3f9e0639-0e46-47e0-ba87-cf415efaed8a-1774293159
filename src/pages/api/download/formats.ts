@@ -1,6 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const PYTHON_BACKEND_URL = process.env.PYTHON_BACKEND_URL || "http://localhost:5328";
+const PYTHON_BACKEND_URL = process.env.PYTHON_BACKEND_URL || 
+                          process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL || 
+                          "https://back2life-audio-processing.onrender.com";
 
 export default async function handler(
   req: NextApiRequest,
@@ -17,24 +19,25 @@ export default async function handler(
   }
 
   try {
-    // Call Python backend yt-dlp endpoint
     const response = await fetch(`${PYTHON_BACKEND_URL}/api/video-formats`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ url }),
+      body: JSON.stringify({ url: url.trim() }),
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-      return res.status(response.status).json(data);
+      return res.status(response.status).json({
+        error: data.error || "Failed to fetch video formats",
+      });
     }
 
     return res.status(200).json(data);
   } catch (error) {
-    console.error("Video formats API error:", error);
+    console.error("Formats API error:", error);
     return res.status(500).json({
       error: error instanceof Error ? error.message : "Failed to fetch video formats",
     });
