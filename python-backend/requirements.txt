@@ -8,6 +8,7 @@ ffmpeg-python==0.2.0
 
 # HTTP requests for API integrations
 requests==2.31.0
+yt-dlp==2024.3.10
 
 # Basic utilities
 gunicorn==21.2.0

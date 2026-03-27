@@ -12,6 +12,8 @@ import subprocess
 import requests
 import base64
 import io
+import yt_dlp
+import json
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -605,6 +607,207 @@ def enhance_audio():
         return jsonify({'error': 'Processing timeout'}), 500
     except Exception as e:
         logger.error(f"Audio enhancement error: {e}")
+        try:
+            if 'temp_dir' in locals():
+                shutil.rmtree(temp_dir, ignore_errors=True)
+        except:
+            pass
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/video-formats', methods=['POST'])
+def get_video_formats():
+    """
+    Get video metadata and available formats using yt-dlp
+    Expects: url
+    Returns: video metadata + available quality options
+    """
+    try:
+        data = request.get_json()
+        url = data.get('url', '').strip()
+        
+        if not url:
+            return jsonify({'error': 'URL is required'}), 400
+        
+        logger.info(f"Fetching video formats for: {url}")
+        
+        # yt-dlp options for metadata extraction
+        ydl_opts = {
+            'quiet': True,
+            'no_warnings': True,
+            'extract_flat': False,
+            'skip_download': True,
+        }
+        
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            
+            # Extract basic metadata
+            metadata = {
+                'title': info.get('title', 'Unknown Title'),
+                'thumbnail': info.get('thumbnail', ''),
+                'duration': info.get('duration', 0),
+                'uploader': info.get('uploader', 'Unknown'),
+                'platform': info.get('extractor_key', 'Unknown'),
+            }
+            
+            # Get available formats
+            formats = info.get('formats', [])
+            
+            # Organize video formats by quality
+            video_formats = []
+            audio_formats = []
+            
+            seen_video = set()
+            seen_audio = set()
+            
+            for fmt in formats:
+                format_id = fmt.get('format_id', '')
+                ext = fmt.get('ext', '')
+                
+                # Video formats (has both video and audio, or video-only)
+                if fmt.get('vcodec') != 'none':
+                    height = fmt.get('height', 0)
+                    if height and height not in seen_video:
+                        video_formats.append({
+                            'quality': f"{height}p",
+                            'format_id': format_id,
+                            'ext': ext,
+                            'height': height,
+                            'fps': fmt.get('fps', 30),
+                            'filesize': fmt.get('filesize', 0),
+                        })
+                        seen_video.add(height)
+                
+                # Audio-only formats
+                elif fmt.get('acodec') != 'none':
+                    abr = fmt.get('abr', 0)
+                    if abr and abr not in seen_audio:
+                        audio_formats.append({
+                            'quality': f"{int(abr)}k",
+                            'format_id': format_id,
+                            'ext': ext,
+                            'abr': abr,
+                            'filesize': fmt.get('filesize', 0),
+                        })
+                        seen_audio.add(abr)
+            
+            # Sort by quality (descending)
+            video_formats.sort(key=lambda x: x['height'], reverse=True)
+            audio_formats.sort(key=lambda x: x['abr'], reverse=True)
+            
+            logger.info(f"Found {len(video_formats)} video formats and {len(audio_formats)} audio formats")
+            
+            return jsonify({
+                'metadata': metadata,
+                'video_formats': video_formats[:10],  # Top 10 video qualities
+                'audio_formats': audio_formats[:6],   # Top 6 audio qualities
+            })
+            
+    except yt_dlp.utils.DownloadError as e:
+        logger.error(f"yt-dlp download error: {e}")
+        return jsonify({'error': f'Failed to fetch video: {str(e)}'}), 400
+    except Exception as e:
+        logger.error(f"Video formats error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/video-download', methods=['POST'])
+def download_video():
+    """
+    Generate download URL for video using yt-dlp
+    Expects: url, format_id, is_audio_only
+    Returns: direct download URL or file stream
+    """
+    try:
+        data = request.get_json()
+        url = data.get('url', '').strip()
+        format_id = data.get('format_id', 'best')
+        is_audio_only = data.get('is_audio_only', False)
+        
+        if not url:
+            return jsonify({'error': 'URL is required'}), 400
+        
+        logger.info(f"Downloading video: {url} with format: {format_id}")
+        
+        # Create temp directory for download
+        job_id = str(uuid.uuid4())
+        temp_dir = Path(tempfile.mkdtemp(prefix=f'download_{job_id}_'))
+        
+        # yt-dlp download options
+        ydl_opts = {
+            'format': format_id if format_id != 'best' else 'bestvideo+bestaudio/best',
+            'outtmpl': str(temp_dir / '%(title)s.%(ext)s'),
+            'quiet': True,
+            'no_warnings': True,
+            'extract_flat': False,
+        }
+        
+        # Audio-only extraction
+        if is_audio_only:
+            ydl_opts['format'] = 'bestaudio/best'
+            ydl_opts['postprocessors'] = [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }]
+        
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            # Download the file
+            info = ydl.extract_info(url, download=True)
+            
+            # Find the downloaded file
+            downloaded_file = None
+            for file in temp_dir.iterdir():
+                if file.is_file():
+                    downloaded_file = file
+                    break
+            
+            if not downloaded_file or not downloaded_file.exists():
+                raise Exception("Download failed - file not created")
+            
+            logger.info(f"Downloaded: {downloaded_file}")
+            
+            # Determine MIME type
+            ext = downloaded_file.suffix.lower()
+            mime_types = {
+                '.mp4': 'video/mp4',
+                '.webm': 'video/webm',
+                '.mkv': 'video/x-matroska',
+                '.mp3': 'audio/mpeg',
+                '.m4a': 'audio/mp4',
+                '.opus': 'audio/opus',
+            }
+            mime_type = mime_types.get(ext, 'application/octet-stream')
+            
+            # Send file
+            response = send_file(
+                str(downloaded_file),
+                mimetype=mime_type,
+                as_attachment=True,
+                download_name=downloaded_file.name
+            )
+            
+            @response.call_on_close
+            def cleanup():
+                try:
+                    shutil.rmtree(temp_dir, ignore_errors=True)
+                    logger.info(f"Cleaned up temp directory: {temp_dir}")
+                except Exception as e:
+                    logger.error(f"Cleanup error: {e}")
+            
+            return response
+            
+    except yt_dlp.utils.DownloadError as e:
+        logger.error(f"yt-dlp download error: {e}")
+        try:
+            if 'temp_dir' in locals():
+                shutil.rmtree(temp_dir, ignore_errors=True)
+        except:
+            pass
+        return jsonify({'error': f'Download failed: {str(e)}'}), 400
+    except Exception as e:
+        logger.error(f"Video download error: {e}")
         try:
             if 'temp_dir' in locals():
                 shutil.rmtree(temp_dir, ignore_errors=True)

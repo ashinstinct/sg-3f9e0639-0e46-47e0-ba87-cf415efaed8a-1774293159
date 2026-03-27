@@ -3,92 +3,83 @@ import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Link as LinkIcon, Download, Loader2, Video, Music, AlertCircle, ExternalLink } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useToast } from "@/hooks/use-toast";
-
-type VideoFormat = {
-  quality: string;
-  format: string;
-  size: string;
-};
+import { Loader2, Download, Video, Music, AlertCircle } from "lucide-react";
 
 type VideoMetadata = {
   title: string;
   thumbnail: string;
+  duration: number;
+  uploader: string;
   platform: string;
-  videoFormats: VideoFormat[];
-  audioFormats: VideoFormat[];
+};
+
+type VideoFormat = {
+  quality: string;
+  format_id: string;
+  ext: string;
+  height?: number;
+  fps?: number;
+  abr?: number;
+  filesize?: number;
 };
 
 export default function VideoDownloader() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [metadata, setMetadata] = useState<VideoMetadata | null>(null);
-  const [selectedTab, setSelectedTab] = useState<"video" | "audio">("video");
-  const [selectedQuality, setSelectedQuality] = useState("");
-  const [downloading, setDownloading] = useState(false);
+  const [videoFormats, setVideoFormats] = useState<VideoFormat[]>([]);
+  const [audioFormats, setAudioFormats] = useState<VideoFormat[]>([]);
+  const [selectedFormat, setSelectedFormat] = useState<VideoFormat | null>(null);
+  const [downloadType, setDownloadType] = useState<"video" | "audio">("video");
   const [error, setError] = useState("");
-  const { toast } = useToast();
+  const [downloading, setDownloading] = useState(false);
 
-  const handleFetchMetadata = async () => {
+  const handleFetchFormats = async () => {
     if (!url.trim()) {
-      setError("Please enter a video URL");
+      setError("Please enter a valid URL");
       return;
     }
 
     setLoading(true);
     setError("");
     setMetadata(null);
-    setSelectedQuality("");
+    setVideoFormats([]);
+    setAudioFormats([]);
+    setSelectedFormat(null);
 
     try {
       const response = await fetch("/api/download/formats", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: url.trim() }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch video metadata");
+        throw new Error(data.error || "Failed to fetch video information");
       }
 
-      setMetadata(data);
-      
-      // Auto-select default quality
-      if (selectedTab === "video" && data.videoFormats.length > 0) {
-        setSelectedQuality(data.videoFormats[2]?.quality || data.videoFormats[0].quality); // Default to 1080p
-      } else if (selectedTab === "audio" && data.audioFormats.length > 0) {
-        setSelectedQuality(data.audioFormats[1]?.quality || data.audioFormats[0].quality); // Default to 128k
-      }
+      setMetadata(data.metadata);
+      setVideoFormats(data.video_formats || []);
+      setAudioFormats(data.audio_formats || []);
 
-      toast({
-        title: "✅ Video found!",
-        description: `Ready to download from ${data.platform}`,
-      });
+      // Auto-select best quality
+      if (downloadType === "video" && data.video_formats?.length > 0) {
+        setSelectedFormat(data.video_formats[0]);
+      } else if (downloadType === "audio" && data.audio_formats?.length > 0) {
+        setSelectedFormat(data.audio_formats[0]);
+      }
     } catch (err) {
-      console.error("Metadata fetch error:", err);
-      const errorMessage = err instanceof Error ? err.message : "Failed to fetch video metadata";
-      setError(errorMessage);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: errorMessage,
-      });
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
   };
 
   const handleDownload = async () => {
-    if (!metadata || !selectedQuality) {
-      setError("Please select a quality first");
+    if (!selectedFormat || !url) {
+      setError("Please select a quality option");
       return;
     }
 
@@ -98,261 +89,248 @@ export default function VideoDownloader() {
     try {
       const response = await fetch("/api/download/fetch", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           url: url.trim(),
-          quality: selectedQuality,
-          isAudio: selectedTab === "audio",
+          formatId: selectedFormat.format_id,
+          isAudioOnly: downloadType === "audio",
         }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.error || "Failed to get download URL");
+        const data = await response.json();
+        throw new Error(data.error || "Failed to download");
       }
 
-      // Open download URL in new tab
-      window.open(data.downloadUrl, "_blank");
-
-      toast({
-        title: "✅ Download started!",
-        description: "Check your downloads folder",
-      });
+      // Download the file
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = `${metadata?.title || "download"}.${selectedFormat.ext}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
     } catch (err) {
-      console.error("Download error:", err);
-      const errorMessage = err instanceof Error ? err.message : "Failed to download video";
-      setError(errorMessage);
-      toast({
-        variant: "destructive",
-        title: "Download failed",
-        description: errorMessage,
-      });
+      setError(err instanceof Error ? err.message : "Download failed");
     } finally {
       setDownloading(false);
     }
   };
 
-  const handleReset = () => {
+  const resetDownload = () => {
     setUrl("");
     setMetadata(null);
-    setSelectedQuality("");
+    setVideoFormats([]);
+    setAudioFormats([]);
+    setSelectedFormat(null);
     setError("");
   };
+
+  const formatFileSize = (bytes: number) => {
+    if (!bytes) return "Unknown size";
+    const mb = bytes / (1024 * 1024);
+    return mb > 1 ? `${mb.toFixed(1)} MB` : `${(bytes / 1024).toFixed(0)} KB`;
+  };
+
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const currentFormats = downloadType === "video" ? videoFormats : audioFormats;
 
   return (
     <>
       <SEO
-        title="Video Downloader - Back2Life.Studio"
-        description="Download videos from YouTube, TikTok, Instagram, and more. Fast, free, and no watermarks."
+        title="Video Downloader - Download Videos from YouTube, TikTok & More | Back2Life.Studio"
+        description="Free video downloader supporting YouTube, TikTok, Instagram, Twitter and 1000+ sites. Download in multiple quality options including 4K."
       />
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
         <Navigation />
         
-        <div className="container mx-auto px-4 py-24">
-          <div className="max-w-4xl mx-auto">
-            {/* Header */}
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 mb-4">
-                <Download className="w-8 h-8 text-white" />
-              </div>
-              <h1 className="font-heading font-bold text-4xl text-white mb-3">
-                Video Downloader
-              </h1>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Download videos from YouTube, TikTok, Instagram, and 50+ platforms. 
-                High quality, fast, and no watermarks.
-              </p>
-            </div>
+        <div className="container max-w-4xl mx-auto px-4 py-12">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-purple-500 to-cyan-500 bg-clip-text text-transparent">
+              Video Downloader
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Download videos from YouTube, TikTok, Instagram, Twitter, and 1000+ sites
+            </p>
+          </div>
 
-            {/* URL Input Section */}
-            <Card className="backdrop-blur-sm bg-card/50 border-primary/20 mb-6">
-              <CardContent className="pt-6 pb-6">
-                <div className="space-y-4">
-                  <div className="relative">
-                    <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
+          <div className="bg-card border rounded-xl p-8 shadow-lg">
+            {!metadata ? (
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Video URL
+                  </label>
+                  <div className="flex gap-3">
                     <Input
                       type="url"
-                      placeholder="Paste video URL here (YouTube, TikTok, Instagram, etc.)"
+                      placeholder="https://www.youtube.com/watch?v=..."
                       value={url}
                       onChange={(e) => setUrl(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && handleFetchMetadata()}
-                      className="pl-12 pr-4 h-14 text-lg"
-                      disabled={loading || !!metadata}
+                      onKeyDown={(e) => e.key === "Enter" && handleFetchFormats()}
+                      className="flex-1"
                     />
-                  </div>
-                  {!metadata && (
                     <Button
-                      onClick={handleFetchMetadata}
+                      onClick={handleFetchFormats}
                       disabled={loading || !url.trim()}
-                      size="lg"
-                      className="w-full h-12"
                     >
                       {loading ? (
                         <>
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          Fetching video info...
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Loading...
                         </>
                       ) : (
-                        <>
-                          <ExternalLink className="w-5 h-5 mr-2" />
-                          Get Video Info
-                        </>
+                        "Fetch Video"
                       )}
                     </Button>
-                  )}
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
 
-            {/* Error Message */}
-            {error && (
-              <Alert variant="destructive" className="mb-6">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+                {error && (
+                  <div className="flex items-center gap-2 p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive">
+                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                    <p className="text-sm">{error}</p>
+                  </div>
+                )}
 
-            {/* Video Info & Download Section */}
-            {metadata && (
+                <div className="p-4 bg-muted/50 rounded-lg">
+                  <p className="text-sm text-muted-foreground">
+                    <strong>Supported platforms:</strong> YouTube, TikTok, Instagram, Twitter, Facebook, Reddit, Vimeo, Dailymotion, and 1000+ more sites.
+                  </p>
+                </div>
+              </div>
+            ) : (
               <div className="space-y-6">
                 {/* Video Preview */}
-                <Card className="backdrop-blur-sm bg-card/50 border-primary/20 overflow-hidden">
-                  <CardContent className="p-0">
-                    <div className="relative bg-black">
-                      {metadata.thumbnail ? (
-                        <img
-                          src={metadata.thumbnail}
-                          alt={metadata.title}
-                          className="w-full aspect-video object-cover"
-                        />
-                      ) : (
-                        <div className="aspect-video flex items-center justify-center bg-muted">
-                          <Video className="w-16 h-16 text-muted-foreground" />
+                <div className="flex gap-4">
+                  {metadata.thumbnail && (
+                    <img
+                      src={metadata.thumbnail}
+                      alt={metadata.title}
+                      className="w-40 h-24 object-cover rounded-lg"
+                    />
+                  )}
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg mb-1">{metadata.title}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {metadata.uploader} • {formatDuration(metadata.duration)}
+                    </p>
+                    <div className="mt-2">
+                      <span className="inline-block px-2 py-1 bg-primary/10 text-primary text-xs rounded">
+                        {metadata.platform}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Download Type Tabs */}
+                <div className="flex gap-2 border-b">
+                  <button
+                    onClick={() => {
+                      setDownloadType("video");
+                      setSelectedFormat(videoFormats[0] || null);
+                    }}
+                    className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
+                      downloadType === "video"
+                        ? "border-primary text-primary"
+                        : "border-transparent text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Video className="w-4 h-4" />
+                    Video (MP4)
+                  </button>
+                  <button
+                    onClick={() => {
+                      setDownloadType("audio");
+                      setSelectedFormat(audioFormats[0] || null);
+                    }}
+                    className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
+                      downloadType === "audio"
+                        ? "border-primary text-primary"
+                        : "border-transparent text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Music className="w-4 h-4" />
+                    Audio (MP3)
+                  </button>
+                </div>
+
+                {/* Quality Options */}
+                <div>
+                  <label className="block text-sm font-medium mb-3">
+                    Select Quality
+                  </label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {currentFormats.map((format) => (
+                      <button
+                        key={format.format_id}
+                        onClick={() => setSelectedFormat(format)}
+                        className={`p-4 rounded-lg border-2 transition-all ${
+                          selectedFormat?.format_id === format.format_id
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:border-primary/50"
+                        }`}
+                      >
+                        <div className="font-semibold">{format.quality}</div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {format.ext.toUpperCase()}
+                          {format.filesize && ` • ${formatFileSize(format.filesize)}`}
                         </div>
-                      )}
-                    </div>
-                    <div className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-lg mb-2">{metadata.title}</h3>
-                          <Badge variant="secondary">{metadata.platform}</Badge>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-                {/* Format Selection */}
-                <Card className="backdrop-blur-sm bg-card/50 border-primary/20">
-                  <CardContent className="pt-6 pb-6">
-                    <div className="space-y-6">
-                      {/* Video/Audio Tabs */}
-                      <div className="flex gap-2 p-1 bg-muted rounded-lg">
-                        <Button
-                          variant={selectedTab === "video" ? "default" : "ghost"}
-                          className="flex-1"
-                          onClick={() => {
-                            setSelectedTab("video");
-                            setSelectedQuality(metadata.videoFormats[2]?.quality || metadata.videoFormats[0].quality);
-                          }}
-                        >
-                          <Video className="w-4 h-4 mr-2" />
-                          Video (MP4)
-                        </Button>
-                        <Button
-                          variant={selectedTab === "audio" ? "default" : "ghost"}
-                          className="flex-1"
-                          onClick={() => {
-                            setSelectedTab("audio");
-                            setSelectedQuality(metadata.audioFormats[1]?.quality || metadata.audioFormats[0].quality);
-                          }}
-                        >
-                          <Music className="w-4 h-4 mr-2" />
-                          Audio (M4A)
-                        </Button>
-                      </div>
+                {error && (
+                  <div className="flex items-center gap-2 p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive">
+                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                    <p className="text-sm">{error}</p>
+                  </div>
+                )}
 
-                      {/* Quality Pills */}
-                      <div>
-                        <h4 className="text-sm font-medium mb-3">
-                          Select Quality:
-                        </h4>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                          {(selectedTab === "video" ? metadata.videoFormats : metadata.audioFormats).map((format) => (
-                            <button
-                              key={format.quality}
-                              onClick={() => setSelectedQuality(format.quality)}
-                              className={`p-4 rounded-lg border-2 transition-all text-left ${
-                                selectedQuality === format.quality
-                                  ? "border-primary bg-primary/10"
-                                  : "border-border hover:border-primary/50"
-                              }`}
-                            >
-                              <div className="font-semibold mb-1">
-                                {selectedTab === "video" ? `${format.quality}p` : `${format.quality}k`}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {format.size}
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+                {/* Action Buttons */}
+                <div className="flex gap-3">
+                  <Button
+                    onClick={handleDownload}
+                    disabled={!selectedFormat || downloading}
+                    className="flex-1"
+                    size="lg"
+                  >
+                    {downloading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        Downloading...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-5 h-5 mr-2" />
+                        Download {selectedFormat?.quality}
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    onClick={resetDownload}
+                    variant="outline"
+                    disabled={downloading}
+                  >
+                    New Download
+                  </Button>
+                </div>
 
-                      {/* Download Button */}
-                      <div className="flex gap-3 pt-4 border-t">
-                        <Button
-                          onClick={handleDownload}
-                          disabled={downloading || !selectedQuality}
-                          size="lg"
-                          className="flex-1 h-12"
-                        >
-                          {downloading ? (
-                            <>
-                              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                              Getting download link...
-                            </>
-                          ) : (
-                            <>
-                              <Download className="w-5 h-5 mr-2" />
-                              Download {selectedTab === "video" ? "Video" : "Audio"}
-                            </>
-                          )}
-                        </Button>
-                        <Button
-                          onClick={handleReset}
-                          variant="outline"
-                          size="lg"
-                          className="h-12"
-                        >
-                          New Download
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Info Notice */}
-                <Card className="border-primary/20">
-                  <CardContent className="pt-6">
-                    <div className="flex items-start gap-3">
-                      <AlertCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                      <div className="space-y-2 text-sm text-muted-foreground">
-                        <p>
-                          <strong className="text-foreground">Note:</strong> Currently optimized for YouTube. 
-                          Other platforms (TikTok, Instagram, Twitter) may have limited support.
-                        </p>
-                        <p>
-                          <strong className="text-foreground">Legal:</strong> Only download videos you have rights to. 
-                          Respect copyright laws and platform terms of service.
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                {/* Legal Notice */}
+                <div className="p-4 bg-muted/50 rounded-lg">
+                  <p className="text-xs text-muted-foreground">
+                    ⚠️ <strong>Legal Notice:</strong> Only download videos you have permission to download. 
+                    Respect copyright laws and terms of service of the platform.
+                  </p>
+                </div>
               </div>
             )}
           </div>

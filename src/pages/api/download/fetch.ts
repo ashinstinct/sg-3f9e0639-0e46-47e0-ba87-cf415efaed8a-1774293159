@@ -1,104 +1,58 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-type CobaltResponse = {
-  status: string;
-  text?: string;
-  url?: string;
-  picker?: Array<{ url: string }>;
-};
-
-type FetchResponse = {
-  downloadUrl: string;
-};
+const PYTHON_BACKEND_URL = process.env.PYTHON_BACKEND_URL || "http://localhost:5328";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<FetchResponse | { error: string }>
+  res: NextApiResponse
 ) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { url, quality, isAudio } = req.body;
+  const { url, formatId, isAudioOnly } = req.body;
 
   if (!url) {
     return res.status(400).json({ error: "URL is required" });
   }
 
   try {
-    // Build cobalt.tools API request
-    const cobaltRequest: {
-      url: string;
-      vQuality?: string;
-      aFormat?: string;
-      filenamePattern: string;
-      isAudioOnly: boolean;
-      isAudioMuted: boolean;
-      dubLang: boolean;
-      disableMetadata: boolean;
-    } = {
-      url: url.trim(),
-      filenamePattern: "classic",
-      isAudioOnly: isAudio || false,
-      isAudioMuted: false,
-      dubLang: false,
-      disableMetadata: false,
-    };
-
-    // Add quality preference
-    if (!isAudio && quality) {
-      cobaltRequest.vQuality = quality;
-    }
-
-    // Set audio format for audio-only downloads
-    if (isAudio) {
-      cobaltRequest.aFormat = "mp3";
-    }
-
-    console.log("Cobalt API request:", cobaltRequest);
-
-    // Call cobalt.tools API
-    const response = await fetch("https://api.cobalt.tools/api/json", {
+    // Call Python backend yt-dlp download endpoint
+    const response = await fetch(`${PYTHON_BACKEND_URL}/api/video-download`, {
       method: "POST",
       headers: {
-        "Accept": "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(cobaltRequest),
+      body: JSON.stringify({
+        url,
+        format_id: formatId || "best",
+        is_audio_only: isAudioOnly || false,
+      }),
     });
 
-    const data: CobaltResponse = await response.json();
-    console.log("Cobalt API response:", data);
-
-    // Handle different response statuses
-    if (data.status === "error" || data.status === "rate-limit") {
-      return res.status(400).json({
-        error: data.text || "Failed to process video",
-      });
+    if (!response.ok) {
+      const errorData = await response.json();
+      return res.status(response.status).json(errorData);
     }
 
-    // Extract download URL from response
-    let downloadUrl = "";
+    // Stream the file from Python backend to client
+    const contentType = response.headers.get("content-type") || "application/octet-stream";
+    const contentDisposition = response.headers.get("content-disposition") || "";
 
-    if (data.status === "redirect" || data.status === "stream") {
-      downloadUrl = data.url || "";
-    } else if (data.status === "picker" && data.picker && data.picker.length > 0) {
-      downloadUrl = data.picker[0].url;
+    res.setHeader("Content-Type", contentType);
+    if (contentDisposition) {
+      res.setHeader("Content-Disposition", contentDisposition);
     }
 
-    if (!downloadUrl) {
-      return res.status(400).json({
-        error: "No download URL returned from video service",
-      });
-    }
-
-    return res.status(200).json({
-      downloadUrl,
-    });
+    // Pipe the response
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    
+    return res.send(buffer);
   } catch (error) {
-    console.error("Fetch API error:", error);
+    console.error("Video download API error:", error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : "Failed to fetch download URL",
+      error: error instanceof Error ? error.message : "Failed to download video",
     });
   }
 }
