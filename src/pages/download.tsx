@@ -67,10 +67,9 @@ export default function VideoDownloader() {
     setShowPreview(false);
 
     try {
-      const response = await fetch("https://api.cobalt.tools/api/json", {
+      const response = await fetch("/api/download-video", {
         method: "POST",
         headers: {
-          "Accept": "application/json",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -78,15 +77,12 @@ export default function VideoDownloader() {
           isAudioOnly: downloadType === "audio",
           videoQuality: videoQuality,
           audioBitrate: downloadType === "audio" ? audioBitrate : undefined,
-          filenamePattern: "classic",
-          isAudioMuted: false,
-          dubLang: false,
-          disableMetadata: false,
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
