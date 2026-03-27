@@ -14,7 +14,11 @@ import {
   CheckCircle2,
   LinkIcon,
   ExternalLink,
-  Share2
+  Share2,
+  User,
+  Clock,
+  RefreshCw,
+  Badge
 } from "lucide-react";
 
 type VideoMetadata = {
@@ -56,9 +60,37 @@ export default function VideoDownloader() {
   const [downloadStatus, setDownloadStatus] = useState<DownloadStatus>({ stage: "idle" });
   const { toast } = useToast();
 
-  const handleFetchFormats = async () => {
+  // URL validation
+  const validateUrl = (url: string): boolean => {
     if (!url.trim()) {
-      setError("Please enter a valid URL");
+      setError("Please enter a video URL");
+      return false;
+    }
+
+    const urlPattern = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be|tiktok\.com|instagram\.com|twitter\.com|x\.com|facebook\.com|reddit\.com|vimeo\.com|dailymotion\.com)/i;
+    
+    if (!urlPattern.test(url)) {
+      setError("Please enter a valid video URL from supported platforms");
+      return false;
+    }
+
+    setError("");
+    return true;
+  };
+
+  // Handle URL input change with real-time validation
+  const handleUrlChange = (value: string) => {
+    setUrl(value);
+    if (value.trim()) {
+      validateUrl(value);
+    } else {
+      setError("");
+    }
+  };
+
+  const handleFetchFormats = async () => {
+    // Validate URL first
+    if (!validateUrl(url)) {
       return;
     }
 
@@ -127,7 +159,11 @@ export default function VideoDownloader() {
 
   const handleDownload = async () => {
     if (!selectedFormat || !url) {
-      setError("Please select a quality option");
+      toast({
+        variant: "destructive",
+        title: "No quality selected",
+        description: "Please select a quality before downloading",
+      });
       return;
     }
 
@@ -135,9 +171,16 @@ export default function VideoDownloader() {
     setError("");
 
     try {
+      toast({
+        title: "🚀 Starting download...",
+        description: "Please wait while we prepare your file",
+      });
+
       const response = await fetch("/api/download/fetch", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           url: url.trim(),
           formatId: selectedFormat.format_id,
@@ -147,27 +190,30 @@ export default function VideoDownloader() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Failed to download");
+        throw new Error(data.error || "Download failed");
       }
 
-      // Download the file
+      // Create blob and trigger download
       const blob = await response.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = downloadUrl;
-      link.download = `${metadata?.title || "download"}.${selectedFormat.ext}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = `${metadata?.title || "download"}.${selectedFormat.ext}`;
+      document.body.appendChild(a);
+      a.click();
       window.URL.revokeObjectURL(downloadUrl);
+      document.body.removeChild(a);
 
       toast({
-        title: "✅ Download started",
-        description: "Check your downloads folder",
+        title: "✅ Download started!",
+        description: "Your file is being downloaded",
       });
+
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Download failed";
+      console.error("Download error:", err);
+      const errorMessage = err instanceof Error ? err.message : "Download failed. Please try again.";
       setError(errorMessage);
+      
       toast({
         variant: "destructive",
         title: "Download failed",
