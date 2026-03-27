@@ -19,13 +19,30 @@ export default async function handler(
   }
 
   try {
+    console.log(`Fetching formats from: ${PYTHON_BACKEND_URL}/api/video-formats`);
+    
     const response = await fetch(`${PYTHON_BACKEND_URL}/api/video-formats`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ url: url.trim() }),
+      signal: AbortSignal.timeout(30000), // 30 second timeout
     });
+
+    // Check content type before parsing
+    const contentType = response.headers.get("content-type");
+    
+    if (!contentType || !contentType.includes("application/json")) {
+      // Backend returned HTML (error page) instead of JSON
+      const text = await response.text();
+      console.error("Backend returned non-JSON response:", text.substring(0, 200));
+      
+      return res.status(503).json({
+        error: "Video processing service is currently unavailable. The backend may be starting up or experiencing issues. Please try again in a moment.",
+        hint: "If the issue persists, the Python backend may need to be redeployed with yt-dlp support.",
+      });
+    }
 
     const data = await response.json();
 
@@ -38,8 +55,22 @@ export default async function handler(
     return res.status(200).json(data);
   } catch (error) {
     console.error("Formats API error:", error);
+    
+    if (error instanceof Error) {
+      if (error.name === "AbortError") {
+        return res.status(504).json({
+          error: "Request timed out. The video may be too large or the service is busy.",
+        });
+      }
+      
+      return res.status(500).json({
+        error: `Failed to fetch video formats: ${error.message}`,
+        hint: "The Python backend may not be accessible or may need to be restarted.",
+      });
+    }
+    
     return res.status(500).json({
-      error: error instanceof Error ? error.message : "Failed to fetch video formats",
+      error: "Failed to fetch video formats",
     });
   }
 }

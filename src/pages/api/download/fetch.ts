@@ -19,6 +19,8 @@ export default async function handler(
   }
 
   try {
+    console.log(`Downloading from: ${PYTHON_BACKEND_URL}/api/video-download`);
+    
     const response = await fetch(`${PYTHON_BACKEND_URL}/api/video-download`, {
       method: "POST",
       headers: {
@@ -29,17 +31,32 @@ export default async function handler(
         format_id: formatId || "best",
         is_audio_only: isAudioOnly || false,
       }),
+      signal: AbortSignal.timeout(120000), // 2 minute timeout for downloads
     });
 
-    if (!response.ok) {
-      const data = await response.json();
-      return res.status(response.status).json({
-        error: data.error || "Failed to download video",
+    const contentType = response.headers.get("content-type") || "";
+
+    // If response is not a file (video/audio), it might be an error JSON or HTML
+    if (!contentType.includes("video/") && !contentType.includes("audio/") && !contentType.includes("application/octet-stream")) {
+      // Check if it's JSON error
+      if (contentType.includes("application/json")) {
+        const data = await response.json();
+        return res.status(response.status).json({
+          error: data.error || "Failed to download video",
+        });
+      }
+      
+      // Otherwise it's likely an HTML error page
+      const text = await response.text();
+      console.error("Backend returned non-file response:", text.substring(0, 200));
+      
+      return res.status(503).json({
+        error: "Video download service is currently unavailable. Please try again in a moment.",
+        hint: "The Python backend may need to be redeployed with yt-dlp support.",
       });
     }
 
     // Stream the file back to client
-    const contentType = response.headers.get("content-type") || "application/octet-stream";
     const contentDisposition = response.headers.get("content-disposition") || "";
 
     res.setHeader("Content-Type", contentType);
@@ -50,10 +67,25 @@ export default async function handler(
     // Pipe the response
     const arrayBuffer = await response.arrayBuffer();
     res.send(Buffer.from(arrayBuffer));
+    
   } catch (error) {
     console.error("Download API error:", error);
+    
+    if (error instanceof Error) {
+      if (error.name === "AbortError") {
+        return res.status(504).json({
+          error: "Download timed out. The video may be too large.",
+        });
+      }
+      
+      return res.status(500).json({
+        error: `Failed to download video: ${error.message}`,
+        hint: "The Python backend may not be accessible or may need to be restarted.",
+      });
+    }
+    
     return res.status(500).json({
-      error: error instanceof Error ? error.message : "Failed to download video",
+      error: "Failed to download video",
     });
   }
 }
