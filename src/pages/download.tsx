@@ -94,11 +94,11 @@ export default function VideoDownloader() {
       return;
     }
 
+    setValidating(true);
     setLoading(true);
     setError("");
     setResult(null);
-    setDownloadType(null);
-    setSelectedQuality("");
+    setShowSuccess(false);
 
     try {
       const response = await fetch("/api/download/formats", {
@@ -121,14 +121,32 @@ export default function VideoDownloader() {
         audioFormats: data.audio_formats || [],
       });
 
+      // Set default quality
+      if (data.video_formats?.length > 0) {
+        setSelectedQuality(data.video_formats[0].format_id);
+      }
+
+      setShowSuccess(true);
+      
       toast({
-        title: "✅ Video loaded successfully!",
-        description: "Select video or audio format below",
+        title: "✅ Video loaded!",
+        description: `Found ${data.video_formats?.length || 0} video formats`,
       });
 
     } catch (err) {
       console.error("Fetch formats error:", err);
-      const errorMessage = err instanceof Error ? err.message : "Failed to fetch video information";
+      let errorMessage = "Failed to load video. ";
+      
+      if (err instanceof Error) {
+        if (err.message.includes("<!DOCTYPE") || err.message.includes("Unexpected token")) {
+          errorMessage = "⚠️ Backend service is starting up or unavailable. The Python backend on Render may need to be deployed with yt-dlp support. Please try again in a moment.";
+        } else if (err.message.includes("service is currently unavailable")) {
+          errorMessage = err.message;
+        } else {
+          errorMessage += err.message;
+        }
+      }
+      
       setError(errorMessage);
       
       toast({
@@ -137,6 +155,7 @@ export default function VideoDownloader() {
         description: errorMessage,
       });
     } finally {
+      setValidating(false);
       setLoading(false);
     }
   };
@@ -335,12 +354,12 @@ export default function VideoDownloader() {
                       {loading ? (
                         <>
                           <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          Loading video...
+                          Loading Video...
                         </>
                       ) : (
                         <>
                           <Download className="w-5 h-5 mr-2" />
-                          Get Download Options
+                          Download Video
                         </>
                       )}
                     </Button>
