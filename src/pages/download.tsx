@@ -121,6 +121,7 @@ export default function VideoDownloader() {
           quality: videoQuality === "max" ? "Best Available" : `${videoQuality}p`,
           thumbnail: data.thumb,
         });
+        setShowPreview(true);
         toast({
           title: "✅ Download ready!",
           description: `${downloadType === "audio" ? "Audio" : "Video"} processed successfully`,
@@ -133,6 +134,7 @@ export default function VideoDownloader() {
           quality: videoQuality === "max" ? "Best Available" : `${videoQuality}p`,
           thumbnail: firstPick.thumb,
         });
+        setShowPreview(true);
         toast({
           title: "✅ Download ready!",
           description: `${downloadType === "audio" ? "Audio" : "Video"} processed successfully`,
@@ -216,6 +218,14 @@ export default function VideoDownloader() {
     });
   };
 
+  const handleNewDownload = () => {
+    setVideoUrl("");
+    setResult(null);
+    setError("");
+    setShowPreview(false);
+    setDownloadStatus({ stage: "idle" });
+  };
+
   return (
     <>
       <SEO
@@ -226,9 +236,9 @@ export default function VideoDownloader() {
         <Navigation />
         
         <div className="container mx-auto px-4 py-24">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-5xl mx-auto">
             {/* Header */}
-            <div className="text-center mb-12">
+            <div className="text-center mb-8">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 mb-4">
                 <Download className="w-8 h-8 text-white" />
               </div>
@@ -245,407 +255,419 @@ export default function VideoDownloader() {
               </Button>
             </div>
 
-            {/* Main Card */}
-            <Card className="backdrop-blur-sm bg-card/50 border-primary/20">
-              <CardHeader>
-                <CardTitle>Download Video or Audio</CardTitle>
-                <CardDescription>
-                  Paste a video URL from any supported platform
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Download Type Toggle */}
-                <div className="flex gap-2 p-1 bg-muted rounded-lg">
-                  <Button
-                    variant={downloadType === "video" ? "default" : "ghost"}
-                    className="flex-1"
-                    onClick={() => setDownloadType("video")}
-                  >
-                    <Video className="w-4 h-4 mr-2" />
-                    Video
-                  </Button>
-                  <Button
-                    variant={downloadType === "audio" ? "default" : "ghost"}
-                    className="flex-1"
-                    onClick={() => setDownloadType("audio")}
-                  >
-                    <Music className="w-4 h-4 mr-2" />
-                    Audio Only
-                  </Button>
-                </div>
-
-                {/* Quality & Bitrate Settings */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  {downloadType === "video" ? (
-                    <div className="space-y-2">
-                      <Label>Video Quality</Label>
-                      <Select value={videoQuality} onValueChange={(value) => setVideoQuality(value as VideoQuality)}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {qualityOptions.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                              <span className="text-xs text-muted-foreground ml-2">
-                                {option.size}
-                              </span>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <Label>Audio Bitrate</Label>
-                      <Select value={audioBitrate} onValueChange={(value) => setAudioBitrate(value as AudioBitrate)}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {audioBitrateOptions.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                              <span className="text-xs text-muted-foreground ml-2">
-                                {option.size}
-                              </span>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-                </div>
-
-                {/* URL Input */}
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      type="url"
-                      placeholder="https://youtube.com/watch?v=... or https://tiktok.com/@user/video/..."
-                      value={videoUrl}
-                      onChange={(e) => setVideoUrl(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && handleDownload()}
-                      className="pl-10"
-                      disabled={loading}
-                    />
-                  </div>
-                  <Button
-                    onClick={handleDownload}
-                    disabled={loading || !videoUrl.trim()}
-                    size="lg"
-                    className="min-w-[120px]"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        <Download className="w-4 h-4 mr-2" />
-                        Download
-                      </>
-                    )}
-                  </Button>
-                </div>
-
-                {/* Real-Time Status Display */}
-                {downloadStatus.stage !== "idle" && downloadStatus.stage !== "error" && (
-                  <Card className="border-primary/20 bg-primary/5">
-                    <CardContent className="pt-6">
-                      <div className="space-y-4">
-                        {/* Progress Steps */}
-                        <div className="flex items-center justify-between">
-                          {/* Step 1: Validating */}
-                          <div className="flex flex-col items-center flex-1">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                              downloadStatus.stage === "validating" 
-                                ? "bg-primary animate-pulse" 
-                                : ["fetching", "processing", "ready"].includes(downloadStatus.stage)
-                                ? "bg-green-500" 
-                                : "bg-muted"
-                            }`}>
-                              {["fetching", "processing", "ready"].includes(downloadStatus.stage) ? (
-                                <CheckCircle2 className="w-5 h-5 text-white" />
-                              ) : (
-                                <Loader2 className="w-5 h-5 text-white animate-spin" />
-                              )}
-                            </div>
-                            <span className="text-xs mt-2 text-muted-foreground">Validating</span>
-                          </div>
-
-                          {/* Connector Line */}
-                          <div className={`flex-1 h-1 mx-2 transition-all ${
-                            ["fetching", "processing", "ready"].includes(downloadStatus.stage)
-                              ? "bg-green-500"
-                              : "bg-muted"
-                          }`} />
-
-                          {/* Step 2: Fetching */}
-                          <div className="flex flex-col items-center flex-1">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                              downloadStatus.stage === "fetching" 
-                                ? "bg-primary animate-pulse" 
-                                : ["processing", "ready"].includes(downloadStatus.stage)
-                                ? "bg-green-500" 
-                                : "bg-muted"
-                            }`}>
-                              {["processing", "ready"].includes(downloadStatus.stage) ? (
-                                <CheckCircle2 className="w-5 h-5 text-white" />
-                              ) : downloadStatus.stage === "fetching" ? (
-                                <Loader2 className="w-5 h-5 text-white animate-spin" />
-                              ) : (
-                                <LinkIcon className="w-5 h-5 text-muted-foreground" />
-                              )}
-                            </div>
-                            <span className="text-xs mt-2 text-muted-foreground">Fetching</span>
-                          </div>
-
-                          {/* Connector Line */}
-                          <div className={`flex-1 h-1 mx-2 transition-all ${
-                            ["processing", "ready"].includes(downloadStatus.stage)
-                              ? "bg-green-500"
-                              : "bg-muted"
-                          }`} />
-
-                          {/* Step 3: Processing */}
-                          <div className="flex flex-col items-center flex-1">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                              downloadStatus.stage === "processing" 
-                                ? "bg-primary animate-pulse" 
-                                : downloadStatus.stage === "ready"
-                                ? "bg-green-500" 
-                                : "bg-muted"
-                            }`}>
-                              {downloadStatus.stage === "ready" ? (
-                                <CheckCircle2 className="w-5 h-5 text-white" />
-                              ) : downloadStatus.stage === "processing" ? (
-                                <Loader2 className="w-5 h-5 text-white animate-spin" />
-                              ) : (
-                                <Video className="w-5 h-5 text-muted-foreground" />
-                              )}
-                            </div>
-                            <span className="text-xs mt-2 text-muted-foreground">Processing</span>
-                          </div>
-
-                          {/* Connector Line */}
-                          <div className={`flex-1 h-1 mx-2 transition-all ${
-                            downloadStatus.stage === "ready"
-                              ? "bg-green-500"
-                              : "bg-muted"
-                          }`} />
-
-                          {/* Step 4: Ready */}
-                          <div className="flex flex-col items-center flex-1">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                              downloadStatus.stage === "ready" 
-                                ? "bg-green-500" 
-                                : "bg-muted"
-                            }`}>
-                              {downloadStatus.stage === "ready" ? (
-                                <CheckCircle2 className="w-5 h-5 text-white" />
-                              ) : (
-                                <Download className="w-5 h-5 text-muted-foreground" />
-                              )}
-                            </div>
-                            <span className="text-xs mt-2 text-muted-foreground">Ready</span>
-                          </div>
-                        </div>
-
-                        {/* Status Message */}
-                        <div className="text-center">
-                          <p className="text-sm font-medium text-foreground">
-                            {downloadStatus.message}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Error Message */}
-                {error && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
-
-                {/* Success Result */}
-                {result && (
-                  <Alert className="border-green-500/50 bg-green-500/10">
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    <AlertDescription className="flex items-center justify-between gap-2 flex-wrap">
-                      <span className="text-green-500">Ready to download!</span>
-                      <div className="flex gap-2">
-                        {downloadType === "video" && result.url && (
-                          <Button 
-                            onClick={() => setShowPreview(!showPreview)} 
-                            size="sm" 
-                            variant="outline"
-                          >
-                            <Play className="w-4 h-4 mr-2" />
-                            {showPreview ? "Hide" : "Preview"}
-                          </Button>
-                        )}
-                        <Button onClick={handleDirectDownload} size="sm" variant="outline">
-                          <Download className="w-4 h-4 mr-2" />
-                          Download Now
+            {/* Main Content Area */}
+            <div className="space-y-6">
+              {/* URL Input Section (when no result) */}
+              {!result && (
+                <Card className="backdrop-blur-sm bg-card/50 border-primary/20">
+                  <CardContent className="pt-8 pb-8">
+                    <div className="space-y-6">
+                      {/* Download Type Toggle */}
+                      <div className="flex gap-2 p-1 bg-muted rounded-lg max-w-md mx-auto">
+                        <Button
+                          variant={downloadType === "video" ? "default" : "ghost"}
+                          className="flex-1"
+                          onClick={() => setDownloadType("video")}
+                        >
+                          <Video className="w-4 h-4 mr-2" />
+                          Video
+                        </Button>
+                        <Button
+                          variant={downloadType === "audio" ? "default" : "ghost"}
+                          className="flex-1"
+                          onClick={() => setDownloadType("audio")}
+                        >
+                          <Music className="w-4 h-4 mr-2" />
+                          Audio Only
                         </Button>
                       </div>
-                    </AlertDescription>
-                  </Alert>
-                )}
 
-                {/* Video Preview */}
-                {result && showPreview && downloadType === "video" && (
-                  <Card className="border-primary/20 overflow-hidden">
-                    <CardContent className="p-0">
-                      <video
-                        src={result.url}
-                        controls
-                        className="w-full h-auto bg-black"
-                        controlsList="nodownload"
-                      />
-                    </CardContent>
-                  </Card>
-                )}
+                      {/* Large URL Input */}
+                      <div className="space-y-3">
+                        <div className="relative">
+                          <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
+                          <Input
+                            type="url"
+                            placeholder="Paste video URL here (YouTube, TikTok, Instagram, etc.)"
+                            value={videoUrl}
+                            onChange={(e) => setVideoUrl(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && handleDownload()}
+                            className="pl-12 pr-4 h-14 text-lg"
+                            disabled={loading}
+                          />
+                        </div>
+                        <Button
+                          onClick={handleDownload}
+                          disabled={loading || !videoUrl.trim()}
+                          size="lg"
+                          className="w-full h-12 text-base"
+                        >
+                          {loading ? (
+                            <>
+                              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                              Processing...
+                            </>
+                          ) : (
+                            <>
+                              <Download className="w-5 h-5 mr-2" />
+                              Download {downloadType === "video" ? "Video" : "Audio"}
+                            </>
+                          )}
+                        </Button>
+                      </div>
 
-                {/* Download Result Card */}
-                {result && (
-                  <Card className="border-primary/20">
-                    <CardContent className="pt-6">
-                      <div className="flex items-start gap-4">
-                        {result.thumbnail && (
-                          <div className="relative w-32 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                            <img
-                              src={result.thumbnail}
-                              alt="Video thumbnail"
-                              className="w-full h-full object-cover"
-                            />
+                      {/* Supported Platforms */}
+                      <div className="pt-4 border-t text-center">
+                        <p className="text-sm text-muted-foreground mb-3">Supports 50+ platforms including:</p>
+                        <div className="flex flex-wrap justify-center gap-2">
+                          {supportedPlatforms.slice(0, 8).map((platform) => (
+                            <Badge key={platform} variant="outline" className="text-xs">
+                              {platform}
+                            </Badge>
+                          ))}
+                          <Badge variant="outline" className="text-xs">
+                            +42 more...
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Real-Time Status Display */}
+              {downloadStatus.stage !== "idle" && downloadStatus.stage !== "error" && !result && (
+                <Card className="border-primary/20 bg-primary/5">
+                  <CardContent className="pt-6 pb-6">
+                    <div className="space-y-4">
+                      {/* Progress Steps */}
+                      <div className="flex items-center justify-between max-w-2xl mx-auto">
+                        {/* Step 1: Validating */}
+                        <div className="flex flex-col items-center flex-1">
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
+                            downloadStatus.stage === "validating" 
+                              ? "bg-primary animate-pulse" 
+                              : ["fetching", "processing", "ready"].includes(downloadStatus.stage)
+                              ? "bg-green-500" 
+                              : "bg-muted"
+                          }`}>
+                            {["fetching", "processing", "ready"].includes(downloadStatus.stage) ? (
+                              <CheckCircle2 className="w-6 h-6 text-white" />
+                            ) : (
+                              <Loader2 className="w-6 h-6 text-white animate-spin" />
+                            )}
                           </div>
-                        )}
+                          <span className="text-sm mt-2 text-muted-foreground font-medium">Validating</span>
+                        </div>
+
+                        {/* Connector Line */}
+                        <div className={`flex-1 h-1 mx-3 transition-all ${
+                          ["fetching", "processing", "ready"].includes(downloadStatus.stage)
+                            ? "bg-green-500"
+                            : "bg-muted"
+                        }`} />
+
+                        {/* Step 2: Fetching */}
+                        <div className="flex flex-col items-center flex-1">
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
+                            downloadStatus.stage === "fetching" 
+                              ? "bg-primary animate-pulse" 
+                              : ["processing", "ready"].includes(downloadStatus.stage)
+                              ? "bg-green-500" 
+                              : "bg-muted"
+                          }`}>
+                            {["processing", "ready"].includes(downloadStatus.stage) ? (
+                              <CheckCircle2 className="w-6 h-6 text-white" />
+                            ) : downloadStatus.stage === "fetching" ? (
+                              <Loader2 className="w-6 h-6 text-white animate-spin" />
+                            ) : (
+                              <LinkIcon className="w-6 h-6 text-muted-foreground" />
+                            )}
+                          </div>
+                          <span className="text-sm mt-2 text-muted-foreground font-medium">Fetching</span>
+                        </div>
+
+                        {/* Connector Line */}
+                        <div className={`flex-1 h-1 mx-3 transition-all ${
+                          ["processing", "ready"].includes(downloadStatus.stage)
+                            ? "bg-green-500"
+                            : "bg-muted"
+                        }`} />
+
+                        {/* Step 3: Processing */}
+                        <div className="flex flex-col items-center flex-1">
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
+                            downloadStatus.stage === "processing" 
+                              ? "bg-primary animate-pulse" 
+                              : downloadStatus.stage === "ready"
+                              ? "bg-green-500" 
+                              : "bg-muted"
+                          }`}>
+                            {downloadStatus.stage === "ready" ? (
+                              <CheckCircle2 className="w-6 h-6 text-white" />
+                            ) : downloadStatus.stage === "processing" ? (
+                              <Loader2 className="w-6 h-6 text-white animate-spin" />
+                            ) : (
+                              <Video className="w-6 h-6 text-muted-foreground" />
+                            )}
+                          </div>
+                          <span className="text-sm mt-2 text-muted-foreground font-medium">Processing</span>
+                        </div>
+
+                        {/* Connector Line */}
+                        <div className={`flex-1 h-1 mx-3 transition-all ${
+                          downloadStatus.stage === "ready"
+                            ? "bg-green-500"
+                            : "bg-muted"
+                        }`} />
+
+                        {/* Step 4: Ready */}
+                        <div className="flex flex-col items-center flex-1">
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
+                            downloadStatus.stage === "ready" 
+                              ? "bg-green-500" 
+                              : "bg-muted"
+                          }`}>
+                            {downloadStatus.stage === "ready" ? (
+                              <CheckCircle2 className="w-6 h-6 text-white" />
+                            ) : (
+                              <Download className="w-6 h-6 text-muted-foreground" />
+                            )}
+                          </div>
+                          <span className="text-sm mt-2 text-muted-foreground font-medium">Ready</span>
+                        </div>
+                      </div>
+
+                      {/* Status Message */}
+                      <div className="text-center">
+                        <p className="text-base font-semibold text-foreground">
+                          {downloadStatus.message}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Error Message */}
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              {/* Video Preview Section (replaces URL input when ready) */}
+              {result && (
+                <Card className="backdrop-blur-sm bg-card/50 border-primary/20 overflow-hidden">
+                  <CardContent className="p-0">
+                    {/* Video/Thumbnail Display */}
+                    <div className="relative bg-black">
+                      {showPreview && downloadType === "video" ? (
+                        <video
+                          src={result.url}
+                          controls
+                          className="w-full aspect-video"
+                          controlsList="nodownload"
+                        />
+                      ) : result.thumbnail ? (
+                        <div className="relative aspect-video">
+                          <img
+                            src={result.thumbnail}
+                            alt="Video thumbnail"
+                            className="w-full h-full object-cover"
+                          />
+                          {downloadType === "video" && (
+                            <button
+                              onClick={() => setShowPreview(true)}
+                              className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/30 transition-colors group"
+                            >
+                              <div className="w-20 h-20 rounded-full bg-primary/90 group-hover:bg-primary flex items-center justify-center">
+                                <Play className="w-10 h-10 text-white ml-1" />
+                              </div>
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="aspect-video flex items-center justify-center bg-muted">
+                          {downloadType === "video" ? (
+                            <Video className="w-16 h-16 text-muted-foreground" />
+                          ) : (
+                            <Music className="w-16 h-16 text-muted-foreground" />
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Download Info & Actions */}
+                    <div className="p-6 space-y-6">
+                      {/* File Info */}
+                      <div className="flex items-center justify-between">
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2 mb-2">
-                            <h3 className="font-semibold truncate">{result.filename}</h3>
-                            <Badge variant="secondary">{result.quality}</Badge>
-                          </div>
-                          <div className="flex items-center gap-2 mb-3 text-sm text-muted-foreground">
+                          <h3 className="font-semibold text-lg truncate mb-1">{result.filename}</h3>
+                          <div className="flex items-center gap-3 text-sm text-muted-foreground">
                             {downloadType === "video" ? (
                               <>
-                                <Video className="w-4 h-4" />
-                                <span>Quality: {result.quality}</span>
+                                <div className="flex items-center gap-1.5">
+                                  <Video className="w-4 h-4" />
+                                  <span>{result.quality}</span>
+                                </div>
                               </>
                             ) : (
                               <>
-                                <Music className="w-4 h-4" />
-                                <span>Bitrate: {audioBitrate} kbps</span>
+                                <div className="flex items-center gap-1.5">
+                                  <Music className="w-4 h-4" />
+                                  <span>{audioBitrate} kbps</span>
+                                </div>
                               </>
                             )}
                           </div>
-                          <div className="flex gap-2">
-                            <Button onClick={handleDirectDownload} className="flex-1">
-                              <Download className="w-4 h-4 mr-2" />
-                              Download {downloadType === "audio" ? "Audio" : "Video"}
-                            </Button>
-                            <Button 
-                              onClick={() => window.open(result.url, "_blank")} 
-                              variant="outline"
-                              size="icon"
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                            </Button>
+                        </div>
+                        <Badge variant="secondary" className="ml-4">
+                          {downloadType === "video" ? "Video" : "Audio"}
+                        </Badge>
+                      </div>
+
+                      {/* Quality/Bitrate Options */}
+                      <div className="grid md:grid-cols-2 gap-4 pt-4 border-t">
+                        {downloadType === "video" ? (
+                          <div className="space-y-2">
+                            <Label>Video Quality</Label>
+                            <Select value={videoQuality} onValueChange={(value) => setVideoQuality(value as VideoQuality)}>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {qualityOptions.map((option) => (
+                                  <SelectItem key={option.value} value={option.value}>
+                                    {option.label}
+                                    <span className="text-xs text-muted-foreground ml-2">
+                                      {option.size}
+                                    </span>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <Label>Audio Bitrate</Label>
+                            <Select value={audioBitrate} onValueChange={(value) => setAudioBitrate(value as AudioBitrate)}>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {audioBitrateOptions.map((option) => (
+                                  <SelectItem key={option.value} value={option.value}>
+                                    {option.label}
+                                    <span className="text-xs text-muted-foreground ml-2">
+                                      {option.size}
+                                    </span>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Download Actions */}
+                      <div className="flex gap-3 pt-2">
+                        <Button onClick={handleDirectDownload} size="lg" className="flex-1 h-12">
+                          <Download className="w-5 h-5 mr-2" />
+                          Download {downloadType === "video" ? "Video" : "Audio"}
+                        </Button>
+                        <Button 
+                          onClick={() => window.open(result.url, "_blank")} 
+                          variant="outline"
+                          size="lg"
+                          className="h-12"
+                        >
+                          <ExternalLink className="w-5 h-5" />
+                        </Button>
+                      </div>
+
+                      {/* New Download Button */}
+                      <Button 
+                        onClick={handleNewDownload} 
+                        variant="outline" 
+                        className="w-full"
+                      >
+                        Download Another Video
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Features Cards */}
+              {!result && (
+                <div className="grid md:grid-cols-3 gap-4">
+                  <Card className="border-primary/20">
+                    <CardContent className="pt-6">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <Video className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-sm mb-1">Multiple Qualities</h4>
+                          <p className="text-xs text-muted-foreground">Download from 360p to 4K resolution</p>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
-                )}
-
-                {/* Supported Platforms */}
-                <div className="pt-4 border-t">
-                  <h3 className="text-sm font-semibold mb-3">Supported Platforms (50+)</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {supportedPlatforms.map((platform) => (
-                      <Badge key={platform} variant="outline" className="text-xs">
-                        {platform}
-                      </Badge>
-                    ))}
-                    <Badge variant="outline" className="text-xs">
-                      +35 more...
-                    </Badge>
-                  </div>
+                  <Card className="border-primary/20">
+                    <CardContent className="pt-6">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 rounded-lg bg-secondary/10">
+                          <Music className="w-5 h-5 text-secondary" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-sm mb-1">Audio Extract</h4>
+                          <p className="text-xs text-muted-foreground">Extract audio up to 320 kbps</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-primary/20">
+                    <CardContent className="pt-6">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 rounded-lg bg-accent/10">
+                          <CheckCircle2 className="w-5 h-5 text-accent" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-sm mb-1">No Watermarks</h4>
+                          <p className="text-xs text-muted-foreground">Clean, professional downloads</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
+              )}
 
-                {/* Features */}
-                <div className="grid md:grid-cols-3 gap-4 pt-4 border-t">
+              {/* Info Card */}
+              <Card className="border-primary/20">
+                <CardContent className="pt-6">
                   <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <Video className="w-4 h-4 text-primary" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-sm mb-1">Multiple Qualities</h4>
-                      <p className="text-xs text-muted-foreground">Up to 4K resolution</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-secondary/10">
-                      <Music className="w-4 h-4 text-secondary" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-sm mb-1">Audio Extract</h4>
-                      <p className="text-xs text-muted-foreground">Up to 320 kbps</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-accent/10">
-                      <CheckCircle2 className="w-4 h-4 text-accent" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-sm mb-1">No Watermarks</h4>
-                      <p className="text-xs text-muted-foreground">Clean downloads</p>
+                    <AlertCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                    <div className="space-y-2 text-sm text-muted-foreground">
+                      <p>
+                        <strong className="text-foreground">Privacy:</strong> Videos are processed through cobalt.tools API. 
+                        No data is stored on our servers.
+                      </p>
+                      <p>
+                        <strong className="text-foreground">Legal:</strong> Only download videos you have rights to or that are 
+                        available under Creative Commons licenses. Respect copyright laws.
+                      </p>
+                      <p>
+                        <strong className="text-foreground">Limits:</strong> Free tier has rate limits. 
+                        For unlimited downloads, consider upgrading to Pro.
+                      </p>
                     </div>
                   </div>
-                </div>
-
-                {/* Instructions */}
-                <div className="pt-4 border-t space-y-2 text-sm text-muted-foreground">
-                  <p className="font-semibold text-foreground">How to use:</p>
-                  <ol className="list-decimal list-inside space-y-1 pl-2">
-                    <li>Copy video URL from any supported platform</li>
-                    <li>Choose Video or Audio Only mode</li>
-                    <li>Select quality (default 720p) or bitrate (default 192 kbps)</li>
-                    <li>Paste URL and click Download</li>
-                    <li>Preview video (optional) or download directly</li>
-                  </ol>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Info Card */}
-            <Card className="mt-6 border-primary/20">
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                  <div className="space-y-2 text-sm text-muted-foreground">
-                    <p>
-                      <strong className="text-foreground">Privacy:</strong> Videos are processed through cobalt.tools API. 
-                      No data is stored on our servers.
-                    </p>
-                    <p>
-                      <strong className="text-foreground">Legal:</strong> Only download videos you have rights to or that are 
-                      available under Creative Commons licenses. Respect copyright laws.
-                    </p>
-                    <p>
-                      <strong className="text-foreground">Limits:</strong> Free tier has rate limits. 
-                      For unlimited downloads, consider upgrading to Pro.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
