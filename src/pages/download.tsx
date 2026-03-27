@@ -22,6 +22,14 @@ interface DownloadResult {
 type VideoQuality = "max" | "2160" | "1440" | "1080" | "720" | "480" | "360" | "240" | "144";
 type AudioBitrate = "320" | "192" | "128" | "64";
 
+type DownloadStatus = 
+  | { stage: "idle" }
+  | { stage: "validating"; message: "Validating URL..." }
+  | { stage: "fetching"; message: "Connecting to platform..." }
+  | { stage: "processing"; message: "Processing video..." }
+  | { stage: "ready"; message: "Ready to download!" }
+  | { stage: "error"; message: string };
+
 export default function VideoDownloader() {
   const [videoUrl, setVideoUrl] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,6 +39,7 @@ export default function VideoDownloader() {
   const [videoQuality, setVideoQuality] = useState<VideoQuality>("720");
   const [audioBitrate, setAudioBitrate] = useState<AudioBitrate>("192");
   const [showPreview, setShowPreview] = useState(false);
+  const [downloadStatus, setDownloadStatus] = useState<DownloadStatus>({ stage: "idle" });
   const { toast } = useToast();
 
   const supportedPlatforms = [
@@ -65,8 +74,15 @@ export default function VideoDownloader() {
     setError("");
     setResult(null);
     setShowPreview(false);
+    setDownloadStatus({ stage: "validating", message: "Validating URL..." });
 
     try {
+      // Stage 1: Validating
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Stage 2: Fetching
+      setDownloadStatus({ stage: "fetching", message: "Connecting to platform..." });
+      
       const response = await fetch("/api/download-video", {
         method: "POST",
         headers: {
@@ -85,11 +101,18 @@ export default function VideoDownloader() {
         throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
 
+      // Stage 3: Processing
+      setDownloadStatus({ stage: "processing", message: "Processing video..." });
+      await new Promise(resolve => setTimeout(resolve, 800));
+
       const data = await response.json();
 
       if (data.status === "error" || data.status === "rate-limit") {
         throw new Error(data.text || "Failed to process video");
       }
+
+      // Stage 4: Ready
+      setDownloadStatus({ stage: "ready", message: "Ready to download!" });
 
       if (data.status === "redirect" || data.status === "stream") {
         setResult({
@@ -99,7 +122,7 @@ export default function VideoDownloader() {
           thumbnail: data.thumb,
         });
         toast({
-          title: "Ready to download!",
+          title: "✅ Download ready!",
           description: `${downloadType === "audio" ? "Audio" : "Video"} processed successfully`,
         });
       } else if (data.status === "picker") {
@@ -111,7 +134,7 @@ export default function VideoDownloader() {
           thumbnail: firstPick.thumb,
         });
         toast({
-          title: "Ready to download!",
+          title: "✅ Download ready!",
           description: `${downloadType === "audio" ? "Audio" : "Video"} processed successfully`,
         });
       } else {
@@ -119,7 +142,9 @@ export default function VideoDownloader() {
       }
     } catch (err) {
       console.error("Download error:", err);
-      setError(err instanceof Error ? err.message : "Failed to download video. Please check the URL and try again.");
+      const errorMessage = err instanceof Error ? err.message : "Failed to download video. Please check the URL and try again.";
+      setError(errorMessage);
+      setDownloadStatus({ stage: "error", message: errorMessage });
       toast({
         variant: "destructive",
         title: "Download failed",
@@ -325,6 +350,120 @@ export default function VideoDownloader() {
                     )}
                   </Button>
                 </div>
+
+                {/* Real-Time Status Display */}
+                {downloadStatus.stage !== "idle" && downloadStatus.stage !== "error" && (
+                  <Card className="border-primary/20 bg-primary/5">
+                    <CardContent className="pt-6">
+                      <div className="space-y-4">
+                        {/* Progress Steps */}
+                        <div className="flex items-center justify-between">
+                          {/* Step 1: Validating */}
+                          <div className="flex flex-col items-center flex-1">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                              downloadStatus.stage === "validating" 
+                                ? "bg-primary animate-pulse" 
+                                : ["fetching", "processing", "ready"].includes(downloadStatus.stage)
+                                ? "bg-green-500" 
+                                : "bg-muted"
+                            }`}>
+                              {["fetching", "processing", "ready"].includes(downloadStatus.stage) ? (
+                                <CheckCircle2 className="w-5 h-5 text-white" />
+                              ) : (
+                                <Loader2 className="w-5 h-5 text-white animate-spin" />
+                              )}
+                            </div>
+                            <span className="text-xs mt-2 text-muted-foreground">Validating</span>
+                          </div>
+
+                          {/* Connector Line */}
+                          <div className={`flex-1 h-1 mx-2 transition-all ${
+                            ["fetching", "processing", "ready"].includes(downloadStatus.stage)
+                              ? "bg-green-500"
+                              : "bg-muted"
+                          }`} />
+
+                          {/* Step 2: Fetching */}
+                          <div className="flex flex-col items-center flex-1">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                              downloadStatus.stage === "fetching" 
+                                ? "bg-primary animate-pulse" 
+                                : ["processing", "ready"].includes(downloadStatus.stage)
+                                ? "bg-green-500" 
+                                : "bg-muted"
+                            }`}>
+                              {["processing", "ready"].includes(downloadStatus.stage) ? (
+                                <CheckCircle2 className="w-5 h-5 text-white" />
+                              ) : downloadStatus.stage === "fetching" ? (
+                                <Loader2 className="w-5 h-5 text-white animate-spin" />
+                              ) : (
+                                <LinkIcon className="w-5 h-5 text-muted-foreground" />
+                              )}
+                            </div>
+                            <span className="text-xs mt-2 text-muted-foreground">Fetching</span>
+                          </div>
+
+                          {/* Connector Line */}
+                          <div className={`flex-1 h-1 mx-2 transition-all ${
+                            ["processing", "ready"].includes(downloadStatus.stage)
+                              ? "bg-green-500"
+                              : "bg-muted"
+                          }`} />
+
+                          {/* Step 3: Processing */}
+                          <div className="flex flex-col items-center flex-1">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                              downloadStatus.stage === "processing" 
+                                ? "bg-primary animate-pulse" 
+                                : downloadStatus.stage === "ready"
+                                ? "bg-green-500" 
+                                : "bg-muted"
+                            }`}>
+                              {downloadStatus.stage === "ready" ? (
+                                <CheckCircle2 className="w-5 h-5 text-white" />
+                              ) : downloadStatus.stage === "processing" ? (
+                                <Loader2 className="w-5 h-5 text-white animate-spin" />
+                              ) : (
+                                <Video className="w-5 h-5 text-muted-foreground" />
+                              )}
+                            </div>
+                            <span className="text-xs mt-2 text-muted-foreground">Processing</span>
+                          </div>
+
+                          {/* Connector Line */}
+                          <div className={`flex-1 h-1 mx-2 transition-all ${
+                            downloadStatus.stage === "ready"
+                              ? "bg-green-500"
+                              : "bg-muted"
+                          }`} />
+
+                          {/* Step 4: Ready */}
+                          <div className="flex flex-col items-center flex-1">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                              downloadStatus.stage === "ready" 
+                                ? "bg-green-500" 
+                                : "bg-muted"
+                            }`}>
+                              {downloadStatus.stage === "ready" ? (
+                                <CheckCircle2 className="w-5 h-5 text-white" />
+                              ) : (
+                                <Download className="w-5 h-5 text-muted-foreground" />
+                              )}
+                            </div>
+                            <span className="text-xs mt-2 text-muted-foreground">Ready</span>
+                          </div>
+                        </div>
+
+                        {/* Status Message */}
+                        <div className="text-center">
+                          <p className="text-sm font-medium text-foreground">
+                            {downloadStatus.message}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
 
                 {/* Error Message */}
                 {error && (
