@@ -3,7 +3,7 @@ import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -19,8 +19,8 @@ interface DownloadResult {
   thumbnail?: string;
 }
 
-type VideoQuality = "max" | "2160" | "1440" | "1080" | "720" | "480" | "360" | "240" | "144";
-type AudioBitrate = "320" | "192" | "128" | "64";
+type VideoQuality = "max" | "2160" | "1440" | "1080" | "720" | "480" | "360";
+type AudioBitrate = "320" | "256" | "128" | "96" | "64";
 
 type DownloadStatus = 
   | { stage: "idle" }
@@ -36,19 +36,19 @@ export default function VideoDownloader() {
   const [error, setError] = useState("");
   const [result, setResult] = useState<DownloadResult | null>(null);
   const [downloadType, setDownloadType] = useState<"video" | "audio">("video");
-  const [videoQuality, setVideoQuality] = useState<VideoQuality>("720");
-  const [audioBitrate, setAudioBitrate] = useState<AudioBitrate>("192");
+  const [videoQuality, setVideoQuality] = useState<VideoQuality>("1080");
+  const [audioBitrate, setAudioBitrate] = useState<AudioBitrate>("128");
   const [showPreview, setShowPreview] = useState(false);
   const [downloadStatus, setDownloadStatus] = useState<DownloadStatus>({ stage: "idle" });
   const { toast } = useToast();
 
   const supportedPlatforms = [
     "YouTube", "TikTok", "Instagram", "Twitter/X", "Facebook",
-    "Reddit", "Vimeo", "Twitch", "SoundCloud", "Dailymotion",
-    "Bilibili", "Twitter Spaces", "VK", "OK.ru", "Pinterest"
+    "Reddit", "Vimeo", "Twitch", "SoundCloud", "Dailymotion"
   ];
 
-  const qualityOptions = [
+  const qualityOptions: { value: VideoQuality; label: string; size: string }[] = [
+    { value: "max", label: "Best Available", size: "Varies" },
     { value: "2160", label: "4K (2160p)", size: "~800-1200 MB/min" },
     { value: "1440", label: "2K (1440p)", size: "~400-600 MB/min" },
     { value: "1080", label: "Full HD (1080p)", size: "~200-300 MB/min" },
@@ -57,10 +57,11 @@ export default function VideoDownloader() {
     { value: "360", label: "Low (360p)", size: "~30-40 MB/min" },
   ];
 
-  const audioBitrateOptions = [
+  const audioBitrateOptions: { value: AudioBitrate; label: string; size: string }[] = [
     { value: "320", label: "320 kbps (Best)", size: "~2.4 MB/min" },
-    { value: "192", label: "192 kbps (High)", size: "~1.4 MB/min" },
+    { value: "256", label: "256 kbps (High)", size: "~1.9 MB/min" },
     { value: "128", label: "128 kbps (Standard)", size: "~1 MB/min" },
+    { value: "96", label: "96 kbps (Good)", size: "~0.7 MB/min" },
     { value: "64", label: "64 kbps (Low)", size: "~0.5 MB/min" },
   ];
 
@@ -77,10 +78,8 @@ export default function VideoDownloader() {
     setDownloadStatus({ stage: "validating", message: "Validating URL..." });
 
     try {
-      // Stage 1: Validating
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Stage 2: Fetching
       setDownloadStatus({ stage: "fetching", message: "Connecting to platform..." });
       
       const response = await fetch("/api/download-video", {
@@ -96,22 +95,15 @@ export default function VideoDownloader() {
         }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      const data = await response.json();
+
+      if (!response.ok || data.status === "error" || data.status === "rate-limit") {
+        throw new Error(data.error || data.text || `Failed to process video`);
       }
 
-      // Stage 3: Processing
       setDownloadStatus({ stage: "processing", message: "Processing video..." });
       await new Promise(resolve => setTimeout(resolve, 800));
 
-      const data = await response.json();
-
-      if (data.status === "error" || data.status === "rate-limit") {
-        throw new Error(data.text || "Failed to process video");
-      }
-
-      // Stage 4: Ready
       setDownloadStatus({ stage: "ready", message: "Ready to download!" });
 
       if (data.status === "redirect" || data.status === "stream") {
@@ -126,7 +118,7 @@ export default function VideoDownloader() {
           title: "✅ Download ready!",
           description: `${downloadType === "audio" ? "Audio" : "Video"} processed successfully`,
         });
-      } else if (data.status === "picker") {
+      } else if (data.status === "picker" && data.picker && data.picker.length > 0) {
         const firstPick = data.picker[0];
         setResult({
           url: firstPick.url,
@@ -140,7 +132,7 @@ export default function VideoDownloader() {
           description: `${downloadType === "audio" ? "Audio" : "Video"} processed successfully`,
         });
       } else {
-        throw new Error("Unexpected response format");
+        throw new Error("Unexpected response format from video service");
       }
     } catch (err) {
       console.error("Download error:", err);
@@ -320,13 +312,13 @@ export default function VideoDownloader() {
                       <div className="pt-4 border-t text-center">
                         <p className="text-sm text-muted-foreground mb-3">Supports 50+ platforms including:</p>
                         <div className="flex flex-wrap justify-center gap-2">
-                          {supportedPlatforms.slice(0, 8).map((platform) => (
+                          {supportedPlatforms.map((platform) => (
                             <Badge key={platform} variant="outline" className="text-xs">
                               {platform}
                             </Badge>
                           ))}
                           <Badge variant="outline" className="text-xs">
-                            +42 more...
+                            +40 more...
                           </Badge>
                         </div>
                       </div>

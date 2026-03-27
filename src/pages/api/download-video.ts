@@ -26,33 +26,59 @@ export default async function handler(
   }
 
   try {
+    const requestBody: {
+      url: string;
+      vQuality?: string;
+      aFormat?: string;
+      filenamePattern?: string;
+      isAudioOnly?: boolean;
+      isAudioMuted?: boolean;
+      dubLang?: boolean;
+      disableMetadata?: boolean;
+    } = {
+      url: url.trim(),
+      filenamePattern: "classic",
+      isAudioOnly: isAudioOnly || false,
+      isAudioMuted: false,
+      dubLang: false,
+      disableMetadata: false,
+    };
+
+    // Add video quality if specified and not audio-only
+    if (!isAudioOnly && videoQuality) {
+      requestBody.vQuality = videoQuality;
+    }
+
+    // Add audio format for audio-only downloads
+    if (isAudioOnly) {
+      requestBody.aFormat = "mp3";
+    }
+
+    console.log("Cobalt API request:", requestBody);
+
     const response = await fetch("https://api.cobalt.tools/api/json", {
       method: "POST",
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        url: url.trim(),
-        isAudioOnly: isAudioOnly || false,
-        videoQuality: videoQuality || "720",
-        audioBitrate: audioBitrate,
-        filenamePattern: "classic",
-        isAudioMuted: false,
-        dubLang: false,
-        disableMetadata: false,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
-    if (!response.ok) {
-      throw new Error(`Cobalt API error: ${response.status}`);
-    }
-
     const data: CobaltResponse = await response.json();
+    console.log("Cobalt API response:", data);
+
+    if (!response.ok) {
+      return res.status(response.status).json({
+        error: data.text || `Cobalt API error: ${response.status}`,
+        status: data.status,
+      });
+    }
 
     if (data.status === "error" || data.status === "rate-limit") {
       return res.status(400).json({
         error: data.text || "Failed to process video",
+        status: data.status,
       });
     }
 
