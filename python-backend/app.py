@@ -631,13 +631,27 @@ def get_video_formats():
         
         logger.info(f"Fetching video formats for: {url}")
         
-        # yt-dlp options for metadata extraction - NO FORMAT SELECTION YET
+        # yt-dlp options with bot bypass configuration
         ydl_opts = {
             'quiet': True,
             'no_warnings': True,
             'extract_flat': False,
             'skip_download': True,
             'no_check_certificate': True,
+            'age_limit': None,
+            'nocheckcertificate': True,
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['android', 'web'],
+                    'skip': ['hls', 'dash']
+                }
+            },
+            'http_headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-us,en;q=0.5',
+                'Sec-Fetch-Mode': 'navigate',
+            }
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -735,13 +749,28 @@ def download_video():
         job_id = str(uuid.uuid4())
         temp_dir = Path(tempfile.mkdtemp(prefix=f'download_{job_id}_'))
         
-        # yt-dlp download options
+        # yt-dlp download options with bot bypass
         ydl_opts = {
             'format': format_id if format_id != 'best' else 'bestvideo+bestaudio/best',
             'outtmpl': str(temp_dir / '%(title)s.%(ext)s'),
             'quiet': True,
             'no_warnings': True,
             'extract_flat': False,
+            'no_check_certificate': True,
+            'age_limit': None,
+            'nocheckcertificate': True,
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['android', 'web'],
+                    'skip': ['hls', 'dash']
+                }
+            },
+            'http_headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-us,en;q=0.5',
+                'Sec-Fetch-Mode': 'navigate',
+            }
         }
         
         # Audio-only extraction
