@@ -94,11 +94,9 @@ export default function VideoDownloader() {
       return;
     }
 
-    setValidating(true);
     setLoading(true);
     setError("");
     setResult(null);
-    setShowSuccess(false);
 
     try {
       const response = await fetch("/api/download/formats", {
@@ -125,8 +123,6 @@ export default function VideoDownloader() {
       if (data.video_formats?.length > 0) {
         setSelectedQuality(data.video_formats[0].format_id);
       }
-
-      setShowSuccess(true);
       
       toast({
         title: "✅ Video loaded!",
@@ -155,7 +151,6 @@ export default function VideoDownloader() {
         description: errorMessage,
       });
     } finally {
-      setValidating(false);
       setLoading(false);
     }
   };
