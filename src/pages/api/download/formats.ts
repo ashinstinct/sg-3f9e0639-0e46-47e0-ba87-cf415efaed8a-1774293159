@@ -1,8 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const PYTHON_BACKEND_URL = process.env.PYTHON_BACKEND_URL || 
-                          process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL || 
-                          "https://back2life-audio-processing.onrender.com";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 
+                    "https://back2life-audio-processing.onrender.com";
 
 export default async function handler(
   req: NextApiRequest,
@@ -19,22 +18,20 @@ export default async function handler(
   }
 
   try {
-    console.log(`Fetching formats from: ${PYTHON_BACKEND_URL}/api/video-formats`);
+    console.log(`Fetching formats from: ${BACKEND_URL}/api/video-formats`);
     
-    const response = await fetch(`${PYTHON_BACKEND_URL}/api/video-formats`, {
+    const response = await fetch(`${BACKEND_URL}/api/video-formats`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ url: url.trim() }),
-      signal: AbortSignal.timeout(30000), // 30 second timeout
+      signal: AbortSignal.timeout(30000),
     });
 
-    // Check content type before parsing
     const contentType = response.headers.get("content-type");
     
     if (!contentType || !contentType.includes("application/json")) {
-      // Backend returned HTML (error page) instead of JSON
       const text = await response.text();
       console.error("Backend returned non-JSON response:", text.substring(0, 200));
       

@@ -1,8 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const PYTHON_BACKEND_URL = process.env.PYTHON_BACKEND_URL || 
-                          process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL || 
-                          "https://back2life-audio-processing.onrender.com";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 
+                    "https://back2life-audio-processing.onrender.com";
 
 export default async function handler(
   req: NextApiRequest,
@@ -19,9 +18,9 @@ export default async function handler(
   }
 
   try {
-    console.log(`Downloading from: ${PYTHON_BACKEND_URL}/api/video-download`);
+    console.log(`Downloading from: ${BACKEND_URL}/api/video-download`);
     
-    const response = await fetch(`${PYTHON_BACKEND_URL}/api/video-download`, {
+    const response = await fetch(`${BACKEND_URL}/api/video-download`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -31,14 +30,12 @@ export default async function handler(
         format_id: formatId || "best",
         is_audio_only: isAudioOnly || false,
       }),
-      signal: AbortSignal.timeout(120000), // 2 minute timeout for downloads
+      signal: AbortSignal.timeout(120000),
     });
 
     const contentType = response.headers.get("content-type") || "";
 
-    // If response is not a file (video/audio), it might be an error JSON or HTML
     if (!contentType.includes("video/") && !contentType.includes("audio/") && !contentType.includes("application/octet-stream")) {
-      // Check if it's JSON error
       if (contentType.includes("application/json")) {
         const data = await response.json();
         return res.status(response.status).json({
@@ -46,7 +43,6 @@ export default async function handler(
         });
       }
       
-      // Otherwise it's likely an HTML error page
       const text = await response.text();
       console.error("Backend returned non-file response:", text.substring(0, 200));
       
@@ -56,7 +52,6 @@ export default async function handler(
       });
     }
 
-    // Stream the file back to client
     const contentDisposition = response.headers.get("content-disposition") || "";
 
     res.setHeader("Content-Type", contentType);
@@ -64,7 +59,6 @@ export default async function handler(
       res.setHeader("Content-Disposition", contentDisposition);
     }
 
-    // Pipe the response
     const arrayBuffer = await response.arrayBuffer();
     res.send(Buffer.from(arrayBuffer));
     
