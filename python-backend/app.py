@@ -846,6 +846,249 @@ def download_video():
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/transcribe', methods=['POST'])
+def transcribe_audio():
+    """
+    Transcribe audio/video file using HuggingFace Whisper API
+    Expects: audio or video file
+    Returns: transcript text
+    """
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+
+    try:
+        job_id = str(uuid.uuid4())
+        temp_dir = Path(tempfile.mkdtemp(prefix=f'transcribe_{job_id}_'))
+
+        filename = secure_filename(file.filename)
+        input_path = temp_dir / filename
+        file.save(str(input_path))
+
+        logger.info(f"Transcribing file: {filename}")
+
+        # Check if it's a video file that needs audio extraction
+        video_extensions = {'.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.m4v'}
+        file_ext = input_path.suffix.lower()
+        
+        audio_path = input_path
+        
+        if file_ext in video_extensions:
+            logger.info(f"Extracting audio from video: {filename}")
+            audio_path = temp_dir / f"{input_path.stem}.mp3"
+            
+            # FFmpeg command to extract audio
+            ffmpeg_cmd = [
+                'ffmpeg', '-i', str(input_path),
+                '-vn',  # No video
+                '-acodec', 'libmp3lame',
+                '-b:a', '128k',
+                '-ar', '16000',  # 16kHz sample rate (Whisper optimal)
+                '-ac', '1',  # Mono
+                '-y',
+                str(audio_path)
+            ]
+            
+            result = subprocess.run(
+                ffmpeg_cmd,
+                capture_output=True,
+                text=True,
+                check=True,
+                timeout=300
+            )
+            
+            logger.info(f"Audio extracted: {audio_path}")
+
+        # Check file size (Whisper has 25MB limit via HF API)
+        file_size = audio_path.stat().st_size
+        if file_size > 25 * 1024 * 1024:
+            raise Exception("Audio file is too large (max 25MB). Please use a shorter audio or compress it.")
+
+        # Call HuggingFace Whisper API
+        HF_TOKEN = os.getenv('HUGGINGFACE_API_TOKEN', '')
+        if not HF_TOKEN or HF_TOKEN == 'your_hugging_face_token_here':
+            raise Exception("HuggingFace API token not configured. Please set HUGGINGFACE_API_TOKEN environment variable.")
+
+        with open(audio_path, 'rb') as f:
+            audio_bytes = f.read()
+
+        headers = {
+            "Authorization": f"Bearer {HF_TOKEN}",
+        }
+
+        logger.info("Calling HuggingFace Whisper API...")
+        response = requests.post(
+            "https://api-inference.huggingface.co/models/openai/whisper-large-v3",
+            headers=headers,
+            data=audio_bytes,
+            timeout=180
+        )
+
+        # Cleanup temp files
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
+        if response.status_code == 200:
+            result = response.json()
+            transcript = result.get('text', '')
+            
+            if not transcript:
+                raise Exception("No transcription returned from Whisper")
+            
+            logger.info(f"Transcription completed successfully")
+            return jsonify({
+                'text': transcript,
+                'language': result.get('language', 'en')
+            })
+        else:
+            error_text = response.text
+            logger.error(f"HuggingFace API error: {response.status_code} - {error_text}")
+            raise Exception(f"Transcription failed: {error_text}")
+
+    except subprocess.CalledProcessError as e:
+        logger.error(f"FFmpeg error: {e.stderr}")
+        try:
+            if 'temp_dir' in locals():
+                shutil.rmtree(temp_dir, ignore_errors=True)
+        except:
+            pass
+        return jsonify({'error': f'Audio extraction failed: {e.stderr}'}), 500
+    except subprocess.TimeoutExpired:
+        logger.error("FFmpeg process timeout")
+        try:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+        except:
+            pass
+        return jsonify({'error': 'Audio extraction timeout'}), 500
+    except Exception as e:
+        logger.error(f"Transcription error: {e}")
+        try:
+            if 'temp_dir' in locals():
+                shutil.rmtree(temp_dir, ignore_errors=True)
+        except:
+            pass
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/transcribe-url', methods=['POST'])
+def transcribe_url():
+    """
+    Transcribe audio from YouTube or other URLs using cobalt.tools + Whisper
+    Expects: url (YouTube or any cobalt-supported URL)
+    Returns: transcript text
+    """
+    try:
+        data = request.get_json()
+        url = data.get('url', '').strip()
+        
+        if not url:
+            return jsonify({'error': 'URL is required'}), 400
+        
+        logger.info(f"Transcribing URL: {url}")
+        
+        # Step 1: Extract audio URL using cobalt.tools
+        cobalt_response = requests.post(
+            "https://api.cobalt.tools/api/json",
+            headers={
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+            },
+            json={
+                "url": url,
+                "downloadMode": "audio",
+            },
+            timeout=30
+        )
+        
+        cobalt_data = cobalt_response.json()
+        
+        if cobalt_data.get('status') == 'error' or not cobalt_data.get('url'):
+            error_msg = cobalt_data.get('text', 'Failed to extract audio from URL')
+            logger.error(f"Cobalt error: {error_msg}")
+            return jsonify({'error': error_msg}), 400
+        
+        audio_url = cobalt_data['url']
+        logger.info(f"Audio URL extracted: {audio_url}")
+        
+        # Step 2: Download audio
+        audio_response = requests.get(audio_url, timeout=60, stream=True)
+        
+        if audio_response.status_code != 200:
+            raise Exception(f"Failed to download audio: HTTP {audio_response.status_code}")
+        
+        # Step 3: Save to temp file and transcribe
+        job_id = str(uuid.uuid4())
+        temp_dir = Path(tempfile.mkdtemp(prefix=f'transcribe_url_{job_id}_'))
+        audio_path = temp_dir / f"audio_{job_id}.mp3"
+        
+        with open(audio_path, 'wb') as f:
+            for chunk in audio_response.iter_content(chunk_size=8192):
+                f.write(chunk)
+        
+        logger.info(f"Audio downloaded: {audio_path.stat().st_size} bytes")
+        
+        # Check file size
+        file_size = audio_path.stat().st_size
+        if file_size > 25 * 1024 * 1024:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            raise Exception("Audio is too large (max 25MB). Please use a shorter video.")
+        
+        # Step 4: Call HuggingFace Whisper API
+        HF_TOKEN = os.getenv('HUGGINGFACE_API_TOKEN', '')
+        if not HF_TOKEN or HF_TOKEN == 'your_hugging_face_token_here':
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            raise Exception("HuggingFace API token not configured")
+        
+        with open(audio_path, 'rb') as f:
+            audio_bytes = f.read()
+        
+        headers = {
+            "Authorization": f"Bearer {HF_TOKEN}",
+        }
+        
+        logger.info("Calling HuggingFace Whisper API...")
+        whisper_response = requests.post(
+            "https://api-inference.huggingface.co/models/openai/whisper-large-v3",
+            headers=headers,
+            data=audio_bytes,
+            timeout=180
+        )
+        
+        # Cleanup
+        shutil.rmtree(temp_dir, ignore_errors=True)
+        
+        if whisper_response.status_code == 200:
+            result = whisper_response.json()
+            transcript = result.get('text', '')
+            
+            if not transcript:
+                raise Exception("No transcription returned from Whisper")
+            
+            logger.info("URL transcription completed successfully")
+            return jsonify({
+                'text': transcript,
+                'language': result.get('language', 'en')
+            })
+        else:
+            error_text = whisper_response.text
+            logger.error(f"Whisper API error: {whisper_response.status_code} - {error_text}")
+            raise Exception(f"Transcription failed: {error_text}")
+        
+    except requests.exceptions.Timeout:
+        logger.error("Request timeout")
+        return jsonify({'error': 'Request timed out. Please try a shorter video.'}), 504
+    except Exception as e:
+        logger.error(f"URL transcription error: {e}")
+        try:
+            if 'temp_dir' in locals():
+                shutil.rmtree(temp_dir, ignore_errors=True)
+        except:
+            pass
+        return jsonify({'error': str(e)}), 500
+
+
 @app.errorhandler(413)
 def request_entity_too_large(error):
     return jsonify({'error': 'File too large. Maximum size is 100MB'}), 413

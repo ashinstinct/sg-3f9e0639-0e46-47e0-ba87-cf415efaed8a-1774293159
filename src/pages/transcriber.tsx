@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FileAudio, Mic, Link as LinkIcon, Download, Loader2, AlertCircle, FileText, Square } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { FileAudio, Mic, Link as LinkIcon, Download, Loader2, AlertCircle, FileText, Square, Copy, Check } from "lucide-react";
 
 type TranscriptionSource = "upload" | "record" | "url";
 type ExportFormat = "txt" | "srt";
@@ -16,17 +17,18 @@ type ExportFormat = "txt" | "srt";
 export default function Transcriber() {
   const [source, setSource] = useState<TranscriptionSource>("upload");
   const [audioFile, setAudioFile] = useState<File | null>(null);
-  const [audioUrl, setAudioUrl] = useState("");
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [error, setError] = useState("");
   const [exportFormat, setExportFormat] = useState<ExportFormat>("txt");
+  const [copied, setCopied] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const { toast } = useToast();
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -65,9 +67,18 @@ export default function Transcriber() {
 
       mediaRecorder.start();
       setIsRecording(true);
+      toast({
+        title: "🎙️ Recording started",
+        description: "Speak clearly into your microphone",
+      });
     } catch (err) {
       console.error("Recording error:", err);
       setError("Could not access microphone. Please check permissions.");
+      toast({
+        variant: "destructive",
+        title: "Microphone access denied",
+        description: "Please allow microphone access and try again",
+      });
     }
   };
 
@@ -75,6 +86,10 @@ export default function Transcriber() {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
+      toast({
+        title: "✅ Recording stopped",
+        description: "Your recording is ready to transcribe",
+      });
     }
   };
 
@@ -84,38 +99,46 @@ export default function Transcriber() {
       return;
     }
 
-    const HF_TOKEN = process.env.NEXT_PUBLIC_HF_TOKEN;
-    if (!HF_TOKEN) {
-      setError("HuggingFace API token not configured. Please add NEXT_PUBLIC_HF_TOKEN to your environment variables.");
-      return;
-    }
-
     setIsTranscribing(true);
     setError("");
     setTranscript("");
 
     try {
-      const response = await fetch(
-        "https://api-inference.huggingface.co/models/openai/whisper-large-v3",
-        {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${HF_TOKEN}`,
-          },
-          body: audioFile,
-        }
-      );
+      const formData = new FormData();
+      formData.append("file", audioFile);
+
+      toast({
+        title: "🎵 Processing audio...",
+        description: "This may take 30-60 seconds",
+      });
+
+      const response = await fetch("/api/transcriber/file", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Transcription failed: ${response.statusText}`);
+        throw new Error(data.error || "Transcription failed");
       }
 
-      const result = await response.json();
-      setTranscript(result.text || "No transcription available");
+      setTranscript(data.text || "No transcription available");
+      
+      toast({
+        title: "✅ Transcription complete!",
+        description: `${data.text?.split(" ").length || 0} words transcribed`,
+      });
     } catch (err) {
       console.error("Transcription error:", err);
-      setError(err instanceof Error ? err.message : "Failed to transcribe audio. Please try again.");
+      const errorMsg = err instanceof Error ? err.message : "Failed to transcribe audio. Please try again.";
+      setError(errorMsg);
+      
+      toast({
+        variant: "destructive",
+        title: "Transcription failed",
+        description: errorMsg,
+      });
     } finally {
       setIsTranscribing(false);
     }
@@ -132,63 +155,63 @@ export default function Transcriber() {
     setTranscript("");
 
     try {
-      // Step 1: Extract audio using cobalt.tools
-      const cobaltResponse = await fetch("https://api.cobalt.tools/api/json", {
-        method: "POST",
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          url: youtubeUrl.trim(),
-          downloadMode: "audio",
-        }),
+      toast({
+        title: "🎬 Extracting audio from video...",
+        description: "This may take a minute",
       });
 
-      const cobaltData = await cobaltResponse.json();
+      const response = await fetch("/api/transcriber/url", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url: youtubeUrl.trim() }),
+      });
 
-      if (cobaltData.status === "error" || cobaltData.error) {
-        throw new Error(cobaltData.text || "Failed to extract audio from YouTube");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Transcription failed");
       }
 
-      const audioUrl = cobaltData.url;
-      if (!audioUrl) {
-        throw new Error("No audio URL received from cobalt.tools");
-      }
-
-      // Step 2: Download audio
-      const audioResponse = await fetch(audioUrl);
-      const audioBlob = await audioResponse.blob();
-
-      // Step 3: Transcribe with Whisper
-      const HF_TOKEN = process.env.NEXT_PUBLIC_HF_TOKEN;
-      if (!HF_TOKEN) {
-        throw new Error("HuggingFace API token not configured");
-      }
-
-      const whisperResponse = await fetch(
-        "https://api-inference.huggingface.co/models/openai/whisper-large-v3",
-        {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${HF_TOKEN}`,
-          },
-          body: audioBlob,
-        }
-      );
-
-      if (!whisperResponse.ok) {
-        const errorData = await whisperResponse.json().catch(() => ({}));
-        throw new Error(errorData.error || "Transcription failed");
-      }
-
-      const result = await whisperResponse.json();
-      setTranscript(result.text || "No transcription available");
+      setTranscript(data.text || "No transcription available");
+      
+      toast({
+        title: "✅ Transcription complete!",
+        description: `${data.text?.split(" ").length || 0} words transcribed`,
+      });
     } catch (err) {
       console.error("YouTube transcription error:", err);
-      setError(err instanceof Error ? err.message : "Failed to transcribe YouTube video. Please try again.");
+      const errorMsg = err instanceof Error ? err.message : "Failed to transcribe video. Please try again.";
+      setError(errorMsg);
+      
+      toast({
+        variant: "destructive",
+        title: "Transcription failed",
+        description: errorMsg,
+      });
     } finally {
       setIsTranscribing(false);
+    }
+  };
+
+  const copyToClipboard = async () => {
+    if (!transcript) return;
+    
+    try {
+      await navigator.clipboard.writeText(transcript);
+      setCopied(true);
+      toast({
+        title: "✅ Copied to clipboard",
+        description: "Transcript copied successfully",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Failed to copy",
+        description: "Please try again",
+      });
     }
   };
 
@@ -200,7 +223,6 @@ export default function Transcriber() {
     let mimeType = "text/plain";
 
     if (exportFormat === "srt") {
-      // Simple SRT format (no timestamps from Whisper basic response)
       content = "1\n00:00:00,000 --> 00:00:10,000\n" + transcript;
       filename += ".srt";
       mimeType = "application/x-subrip";
@@ -215,13 +237,18 @@ export default function Transcriber() {
     link.download = filename;
     link.click();
     URL.revokeObjectURL(url);
+    
+    toast({
+      title: "✅ Download started",
+      description: `Saved as ${filename}`,
+    });
   };
 
   return (
     <>
       <SEO
-        title="AI Transcriber - Back2Life.Studio"
-        description="Convert speech to text with AI. Upload audio/video, record from mic, or transcribe YouTube videos."
+        title="AI Transcriber - Convert Speech to Text | Back2Life.Studio"
+        description="Free AI transcription tool powered by OpenAI Whisper. Upload audio/video, record from mic, or transcribe YouTube videos. Supports 50+ languages."
       />
       <div className="min-h-screen bg-background">
         <Navigation />
@@ -290,7 +317,7 @@ export default function Transcriber() {
                               {audioFile ? audioFile.name : "Click to select audio/video file"}
                             </p>
                             <p className="text-xs text-muted-foreground mt-1">
-                              MP3, WAV, MP4, MOV, etc.
+                              MP3, WAV, MP4, MOV, etc. (max 25MB)
                             </p>
                           </div>
                         </Button>
@@ -466,6 +493,25 @@ export default function Transcriber() {
 
                       <div className="space-y-3">
                         <div className="flex items-center gap-3">
+                          <Button
+                            onClick={copyToClipboard}
+                            variant="outline"
+                            size="lg"
+                            className="flex-1"
+                          >
+                            {copied ? (
+                              <>
+                                <Check className="w-5 h-5 mr-2 text-green-500" />
+                                Copied!
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-5 h-5 mr-2" />
+                                Copy Text
+                              </>
+                            )}
+                          </Button>
+                          
                           <Select
                             value={exportFormat}
                             onValueChange={(v) => setExportFormat(v as ExportFormat)}
@@ -478,19 +524,20 @@ export default function Transcriber() {
                               <SelectItem value="srt">SRT</SelectItem>
                             </SelectContent>
                           </Select>
+                          
                           <Button
                             onClick={downloadTranscript}
                             size="lg"
-                            className="flex-1 bg-gradient-to-r from-violet-500 to-purple-500 hover:opacity-90"
+                            className="bg-gradient-to-r from-violet-500 to-purple-500 hover:opacity-90"
                           >
                             <Download className="w-5 h-5 mr-2" />
-                            Download Transcript
+                            Download
                           </Button>
                         </div>
 
                         <div className="bg-muted/50 rounded-lg p-3">
                           <p className="text-xs text-muted-foreground">
-                            💡 You can edit the transcript before downloading
+                            💡 You can edit the transcript before downloading or copying
                           </p>
                         </div>
                       </div>
