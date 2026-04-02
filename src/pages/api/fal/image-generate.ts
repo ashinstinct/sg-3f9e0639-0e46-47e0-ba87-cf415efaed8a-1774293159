@@ -5,6 +5,11 @@ export const config = {
   maxDuration: 60,
 };
 
+// Configure fal client with API key
+fal.config({
+  credentials: process.env.FAL_KEY,
+});
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -20,9 +25,8 @@ export default async function handler(
       return res.status(400).json({ error: "Prompt is required" });
     }
 
-    const FAL_KEY = process.env.FAL_KEY;
-    if (!FAL_KEY) {
-      return res.status(500).json({ error: "FAL_KEY not configured" });
+    if (!process.env.FAL_KEY) {
+      return res.status(500).json({ error: "FAL_KEY not configured in environment variables" });
     }
 
     // Map aspect ratios to dimensions
@@ -51,7 +55,6 @@ export default async function handler(
         enable_safety_checker: true,
       },
       logs: true,
-      credentials: FAL_KEY,
       onQueueUpdate: (update) => {
         if (update.status === "IN_PROGRESS") {
           console.log("Generation progress:", update.logs);
