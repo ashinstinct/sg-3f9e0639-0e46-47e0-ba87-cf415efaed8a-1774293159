@@ -354,7 +354,6 @@ export default function AudioEnhancer() {
                         <li>Automatic loudness normalization</li>
                         <li>High-quality WAV output</li>
                         <li>Before/after comparison</li>
-                        <li>Powered by DeepFilterNet</li>
                       </ul>
                     </div>
 

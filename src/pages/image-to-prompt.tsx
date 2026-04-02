@@ -77,7 +77,7 @@ export default function ImageToPrompt() {
 
     const HF_TOKEN = process.env.NEXT_PUBLIC_HF_TOKEN;
     if (!HF_TOKEN) {
-      setError("HuggingFace API token not configured. Please add NEXT_PUBLIC_HF_TOKEN to your environment variables.");
+      setError("Image analysis API token not configured. Please add NEXT_PUBLIC_HF_TOKEN to your environment variables.");
       return;
     }
 

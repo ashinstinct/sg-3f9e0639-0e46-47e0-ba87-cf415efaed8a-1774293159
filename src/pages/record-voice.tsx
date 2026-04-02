@@ -224,7 +224,7 @@ export default function RecordVoice() {
     <>
       <SEO
         title="Voice Recorder | Back2Life.Studio"
-        description="Professional voice recorder with live transcription powered by Whisper AI"
+        description="Professional voice recorder with live transcription."
       />
       
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950">
@@ -244,7 +244,7 @@ export default function RecordVoice() {
                 Voice Recorder
               </h1>
               <p className="text-gray-400 text-lg">
-                Record with live transcription powered by Whisper AI
+                Record with live AI transcription
               </p>
             </div>
 
@@ -422,7 +422,7 @@ export default function RecordVoice() {
             <div className="grid md:grid-cols-3 gap-4">
               {[
                 { icon: "🎯", title: "Real-Time Levels", desc: "Live audio monitoring" },
-                { icon: "🤖", title: "AI Transcription", desc: "Powered by Whisper" },
+                { icon: "🤖", title: "AI Transcription", desc: "Live AI transcription while you record" },
                 { icon: "💾", title: "Instant Download", desc: "Audio + transcript" }
               ].map((feature, i) => (
                 <Card key={i} className="bg-slate-900/30 backdrop-blur-xl border-slate-800/50 p-4 text-center">

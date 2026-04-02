@@ -326,7 +326,6 @@ export default function StemSeparator() {
                         <li>AI-powered separation</li>
                         <li>4-stem output (vocals, drums, bass, other)</li>
                         <li>High-quality WAV files</li>
-                        <li>Powered by Spleeter</li>
                         <li>Process songs up to 10 minutes</li>
                         <li>Download as ZIP package</li>
                       </ul>

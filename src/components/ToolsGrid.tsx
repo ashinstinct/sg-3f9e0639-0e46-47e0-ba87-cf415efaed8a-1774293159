@@ -32,7 +32,7 @@ const tools = [
   },
   {
     title: "Video Splitter",
-    description: "Split videos into timed segments with FFmpeg",
+    description: "Split long videos into perfectly sized short clips for social media",
     icon: SplitSquareHorizontal,
     href: "/split",
     category: "Video",
@@ -50,7 +50,7 @@ const tools = [
   },
   {
     title: "Audio Editor",
-    description: "Trim, fade, adjust volume and speed like CapCut",
+    description: "Trim, fade, adjust volume and speed like a pro editor",
     icon: Settings,
     href: "/edit",
     category: "Audio",
@@ -69,7 +69,7 @@ const tools = [
   },
   {
     title: "Audio Enhancer",
-    description: "AI-powered noise reduction and audio enhancement",
+    description: "Clean up noisy audio and boost clarity with AI",
     icon: Wand2,
     href: "/enhance",
     category: "Audio",
@@ -79,7 +79,7 @@ const tools = [
   },
   {
     title: "Voice Cloner",
-    description: "Clone voices with E2-F5-TTS and Fish Audio",
+    description: "Clone voices with advanced AI voice models",
     icon: Mic,
     href: "/clone",
     category: "Audio",
@@ -107,7 +107,7 @@ const tools = [
   },
   {
     title: "Video Editor",
-    description: "Full-featured video editing suite",
+    description: "Full-featured video editing interface in your browser",
     icon: Film,
     href: "/video-editor",
     category: "Video",
@@ -116,7 +116,7 @@ const tools = [
   },
   {
     title: "AI Image Generator",
-    description: "Generate images with FLUX, Midjourney, and more",
+    description: "Generate images from text with advanced AI models",
     icon: Image,
     href: "/generate",
     category: "AI",
@@ -126,7 +126,7 @@ const tools = [
   },
   {
     title: "Transcriber",
-    description: "Transcribe audio and video with Whisper AI",
+    description: "Turn audio and video into text with AI transcription",
     icon: FileText,
     href: "/transcriber",
     category: "AI",
@@ -135,7 +135,7 @@ const tools = [
   },
   {
     title: "AI Video Generator",
-    description: "Create videos with Sora, Veo, Kling, and more",
+    description: "Create short videos from text prompts with AI",
     icon: Sparkles,
     href: "/video-gen",
     category: "AI",
