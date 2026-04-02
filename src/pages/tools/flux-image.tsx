@@ -1,41 +1,41 @@
 import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Sparkles, Download, Loader2, Wand2, ImageIcon, ArrowLeft } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import Link from "next/link";
-import { useToast } from "@/hooks/use-toast";
-import { creditsService } from "@/services/creditsService";
-import { supabase } from "@/integrations/supabase/client";
+import { ArrowLeft, Sparkles, Download, Loader2, ChevronDown, Wand2 } from "lucide-react";
 
-type AspectRatio = "1:1" | "16:9" | "9:16" | "4:3" | "3:4";
-
-const ASPECT_RATIOS: Record<AspectRatio, string> = {
-  "1:1": "Square (1024×1024)",
-  "16:9": "Landscape (1344×768)",
-  "9:16": "Portrait (768×1344)",
-  "4:3": "Standard (1152×896)",
-  "3:4": "Photo (896×1152)",
-};
-
-const NANA_MODELS = [
-  { id: "fal-ai/nana-banana-2", name: "Nana Banana 2.0", credits: 5, description: "Ultra HD, fastest generation" },
-  { id: "fal-ai/nana-banana-1.5-pro", name: "Nana Banana 1.5 Pro", credits: 4, description: "Artistic, creative styles" },
+const FLUX_MODELS = [
+  { id: "flux-pro-1.1-ultra", name: "FLUX.1 Pro", credits: 5, description: "Ultra HD, fastest generation" },
+  { id: "flux/dev", name: "FLUX.1 Dev", credits: 4, description: "High quality, balanced" },
+  { id: "flux/schnell", name: "FLUX.1 Schnell", credits: 2, description: "Ultra fast, 1-2s generation" },
+  { id: "flux-realism", name: "FLUX Realism", credits: 4, description: "Photorealistic specialist" },
+  { id: "flux-lora", name: "FLUX LoRA", credits: 5, description: "Custom fine-tuned styles" },
 ];
 
-export default function NanaBananaGenerator() {
-  const [selectedModel, setSelectedModel] = useState(NANA_MODELS[0]);
+const ASPECT_RATIOS = [
+  { value: "1:1", label: "1:1 (Square)" },
+  { value: "16:9", label: "16:9 (Landscape)" },
+  { value: "9:16", label: "9:16 (Portrait)" },
+  { value: "4:3", label: "4:3 (Standard)" },
+  { value: "3:4", label: "3:4 (Portrait)" },
+];
+
+export default function FluxImageGenerator() {
+  const [selectedModel, setSelectedModel] = useState(FLUX_MODELS[0]);
   const [prompt, setPrompt] = useState("");
   const [enhancePrompt, setEnhancePrompt] = useState(false);
   const [negativePrompt, setNegativePrompt] = useState("");
   const [aspectRatio, setAspectRatio] = useState("1:1");
+  const [numImages, setNumImages] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedImage, setGeneratedImage] = useState("");
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [credits, setCredits] = useState(0);
 
   useEffect(() => {
@@ -49,19 +49,21 @@ export default function NanaBananaGenerator() {
       return;
     }
 
-    if (credits < selectedModel.credits) {
-      alert(`Not enough credits. Need ${selectedModel.credits}, have ${credits}`);
+    if (credits < selectedModel.credits * numImages) {
+      alert(`Not enough credits. Need ${selectedModel.credits * numImages}, have ${credits}`);
       return;
     }
 
     setIsGenerating(true);
     
     try {
+      // Simulate generation for now
       await new Promise(resolve => setTimeout(resolve, 3000));
       
-      setGeneratedImage("https://images.unsplash.com/photo-1518770660439-4636190af475?w=1024");
+      const mockImages = Array(numImages).fill("https://images.unsplash.com/photo-1518770660439-4636190af475?w=1024");
+      setGeneratedImages(mockImages);
       
-      const newCredits = credits - selectedModel.credits;
+      const newCredits = credits - (selectedModel.credits * numImages);
       setCredits(newCredits);
       localStorage.setItem("userCredits", newCredits.toString());
     } catch (error) {
@@ -75,8 +77,8 @@ export default function NanaBananaGenerator() {
   return (
     <>
       <SEO
-        title="Nana Banana Image Generator - Back2Life.Studio"
-        description="Generate stunning images with Nana Banana AI. Professional quality with exceptional speed."
+        title={`FLUX Image Generator - Back2Life.Studio`}
+        description="Generate stunning images with FLUX AI models. Multiple versions available."
       />
       
       <div className="min-h-screen bg-background">
@@ -84,6 +86,7 @@ export default function NanaBananaGenerator() {
         
         <div className="container mx-auto px-4 py-8 max-w-7xl">
           <div className="grid lg:grid-cols-2 gap-6">
+            {/* Left Panel - Controls */}
             <Card className="border-2">
               <CardContent className="p-6 space-y-6">
                 <Link href="/images" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
@@ -91,44 +94,46 @@ export default function NanaBananaGenerator() {
                   Back to Images
                 </Link>
 
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h1 className="font-heading font-bold text-3xl">Nana Banana</h1>
-                    <p className="text-sm text-muted-foreground mt-1">by fal.ai</p>
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h1 className="font-heading font-bold text-3xl">FLUX Image Generator</h1>
+                      <p className="text-sm text-muted-foreground mt-1">by Black Forest Labs</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm text-muted-foreground">Credits</div>
+                      <div className="text-2xl font-bold">{credits}</div>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-sm text-muted-foreground">Credits</div>
-                    <div className="text-2xl font-bold">{credits}</div>
-                  </div>
-                </div>
 
-                {/* Model Selector */}
-                <div className="space-y-2">
-                  <Label>Model</Label>
-                  <Select value={selectedModel.id} onValueChange={(value) => {
-                    const model = NANA_MODELS.find(m => m.id === value);
-                    if (model) setSelectedModel(model);
-                  }}>
-                    <SelectTrigger className="w-full">
-                      <div className="flex items-center justify-between w-full">
-                        <span>{selectedModel.name}</span>
-                        <span className="text-xs text-muted-foreground ml-2">{selectedModel.credits} credits</span>
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {NANA_MODELS.map((model) => (
-                        <SelectItem key={model.id} value={model.id}>
-                          <div className="flex items-center justify-between w-full">
-                            <div>
-                              <div className="font-medium">{model.name}</div>
-                              <div className="text-xs text-muted-foreground">{model.description}</div>
+                  {/* Model Selector */}
+                  <div className="space-y-2">
+                    <Label>Model</Label>
+                    <Select value={selectedModel.id} onValueChange={(value) => {
+                      const model = FLUX_MODELS.find(m => m.id === value);
+                      if (model) setSelectedModel(model);
+                    }}>
+                      <SelectTrigger className="w-full">
+                        <div className="flex items-center justify-between w-full">
+                          <span>{selectedModel.name}</span>
+                          <span className="text-xs text-muted-foreground ml-2">{selectedModel.credits} credits</span>
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FLUX_MODELS.map((model) => (
+                          <SelectItem key={model.id} value={model.id}>
+                            <div className="flex items-center justify-between w-full">
+                              <div>
+                                <div className="font-medium">{model.name}</div>
+                                <div className="text-xs text-muted-foreground">{model.description}</div>
+                              </div>
+                              <span className="text-xs text-amber-500 ml-4">{model.credits} credits</span>
                             </div>
-                            <span className="text-xs text-amber-500 ml-4">{model.credits} credits</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 {/* Prompt */}
@@ -191,6 +196,22 @@ export default function NanaBananaGenerator() {
                   </div>
                 </div>
 
+                {/* Number of Images */}
+                <div className="space-y-2">
+                  <Label>Number of Images: {numImages}</Label>
+                  <Slider
+                    value={[numImages]}
+                    onValueChange={(value) => setNumImages(value[0])}
+                    min={1}
+                    max={4}
+                    step={1}
+                    className="w-full"
+                  />
+                  <div className="text-xs text-muted-foreground">
+                    Total cost: {selectedModel.credits * numImages} credits
+                  </div>
+                </div>
+
                 {/* Generate Button */}
                 <Button
                   onClick={handleGenerate}
@@ -205,35 +226,40 @@ export default function NanaBananaGenerator() {
                   ) : (
                     <>
                       <Sparkles className="mr-2 h-5 w-5" />
-                      Generate ({selectedModel.credits} credits)
+                      Generate ({selectedModel.credits * numImages} credits)
                     </>
                   )}
                 </Button>
               </CardContent>
             </Card>
 
+            {/* Right Panel - Preview */}
             <Card className="border-2">
               <CardContent className="p-6">
-                <h2 className="font-heading font-bold text-xl mb-4">Generated Image</h2>
+                <h2 className="font-heading font-bold text-xl mb-4">Generated Images</h2>
                 
-                {!generatedImage ? (
+                {generatedImages.length === 0 ? (
                   <div className="aspect-square rounded-xl bg-muted/50 border-2 border-dashed flex items-center justify-center">
                     <div className="text-center text-muted-foreground">
                       <Sparkles className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                      <p>Your generated image will appear here</p>
+                      <p>Your generated images will appear here</p>
                     </div>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <img
-                      src={generatedImage}
-                      alt="Generated"
-                      className="w-full rounded-xl border-2"
-                    />
-                    <Button variant="outline" className="w-full">
-                      <Download className="mr-2 h-4 w-4" />
-                      Download Image
-                    </Button>
+                    {generatedImages.map((image, index) => (
+                      <div key={index} className="space-y-2">
+                        <img
+                          src={image}
+                          alt={`Generated ${index + 1}`}
+                          className="w-full rounded-xl border-2"
+                        />
+                        <Button variant="outline" className="w-full">
+                          <Download className="mr-2 h-4 w-4" />
+                          Download Image {index + 1}
+                        </Button>
+                      </div>
+                    ))}
                   </div>
                 )}
               </CardContent>
