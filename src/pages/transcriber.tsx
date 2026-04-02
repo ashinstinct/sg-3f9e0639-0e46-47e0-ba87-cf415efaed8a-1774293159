@@ -248,7 +248,7 @@ export default function Transcriber() {
     <>
       <SEO
         title="AI Transcriber - Convert Speech to Text | Back2Life.Studio"
-        description="Free AI transcription tool powered by OpenAI Whisper. Upload audio/video, record from mic, or transcribe YouTube videos. Supports 50+ languages."
+        description="Free AI transcription tool. Upload audio/video, record from mic, or transcribe YouTube videos. Supports 50+ languages."
       />
       <div className="min-h-screen bg-background">
         <Navigation />
@@ -443,10 +443,10 @@ export default function Transcriber() {
                   )}
 
                   <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-                    <p className="text-sm font-medium">Powered by:</p>
+                    <p className="text-sm font-medium">Features:</p>
                     <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                      <li>OpenAI Whisper (Large v3) for transcription</li>
-                      <li>cobalt.tools for YouTube audio extraction</li>
+                      <li>High-accuracy AI transcription for audio and video</li>
+                      <li>Works with uploads, mic recordings, and YouTube links</li>
                       <li>Supports 50+ languages automatically</li>
                     </ul>
                   </div>

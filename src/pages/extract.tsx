@@ -450,7 +450,7 @@ export default function FrameExtractor() {
                     <p className="text-sm font-medium">How it works:</p>
                     <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
                       <li>100% browser-based (no upload to server)</li>
-                      <li>Uses HTML5 Canvas API</li>
+                      <li>Instant, privacy-friendly processing on your device</li>
                       <li>Live video preview when using slider</li>
                       <li>Extracts high-quality PNG frames</li>
                     </ul>
