@@ -162,7 +162,7 @@ export default function ImageGenerator() {
     <>
       <SEO
         title="AI Image Generator - Back2Life.Studio"
-        description="Generate stunning images from text using FLUX.1-Schnell AI. Fast, free, and high-quality."
+        description="Generate stunning images from text with advanced AI. Fast, free, and high-quality."
       />
       <div className="min-h-screen bg-background">
         <Navigation />
@@ -180,7 +180,7 @@ export default function ImageGenerator() {
                 </Badge>
               </div>
               <p className="text-muted-foreground text-lg">
-                Generate stunning images from text using FLUX.1-Schnell AI. Fast, free, and high-quality.
+                Generate stunning images from text using advanced AI. Fast, free, and high-quality.
               </p>
             </div>
 
@@ -309,7 +309,7 @@ export default function ImageGenerator() {
                       <li>Be specific and descriptive in your prompts</li>
                       <li>Include style keywords like "photorealistic" or "artistic"</li>
                       <li>Use negative prompts to avoid unwanted elements</li>
-                      <li>FLUX.1-Schnell is optimized for speed (4 steps)</li>
+                      <li>This model is optimized for speed (4 steps)</li>
                     </ul>
                   </div>
                 </CardContent>

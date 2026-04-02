@@ -131,7 +131,7 @@ export default function StemSeparator() {
     <>
       <SEO
         title="Stem Separator - Back2Life.Studio"
-        description="Separate songs into vocals, drums, bass, and other instruments using AI-powered Spleeter technology."
+        description="Separate songs into vocals, drums, bass, and other instruments using AI-powered stem separation."
       />
       <div className="min-h-screen bg-background">
         <Navigation />
@@ -334,7 +334,7 @@ export default function StemSeparator() {
 
                     <div className="pt-4 border-t">
                       <p className="text-xs text-muted-foreground">
-                        <strong>Powered by:</strong> Deezer's Spleeter (TensorFlow)
+                        <strong>Powered by:</strong> Advanced AI stem separation
                       </p>
                     </div>
                   </CardContent>

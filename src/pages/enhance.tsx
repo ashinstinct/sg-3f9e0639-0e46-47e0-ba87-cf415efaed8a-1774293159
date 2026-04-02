@@ -132,7 +132,7 @@ export default function AudioEnhancer() {
     <>
       <SEO
         title="Audio Enhancer - Back2Life.Studio"
-        description="Remove noise and enhance audio quality using AI-powered DeepFilterNet technology."
+        description="Remove background noise and enhance audio quality using advanced AI audio processing."
       />
       <div className="min-h-screen bg-background">
         <Navigation />
@@ -360,7 +360,7 @@ export default function AudioEnhancer() {
 
                     <div className="pt-4 border-t">
                       <p className="text-xs text-muted-foreground">
-                        <strong>Powered by:</strong> DeepFilterNet (PyTorch) + FFmpeg
+                        <strong>Powered by:</strong> Advanced AI audio enhancement
                       </p>
                     </div>
                   </CardContent>
