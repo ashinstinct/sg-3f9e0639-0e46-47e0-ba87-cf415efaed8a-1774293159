@@ -94,11 +94,13 @@ export default async function handler(
     console.log("Generation complete:", result);
 
     // Extract video URL from result
+    const resultData = result as any;
     let videoUrl = "";
-    if (result.video) {
-      videoUrl = typeof result.video === "string" ? result.video : result.video.url;
-    } else if (result.data?.video) {
-      videoUrl = typeof result.data.video === "string" ? result.data.video : result.data.video.url;
+    
+    if (resultData.video) {
+      videoUrl = typeof resultData.video === "string" ? resultData.video : resultData.video.url;
+    } else if (resultData.data?.video) {
+      videoUrl = typeof resultData.data.video === "string" ? resultData.data.video : resultData.data.video.url;
     }
 
     if (!videoUrl) {
@@ -107,7 +109,7 @@ export default async function handler(
 
     return res.status(200).json({
       video_url: videoUrl,
-      duration: result.duration || duration,
+      duration: resultData.duration || duration,
       model,
     });
   } catch (error) {
