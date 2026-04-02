@@ -443,11 +443,11 @@ export default function Transcriber() {
                   )}
 
                   <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-                    <p className="text-sm font-medium">Features:</p>
+                    <p className="text-sm font-medium">Why people use this tool:</p>
                     <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                      <li>High-accuracy AI transcription for audio and video</li>
-                      <li>Works with uploads, mic recordings, and YouTube links</li>
-                      <li>Supports 50+ languages automatically</li>
+                      <li>Fast AI transcription in 50+ languages</li>
+                      <li>Works with audio/video files, mic recordings and YouTube links</li>
+                      <li>Cloud-based processing – no app install required</li>
                     </ul>
                   </div>
                 </CardContent>
