@@ -158,16 +158,9 @@ export default function ImagesPage() {
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
                           <Icon className="w-6 h-6 text-white" />
                         </div>
-                        <div className="flex gap-2">
-                          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                            {tool.credits} credits
-                          </span>
-                          {tool.status === "coming_soon" && (
-                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-muted text-muted-foreground">
-                              Soon
-                            </span>
-                          )}
-                        </div>
+                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                          {tool.credits} credits
+                        </span>
                       </div>
 
                       <h3 className="font-heading font-bold text-lg mb-2 group-hover:text-primary transition-colors">
