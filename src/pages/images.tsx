@@ -1,161 +1,52 @@
-import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { Sparkles, Download, Loader2, AlertCircle, Wand2, ImageIcon, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sparkles, Wand2, Image as ImageIcon, Zap, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { useToast } from "@/hooks/use-toast";
-import { creditsService } from "@/services/creditsService";
-import { supabase } from "@/integrations/supabase/client";
 
-type AspectRatio = "1:1" | "16:9" | "9:16" | "4:3" | "3:4";
+const IMAGE_TOOLS = [
+  {
+    id: "nana-banana",
+    name: "Nana Banana 2",
+    description: "State-of-the-art image generation powered by FLUX Pro. Create photorealistic, artistic, and creative images.",
+    icon: Wand2,
+    credits: 5,
+    route: "/tools/nana-banana",
+    features: ["Photorealistic", "8K Quality", "Fast Generation"],
+    gradient: "from-pink-500 via-purple-500 to-cyan-500",
+  },
+  {
+    id: "style-transfer",
+    name: "AI Style Transfer",
+    description: "Transform your images with artistic styles. Apply famous painting styles or custom artistic effects.",
+    icon: ImageIcon,
+    credits: 4,
+    route: "/tools/style-transfer",
+    features: ["Artistic Styles", "Custom Effects", "High Resolution"],
+    gradient: "from-blue-500 via-indigo-500 to-purple-500",
+    comingSoon: true,
+  },
+  {
+    id: "upscaler",
+    name: "AI Image Upscaler",
+    description: "Enhance image resolution up to 4K with AI. Restore details and improve quality without losing clarity.",
+    icon: Sparkles,
+    credits: 3,
+    route: "/tools/upscaler",
+    features: ["4K Enhancement", "Detail Restoration", "No Quality Loss"],
+    gradient: "from-green-500 via-emerald-500 to-teal-500",
+    comingSoon: true,
+  },
+];
 
-const ASPECT_RATIOS: Record<AspectRatio, string> = {
-  "1:1": "Square (1024×1024)",
-  "16:9": "Landscape (1344×768)",
-  "9:16": "Portrait (768×1344)",
-  "4:3": "Standard (1152×896)",
-  "3:4": "Photo (896×1152)",
-};
-
-export default function ProImageTools() {
-  const [prompt, setPrompt] = useState("");
-  const [negativePrompt, setNegativePrompt] = useState("");
-  const [aspectRatio, setAspectRatio] = useState<AspectRatio>("1:1");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedImage, setGeneratedImage] = useState("");
-  const [userCredits, setUserCredits] = useState<number | null>(null);
-  const { toast } = useToast();
-
-  const CREDITS_COST = 5;
-
-  // Check user credits on mount
-  useState(() => {
-    const checkCredits = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        const credits = await creditsService.getUserCredits(session.user.id);
-        if (credits) {
-          setUserCredits(credits.free_credits + credits.paid_credits);
-        }
-      }
-    };
-    checkCredits();
-  });
-
-  const handleGenerate = async () => {
-    if (!prompt.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Prompt required",
-        description: "Please enter a prompt to generate an image",
-      });
-      return;
-    }
-
-    // Check authentication
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      toast({
-        variant: "destructive",
-        title: "Authentication required",
-        description: "Please sign in to use pro tools",
-      });
-      return;
-    }
-
-    // Check credits
-    const hasCredits = await creditsService.hasEnoughCredits(session.user.id, CREDITS_COST);
-    if (!hasCredits) {
-      toast({
-        variant: "destructive",
-        title: "Insufficient credits",
-        description: `You need ${CREDITS_COST} credits to generate an image. Please purchase more credits.`,
-      });
-      return;
-    }
-
-    setIsGenerating(true);
-    setGeneratedImage("");
-
-    try {
-      toast({
-        title: "🎨 Generating image...",
-        description: "This may take 20-40 seconds",
-      });
-
-      const response = await fetch("/api/fal/image-generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          prompt,
-          negative_prompt: negativePrompt,
-          aspect_ratio: aspectRatio,
-          model: "fal-ai/flux-pro",
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Generation failed");
-      }
-
-      // Deduct credits
-      const success = await creditsService.deductCredits(
-        session.user.id,
-        CREDITS_COST,
-        "Nana Banana 2 Image Generation"
-      );
-
-      if (!success) {
-        throw new Error("Failed to deduct credits");
-      }
-
-      setGeneratedImage(data.image_url);
-      
-      // Update credits display
-      const updatedCredits = await creditsService.getUserCredits(session.user.id);
-      if (updatedCredits) {
-        setUserCredits(updatedCredits.free_credits + updatedCredits.paid_credits);
-      }
-
-      toast({
-        title: "✅ Image generated!",
-        description: `${CREDITS_COST} credits used. ${userCredits ? userCredits - CREDITS_COST : 0} remaining.`,
-      });
-    } catch (error) {
-      console.error("Generation error:", error);
-      toast({
-        variant: "destructive",
-        title: "Generation failed",
-        description: error instanceof Error ? error.message : "Please try again",
-      });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const downloadImage = () => {
-    if (!generatedImage) return;
-    const link = document.createElement("a");
-    link.href = generatedImage;
-    link.download = `back2life-pro-${Date.now()}.png`;
-    link.click();
-  };
-
+export default function ImagesHub() {
   return (
     <>
       <SEO
-        title="Pro Image Generation - Back2Life.Studio"
-        description="Generate stunning images with advanced AI models including Nana Banana 2"
+        title="AI Image Generation Tools - Back2Life.Studio"
+        description="Professional AI image generation tools powered by the latest models"
       />
       <div className="min-h-screen bg-background">
         <Navigation />
@@ -165,169 +56,85 @@ export default function ProImageTools() {
           <div className="max-w-4xl mx-auto text-center mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-pink-500/20 mb-4">
               <Sparkles className="w-4 h-4 text-pink-500" />
-              <span className="text-sm font-medium">Professional Image Generation</span>
+              <span className="text-sm font-medium">Professional Image Tools</span>
             </div>
             
             <h1 className="font-heading font-bold text-5xl mb-4 bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-              Nana Banana 2
+              AI Image Generation
             </h1>
             
-            <p className="text-xl text-muted-foreground mb-6">
-              State-of-the-art image generation powered by FLUX Pro
+            <p className="text-xl text-muted-foreground">
+              Create stunning images with state-of-the-art AI models
             </p>
-
-            {userCredits !== null && (
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50">
-                <Sparkles className="w-4 h-4 text-amber-500" />
-                <span className="text-sm font-medium">{userCredits} credits available</span>
-              </div>
-            )}
           </div>
 
-          {/* Generation Interface */}
-          <div className="max-w-5xl mx-auto grid lg:grid-cols-2 gap-6">
-            {/* Input Panel */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Generation Settings</CardTitle>
-                <CardDescription>
-                  Create professional-quality images with AI
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Prompt */}
-                <div className="space-y-2">
-                  <Label>Image Prompt</Label>
-                  <Textarea
-                    placeholder="A serene mountain landscape at sunset, photorealistic, 8K quality..."
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    className="min-h-[120px] resize-none"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    {prompt.length} characters
-                  </p>
-                </div>
+          {/* Tools Grid */}
+          <div className="max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {IMAGE_TOOLS.map((tool) => {
+              const Icon = tool.icon;
+              return (
+                <Card key={tool.id} className="group relative overflow-hidden hover:shadow-lg hover:shadow-primary/10 transition-all">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${tool.gradient} opacity-0 group-hover:opacity-5 transition-opacity`} />
+                  
+                  <CardContent className="p-6 relative">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${tool.gradient} flex items-center justify-center`}>
+                        <Icon className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex gap-2">
+                        <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                          Pro
+                        </Badge>
+                        {tool.comingSoon && (
+                          <Badge variant="secondary">Coming Soon</Badge>
+                        )}
+                      </div>
+                    </div>
 
-                {/* Negative Prompt */}
-                <div className="space-y-2">
-                  <Label>Negative Prompt (Optional)</Label>
-                  <Textarea
-                    placeholder="blurry, low quality, distorted..."
-                    value={negativePrompt}
-                    onChange={(e) => setNegativePrompt(e.target.value)}
-                    className="min-h-[80px] resize-none"
-                  />
-                </div>
+                    <h3 className="font-heading font-bold text-xl mb-2">
+                      {tool.name}
+                    </h3>
 
-                {/* Aspect Ratio */}
-                <div className="space-y-2">
-                  <Label>Aspect Ratio</Label>
-                  <Select
-                    value={aspectRatio}
-                    onValueChange={(value) => setAspectRatio(value as AspectRatio)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(ASPECT_RATIOS).map(([key, label]) => (
-                        <SelectItem key={key} value={key}>
-                          {label}
-                        </SelectItem>
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                      {tool.description}
+                    </p>
+
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {tool.features.map((feature) => (
+                        <span key={feature} className="px-2 py-1 rounded-md text-xs bg-muted text-muted-foreground">
+                          {feature}
+                        </span>
                       ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Generate Button */}
-                <Button
-                  onClick={handleGenerate}
-                  disabled={isGenerating || !prompt.trim()}
-                  size="lg"
-                  className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 hover:opacity-90 h-14 text-lg"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Wand2 className="w-5 h-5 mr-2" />
-                      Generate Image ({CREDITS_COST} credits)
-                    </>
-                  )}
-                </Button>
-
-                {/* Tips */}
-                <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-                  <p className="text-sm font-medium">Pro Tips:</p>
-                  <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                    <li>Be specific with styles and details</li>
-                    <li>Include quality keywords like "8K" or "professional"</li>
-                    <li>Use negative prompts to avoid unwanted elements</li>
-                    <li>FLUX Pro delivers photorealistic results</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Preview Panel */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Generated Image</CardTitle>
-                <CardDescription>
-                  Your professional AI artwork
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {!generatedImage && !isGenerating && (
-                  <div className="aspect-square bg-muted/50 rounded-lg flex items-center justify-center">
-                    <div className="text-center text-muted-foreground">
-                      <ImageIcon className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                      <p className="text-sm">No image generated yet</p>
-                      <p className="text-xs mt-1">Enter a prompt and click generate</p>
                     </div>
-                  </div>
-                )}
 
-                {isGenerating && (
-                  <div className="aspect-square bg-muted/50 rounded-lg flex items-center justify-center">
-                    <div className="text-center">
-                      <Loader2 className="w-12 h-12 mx-auto mb-3 animate-spin text-primary" />
-                      <p className="text-sm font-medium">Generating your image...</p>
-                      <p className="text-xs text-muted-foreground mt-1">This may take 20-40 seconds</p>
+                    <div className="flex items-center justify-between pt-4 border-t">
+                      <div className="flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-amber-500" />
+                        <span className="text-sm font-semibold">{tool.credits} credits</span>
+                      </div>
+                      <Link href={tool.route}>
+                        <Button 
+                          disabled={tool.comingSoon}
+                          size="sm" 
+                          className={`bg-gradient-to-r ${tool.gradient} hover:opacity-90`}
+                        >
+                          {tool.comingSoon ? "Coming Soon" : (
+                            <>
+                              Try Now
+                              <ArrowRight className="ml-2 w-4 h-4" />
+                            </>
+                          )}
+                        </Button>
+                      </Link>
                     </div>
-                  </div>
-                )}
-
-                {generatedImage && (
-                  <div className="space-y-4">
-                    <div className="relative rounded-lg overflow-hidden border">
-                      <img
-                        src={generatedImage}
-                        alt="Generated"
-                        className="w-full h-auto"
-                      />
-                    </div>
-                    
-                    <Button
-                      onClick={downloadImage}
-                      size="lg"
-                      className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 hover:opacity-90"
-                    >
-                      <Download className="w-5 h-5 mr-2" />
-                      Download Image
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
 
           {/* Free Alternative */}
-          <div className="max-w-5xl mx-auto mt-12">
+          <div className="max-w-6xl mx-auto mt-12">
             <Card className="bg-muted/30">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
