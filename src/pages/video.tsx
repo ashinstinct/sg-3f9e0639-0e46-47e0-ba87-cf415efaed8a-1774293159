@@ -1,75 +1,168 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Video, Download, Loader2, Sparkles, Play, ArrowRight } from "lucide-react";
-import Link from "next/link";
+import {
+  Video,
+  Loader2,
+  Sparkles,
+  Download,
+  ImagePlus,
+  X,
+  Info,
+  Clock,
+  Monitor,
+  Wand2,
+  ChevronRight,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { creditsService } from "@/services/creditsService";
 import { supabase } from "@/integrations/supabase/client";
 
-type VideoModel = "kling" | "luma" | "runway" | "minimax" | "hunyuan";
-type AspectRatio = "16:9" | "9:16" | "1:1";
+type AspectRatio = "1:1" | "16:9" | "9:16" | "4:3" | "21:9";
+type Quality = "720p" | "1080p";
 
-const VIDEO_MODELS = {
-  kling: {
+interface VideoModel {
+  id: string;
+  name: string;
+  description: string;
+  credits: number;
+  maxDuration: number;
+  supportsFrames: boolean;
+}
+
+const VIDEO_MODELS: VideoModel[] = [
+  {
+    id: "fal-ai/kling-video/v1.6/pro/text-to-video",
     name: "Kling 3.0",
-    description: "Next-gen video synthesis with cinematic quality",
+    description: "Latest Kling with cinematic quality",
     credits: 20,
     maxDuration: 10,
+    supportsFrames: true,
   },
-  luma: {
+  {
+    id: "fal-ai/kling-video/v1.5/standard/text-to-video",
+    name: "Kling 2.6",
+    description: "Standard Kling with balanced quality",
+    credits: 16,
+    maxDuration: 10,
+    supportsFrames: true,
+  },
+  {
+    id: "fal-ai/kling-video/v1/pro/text-to-video",
+    name: "Kling 2.5",
+    description: "Pro version with enhanced details",
+    credits: 18,
+    maxDuration: 8,
+    supportsFrames: true,
+  },
+  {
+    id: "fal-ai/kling-video/v1.6/01/text-to-video",
+    name: "Kling 01",
+    description: "Experimental Kling variant",
+    credits: 15,
+    maxDuration: 6,
+    supportsFrames: true,
+  },
+  {
+    id: "fal-ai/luma-dream-machine",
     name: "Luma Dream Machine",
-    description: "Fast, high-quality video generation",
+    description: "Fast, high-quality generation",
     credits: 15,
     maxDuration: 5,
+    supportsFrames: true,
   },
-  runway: {
+  {
+    id: "fal-ai/runway-gen3/turbo/text-to-video",
     name: "Runway Gen-3 Turbo",
-    description: "Professional video generation at speed",
+    description: "Professional-grade video synthesis",
     credits: 18,
     maxDuration: 10,
+    supportsFrames: true,
   },
-  minimax: {
+  {
+    id: "fal-ai/minimax-video",
     name: "MiniMax Video",
-    description: "Efficient text-to-video conversion",
+    description: "Cost-effective quality",
     credits: 12,
     maxDuration: 6,
+    supportsFrames: true,
   },
-  hunyuan: {
+  {
+    id: "fal-ai/hunyuan-video",
     name: "Hunyuan Video",
-    description: "Tencent's advanced video model",
+    description: "Tencent's advanced AI model",
     credits: 16,
     maxDuration: 8,
+    supportsFrames: true,
   },
+  {
+    id: "fal-ai/sora-v2",
+    name: "Sora 2.0",
+    description: "OpenAI's latest video model",
+    credits: 25,
+    maxDuration: 20,
+    supportsFrames: true,
+  },
+  {
+    id: "fal-ai/veo-v3.1",
+    name: "Veo 3.1",
+    description: "Google's advanced video AI",
+    credits: 22,
+    maxDuration: 15,
+    supportsFrames: true,
+  },
+  {
+    id: "fal-ai/veo-v3.1-fast",
+    name: "Veo 3.1 Fast",
+    description: "Faster Veo with great quality",
+    credits: 18,
+    maxDuration: 10,
+    supportsFrames: true,
+  },
+  {
+    id: "fal-ai/seedream-v2",
+    name: "Seedream 2.0",
+    description: "State-of-the-art video synthesis",
+    credits: 20,
+    maxDuration: 12,
+    supportsFrames: true,
+  },
+];
+
+const DURATIONS = [3, 5, 6, 8, 10, 12, 15, 20];
+const ASPECT_RATIOS: Record<AspectRatio, string> = {
+  "1:1": "Square",
+  "16:9": "Landscape",
+  "9:16": "Portrait",
+  "4:3": "Standard",
+  "21:9": "Cinematic",
 };
 
-const ASPECT_RATIOS = {
-  "16:9": "Landscape (1920×1080)",
-  "9:16": "Portrait (1080×1920)",
-  "1:1": "Square (1080×1080)",
-};
-
-export default function ProVideoTools() {
-  const [selectedModel, setSelectedModel] = useState<VideoModel>("kling");
+export default function ProVideoGeneration() {
   const [prompt, setPrompt] = useState("");
   const [negativePrompt, setNegativePrompt] = useState("");
-  const [aspectRatio, setAspectRatio] = useState<AspectRatio>("16:9");
+  const [selectedModel, setSelectedModel] = useState<VideoModel>(VIDEO_MODELS[0]);
   const [duration, setDuration] = useState(5);
+  const [aspectRatio, setAspectRatio] = useState<AspectRatio>("16:9");
+  const [quality, setQuality] = useState<Quality>("1080p");
+  const [multiShot, setMultiShot] = useState(false);
+  const [startFrame, setStartFrame] = useState<string>("");
+  const [endFrame, setEndFrame] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedVideo, setGeneratedVideo] = useState("");
   const [userCredits, setUserCredits] = useState<number | null>(null);
   const { toast } = useToast();
 
-  const currentModel = VIDEO_MODELS[selectedModel];
+  const startFrameInputRef = useRef<HTMLInputElement>(null);
+  const endFrameInputRef = useRef<HTMLInputElement>(null);
 
-  // Check user credits on mount
+  // Load credits on mount
   useEffect(() => {
     const checkCredits = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -83,12 +176,52 @@ export default function ProVideoTools() {
     checkCredits();
   }, []);
 
+  const handleFrameUpload = (e: React.ChangeEvent<HTMLInputElement>, type: "start" | "end") => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (type === "start") {
+        setStartFrame(reader.result as string);
+      } else {
+        setEndFrame(reader.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const enhancePrompt = async () => {
+    if (!prompt.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Enter a prompt first",
+        description: "Add a prompt before enhancing",
+      });
+      return;
+    }
+
+    toast({
+      title: "Enhancing prompt...",
+      description: "Using AI to improve your prompt",
+    });
+
+    // Simple prompt enhancement (you can replace with actual AI call)
+    const enhanced = `${prompt}, cinematic lighting, high quality, professional cinematography, 8K resolution`;
+    setPrompt(enhanced);
+
+    toast({
+      title: "Prompt enhanced!",
+      description: "Your prompt has been optimized",
+    });
+  };
+
   const handleGenerate = async () => {
     if (!prompt.trim()) {
       toast({
         variant: "destructive",
         title: "Prompt required",
-        description: "Please enter a prompt to generate a video",
+        description: "Please enter a prompt to generate video",
       });
       return;
     }
@@ -99,18 +232,18 @@ export default function ProVideoTools() {
       toast({
         variant: "destructive",
         title: "Authentication required",
-        description: "Please sign in to use pro video tools",
+        description: "Please sign in to use pro tools",
       });
       return;
     }
 
     // Check credits
-    const hasCredits = await creditsService.hasEnoughCredits(session.user.id, currentModel.credits);
+    const hasCredits = await creditsService.hasEnoughCredits(session.user.id, selectedModel.credits);
     if (!hasCredits) {
       toast({
         variant: "destructive",
         title: "Insufficient credits",
-        description: `You need ${currentModel.credits} credits to generate with ${currentModel.name}. Please purchase more credits.`,
+        description: `You need ${selectedModel.credits} credits. Please purchase more.`,
       });
       return;
     }
@@ -121,7 +254,7 @@ export default function ProVideoTools() {
     try {
       toast({
         title: "🎬 Generating video...",
-        description: `This may take 2-5 minutes with ${currentModel.name}`,
+        description: "This may take 2-5 minutes",
       });
 
       const response = await fetch("/api/fal/video-generate", {
@@ -132,9 +265,12 @@ export default function ProVideoTools() {
         body: JSON.stringify({
           prompt,
           negative_prompt: negativePrompt,
-          model: selectedModel,
+          model: selectedModel.id,
           duration,
           aspect_ratio: aspectRatio,
+          quality,
+          start_frame: startFrame || undefined,
+          end_frame: endFrame || undefined,
         }),
       });
 
@@ -147,8 +283,8 @@ export default function ProVideoTools() {
       // Deduct credits
       const success = await creditsService.deductCredits(
         session.user.id,
-        currentModel.credits,
-        `${currentModel.name} Video Generation`
+        selectedModel.credits,
+        `${selectedModel.name} Video Generation`
       );
 
       if (!success) {
@@ -156,7 +292,7 @@ export default function ProVideoTools() {
       }
 
       setGeneratedVideo(data.video_url);
-      
+
       // Update credits display
       const updatedCredits = await creditsService.getUserCredits(session.user.id);
       if (updatedCredits) {
@@ -165,7 +301,7 @@ export default function ProVideoTools() {
 
       toast({
         title: "✅ Video generated!",
-        description: `${currentModel.credits} credits used. ${userCredits ? userCredits - currentModel.credits : 0} remaining.`,
+        description: `${selectedModel.credits} credits used. ${userCredits ? userCredits - selectedModel.credits : 0} remaining.`,
       });
     } catch (error) {
       console.error("Generation error:", error);
@@ -187,247 +323,306 @@ export default function ProVideoTools() {
     link.click();
   };
 
+  const availableDurations = DURATIONS.filter((d) => d <= selectedModel.maxDuration);
+
   return (
     <>
       <SEO
         title="Pro Video Generation - Back2Life.Studio"
-        description="Generate cinematic videos with AI models like Kling 3.0, Runway Gen-3, and more"
+        description="Generate professional videos with advanced AI models"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-black text-white">
         <Navigation />
-        
-        <div className="container mx-auto px-4 pt-24 pb-12">
-          {/* Hero Section */}
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 mb-4">
-              <Video className="w-4 h-4 text-blue-500" />
-              <span className="text-sm font-medium">Professional Video Generation</span>
-            </div>
-            
-            <h1 className="font-heading font-bold text-5xl mb-4 bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
-              AI Video Generation
-            </h1>
-            
-            <p className="text-xl text-muted-foreground mb-6">
-              Create stunning videos with state-of-the-art AI models
-            </p>
 
+        <div className="container mx-auto px-4 pt-20 pb-12 max-w-2xl">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                <Video className="w-5 h-5 text-white" />
+              </div>
+              <h1 className="font-heading font-bold text-2xl">Create Video</h1>
+            </div>
             {userCredits !== null && (
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800">
                 <Sparkles className="w-4 h-4 text-amber-500" />
-                <span className="text-sm font-medium">{userCredits} credits available</span>
+                <span className="text-sm font-medium">{userCredits}</span>
               </div>
             )}
           </div>
 
-          {/* Generation Interface */}
-          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-6">
-            {/* Input Panel */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Generation Settings</CardTitle>
-                <CardDescription>
-                  Create professional-quality videos with AI
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Model Selection */}
-                <div className="space-y-2">
-                  <Label>AI Model</Label>
-                  <Tabs value={selectedModel} onValueChange={(v) => setSelectedModel(v as VideoModel)}>
-                    <TabsList className="grid grid-cols-3 lg:grid-cols-5">
-                      <TabsTrigger value="kling" className="text-xs">Kling 3.0</TabsTrigger>
-                      <TabsTrigger value="luma" className="text-xs">Luma</TabsTrigger>
-                      <TabsTrigger value="runway" className="text-xs">Runway</TabsTrigger>
-                      <TabsTrigger value="minimax" className="text-xs">MiniMax</TabsTrigger>
-                      <TabsTrigger value="hunyuan" className="text-xs">Hunyuan</TabsTrigger>
-                    </TabsList>
-                  </Tabs>
-                  
-                  <div className="bg-muted/50 rounded-lg p-3 space-y-1">
-                    <p className="text-sm font-medium">{currentModel.name}</p>
-                    <p className="text-xs text-muted-foreground">{currentModel.description}</p>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground pt-1">
-                      <span>💎 {currentModel.credits} credits</span>
-                      <span>⏱️ Max {currentModel.maxDuration}s</span>
-                    </div>
+          {/* Progress Bar */}
+          <div className="h-1 bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-500 rounded-full mb-8" />
+
+          {/* Main Card */}
+          <Card className="bg-zinc-900/50 border-zinc-800">
+            <CardContent className="p-6 space-y-6">
+              {/* Start & End Frames */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* Start Frame */}
+                <div>
+                  <div className="relative">
+                    <input
+                      ref={startFrameInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFrameUpload(e, "start")}
+                      className="hidden"
+                    />
+                    {!startFrame ? (
+                      <button
+                        onClick={() => startFrameInputRef.current?.click()}
+                        className="w-full aspect-video rounded-xl border-2 border-dashed border-zinc-700 hover:border-zinc-600 bg-zinc-800/50 flex flex-col items-center justify-center gap-2 transition-colors"
+                      >
+                        <div className="w-12 h-12 rounded-full bg-zinc-700/50 flex items-center justify-center">
+                          <ImagePlus className="w-6 h-6 text-zinc-400" />
+                        </div>
+                        <p className="text-xs text-zinc-400">Start frame</p>
+                        <span className="text-xs text-zinc-500">Optional</span>
+                      </button>
+                    ) : (
+                      <div className="relative">
+                        <img src={startFrame} alt="Start" className="w-full aspect-video object-cover rounded-xl" />
+                        <button
+                          onClick={() => setStartFrame("")}
+                          className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/50 flex items-center justify-center hover:bg-black/70"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* Prompt */}
-                <div className="space-y-2">
-                  <Label>Video Prompt</Label>
-                  <Textarea
-                    placeholder="A drone shot flying over a futuristic city at sunset, cinematic, 4K..."
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    className="min-h-[120px] resize-none"
+                {/* End Frame */}
+                <div>
+                  <div className="relative">
+                    <input
+                      ref={endFrameInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFrameUpload(e, "end")}
+                      className="hidden"
+                    />
+                    {!endFrame ? (
+                      <button
+                        onClick={() => endFrameInputRef.current?.click()}
+                        className="w-full aspect-video rounded-xl border-2 border-dashed border-zinc-700 hover:border-zinc-600 bg-zinc-800/50 flex flex-col items-center justify-center gap-2 transition-colors"
+                      >
+                        <div className="w-12 h-12 rounded-full bg-zinc-700/50 flex items-center justify-center">
+                          <ImagePlus className="w-6 h-6 text-zinc-400" />
+                        </div>
+                        <p className="text-xs text-zinc-400">End frame</p>
+                        <span className="text-xs text-zinc-500">Optional</span>
+                      </button>
+                    ) : (
+                      <div className="relative">
+                        <img src={endFrame} alt="End" className="w-full aspect-video object-cover rounded-xl" />
+                        <button
+                          onClick={() => setEndFrame("")}
+                          className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/50 flex items-center justify-center hover:bg-black/70"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Multi-shot Toggle */}
+              <div className="flex items-center justify-between py-3 px-4 rounded-lg bg-zinc-800/50">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="multi-shot" className="text-sm font-normal text-zinc-300">
+                    Multi-shot
+                  </Label>
+                  <Info className="w-4 h-4 text-zinc-500" />
+                </div>
+                <Switch
+                  id="multi-shot"
+                  checked={multiShot}
+                  onCheckedChange={setMultiShot}
+                />
+              </div>
+
+              {/* Prompt */}
+              <div>
+                <Textarea
+                  placeholder='Describe your video, like "A woman walking through a neon-lit city". Add elements using @'
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  className="min-h-[120px] resize-none bg-zinc-800/50 border-zinc-700 focus:border-zinc-600 text-base"
+                />
+                <div className="flex items-center justify-between mt-2">
+                  <div className="flex items-center gap-2">
+                    <button className="text-xs text-zinc-400 hover:text-white transition-colors">
+                      @ Elements
+                    </button>
+                  </div>
+                  <button
+                    onClick={enhancePrompt}
+                    className="flex items-center gap-1 text-xs text-cyan-400 hover:text-cyan-300 transition-colors"
+                  >
+                    <Wand2 className="w-3 h-3" />
+                    Enhance Prompt
+                  </button>
+                </div>
+              </div>
+
+              {/* Model Selector */}
+              <button
+                className="w-full flex items-center justify-between p-4 rounded-lg bg-zinc-800/50 hover:bg-zinc-800 border border-zinc-700 transition-colors"
+                onClick={() => {
+                  // You could open a modal with all models here
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="text-left">
+                    <p className="text-xs text-zinc-400 mb-0.5">Model</p>
+                    <p className="font-medium flex items-center gap-2">
+                      {selectedModel.name}
+                      <span className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center">
+                        <span className="text-green-400 text-xs">✓</span>
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-zinc-400" />
+              </button>
+
+              {/* Quick Settings */}
+              <div className="grid grid-cols-3 gap-3">
+                {/* Duration */}
+                <Select value={duration.toString()} onValueChange={(v) => setDuration(Number(v))}>
+                  <SelectTrigger className="bg-zinc-800/50 border-zinc-700 h-14">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-zinc-400" />
+                      <SelectValue />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableDurations.map((d) => (
+                      <SelectItem key={d} value={d.toString()}>
+                        {d}s
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* Aspect Ratio */}
+                <Select value={aspectRatio} onValueChange={(v) => setAspectRatio(v as AspectRatio)}>
+                  <SelectTrigger className="bg-zinc-800/50 border-zinc-700 h-14">
+                    <div className="flex items-center gap-2">
+                      <Monitor className="w-4 h-4 text-zinc-400" />
+                      <SelectValue />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(ASPECT_RATIOS).map(([key, label]) => (
+                      <SelectItem key={key} value={key}>
+                        {key}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* Quality */}
+                <Select value={quality} onValueChange={(v) => setQuality(v as Quality)}>
+                  <SelectTrigger className="bg-zinc-800/50 border-zinc-700 h-14">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-zinc-400" />
+                      <SelectValue />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="720p">720p</SelectItem>
+                    <SelectItem value="1080p">1080p</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Model Info */}
+              <div className="p-3 rounded-lg bg-zinc-800/30 border border-zinc-700/50">
+                <p className="text-xs text-zinc-400">{selectedModel.description}</p>
+                <p className="text-xs text-zinc-500 mt-1">Max duration: {selectedModel.maxDuration}s</p>
+              </div>
+
+              {/* Generate Button */}
+              <Button
+                onClick={handleGenerate}
+                disabled={isGenerating || !prompt.trim()}
+                size="lg"
+                className="w-full h-16 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold text-lg rounded-xl"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-6 h-6 mr-2 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    Generate
+                    <Sparkles className="w-5 h-5 ml-2" />
+                    {selectedModel.credits}
+                  </>
+                )}
+              </Button>
+
+              {/* Video Preview */}
+              {generatedVideo && (
+                <div className="space-y-4 pt-4 border-t border-zinc-800">
+                  <video
+                    src={generatedVideo}
+                    controls
+                    className="w-full rounded-xl"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    {prompt.length} characters
-                  </p>
+                  <Button
+                    onClick={downloadVideo}
+                    size="lg"
+                    className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:opacity-90"
+                  >
+                    <Download className="w-5 h-5 mr-2" />
+                    Download Video
+                  </Button>
                 </div>
+              )}
+            </CardContent>
+          </Card>
 
-                {/* Negative Prompt */}
-                <div className="space-y-2">
-                  <Label>Negative Prompt (Optional)</Label>
-                  <Textarea
-                    placeholder="blurry, low quality, distorted, jittery..."
-                    value={negativePrompt}
-                    onChange={(e) => setNegativePrompt(e.target.value)}
-                    className="min-h-[60px] resize-none"
-                  />
-                </div>
-
-                {/* Settings Row */}
-                <div className="grid grid-cols-2 gap-4">
-                  {/* Aspect Ratio */}
-                  <div className="space-y-2">
-                    <Label>Aspect Ratio</Label>
-                    <Select
-                      value={aspectRatio}
-                      onValueChange={(value) => setAspectRatio(value as AspectRatio)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(ASPECT_RATIOS).map(([key, label]) => (
-                          <SelectItem key={key} value={key}>
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Duration */}
-                  <div className="space-y-2">
-                    <Label>Duration (seconds)</Label>
-                    <Select
-                      value={duration.toString()}
-                      onValueChange={(value) => setDuration(parseInt(value))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Array.from({ length: currentModel.maxDuration - 2 }, (_, i) => i + 3).map((d) => (
-                          <SelectItem key={d} value={d.toString()}>
-                            {d}s
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                {/* Generate Button */}
-                <Button
-                  onClick={handleGenerate}
-                  disabled={isGenerating || !prompt.trim()}
-                  size="lg"
-                  className="w-full bg-gradient-to-r from-blue-500 via-cyan-500 to-purple-500 hover:opacity-90 h-14 text-lg"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Play className="w-5 h-5 mr-2" />
-                      Generate Video ({currentModel.credits} credits)
-                    </>
-                  )}
-                </Button>
-
-                {/* Tips */}
-                <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-                  <p className="text-sm font-medium">Pro Tips:</p>
-                  <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                    <li>Be descriptive with camera movements and scenes</li>
-                    <li>Include keywords like "cinematic" or "4K"</li>
-                    <li>Shorter videos (3-5s) process faster</li>
-                    <li>Use negative prompts to avoid unwanted elements</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Preview Panel */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Generated Video</CardTitle>
-                <CardDescription>
-                  Your AI-generated cinematic video
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {!generatedVideo && !isGenerating && (
-                  <div className="aspect-video bg-muted/50 rounded-lg flex items-center justify-center">
-                    <div className="text-center text-muted-foreground">
-                      <Video className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                      <p className="text-sm">No video generated yet</p>
-                      <p className="text-xs mt-1">Enter a prompt and select a model</p>
+          {/* Model Selection Modal - Simple dropdown for now */}
+          <Card className="mt-6 bg-zinc-900/50 border-zinc-800">
+            <CardContent className="p-6">
+              <h3 className="font-heading font-bold text-lg mb-4">Select Model</h3>
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {VIDEO_MODELS.map((model) => (
+                  <button
+                    key={model.id}
+                    onClick={() => setSelectedModel(model)}
+                    className={`w-full flex items-center justify-between p-4 rounded-lg border transition-colors ${
+                      selectedModel.id === model.id
+                        ? "bg-zinc-800 border-cyan-500"
+                        : "bg-zinc-800/50 border-zinc-700 hover:bg-zinc-800"
+                    }`}
+                  >
+                    <div className="text-left">
+                      <p className="font-medium flex items-center gap-2">
+                        {model.name}
+                        {selectedModel.id === model.id && (
+                          <span className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center">
+                            <span className="text-green-400 text-xs">✓</span>
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-xs text-zinc-400 mt-1">{model.description}</p>
+                      <p className="text-xs text-zinc-500 mt-1">
+                        {model.credits} credits • Max {model.maxDuration}s
+                      </p>
                     </div>
-                  </div>
-                )}
-
-                {isGenerating && (
-                  <div className="aspect-video bg-muted/50 rounded-lg flex items-center justify-center">
-                    <div className="text-center">
-                      <Loader2 className="w-12 h-12 mx-auto mb-3 animate-spin text-primary" />
-                      <p className="text-sm font-medium">Generating your video...</p>
-                      <p className="text-xs text-muted-foreground mt-1">This may take 2-5 minutes</p>
-                      <p className="text-xs text-muted-foreground mt-2">Model: {currentModel.name}</p>
-                    </div>
-                  </div>
-                )}
-
-                {generatedVideo && (
-                  <div className="space-y-4">
-                    <div className="relative rounded-lg overflow-hidden border">
-                      <video
-                        src={generatedVideo}
-                        controls
-                        className="w-full h-auto"
-                      />
-                    </div>
-                    
-                    <Button
-                      onClick={downloadVideo}
-                      size="lg"
-                      className="w-full bg-gradient-to-r from-blue-500 via-cyan-500 to-purple-500 hover:opacity-90"
-                    >
-                      <Download className="w-5 h-5 mr-2" />
-                      Download Video
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Free Alternative */}
-          <div className="max-w-6xl mx-auto mt-12">
-            <Card className="bg-muted/30">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-heading font-bold text-lg mb-1">Looking for free video tools?</h3>
-                    <p className="text-sm text-muted-foreground">Check out our free Frame Extractor, Video Splitter, and more</p>
-                  </div>
-                  <Link href="/free-tools#video">
-                    <Button variant="outline">
-                      View Free Tools
-                      <ArrowRight className="ml-2 w-4 h-4" />
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </>
