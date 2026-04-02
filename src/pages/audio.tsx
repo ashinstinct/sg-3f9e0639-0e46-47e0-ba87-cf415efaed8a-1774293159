@@ -694,34 +694,56 @@ export default function ProAudioTools() {
             <h2 className="font-heading font-bold text-2xl text-center mb-8">More Pro Audio Tools</h2>
             
             <div className="grid md:grid-cols-2 gap-6">
-              {/* lalal.ai Stem Separator */}
-              <Card className="bg-gradient-to-br from-background to-muted/30 border-2 border-primary/20">
-                <CardHeader>
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
-                      <Music className="w-6 h-6 text-white" />
+              {/* lalal.ai Pro Stem Separator - Simple Preview Card */}
+              <div className="group relative bg-gradient-to-br from-background to-muted/30 rounded-2xl p-6 border hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/10">
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-cyan-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                
+                <div className="relative">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                      <Music className="w-7 h-7 text-white" />
                     </div>
-                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                      Coming Soon
+                    <div className="flex gap-2">
+                      <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                        Pro
+                      </span>
+                    </div>
+                  </div>
+
+                  <h3 className="font-heading font-bold text-xl mb-2">
+                    Pro Stem Separator by lalal.ai
+                  </h3>
+                  
+                  <p className="text-sm text-muted-foreground mb-4">
+                    World's #1 AI-powered stem extraction technology. Split any song into 10 individual stems with surgical precision using the No.01 Sound AI algorithm.
+                  </p>
+
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <span className="px-2 py-1 rounded-md text-xs bg-primary/10 text-primary font-medium">
+                      10-Stem Separation
+                    </span>
+                    <span className="px-2 py-1 rounded-md text-xs bg-muted text-muted-foreground">
+                      Lossless Quality
+                    </span>
+                    <span className="px-2 py-1 rounded-md text-xs bg-muted text-muted-foreground">
+                      2-3 min processing
                     </span>
                   </div>
-                  <CardTitle>Pro Stem Separator by lalal.ai</CardTitle>
-                  <CardDescription>
-                    World's #1 AI-powered 10-stem separation
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
+
+                  <div className="flex items-center justify-between pt-4 border-t">
                     <div className="flex items-center gap-2">
                       <Zap className="w-4 h-4 text-amber-500" />
                       <span className="font-semibold text-sm">8 credits per track</span>
                     </div>
-                    <Button disabled variant="outline" size="sm">
-                      Coming Soon
-                    </Button>
+                    <Link href="/stem-separator">
+                      <Button size="sm" className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-90">
+                        Try Now
+                        <ArrowRight className="ml-2 w-4 h-4" />
+                      </Button>
+                    </Link>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
               {/* Adobe Podcast Enhancer */}
               <Card className="bg-gradient-to-br from-background to-muted/30 border-2 border-primary/20">
