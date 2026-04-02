@@ -2,8 +2,9 @@ import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Music, Sparkles, Mic, Waves } from "lucide-react";
+import { Music, Sparkles, Mic, Waves, Zap } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function AudioPage() {
   const proAudioTools = [
@@ -23,15 +24,6 @@ export default function AudioPage() {
       href: "/clone",
       credits: 5,
       color: "from-cyan-500 to-blue-500",
-      comingSoon: true,
-    },
-    {
-      title: "lalal.ai Stem Separator",
-      description: "Industry-leading stem separation with pristine audio quality",
-      icon: Music,
-      href: "/stems?mode=pro",
-      credits: 8,
-      color: "from-pink-500 to-rose-500",
       comingSoon: true,
     },
     {
@@ -104,6 +96,133 @@ export default function AudioPage() {
                   </Card>
                 </Link>
               ))}
+            </div>
+
+            {/* lalal.ai Pro Stem Separator - Enhanced with 10-stem feature */}
+            <div className="group relative bg-gradient-to-br from-background to-muted/30 rounded-2xl p-6 border hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/10">
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-cyan-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+              
+              <div className="relative">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                    <Music className="w-7 h-7 text-white" />
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                      Pro
+                    </span>
+                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-muted text-muted-foreground">
+                      Coming Soon
+                    </span>
+                  </div>
+                </div>
+
+                <h3 className="font-heading font-bold text-xl mb-2">
+                  Pro Stem Separator by lalal.ai
+                </h3>
+                
+                <p className="text-sm text-muted-foreground mb-2">
+                  World's #1 AI-powered stem extraction technology
+                </p>
+
+                <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+                  Professional-grade stem separation powered by lalal.ai's <strong>No.01 Sound artificial intelligence algorithm</strong> — the most advanced audio separation technology trusted by industry professionals worldwide. Extract crystal-clear stems from any audio or video with zero quality loss.
+                </p>
+
+                <div className="mb-4 p-4 bg-primary/5 rounded-lg border border-primary/10">
+                  <h4 className="font-semibold text-sm mb-2 text-primary">Special Feature: 10-Stem Separation</h4>
+                  <p className="text-xs text-muted-foreground mb-3">Split any song into up to 10 individual stems with surgical precision:</p>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      <span>Vocals (main & backing)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      <span>Drums (kick, snare, cymbals)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      <span>Bass</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      <span>Piano</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      <span>Electric Guitar</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      <span>Acoustic Guitar</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      <span>Synthesizer</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      <span>Strings</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      <span>Wind Instruments</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      <span>Full Accompaniment</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mb-4 space-y-2">
+                  <h4 className="font-semibold text-sm">What Makes lalal.ai Different:</h4>
+                  <div className="space-y-1.5 text-xs text-muted-foreground">
+                    <div className="flex items-start gap-2">
+                      <span className="text-primary">✨</span>
+                      <span>Lossless quality extraction — studio-grade results</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-primary">⚡</span>
+                      <span>Fast processing: 2-3 minutes for average track</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-primary">🎯</span>
+                      <span>Precision AI that preserves original audio fidelity</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-primary">🎵</span>
+                      <span>Supports all audio/video formats</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-primary">🏆</span>
+                      <span>Trusted by Grammy-winning producers and top studios</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <h4 className="font-semibold text-sm mb-2">Perfect For:</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {["Music Production", "Remixing", "Karaoke Creation", "Audio Restoration", "Sampling", "Music Analysis"].map((use) => (
+                      <span key={use} className="px-2 py-1 rounded-md text-xs bg-muted text-muted-foreground">
+                        {use}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-amber-500" />
+                    <span className="font-semibold text-sm">8 credits per track</span>
+                  </div>
+                  <Button disabled variant="outline" size="sm">
+                    Coming Soon
+                  </Button>
+                </div>
+              </div>
             </div>
 
             {/* Free Alternatives */}
