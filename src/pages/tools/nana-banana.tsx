@@ -2,26 +2,23 @@ import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Sparkles, Download, Loader2, Wand2, ImageIcon, ArrowLeft } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Sparkles, Download, Loader2, Wand2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useToast } from "@/hooks/use-toast";
-import { creditsService } from "@/services/creditsService";
-import { supabase } from "@/integrations/supabase/client";
 
 type AspectRatio = "1:1" | "16:9" | "9:16" | "4:3" | "3:4";
 
-const ASPECT_RATIOS: Record<AspectRatio, string> = {
-  "1:1": "Square (1024×1024)",
-  "16:9": "Landscape (1344×768)",
-  "9:16": "Portrait (768×1344)",
-  "4:3": "Standard (1152×896)",
-  "3:4": "Photo (896×1152)",
-};
+const ASPECT_RATIOS: Array<{ value: AspectRatio; label: string }> = [
+  { value: "1:1", label: "1:1 (Square)" },
+  { value: "16:9", label: "16:9 (Landscape)" },
+  { value: "9:16", label: "9:16 (Portrait)" },
+  { value: "4:3", label: "4:3 (Standard)" },
+  { value: "3:4", label: "3:4 (Portrait)" },
+];
 
 const NANA_MODELS = [
   { id: "fal-ai/nana-banana-2", name: "Nana Banana 2.0", credits: 5, description: "Ultra HD, fastest generation" },
