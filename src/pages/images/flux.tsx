@@ -57,7 +57,6 @@ export default function FluxImageGenerator() {
     setIsGenerating(true);
     
     try {
-      // Simulate generation for now
       await new Promise(resolve => setTimeout(resolve, 3000));
       
       const mockImages = Array(numImages).fill("https://images.unsplash.com/photo-1518770660439-4636190af475?w=1024");
@@ -77,7 +76,7 @@ export default function FluxImageGenerator() {
   return (
     <>
       <SEO
-        title={`FLUX Image Generator - Back2Life.Studio`}
+        title="FLUX Image Generator - Back2Life.Studio"
         description="Generate stunning images with FLUX AI models. Multiple versions available."
       />
       
@@ -86,7 +85,6 @@ export default function FluxImageGenerator() {
         
         <div className="container mx-auto px-4 py-8 max-w-7xl">
           <div className="grid lg:grid-cols-2 gap-6">
-            {/* Left Panel - Controls */}
             <Card className="border-2">
               <CardContent className="p-6 space-y-6">
                 <Link href="/images" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
@@ -106,7 +104,6 @@ export default function FluxImageGenerator() {
                     </div>
                   </div>
 
-                  {/* Model Selector */}
                   <div className="space-y-2">
                     <Label>Model</Label>
                     <Select value={selectedModel.id} onValueChange={(value) => {
@@ -136,7 +133,6 @@ export default function FluxImageGenerator() {
                   </div>
                 </div>
 
-                {/* Prompt */}
                 <div className="space-y-2">
                   <Label htmlFor="prompt">Prompt</Label>
                   <Textarea
@@ -150,7 +146,6 @@ export default function FluxImageGenerator() {
                   <div className="flex items-center justify-between">
                     <div className="text-xs text-muted-foreground">{prompt.length} characters</div>
                     
-                    {/* Enhance Prompt Toggle */}
                     <div className="flex items-center gap-2">
                       <Switch
                         id="enhance-prompt"
@@ -165,7 +160,6 @@ export default function FluxImageGenerator() {
                   </div>
                 </div>
 
-                {/* Negative Prompt */}
                 <div className="space-y-2">
                   <Label htmlFor="negative-prompt">Negative Prompt (Optional)</Label>
                   <Textarea
@@ -178,7 +172,6 @@ export default function FluxImageGenerator() {
                   />
                 </div>
 
-                {/* Aspect Ratio */}
                 <div className="space-y-2">
                   <Label>Aspect Ratio</Label>
                   <div className="grid grid-cols-3 gap-2">
@@ -196,7 +189,6 @@ export default function FluxImageGenerator() {
                   </div>
                 </div>
 
-                {/* Number of Images */}
                 <div className="space-y-2">
                   <Label>Number of Images: {numImages}</Label>
                   <Slider
@@ -212,7 +204,6 @@ export default function FluxImageGenerator() {
                   </div>
                 </div>
 
-                {/* Generate Button */}
                 <Button
                   onClick={handleGenerate}
                   disabled={isGenerating || !prompt.trim()}
@@ -233,7 +224,6 @@ export default function FluxImageGenerator() {
               </CardContent>
             </Card>
 
-            {/* Right Panel - Preview */}
             <Card className="border-2">
               <CardContent className="p-6">
                 <h2 className="font-heading font-bold text-xl mb-4">Generated Images</h2>

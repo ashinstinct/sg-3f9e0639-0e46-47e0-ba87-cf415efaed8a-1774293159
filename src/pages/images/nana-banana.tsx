@@ -30,7 +30,7 @@ export default function NanaBananaGenerator() {
   const [prompt, setPrompt] = useState("");
   const [enhancePrompt, setEnhancePrompt] = useState(false);
   const [negativePrompt, setNegativePrompt] = useState("");
-  const [aspectRatio, setAspectRatio] = useState("1:1");
+  const [aspectRatio, setAspectRatio] = useState<AspectRatio>("1:1");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState("");
   const [credits, setCredits] = useState(0);
@@ -99,7 +99,6 @@ export default function NanaBananaGenerator() {
                   </div>
                 </div>
 
-                {/* Model Selector */}
                 <div className="space-y-2">
                   <Label>Model</Label>
                   <Select value={selectedModel.id} onValueChange={(value) => {
@@ -128,7 +127,6 @@ export default function NanaBananaGenerator() {
                   </Select>
                 </div>
 
-                {/* Prompt */}
                 <div className="space-y-2">
                   <Label htmlFor="prompt">Prompt</Label>
                   <Textarea
@@ -142,7 +140,6 @@ export default function NanaBananaGenerator() {
                   <div className="flex items-center justify-between">
                     <div className="text-xs text-muted-foreground">{prompt.length} characters</div>
                     
-                    {/* Enhance Prompt Toggle */}
                     <div className="flex items-center gap-2">
                       <Switch
                         id="enhance-prompt"
@@ -157,7 +154,6 @@ export default function NanaBananaGenerator() {
                   </div>
                 </div>
 
-                {/* Negative Prompt */}
                 <div className="space-y-2">
                   <Label htmlFor="negative-prompt">Negative Prompt (Optional)</Label>
                   <Textarea
@@ -170,7 +166,6 @@ export default function NanaBananaGenerator() {
                   />
                 </div>
 
-                {/* Aspect Ratio */}
                 <div className="space-y-2">
                   <Label>Aspect Ratio</Label>
                   <div className="grid grid-cols-3 gap-2">
@@ -188,7 +183,6 @@ export default function NanaBananaGenerator() {
                   </div>
                 </div>
 
-                {/* Generate Button */}
                 <Button
                   onClick={handleGenerate}
                   disabled={isGenerating || !prompt.trim()}

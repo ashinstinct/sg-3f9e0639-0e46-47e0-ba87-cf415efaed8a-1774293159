@@ -55,7 +55,7 @@ export default function KlingVideoGenerator() {
     if (duration > selectedModel.maxDuration) {
       setDuration(selectedModel.maxDuration);
     }
-  }, [selectedModel]);
+  }, [selectedModel, duration]);
 
   const handleStartFrameUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -126,10 +126,8 @@ export default function KlingVideoGenerator() {
                   </div>
                 </div>
 
-                {/* Progress Bar */}
                 <div className="h-1 bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-500 rounded-full" />
 
-                {/* Model Selector */}
                 <div className="space-y-2">
                   <Label>Model</Label>
                   <Select value={selectedModel.id} onValueChange={(value) => {
@@ -160,7 +158,6 @@ export default function KlingVideoGenerator() {
                   </Select>
                 </div>
 
-                {/* Start/End Frames */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-sm text-muted-foreground">Start frame (Optional)</Label>
@@ -239,7 +236,6 @@ export default function KlingVideoGenerator() {
                   </div>
                 </div>
 
-                {/* Prompt */}
                 <div className="space-y-2">
                   <Label htmlFor="prompt">Prompt</Label>
                   <Textarea
@@ -254,7 +250,6 @@ export default function KlingVideoGenerator() {
                     <div className="text-xs text-muted-foreground">{prompt.length} characters</div>
                     
                     <div className="flex items-center gap-4">
-                      {/* Enhance Prompt Toggle */}
                       <div className="flex items-center gap-2">
                         <Switch
                           id="enhance-prompt"
@@ -267,7 +262,6 @@ export default function KlingVideoGenerator() {
                         </Label>
                       </div>
 
-                      {/* Audio Toggle */}
                       {selectedModel.hasAudio && (
                         <div className="flex items-center gap-2">
                           <Switch
@@ -282,7 +276,6 @@ export default function KlingVideoGenerator() {
                         </div>
                       )}
 
-                      {/* Elements Button */}
                       {selectedModel.hasElements && (
                         <Button
                           size="sm"
@@ -298,7 +291,6 @@ export default function KlingVideoGenerator() {
                   </div>
                 </div>
 
-                {/* Elements Input (for Kling 01 & Omni) */}
                 {selectedModel.hasElements && showElements && (
                   <div className="space-y-2">
                     <Label htmlFor="elements">Elements</Label>
@@ -316,7 +308,6 @@ export default function KlingVideoGenerator() {
                   </div>
                 )}
 
-                {/* Negative Prompt */}
                 <div className="space-y-2">
                   <Label htmlFor="negative-prompt">Negative Prompt (Optional)</Label>
                   <Textarea
@@ -329,9 +320,7 @@ export default function KlingVideoGenerator() {
                   />
                 </div>
 
-                {/* Controls Row */}
                 <div className="grid grid-cols-3 gap-4">
-                  {/* Duration */}
                   <div className="space-y-2">
                     <Label className="text-sm flex items-center gap-1">
                       <span>Duration</span>
@@ -341,7 +330,6 @@ export default function KlingVideoGenerator() {
                     </div>
                   </div>
 
-                  {/* Aspect Ratio */}
                   <div className="space-y-2">
                     <Label className="text-sm">Aspect Ratio</Label>
                     <div className="text-center py-3 px-4 rounded-lg bg-muted">
@@ -349,7 +337,6 @@ export default function KlingVideoGenerator() {
                     </div>
                   </div>
 
-                  {/* Quality */}
                   <div className="space-y-2">
                     <Label className="text-sm">Quality</Label>
                     <div className="text-center py-3 px-4 rounded-lg bg-muted">
@@ -373,7 +360,6 @@ export default function KlingVideoGenerator() {
                   </div>
                 </div>
 
-                {/* Generate Button */}
                 <Button
                   onClick={handleGenerate}
                   disabled={isGenerating || !prompt.trim()}
@@ -393,7 +379,6 @@ export default function KlingVideoGenerator() {
               </CardContent>
             </Card>
 
-            {/* Right Panel */}
             <Card className="border-2">
               <CardContent className="p-6">
                 <h2 className="font-heading font-bold text-xl mb-4">Generated Video</h2>
