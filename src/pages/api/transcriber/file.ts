@@ -39,11 +39,16 @@ export default async function handler(
 
     console.log(`Transcribing file via: ${BACKEND_URL}/api/transcribe`);
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 180000);
+
     const response = await fetch(`${BACKEND_URL}/api/transcribe`, {
       method: "POST",
       body: formData,
-      signal: AbortSignal.timeout(180000),
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     fs.unlinkSync(uploadedFile.filepath);
 

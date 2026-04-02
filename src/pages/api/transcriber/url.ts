@@ -20,14 +20,19 @@ export default async function handler(
   try {
     console.log(`Transcribing URL via: ${BACKEND_URL}/api/transcribe-url`);
     
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 180000);
+
     const response = await fetch(`${BACKEND_URL}/api/transcribe-url`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ url: url.trim() }),
-      signal: AbortSignal.timeout(180000),
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     const contentType = response.headers.get("content-type") || "";
 

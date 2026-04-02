@@ -117,6 +117,13 @@ export default function Transcriber() {
         body: formData,
       });
 
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        const text = await response.text();
+        console.error("Unexpected non-JSON response from /api/transcriber/file:", text.substring(0, 200));
+        throw new Error("Transcription service is currently unavailable. Please try again in a moment.");
+      }
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -167,6 +174,13 @@ export default function Transcriber() {
         },
         body: JSON.stringify({ url: youtubeUrl.trim() }),
       });
+
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        const text = await response.text();
+        console.error("Unexpected non-JSON response from /api/transcriber/url:", text.substring(0, 200));
+        throw new Error("Transcription service is currently unavailable. Please try again in a moment.");
+      }
 
       const data = await response.json();
 
