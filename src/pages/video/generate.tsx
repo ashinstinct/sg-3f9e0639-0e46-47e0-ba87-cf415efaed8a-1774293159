@@ -771,7 +771,8 @@ export default function VideoGeneratePage() {
                     </div>
                   </div>
 
-                  {enhancedPrompt && !autoEnhance && enhancedPrompt !== originalPrompt && (
+                  {/* Enhanced Prompt Display */}
+                  {enhancedPrompt && enhancedPrompt !== originalPrompt && (
                     <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-sm">
                       <div className="flex items-start gap-2">
                         <Wand2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
