@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import Link from "next/link";
-import { Sparkles, ArrowLeft, Wand2, Image as ImageIcon, Search, Check, Clock, Volume2, X, Info, Maximize2, Monitor, Download, Share2, Twitter, Facebook, MessageCircle, Link2, CheckCircle, Video, Loader2, Upload } from "lucide-react";
+import { Sparkles, Wand2, Image as ImageIcon, Search, Check, Clock, Volume2, X, Info, Maximize2, Monitor, Download, Share2, Twitter, Facebook, MessageCircle, Link2, CheckCircle, Video, Loader2, Upload, Copy, Share2, Download, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
 
@@ -349,6 +350,13 @@ export default function VideoGeneratePage() {
       return;
     }
 
+    // Check if user has enough credits
+    const hasCredits = await hasEnoughCredits(selectedVersion.credits);
+    if (!hasCredits) {
+      setError(`Insufficient credits. You need ${selectedVersion.credits} credits to generate with ${selectedModel.name} ${selectedVersion.name}.`);
+      return;
+    }
+
     setIsGenerating(true);
     setError(null);
     setGeneratedVideo(null);
@@ -422,6 +430,24 @@ export default function VideoGeneratePage() {
       }
 
       if (data.success && data.video) {
+        // Deduct credits after successful generation
+        const deductResult = await deductCredits(
+          selectedVersion.credits,
+          `Generated video with ${selectedModel.name} ${selectedVersion.name}`,
+          {
+            model: selectedModel.id,
+            version: selectedVersion.id,
+            prompt: finalPrompt,
+            videoUrl: data.video.url,
+            duration,
+            aspectRatio: aspectRatio.id,
+          }
+        );
+
+        if (!deductResult.success) {
+          console.error("Failed to deduct credits:", deductResult.error);
+        }
+
         setGeneratedVideo(data.video.url);
         
         if (autoEnhance && enhancedPrompt) {

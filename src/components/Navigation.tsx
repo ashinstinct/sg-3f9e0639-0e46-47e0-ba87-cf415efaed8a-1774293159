@@ -2,6 +2,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Menu, X, Image, Video, Music, Wand2, Scissors, Home } from "lucide-react";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
+import { CreditBalance } from "@/components/CreditBalance";
 
 export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

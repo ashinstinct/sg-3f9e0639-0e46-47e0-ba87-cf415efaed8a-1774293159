@@ -1,15 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { hasEnoughCredits, deductCredits, getCreditBalance } from "@/services/creditsService";
+import { Sparkles, Upload, Loader2, Wand2, ImageIcon, Layers, Plus, Minus, Copy, Check, Settings, Download } from "lucide-react";
 import Link from "next/link";
-import { ArrowLeft, Sparkles, Image as ImageIcon, Loader2, Upload, Search, Check, Layers, Wand2 } from "lucide-react";
+import { ArrowLeft, Search } from "lucide-react";
 
 type Version = {
   id: string;
@@ -255,6 +257,13 @@ export default function ImageGeneratePage() {
       return;
     }
 
+    // Check if user has enough credits
+    const hasCredits = await hasEnoughCredits(selectedVersion.credits);
+    if (!hasCredits) {
+      setError(`Insufficient credits. You need ${selectedVersion.credits} credits to generate with ${selectedVersion.name}.`);
+      return;
+    }
+
     setIsGenerating(true);
     setError(null);
     setGeneratedImage(null);
@@ -311,6 +320,22 @@ export default function ImageGeneratePage() {
       }
 
       if (data.success && data.images && data.images.length > 0) {
+        // Deduct credits after successful generation
+        const deductResult = await deductCredits(
+          selectedVersion.credits,
+          `Generated image with ${selectedModel.name} ${selectedVersion.name}`,
+          {
+            model: selectedModel.id,
+            version: selectedVersion.id,
+            prompt: finalPrompt,
+            imageUrl: data.images[0].url,
+          }
+        );
+
+        if (!deductResult.success) {
+          console.error("Failed to deduct credits:", deductResult.error);
+        }
+
         setGeneratedImage(data.images[0].url);
         
         // Show enhanced prompt after generation if in auto mode
