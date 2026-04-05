@@ -70,12 +70,12 @@ export function Navigation() {
     try {
       const { data, error } = await supabase
         .from("user_credits")
-        .select("credits")
+        .select("balance")
         .eq("user_id", userId)
         .single();
 
       if (error) throw error;
-      setCredits(data?.credits || 0);
+      setCredits(data?.balance || 0);
     } catch (err) {
       console.error("Error fetching credits:", err);
       setCredits(0);
