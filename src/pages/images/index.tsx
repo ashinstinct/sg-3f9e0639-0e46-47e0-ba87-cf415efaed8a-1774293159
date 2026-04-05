@@ -157,16 +157,15 @@ export default function ImagesHub() {
           </div>
 
           <div className="mb-12">
-            <h1 className="font-heading font-bold text-4xl md:text-5xl mb-3">Image Generation</h1>
-            <p className="text-muted-foreground text-lg mb-6">
-              Create stunning images with state-of-the-art AI models
-            </p>
-            <Link href="/images/generate">
-              <div className="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:from-indigo-600 hover:via-purple-600 hover:to-cyan-600 text-white font-semibold text-lg shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all cursor-pointer border border-white/20">
-                <Sparkles className="w-5 h-5" />
-                Create Images
-              </div>
-            </Link>
+            <h1 className="font-heading font-bold text-4xl md:text-5xl mb-6 text-center">Image Generation</h1>
+            <div className="flex justify-center">
+              <Link href="/images/generate" className="w-full max-w-sm">
+                <div className="flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:from-indigo-600 hover:via-purple-600 hover:to-cyan-600 text-white font-semibold text-lg shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all cursor-pointer border border-white/20">
+                  <Sparkles className="w-5 h-5" />
+                  Create Images
+                </div>
+              </Link>
+            </div>
           </div>
 
           {/* Tools Grid */}

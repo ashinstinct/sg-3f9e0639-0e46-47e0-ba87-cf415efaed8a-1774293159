@@ -149,16 +149,15 @@ export default function VideoHub() {
           </div>
 
           <div className="mb-12">
-            <h1 className="font-heading font-bold text-4xl md:text-5xl mb-3">Video Generation</h1>
-            <p className="text-muted-foreground text-lg mb-6">
-              Create professional videos with cutting-edge AI models
-            </p>
-            <Link href="/video/generate">
-              <div className="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:from-indigo-600 hover:via-purple-600 hover:to-cyan-600 text-white font-semibold text-lg shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all cursor-pointer border border-white/20">
-                <Video className="w-5 h-5" />
-                Create Video
-              </div>
-            </Link>
+            <h1 className="font-heading font-bold text-4xl md:text-5xl mb-6 text-center">Video Generation</h1>
+            <div className="flex justify-center">
+              <Link href="/video/generate" className="w-full max-w-sm">
+                <div className="flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:from-indigo-600 hover:via-purple-600 hover:to-cyan-600 text-white font-semibold text-lg shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all cursor-pointer border border-white/20">
+                  <Video className="w-5 h-5" />
+                  Create Video
+                </div>
+              </Link>
+            </div>
           </div>
 
           {/* Tools Grid */}
