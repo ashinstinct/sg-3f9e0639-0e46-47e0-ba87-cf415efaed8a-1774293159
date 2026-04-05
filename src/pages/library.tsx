@@ -24,6 +24,7 @@ import {
   Loader2,
   Copy,
   Check,
+  Library,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -90,18 +91,24 @@ export default function Library() {
       <div className="min-h-screen bg-background">
         <Navigation />
         
-        <main className="container mx-auto px-4 py-8">
-          <div className="mb-8">
-            <h1 className="font-heading font-bold text-4xl md:text-5xl mb-3 bg-gradient-to-r from-cyan-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">
-              My Library
+        <main className="container mx-auto px-4 py-4 max-w-7xl">
+          <div className="text-center space-y-3 mb-4">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20">
+              <Library className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">Your Creations</span>
+            </div>
+            
+            <h1 className="font-heading font-bold text-4xl md:text-5xl bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Library
             </h1>
-            <p className="text-muted-foreground text-lg">
-              View and manage your AI generation history
+            
+            <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
+              Browse your AI-generated images and videos
             </p>
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full max-w-md grid-cols-2 mb-8">
+            <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-4">
               <TabsTrigger value="images" className="gap-2">
                 <ImageIcon className="w-4 h-4" />
                 Images ({images.length})

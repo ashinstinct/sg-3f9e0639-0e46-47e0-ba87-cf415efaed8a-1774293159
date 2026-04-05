@@ -595,6 +595,46 @@ export default function ImageGeneratePage() {
                   )}
                 </div>
 
+                <div>
+                  <Label htmlFor="prompt" className="text-base font-semibold mb-2 block">
+                    Image Prompt
+                  </Label>
+                  <Textarea
+                    id="prompt"
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="A serene landscape with mountains and a lake at sunset..."
+                    className="min-h-[120px] resize-none bg-background/50"
+                  />
+                  <div className="flex items-center justify-between mt-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        navigator.clipboard.writeText(prompt);
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                      }}
+                      disabled={!prompt.trim()}
+                      className="text-xs"
+                    >
+                      {copied ? (
+                        <>
+                          <Check className="w-3 h-3 mr-1" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3 mr-1" />
+                          Copy Prompt
+                        </>
+                      )}
+                    </Button>
+                    <span className="text-xs text-muted-foreground">{prompt.length} characters</span>
+                  </div>
+                </div>
+
                 {/* Model Selector */}
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2 text-muted-foreground text-sm">

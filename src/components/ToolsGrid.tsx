@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Image, Video, Scissors, Music, Wand2, Mic, 
@@ -159,57 +159,56 @@ interface ToolsGridProps {
   showAuthenticatedView?: boolean;
 }
 
-export function ToolsGrid({ showAuthenticatedView = false }: ToolsGridProps) {
+export function ToolsGrid() {
   return (
-    <section id="tools" className={showAuthenticatedView ? "py-2" : "py-20 bg-surface-tint"}>
-      <div className="container mx-auto px-4">
-        {!showAuthenticatedView && (
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="font-heading font-bold text-4xl md:text-5xl mb-4">
-              All Tools in One Place
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Professional media tools that work in your browser or powered by cutting-edge AI
-            </p>
-          </div>
-        )}
+    <section className="py-6">
+      <div className="text-center mb-6">
+        <h2 className="font-heading font-bold text-3xl md:text-4xl mb-2">
+          All Tools
+        </h2>
+        <p className="text-sm md:text-base text-muted-foreground">
+          14 free tools + premium AI generation
+        </p>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-          {tools.map((tool) => {
-            const Icon = tool.icon;
-            return (
-              <Link key={tool.href} href={tool.href}>
-                <Card className="group hover:shadow-lg hover:scale-[1.02] transition-all duration-300 cursor-pointer border-border/50 bg-card/50 backdrop-blur-sm h-full">
-                  <CardHeader>
-                    <div className="flex items-start justify-between mb-3">
-                      <div className={`p-3 rounded-xl bg-gradient-to-br ${tool.color} shadow-lg group-hover:scale-110 transition-transform`}>
-                        <Icon className="w-6 h-6 text-white drop-shadow-sm" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        {tools.map((tool) => {
+          const Icon = tool.icon;
+          return (
+            <Link key={tool.href} href={tool.href}>
+              <Card className="group relative overflow-hidden border-2 border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 cursor-pointer h-full">
+                <div className={`absolute inset-0 bg-gradient-to-br ${tool.color} opacity-0 group-hover:opacity-5 transition-opacity`} />
+                
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-lg bg-gradient-to-br ${tool.color}`}>
+                        <Icon className="w-5 h-5 text-white" />
                       </div>
-                      <div className="flex gap-2">
-                        {tool.free && (
-                          <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20">
-                            Free
-                          </Badge>
-                        )}
-                        {tool.pro && (
-                          <Badge variant="secondary" className="text-xs bg-brand-purple/10 text-brand-purple dark:text-purple-400 border-brand-purple/20">
-                            Pro
-                          </Badge>
-                        )}
+                      <div>
+                        <h3 className="font-heading font-bold text-base group-hover:text-primary transition-colors">
+                          {tool.title}
+                        </h3>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {tool.description}
+                        </p>
                       </div>
                     </div>
-                    <CardTitle className="font-heading text-xl group-hover:text-primary transition-colors">
-                      {tool.title}
-                    </CardTitle>
-                    <CardDescription className="text-sm leading-relaxed">
-                      {tool.description}
-                    </CardDescription>
-                  </CardHeader>
-                </Card>
-              </Link>
-            );
-          })}
-        </div>
+                    {tool.badge && (
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        tool.badge === "Free" 
+                          ? "bg-green-500/10 text-green-500" 
+                          : "bg-amber-500/10 text-amber-500"
+                      }`}>
+                        {tool.badge}
+                      </span>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          );
+        })}
       </div>
     </section>
   );

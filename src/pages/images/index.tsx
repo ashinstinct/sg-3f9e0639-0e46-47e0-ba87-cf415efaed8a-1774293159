@@ -3,7 +3,7 @@ import { SEO } from "@/components/SEO";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Sparkles, Image, Wand2, Layers, Maximize2, Eraser, ArrowRight } from "lucide-react";
+import { Sparkles, Image as ImageIcon, Wand2, Layers, Maximize2, Eraser, ArrowRight } from "lucide-react";
 
 export default function ImagesHub() {
   const imageTools = [
@@ -21,7 +21,7 @@ export default function ImagesHub() {
       name: "Nana Banana 2.0",
       company: "fal.ai",
       description: "Premium image generation with exceptional quality and speed. Pro and standard versions available.",
-      icon: Image,
+      icon: ImageIcon,
       credits: "4-5 credits",
       link: "/images/generate",
       versions: ["2.0", "1.5 Pro"],
@@ -61,7 +61,7 @@ export default function ImagesHub() {
       name: "Ideogram V2",
       company: "Ideogram AI",
       description: "Industry-leading text rendering quality. Perfect for posters, ads, and text-heavy designs.",
-      icon: Image,
+      icon: ImageIcon,
       credits: "4 credits",
       link: "/images/generate",
       versions: ["v2", "v1"],
@@ -71,7 +71,7 @@ export default function ImagesHub() {
       name: "Playground V2.5",
       company: "Playground AI",
       description: "Photorealistic specialist with vibrant colors. Perfect for product shots and marketing.",
-      icon: Image,
+      icon: ImageIcon,
       credits: "3 credits",
       link: "/images/generate",
       versions: ["v2.5", "v2"],
@@ -139,24 +139,23 @@ export default function ImagesHub() {
       <div className="min-h-screen bg-background">
         <Navigation />
         
-        <div className="container mx-auto px-4 py-12 max-w-6xl">
-          {/* Hero Section - Matching Audio Page Style */}
-          <div className="text-center mb-16 space-y-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-cyan-500/10 border border-indigo-500/20 mb-4">
-              <Image className="w-4 h-4 text-cyan-500" />
-              <span className="text-sm font-medium text-cyan-500">Professional Image Tools</span>
+        <main className="container mx-auto px-4 py-4 max-w-7xl">
+          <div className="text-center space-y-3 mb-4">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20">
+              <ImageIcon className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">Professional Image Tools</span>
             </div>
             
-            <h1 className="font-heading font-bold text-5xl md:text-7xl bg-gradient-to-r from-cyan-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent leading-tight">
+            <h1 className="font-heading font-bold text-4xl md:text-5xl bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
               AI Image Tools
             </h1>
             
-            <p className="text-muted-foreground text-lg md:text-xl max-w-3xl mx-auto">
+            <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
               Generate, edit, and enhance images with cutting-edge AI models from industry leaders
             </p>
           </div>
 
-          <div className="mb-6">
+          <div className="mb-4">
             <div className="flex justify-center">
               <Link href="/images/generate" className="w-full max-w-sm">
                 <div className="flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:from-indigo-600 hover:via-purple-600 hover:to-cyan-600 text-white font-semibold text-lg shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all cursor-pointer border border-white/20">
@@ -168,48 +167,42 @@ export default function ImagesHub() {
           </div>
 
           {/* Tools Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {imageTools.map((tool) => {
               const Icon = tool.icon;
               return (
                 <Link key={tool.name} href={tool.link}>
-                  <Card className="group h-full hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/10">
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
-                          <Icon className="w-6 h-6 text-white" />
+                  <Card className="group relative overflow-hidden border-2 border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 cursor-pointer h-full">
+                    <div className={`absolute inset-0 bg-gradient-to-br ${tool.color} opacity-0 group-hover:opacity-5 transition-opacity`} />
+                    
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className={`text-3xl bg-gradient-to-br ${tool.color} bg-clip-text`}>
+                            {tool.icon}
+                          </div>
+                          <div>
+                            <h3 className="font-heading font-bold text-base group-hover:text-primary transition-colors">
+                              {tool.name}
+                            </h3>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {tool.description}
+                            </p>
+                          </div>
                         </div>
-                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                          {tool.credits}
-                        </span>
                       </div>
-
-                      <h3 className="font-heading font-bold text-xl mb-1">
-                        {tool.name}
-                      </h3>
                       
-                      <p className="text-xs text-muted-foreground mb-3 font-medium">
-                        by {tool.company}
-                      </p>
-                      
-                      <p className="text-sm text-muted-foreground mb-4">
-                        {tool.description}
-                      </p>
-
-                      {tool.versions && (
-                        <div className="mb-3">
-                          <span className="text-xs font-medium text-primary">
-                            {tool.versions.length} versions available
-                          </span>
+                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
+                        <div className="flex flex-wrap gap-1">
+                          {tool.versions.map((version) => (
+                            <span key={version.id} className="text-xs px-2 py-0.5 rounded-full bg-muted/50 text-muted-foreground">
+                              {version.name}
+                            </span>
+                          ))}
                         </div>
-                      )}
-
-                      <div className="flex flex-wrap gap-2">
-                        {tool.features.map((feature) => (
-                          <span key={feature} className="px-2 py-1 rounded-md text-xs bg-muted text-muted-foreground">
-                            {feature}
-                          </span>
-                        ))}
+                        <span className="text-xs font-medium text-amber-500">
+                          {tool.versions[0].credits}+ credits
+                        </span>
                       </div>
                     </CardContent>
                   </Card>
@@ -231,7 +224,7 @@ export default function ImagesHub() {
               </Link>
             </CardContent>
           </Card>
-        </div>
+        </main>
       </div>
     </>
   );
