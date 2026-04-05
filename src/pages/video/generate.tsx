@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import { Video, Loader2, Wand2, ArrowLeft, Volume2, VolumeX, Upload, Search, Check, Sparkles } from "lucide-react";
+import { Video, Loader2, Wand2, ArrowLeft, Volume2, VolumeX, Upload, Search, Check, Sparkles, Clock } from "lucide-react";
 import Link from "next/link";
 
 const VIDEO_MODELS = [
@@ -17,15 +17,14 @@ const VIDEO_MODELS = [
     name: "Kling",
     company: "Kuaishou AI",
     icon: "🎬",
-    badge: null,
-    description: "Perfect motion with advanced video control",
+    latestVersion: "kling-3.0",
     versions: [
       { id: "kling-3.0", name: "Kling 3.0", credits: 20, duration: 10, hasAudio: true, hasElements: false },
       { id: "kling-2.6", name: "Kling 2.6", credits: 18, duration: 10, hasAudio: true, hasElements: false },
-      { id: "kling-2.5-pro", name: "Kling 2.5 Pro", credits: 16, duration: 8, hasAudio: true, hasElements: false },
-      { id: "kling-2.1", name: "Kling 2.1", credits: 14, duration: 5, hasAudio: false, hasElements: false },
-      { id: "kling-01", name: "Kling 01", credits: 18, duration: 10, hasAudio: true, hasElements: true },
-      { id: "kling-omni", name: "Kling Omni", credits: 20, duration: 10, hasAudio: true, hasElements: true },
+      { id: "kling-2.5-pro", name: "Kling 2.5 Pro", credits: 18, duration: 10, hasAudio: true, hasElements: false },
+      { id: "kling-2.1", name: "Kling 2.1", credits: 16, duration: 10, hasAudio: true, hasElements: false },
+      { id: "kling-01", name: "Kling 01", credits: 15, duration: 10, hasAudio: true, hasElements: true },
+      { id: "kling-omni", name: "Kling Omni", credits: 14, duration: 10, hasAudio: true, hasElements: true },
     ],
   },
   {
@@ -33,10 +32,9 @@ const VIDEO_MODELS = [
     name: "Luma Dream Machine",
     company: "Luma AI",
     icon: "⚡",
-    badge: null,
-    description: "Fast, high-quality video generation",
+    latestVersion: "luma-1.6",
     versions: [
-      { id: "luma-dream", name: "Luma Dream Machine", credits: 15, duration: 5, hasAudio: false, hasElements: false },
+      { id: "luma-1.6", name: "Dream Machine 1.6", credits: 15, duration: 5, hasAudio: false, hasElements: false },
     ],
   },
   {
@@ -44,98 +42,104 @@ const VIDEO_MODELS = [
     name: "Runway Gen-3",
     company: "Runway ML",
     icon: "🎥",
-    badge: null,
-    description: "Professional-grade video generation",
+    latestVersion: "runway-gen3-alpha",
     versions: [
-      { id: "runway-gen3", name: "Gen-3 Alpha", credits: 18, duration: 10, hasAudio: false, hasElements: false },
-      { id: "runway-gen3-turbo", name: "Gen-3 Turbo", credits: 15, duration: 10, hasAudio: false, hasElements: false },
+      { id: "runway-gen3-alpha", name: "Gen-3 Alpha", credits: 18, duration: 10, hasAudio: false, hasElements: false },
+      { id: "runway-gen3-turbo", name: "Gen-3 Turbo", credits: 16, duration: 10, hasAudio: false, hasElements: false },
     ],
   },
   {
     id: "minimax",
     name: "MiniMax Hailuo",
     company: "Hailuo AI",
-    icon: "🌟",
-    badge: null,
-    description: "High-dynamic, VFX-ready, fastest and most affordable",
+    icon: "✨",
+    latestVersion: "minimax-02",
     versions: [
-      { id: "minimax-video", name: "MiniMax Video", credits: 12, duration: 6, hasAudio: false, hasElements: false },
+      { id: "minimax-02", name: "MiniMax 02", credits: 14, duration: 6, hasAudio: false, hasElements: false },
+      { id: "minimax-02-fast", name: "MiniMax 02 Fast", credits: 12, duration: 6, hasAudio: false, hasElements: false },
+      { id: "minimax-2.3", name: "MiniMax 2.3", credits: 13, duration: 6, hasAudio: false, hasElements: false },
+      { id: "minimax-2.3-fast", name: "MiniMax 2.3 Fast", credits: 11, duration: 6, hasAudio: false, hasElements: false },
     ],
   },
   {
     id: "hunyuan",
     name: "Hunyuan Video",
     company: "Tencent",
-    icon: "🐉",
-    badge: null,
-    description: "Advanced scene understanding and realistic motion",
+    icon: "🎬",
+    latestVersion: "hunyuan-1.0",
     versions: [
-      { id: "hunyuan-video", name: "Hunyuan Video", credits: 16, duration: 8, hasAudio: false, hasElements: false },
+      { id: "hunyuan-1.0", name: "Hunyuan Video", credits: 16, duration: 8, hasAudio: false, hasElements: false },
     ],
   },
   {
     id: "grok",
     name: "Grok Imagine",
     company: "xAI",
-    icon: "🤖",
-    badge: null,
-    description: "Perfect motion with advanced video control",
+    icon: "🌟",
+    latestVersion: "grok-1.0",
     versions: [
-      { id: "grok-video", name: "Grok Video", credits: 22, duration: 10, hasAudio: false, hasElements: false },
+      { id: "grok-1.0", name: "Grok Imagine", credits: 22, duration: 15, hasAudio: false, hasElements: false },
     ],
   },
   {
     id: "seedance",
     name: "Seedance",
     company: "Bytedance",
-    icon: "📊",
-    badge: null,
-    description: "Cinematic, multi-shot video creation",
+    icon: "🎭",
+    latestVersion: "seedance-1.5-pro",
     versions: [
       { id: "seedance-1.5-pro", name: "Seedance 1.5 Pro", credits: 20, duration: 12, hasAudio: false, hasElements: false },
+      { id: "seedance-pro", name: "Seedance Pro", credits: 18, duration: 10, hasAudio: false, hasElements: false },
+      { id: "seedance-pro-fast", name: "Seedance Pro Fast", credits: 16, duration: 10, hasAudio: false, hasElements: false },
     ],
   },
   {
     id: "sora",
-    name: "OpenAI Sora 2",
+    name: "Sora",
     company: "OpenAI",
-    icon: "🎯",
-    badge: null,
-    description: "Multi-shot video with sound generation",
+    icon: "🎬",
+    latestVersion: "sora-2-pro-max",
     versions: [
-      { id: "sora-2.0", name: "Sora 2.0", credits: 25, duration: 20, hasAudio: true, hasElements: false },
+      { id: "sora-2-pro-max", name: "Sora 2 Pro Max", credits: 30, duration: 20, hasAudio: true, hasElements: false },
+      { id: "sora-2-max", name: "Sora 2 Max", credits: 28, duration: 20, hasAudio: true, hasElements: false },
+      { id: "sora-2-pro", name: "Sora 2 Pro", credits: 26, duration: 20, hasAudio: true, hasElements: false },
+      { id: "sora-2", name: "Sora 2", credits: 25, duration: 20, hasAudio: true, hasElements: false },
     ],
   },
   {
     id: "veo",
-    name: "Google Veo",
+    name: "Veo 3",
     company: "Google",
-    icon: "🔮",
-    badge: "SOON",
-    description: "Precision video with sound control",
+    icon: "🎨",
+    latestVersion: "veo-3.1",
     versions: [
-      { id: "veo-3.1", name: "Veo 3.1", credits: 22, duration: 15, hasAudio: false, hasElements: false },
-      { id: "veo-3.1-fast", name: "Veo 3.1 Fast", credits: 18, duration: 15, hasAudio: false, hasElements: false },
+      { id: "veo-3.1", name: "Veo 3.1", credits: 22, duration: 15, hasAudio: true, hasElements: false },
+      { id: "veo-3.1-fast", name: "Veo 3.1 Fast", credits: 20, duration: 15, hasAudio: true, hasElements: false },
+      { id: "veo-3", name: "Veo 3", credits: 20, duration: 15, hasAudio: true, hasElements: false },
+      { id: "veo-3-fast", name: "Veo 3 Fast", credits: 18, duration: 15, hasAudio: true, hasElements: false },
     ],
   },
   {
     id: "wan",
-    name: "Wan",
-    company: "Various",
-    icon: "🎪",
-    badge: null,
-    description: "Camera-controlled video with sound, more freedom",
+    name: "Wan 2.2",
+    company: "Wan AI",
+    icon: "🎬",
+    latestVersion: "wan-2.2-pro",
     versions: [
-      { id: "wan-2.2", name: "Wan 2.2", credits: 18, duration: 10, hasAudio: true, hasElements: false },
+      { id: "wan-2.2-pro", name: "Wan 2.2 Pro", credits: 18, duration: 10, hasAudio: false, hasElements: false },
+      { id: "wan-2.2", name: "Wan 2.2", credits: 16, duration: 10, hasAudio: false, hasElements: false },
+      { id: "wan-2.1", name: "Wan 2.1", credits: 15, duration: 10, hasAudio: false, hasElements: false },
+      { id: "wan-2.0", name: "Wan 2.0", credits: 14, duration: 8, hasAudio: false, hasElements: false },
+      { id: "wan-1.5", name: "Wan 1.5", credits: 12, duration: 8, hasAudio: false, hasElements: false },
     ],
   },
   {
     id: "seedream",
     name: "Seedream 2.0",
     company: "Bytedance",
-    icon: "💫",
-    badge: "SOON",
-    description: "Next-gen video synthesis with temporal consistency",
+    icon: "🎭",
+    latestVersion: "seedream-2.0",
+    comingSoon: true,
     versions: [
       { id: "seedream-2.0", name: "Seedream 2.0", credits: 20, duration: 12, hasAudio: false, hasElements: false },
     ],
@@ -437,6 +441,29 @@ export default function VideoGenerate() {
                       {[1, 2, 3, 4].map((count) => (
                         <SelectItem key={count} value={count.toString()}>
                           {count}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Duration Selector */}
+                <div className="space-y-2">
+                  <Label>Duration</Label>
+                  <Select 
+                    value={duration.toString()} 
+                    onValueChange={(val) => setDuration(parseInt(val))}
+                  >
+                    <SelectTrigger className="h-10">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        <span>{duration}s</span>
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: selectedVersion.duration }, (_, i) => i + 1).map((d) => (
+                        <SelectItem key={d} value={d.toString()}>
+                          {d}s
                         </SelectItem>
                       ))}
                     </SelectContent>
