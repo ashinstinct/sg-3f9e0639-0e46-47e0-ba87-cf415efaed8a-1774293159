@@ -5,70 +5,34 @@ import Link from "next/link";
 
 export function Hero() {
   return (
-    <section className="text-center py-8 md:py-12 mb-8">
-      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-6">
-        <Sparkles className="w-4 h-4 text-primary" />
-        <span className="text-sm font-medium text-primary">Professional AI Generation Platform</span>
-      </div>
-      
-      <h1 className="font-heading font-bold text-5xl md:text-6xl lg:text-7xl mb-4 bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent leading-tight">
-        Back2Life.Studio
+    <section className="text-center py-6 md:py-8 mb-6">
+      <h1 className="font-heading font-bold text-3xl md:text-5xl lg:text-6xl mb-2 leading-tight">
+        Bring your imagination{" "}
+        <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+          Back2Life
+        </span>
       </h1>
       
-      <p className="text-xl md:text-2xl text-foreground/80 max-w-2xl mx-auto mb-12 font-medium">
-        Bring your imagination back to life
-      </p>
-      
-      {/* Create Image & Create Video Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto mb-6">
-        {/* Create Image Card */}
+      {/* Create Image & Create Video - 2 columns on mobile */}
+      <div className="grid grid-cols-2 gap-3 mb-4 max-w-4xl mx-auto">
         <Link href="/images/generate">
-          <Card className="group relative overflow-hidden border-2 border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/20 cursor-pointer h-full">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 opacity-10 group-hover:opacity-20 transition-opacity" />
-            
-            <div className="relative p-6">
-              {/* Preview Image Area */}
-              <div className="aspect-[16/10] mb-4 rounded-xl bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-pink-500/20 flex items-center justify-center border border-border/30 overflow-hidden">
-                <div className="text-6xl">🎨</div>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="text-left">
-                  <h3 className="font-heading font-bold text-xl mb-1 group-hover:text-primary transition-colors">
-                    Create Images
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Generate AI images
-                  </p>
-                </div>
-                <ArrowRight className="w-6 h-6 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-              </div>
+          <Card className="group relative overflow-hidden border-2 border-border/50 hover:border-primary/50 transition-all duration-300 cursor-pointer aspect-[4/3]">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-cyan-500 opacity-90 group-hover:opacity-100 transition-opacity" />
+            <div className="relative h-full flex flex-col items-center justify-center p-4 text-white">
+              <ImageIcon className="w-8 h-8 md:w-12 md:h-12 mb-2" />
+              <h3 className="font-heading font-bold text-lg md:text-2xl mb-1">Create Image</h3>
+              <p className="text-xs md:text-sm text-white/80">Generate AI images</p>
             </div>
           </Card>
         </Link>
 
-        {/* Create Video Card */}
         <Link href="/video/generate">
-          <Card className="group relative overflow-hidden border-2 border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/20 cursor-pointer h-full">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500 via-cyan-500 to-blue-500 opacity-10 group-hover:opacity-20 transition-opacity" />
-            
-            <div className="relative p-6">
-              {/* Preview Image Area */}
-              <div className="aspect-[16/10] mb-4 rounded-xl bg-gradient-to-br from-purple-500/20 via-cyan-500/20 to-blue-500/20 flex items-center justify-center border border-border/30 overflow-hidden">
-                <div className="text-6xl">🎬</div>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="text-left">
-                  <h3 className="font-heading font-bold text-xl mb-1 group-hover:text-primary transition-colors">
-                    Create Video
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Generate AI videos
-                  </p>
-                </div>
-                <ArrowRight className="w-6 h-6 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-              </div>
+          <Card className="group relative overflow-hidden border-2 border-border/50 hover:border-primary/50 transition-all duration-300 cursor-pointer aspect-[4/3]">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 opacity-90 group-hover:opacity-100 transition-opacity" />
+            <div className="relative h-full flex flex-col items-center justify-center p-4 text-white">
+              <Video className="w-8 h-8 md:w-12 md:h-12 mb-2" />
+              <h3 className="font-heading font-bold text-lg md:text-2xl mb-1">Create Video</h3>
+              <p className="text-xs md:text-sm text-white/80">Generate AI videos</p>
             </div>
           </Card>
         </Link>
@@ -78,7 +42,7 @@ export function Hero() {
       <Link href="/tools">
         <Button 
           size="lg" 
-          className="w-full max-w-4xl mx-auto h-14 text-lg font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:from-indigo-600 hover:via-purple-600 hover:to-cyan-600 text-white shadow-lg shadow-primary/30 gap-2"
+          className="w-full max-w-md bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:from-indigo-600 hover:via-purple-600 hover:to-cyan-600 text-white font-semibold gap-2 px-8 py-6 text-base"
         >
           Explore all tools
           <Sparkles className="w-5 h-5" />
