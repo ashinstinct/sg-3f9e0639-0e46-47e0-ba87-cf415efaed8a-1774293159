@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@fal-ai/client": "^1.9.5",
+    "@fal-ai/serverless-client": "^0.15.0",
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@ffmpeg/util": "^0.12.2",
     "@hookform/resolvers": "^3.10.0",

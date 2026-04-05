@@ -1,17 +1,51 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { fal } from "@fal-ai/client";
+import * as fal from "@fal-ai/serverless-client";
 
 // Configure fal.ai client
 fal.config({
   credentials: process.env.FAL_KEY,
 });
 
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: "10mb",
-    },
-  },
+// Map our model IDs to fal.ai endpoints
+const MODEL_ENDPOINTS: Record<string, string> = {
+  // Kling models
+  "kling-3.0": "fal-ai/kling-video/v1.6/pro",
+  "kling-2.6": "fal-ai/kling-video/v1.6/pro",
+  "kling-2.5-pro": "fal-ai/kling-video/v1.5/pro",
+  "kling-2.1": "fal-ai/kling-video/v1/pro",
+  "kling-01": "fal-ai/kling-video/v1.0",
+  "kling-omni": "fal-ai/kling-video/v1.6/pro",
+  
+  // Luma models
+  "luma-1.6": "fal-ai/luma-dream-machine",
+  
+  // Runway models
+  "runway-gen3-alpha": "fal-ai/runway-gen3/turbo/image-to-video",
+  "runway-gen3-turbo": "fal-ai/runway-gen3/turbo/image-to-video",
+  
+  // MiniMax models
+  "minimax-02": "fal-ai/minimax-video/image-to-video",
+  "minimax-02-fast": "fal-ai/minimax-video/image-to-video",
+  "minimax-2.3": "fal-ai/minimax-video/image-to-video",
+  "minimax-2.3-fast": "fal-ai/minimax-video/image-to-video",
+  
+  // Hunyuan
+  "hunyuan-1.0": "fal-ai/hunyuan-video",
+  
+  // Grok (if available)
+  "grok-1.0": "fal-ai/grok-imagine/video",
+  
+  // Seedance
+  "seedance-1.5-pro": "fal-ai/seedance/v1.5-pro",
+  "seedance-pro": "fal-ai/seedance/pro",
+  "seedance-pro-fast": "fal-ai/seedance/pro-fast",
+  
+  // Wan
+  "wan-2.2-pro": "fal-ai/wan/v2.2-pro",
+  "wan-2.2": "fal-ai/wan/v2.2",
+  "wan-2.1": "fal-ai/wan/v2.1",
+  "wan-2.0": "fal-ai/wan/v2.0",
+  "wan-1.5": "fal-ai/wan/v1.5",
 };
 
 export default async function handler(
@@ -24,98 +58,84 @@ export default async function handler(
 
   try {
     const {
+      modelId,
       prompt,
-      model,
       duration = 5,
-      aspect_ratio = "16:9",
-      quality = "1080p",
-      start_frame,
-      end_frame,
-      negative_prompt,
+      aspectRatio = "16:9",
+      audioEnabled = false,
+      startImage,
+      endImage,
+      elementImage,
+      resolution = "1080p",
     } = req.body;
 
-    if (!prompt) {
-      return res.status(400).json({ error: "Prompt is required" });
+    // Validate input
+    if (!modelId || !prompt) {
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
-    if (!model) {
-      return res.status(400).json({ error: "Model is required" });
+    // Get endpoint for model
+    const endpoint = MODEL_ENDPOINTS[modelId];
+    if (!endpoint) {
+      return res.status(400).json({ error: "Unsupported model" });
     }
 
-    console.log("Generating video with:", { model, prompt, duration, aspect_ratio, quality });
-
-    // Prepare input based on model requirements
-    const input: any = {
+    // Build request payload based on model
+    const payload: any = {
       prompt,
+      duration,
+      aspect_ratio: aspectRatio,
     };
 
-    // Add common parameters
-    if (negative_prompt) {
-      input.negative_prompt = negative_prompt;
+    // Add optional parameters
+    if (audioEnabled) {
+      payload.enable_audio = true;
     }
 
-    // Model-specific configurations
-    if (model.includes("kling")) {
-      input.duration = duration;
-      input.aspect_ratio = aspect_ratio;
-      if (start_frame) input.image_url = start_frame;
-    } else if (model.includes("luma")) {
-      input.aspect_ratio = aspect_ratio;
-      if (start_frame) input.image_url = start_frame;
-    } else if (model.includes("runway")) {
-      input.duration = duration;
-      input.ratio = aspect_ratio;
-      if (start_frame) input.image_url = start_frame;
-    } else if (model.includes("minimax")) {
-      input.duration = duration;
-      if (start_frame) input.first_frame_image = start_frame;
-      if (end_frame) input.last_frame_image = end_frame;
-    } else if (model.includes("hunyuan")) {
-      input.duration = duration;
-      if (start_frame) input.image_url = start_frame;
-    } else if (model.includes("sora") || model.includes("veo") || model.includes("seedream")) {
-      input.duration = duration;
-      input.aspect_ratio = aspect_ratio;
-      if (start_frame) input.image_url = start_frame;
-      if (end_frame) input.end_image_url = end_frame;
+    if (startImage) {
+      payload.image_url = startImage;
     }
+
+    if (endImage && modelId.startsWith("kling")) {
+      payload.end_image_url = endImage;
+    }
+
+    if (elementImage && (modelId === "kling-01" || modelId === "kling-omni")) {
+      payload.element_image_url = elementImage;
+    }
+
+    // Map resolution
+    if (resolution === "4K") {
+      payload.resolution = "2160p";
+    } else {
+      payload.resolution = resolution.toLowerCase();
+    }
+
+    console.log("Calling fal.ai with:", { endpoint, payload });
 
     // Call fal.ai API
-    const result = await fal.subscribe(model, {
-      input,
+    const result = await fal.subscribe(endpoint, {
+      input: payload,
       logs: true,
       onQueueUpdate: (update) => {
-        if (update.status === "IN_PROGRESS") {
-          console.log("Generation progress:", update.logs);
-        }
+        console.log("Queue update:", update);
       },
     });
 
-    console.log("Generation complete:", result);
+    console.log("fal.ai result:", result);
 
-    // Extract video URL from result
-    const resultData = result as any;
-    let videoUrl = "";
-    
-    if (resultData.video) {
-      videoUrl = typeof resultData.video === "string" ? resultData.video : resultData.video.url;
-    } else if (resultData.data?.video) {
-      videoUrl = typeof resultData.data.video === "string" ? resultData.data.video : resultData.data.video.url;
-    }
-
-    if (!videoUrl) {
-      throw new Error("No video URL in response");
-    }
-
+    // Return the video URL
     return res.status(200).json({
-      video_url: videoUrl,
-      duration: resultData.duration || duration,
-      model,
+      success: true,
+      videoUrl: result.video?.url || result.video_url || result.output?.url,
+      duration: result.duration,
+      data: result,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Video generation error:", error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : "Failed to generate video",
+      error: error.message || "Failed to generate video",
+      details: error.response?.data || error,
     });
   }
 }

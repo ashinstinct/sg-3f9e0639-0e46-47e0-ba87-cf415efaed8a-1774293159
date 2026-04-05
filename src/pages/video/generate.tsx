@@ -237,12 +237,48 @@ export default function VideoGenerate() {
   };
 
   const handleGenerate = async () => {
-    if (!prompt && !startFrame && !elementImage) return;
+    if (!prompt && !startFrame && !elementImage) {
+      alert("Please enter a prompt or upload an image");
+      return;
+    }
+
     setIsGenerating(true);
-    // Simulate generation
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-    setGeneratedVideo("https://assets.mixkit.co/videos/preview/mixkit-abstract-gradient-background-with-colors-31622-large.mp4");
-    setIsGenerating(false);
+    setGeneratedVideo(null);
+
+    try {
+      const response = await fetch("/api/fal/video-generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          modelId: selectedVersion.id,
+          prompt,
+          duration,
+          aspectRatio: aspectRatio.id,
+          audioEnabled,
+          startImage: startFrame,
+          endImage: endFrame,
+          elementImage,
+          resolution,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to generate video");
+      }
+
+      if (data.success && data.videoUrl) {
+        setGeneratedVideo(data.videoUrl);
+      } else {
+        throw new Error("No video URL in response");
+      }
+    } catch (error: any) {
+      console.error("Generation error:", error);
+      alert(error.message || "Failed to generate video. Please try again.");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const filteredModels = VIDEO_MODELS.filter(m => 
@@ -590,17 +626,27 @@ export default function VideoGenerate() {
                   </div>
                 )}
 
-                <Button 
-                  onClick={handleGenerate} 
+                {/* Generate Button */}
+                <button
+                  onClick={handleGenerate}
                   disabled={isGenerating || (!prompt && !startFrame && !elementImage)}
-                  className="w-full h-14 text-base font-bold bg-[#E6F85E] hover:bg-[#D4E555] text-black rounded-2xl shadow-none"
+                  className="w-full py-4 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 disabled:from-gray-600 disabled:to-gray-700 text-black disabled:text-gray-400 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all disabled:cursor-not-allowed"
                 >
-                  {isGenerating ? "Generating..." : (
+                  {isGenerating ? (
                     <>
-                      Generate <Sparkles className="w-4 h-4 mx-1" /> {totalCredits}
+                      <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      Generate
+                      <span className="flex items-center gap-1">
+                        <Sparkles className="w-5 h-5" />
+                        {totalCredits * batchCount}
+                      </span>
                     </>
                   )}
-                </Button>
+                </button>
 
               </CardContent>
             </Card>
