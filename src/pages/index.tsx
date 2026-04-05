@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowRight, Sparkles, Image as ImageIcon, Video, Music, Scissors, Wand2, Play } from "lucide-react";
+import { Hero } from "@/components/Hero";
+import { ToolsGrid } from "@/components/ToolsGrid";
 
 export default function Home() {
   const featuredTools = [

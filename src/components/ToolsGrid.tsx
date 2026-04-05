@@ -159,7 +159,7 @@ interface ToolsGridProps {
   showAuthenticatedView?: boolean;
 }
 
-export function ToolsGrid() {
+export function ToolsGrid({ showAuthenticatedView }: ToolsGridProps = {}) {
   return (
     <section className="py-6">
       <div className="text-center mb-6">

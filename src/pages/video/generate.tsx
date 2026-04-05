@@ -220,6 +220,7 @@ export default function VideoGeneratePage() {
   const [selectedModel, setSelectedModel] = useState(VIDEO_MODELS[0]);
   const [selectedVersion, setSelectedVersion] = useState(VIDEO_MODELS[0].versions[0]);
   const [prompt, setPrompt] = useState("");
+  const [copied, setCopied] = useState(false);
   const [negativePrompt, setNegativePrompt] = useState("");
   const [duration, setDuration] = useState(5);
   const [aspectRatio, setAspectRatio] = useState(ASPECT_RATIOS[0]);

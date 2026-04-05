@@ -186,14 +186,14 @@ export default function VideoHub() {
                       
                       <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
                         <div className="flex flex-wrap gap-1">
-                          {tool.versions.map((version) => (
-                            <span key={version.id} className="text-xs px-2 py-0.5 rounded-full bg-muted/50 text-muted-foreground">
-                              {version.name}
+                          {tool.versions?.map((version) => (
+                            <span key={version} className="text-xs px-2 py-0.5 rounded-full bg-muted/50 text-muted-foreground">
+                              {version}
                             </span>
                           ))}
                         </div>
                         <span className="text-xs font-medium text-amber-500">
-                          {tool.versions[0].credits}+ credits
+                          {tool.credits}
                         </span>
                       </div>
                     </CardContent>

@@ -282,6 +282,7 @@ export default function ImageGeneratePage() {
   const [selectedModel, setSelectedModel] = useState(imageModels[1]); // Nano Banana (index 1)
   const [selectedVersion, setSelectedVersion] = useState(imageModels[1].versions[0]); // Nano Banana 2.0
   const [prompt, setPrompt] = useState("");
+  const [copied, setCopied] = useState(false);
   const [negativePrompt, setNegativePrompt] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);

@@ -24,7 +24,7 @@ import {
   Loader2,
   Copy,
   Check,
-  Library,
+  Library as LibraryIcon,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -94,7 +94,7 @@ export default function Library() {
         <main className="container mx-auto px-4 py-4 max-w-7xl">
           <div className="text-center space-y-3 mb-4">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20">
-              <Library className="w-4 h-4 text-primary" />
+              <LibraryIcon className="w-4 h-4 text-primary" />
               <span className="text-sm font-medium text-primary">Your Creations</span>
             </div>
             
