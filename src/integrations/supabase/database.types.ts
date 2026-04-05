@@ -86,6 +86,68 @@ export type Database = {
           },
         ]
       }
+      image_generations: {
+        Row: {
+          created_at: string | null
+          credits_used: number
+          guidance_scale: number | null
+          height: number | null
+          id: string
+          image_url: string
+          model_id: string
+          model_name: string
+          negative_prompt: string | null
+          num_steps: number | null
+          prompt: string
+          seed: number | null
+          user_id: string
+          version_name: string | null
+          width: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          credits_used: number
+          guidance_scale?: number | null
+          height?: number | null
+          id?: string
+          image_url: string
+          model_id: string
+          model_name: string
+          negative_prompt?: string | null
+          num_steps?: number | null
+          prompt: string
+          seed?: number | null
+          user_id: string
+          version_name?: string | null
+          width?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          credits_used?: number
+          guidance_scale?: number | null
+          height?: number | null
+          id?: string
+          image_url?: string
+          model_id?: string
+          model_name?: string
+          negative_prompt?: string | null
+          num_steps?: number | null
+          prompt?: string
+          seed?: number | null
+          user_id?: string
+          version_name?: string | null
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "image_generations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -140,6 +202,62 @@ export type Database = {
             foreignKeyName: "user_credits_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_generations: {
+        Row: {
+          aspect_ratio: string | null
+          created_at: string | null
+          credits_used: number
+          duration: number | null
+          id: string
+          model_id: string
+          model_name: string
+          negative_prompt: string | null
+          prompt: string
+          thumbnail_url: string | null
+          user_id: string
+          version_name: string | null
+          video_url: string
+        }
+        Insert: {
+          aspect_ratio?: string | null
+          created_at?: string | null
+          credits_used: number
+          duration?: number | null
+          id?: string
+          model_id: string
+          model_name: string
+          negative_prompt?: string | null
+          prompt: string
+          thumbnail_url?: string | null
+          user_id: string
+          version_name?: string | null
+          video_url: string
+        }
+        Update: {
+          aspect_ratio?: string | null
+          created_at?: string | null
+          credits_used?: number
+          duration?: number | null
+          id?: string
+          model_id?: string
+          model_name?: string
+          negative_prompt?: string | null
+          prompt?: string
+          thumbnail_url?: string | null
+          user_id?: string
+          version_name?: string | null
+          video_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_generations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },

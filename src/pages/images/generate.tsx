@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { hasEnoughCredits, deductCredits, getCreditBalance } from "@/services/creditsService";
+import { saveImageGeneration } from "@/services/libraryService";
 import { Sparkles, Upload, Loader2, Wand2, ImageIcon, Layers, Plus, Minus, Copy, Check, Settings, Download } from "lucide-react";
 import Link from "next/link";
 import { ArrowLeft, Search } from "lucide-react";
@@ -335,6 +336,22 @@ export default function ImageGeneratePage() {
         if (!deductResult.success) {
           console.error("Failed to deduct credits:", deductResult.error);
         }
+
+        // Save to library
+        await saveImageGeneration({
+          imageUrl: data.images[0].url,
+          prompt: finalPrompt,
+          negativePrompt: negativePrompt.trim() || undefined,
+          modelId: selectedModel.id,
+          modelName: selectedModel.name,
+          versionName: selectedVersion.name,
+          width,
+          height,
+          guidanceScale,
+          numSteps,
+          seed: seed || undefined,
+          creditsUsed: selectedVersion.credits,
+        });
 
         setGeneratedImage(data.images[0].url);
         

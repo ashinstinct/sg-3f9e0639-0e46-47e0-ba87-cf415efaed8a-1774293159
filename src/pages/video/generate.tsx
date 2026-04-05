@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import Link from "next/link";
 import { hasEnoughCredits, deductCredits } from "@/services/creditsService";
+import { saveVideoGeneration } from "@/services/libraryService";
 import {
   Video,
   Sparkles,
@@ -473,6 +474,19 @@ export default function VideoGeneratePage() {
         if (!deductResult.success) {
           console.error("Failed to deduct credits:", deductResult.error);
         }
+
+        // Save to library
+        await saveVideoGeneration({
+          videoUrl: data.video.url,
+          prompt: finalPrompt,
+          negativePrompt: negativePrompt.trim() || undefined,
+          modelId: selectedModel.id,
+          modelName: selectedModel.name,
+          versionName: selectedVersion.name,
+          duration,
+          aspectRatio: aspectRatio.id,
+          creditsUsed: selectedVersion.credits,
+        });
 
         setGeneratedVideo(data.video.url);
         
