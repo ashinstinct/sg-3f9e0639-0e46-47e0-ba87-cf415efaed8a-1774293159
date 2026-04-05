@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Music, Upload, Download, Loader2, Play, Pause, Sparkles, Check, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { creditsService } from "@/services/creditsService";
+import { getCreditBalance, hasEnoughCredits, deductCredits } from "@/services/creditsService";
 import { supabase } from "@/integrations/supabase/client";
 
 const STEMS = [
@@ -37,10 +37,8 @@ export default function ProStemSeparator() {
     const checkCredits = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        const credits = await creditsService.getUserCredits(session.user.id);
-        if (credits) {
-          setUserCredits(credits.free_credits + credits.paid_credits);
-        }
+        const credits = await getCreditBalance();
+        setUserCredits(credits);
       }
     };
     checkCredits();
@@ -98,8 +96,8 @@ export default function ProStemSeparator() {
       return;
     }
 
-    const hasCredits = await creditsService.hasEnoughCredits(session.user.id, CREDITS_COST);
-    if (!hasCredits) {
+    const hasBalance = await hasEnoughCredits(CREDITS_COST);
+    if (!hasBalance) {
       toast({
         variant: "destructive",
         title: "Insufficient credits",
@@ -127,26 +125,23 @@ export default function ProStemSeparator() {
         url: `https://example.com/stem-${i}.mp3`,
       }));
 
-      const success = await creditsService.deductCredits(
-        session.user.id,
+      const result = await deductCredits(
         CREDITS_COST,
         "lalal.ai Pro Stem Separator"
       );
 
-      if (!success) {
+      if (!result.success) {
         throw new Error("Failed to deduct credits");
       }
 
       setStems(mockStems);
 
-      const updatedCredits = await creditsService.getUserCredits(session.user.id);
-      if (updatedCredits) {
-        setUserCredits(updatedCredits.free_credits + updatedCredits.paid_credits);
-      }
+      const updatedCredits = await getCreditBalance();
+      setUserCredits(updatedCredits);
 
       toast({
         title: "✅ Stems extracted!",
-        description: `${CREDITS_COST} credits used. ${userCredits ? userCredits - CREDITS_COST : 0} remaining.`,
+        description: `${CREDITS_COST} credits used. ${updatedCredits} remaining.`,
       });
     } catch (error) {
       console.error("Processing error:", error);
