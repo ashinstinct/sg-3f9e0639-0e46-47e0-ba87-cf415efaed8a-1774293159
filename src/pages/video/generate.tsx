@@ -194,6 +194,11 @@ export default function VideoGenerate() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedVideo, setGeneratedVideo] = useState<string | null>(null);
+  const [startFrame, setStartFrame] = useState<string | null>(null);
+  const [endFrame, setEndFrame] = useState<string | null>(null);
+  const [elementImage, setElementImage] = useState<string | null>(null);
+  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
+  const [resolution, setResolution] = useState("1080p");
 
   const handleModelChange = (modelId: string) => {
     const model = VIDEO_MODELS.find((m) => m.id === modelId);
@@ -215,6 +220,22 @@ export default function VideoGenerate() {
     }
   };
 
+  const handleModelVersionSelect = (model: any, version: any) => {
+    setSelectedModel(model);
+    setSelectedVersion(version);
+    setAudioEnabled(version.hasAudio);
+    setDuration(Math.min(duration, version.duration));
+    setIsModelDropdownOpen(false);
+  };
+
+  const getDurationOptions = (version: any) => {
+    if (version.id.startsWith("sora")) return [5, 10, 15, 20].filter(d => d <= version.duration);
+    if (version.id.startsWith("seedance")) return [5, 10, 12].filter(d => d <= version.duration);
+    if (version.id.startsWith("veo")) return [5, 10, 15].filter(d => d <= version.duration);
+    if (version.id.startsWith("kling") && !version.id.includes("3.0") && !version.id.includes("omni")) return [5, 10].filter(d => d <= version.duration);
+    return [version.duration];
+  };
+
   const handleGenerate = async () => {
     if (!prompt && !startFrame && !elementImage) return;
     setIsGenerating(true);
@@ -230,9 +251,8 @@ export default function VideoGenerate() {
   );
 
   // Dynamic Credit Calculation
-  // Cost scales based on duration divided by the base duration mapped to baseCredits
   const calculateCredits = () => {
-    return Math.max(1, Math.round((selectedVersion.baseCredits / selectedVersion.baseDuration) * duration));
+    return Math.max(1, Math.round((selectedVersion.credits / selectedVersion.duration) * duration));
   };
   const totalCredits = calculateCredits();
 
