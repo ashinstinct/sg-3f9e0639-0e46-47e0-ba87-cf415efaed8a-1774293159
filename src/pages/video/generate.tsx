@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import Link from "next/link";
-import { Sparkles, ArrowLeft, Wand2, Image as ImageIcon, Search, Check, Clock, Volume2, X, Info, Maximize2, Monitor, Download, Share2, Twitter, Facebook, MessageCircle, Link2, CheckCircle, Video } from "lucide-react";
+import { Sparkles, ArrowLeft, Wand2, Image as ImageIcon, Search, Check, Clock, Volume2, X, Info, Maximize2, Monitor, Download, Share2, Twitter, Facebook, MessageCircle, Link2, CheckCircle, Video, Loader2, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
 
@@ -188,26 +188,23 @@ const VIDEO_MODELS = [
   },
 ];
 
-export default function VideoGenerate() {
-  const [selectedModel, setSelectedModel] = useState(VIDEO_MODELS[0]);
-  const [selectedVersion, setSelectedVersion] = useState(selectedModel.versions[0]);
+export default function VideoGeneratePage() {
+  const [selectedCategory, setSelectedCategory] = useState(videoModels[0]);
+  const [selectedModel, setSelectedModel] = useState(videoModels[0].versions[0]);
+  const [selectedVersion, setSelectedVersion] = useState(videoModels[0].versions[0].models[0]);
   const [prompt, setPrompt] = useState("");
-  const [enhancePrompt, setEnhancePrompt] = useState(true);
-  const [audioEnabled, setAudioEnabled] = useState(selectedModel.versions[0].hasAudio);
-  const [multiShot, setMultiShot] = useState(false);
-  const [uploadMode, setUploadMode] = useState<"elements" | "frames">("elements");
-  const [aspectRatio, setAspectRatio] = useState(ASPECT_RATIOS[0]);
+  const [negativePrompt, setNegativePrompt] = useState("");
   const [duration, setDuration] = useState(5);
-  const [batchCount, setBatchCount] = useState(1);
+  const [aspectRatio, setAspectRatio] = useState("16:9");
   const [searchQuery, setSearchQuery] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
   const [generatedVideo, setGeneratedVideo] = useState<string | null>(null);
-  const [startFrame, setStartFrame] = useState<string | null>(null);
-  const [endFrame, setEndFrame] = useState<string | null>(null);
-  const [elementImage, setElementImage] = useState<string | null>(null);
-  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
-  const [resolution, setResolution] = useState("1080p");
-  const [copySuccess, setCopySuccess] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // LTX-2 multimodal inputs
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [audioFile, setAudioFile] = useState<File | null>(null);
 
   const handleModelChange = (modelId: string) => {
     const model = VIDEO_MODELS.find((m) => m.id === modelId);
@@ -305,28 +302,49 @@ export default function VideoGenerate() {
   };
 
   const handleGenerate = async () => {
-    if (!prompt && !startFrame && !elementImage) {
-      alert("Please enter a prompt or upload an image");
+    if (!prompt.trim()) {
+      setError("Please enter a prompt");
       return;
     }
 
     setIsGenerating(true);
+    setError(null);
     setGeneratedVideo(null);
 
     try {
+      // For LTX-2, convert files to URLs if provided
+      let imageUrl: string | undefined;
+      let videoUrl: string | undefined;
+      let audioUrl: string | undefined;
+
+      if (selectedCategory.id === "ltx") {
+        if (imageFile) {
+          // In production, upload to storage and get URL
+          // For now, create object URL (client-side only)
+          imageUrl = URL.createObjectURL(imageFile);
+        }
+        if (videoFile) {
+          videoUrl = URL.createObjectURL(videoFile);
+        }
+        if (audioFile) {
+          audioUrl = URL.createObjectURL(audioFile);
+        }
+      }
+
       const response = await fetch("/api/fal/video-generate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          modelId: selectedVersion.id,
-          prompt,
+          model: selectedVersion.id,
+          prompt: prompt.trim(),
+          negativePrompt: negativePrompt.trim() || undefined,
           duration,
-          aspectRatio: aspectRatio.id,
-          audioEnabled,
-          startImage: startFrame,
-          endImage: endFrame,
-          elementImage,
-          resolution,
+          aspectRatio,
+          imageUrl,
+          videoUrl,
+          audioUrl,
         }),
       });
 
@@ -336,23 +354,27 @@ export default function VideoGenerate() {
         throw new Error(data.error || "Failed to generate video");
       }
 
-      if (data.success && data.videoUrl) {
-        setGeneratedVideo(data.videoUrl);
+      if (data.success && data.video) {
+        setGeneratedVideo(data.video.url);
       } else {
-        throw new Error("No video URL in response");
+        throw new Error("No video returned from API");
       }
-    } catch (error: any) {
-      console.error("Generation error:", error);
-      alert(error.message || "Failed to generate video. Please try again.");
+    } catch (err: any) {
+      setError(err.message || "Failed to generate video");
+      console.error("Generation error:", err);
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const filteredModels = VIDEO_MODELS.filter(m => 
-    m.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    m.company.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredModels = videoModels.filter((model) => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      model.name.toLowerCase().includes(searchLower) ||
+      model.company.toLowerCase().includes(searchLower) ||
+      model.description?.toLowerCase().includes(searchLower)
+    );
+  });
 
   // Dynamic Credit Calculation
   const calculateCredits = () => {
@@ -695,26 +717,168 @@ export default function VideoGenerate() {
                 )}
 
                 {/* Generate Button */}
-                <button
+                <Button
                   onClick={handleGenerate}
-                  disabled={isGenerating || (!prompt && !startFrame && !elementImage)}
-                  className="w-full py-4 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 disabled:from-gray-600 disabled:to-gray-700 text-black disabled:text-gray-400 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all disabled:cursor-not-allowed"
+                  disabled={isGenerating || !prompt.trim()}
+                  className="w-full h-14 text-lg font-semibold"
+                  size="lg"
                 >
                   {isGenerating ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                      Generating...
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Generating Video...
                     </>
                   ) : (
                     <>
-                      Generate
-                      <span className="flex items-center gap-1">
-                        <Sparkles className="w-5 h-5" />
-                        {totalCredits * batchCount}
-                      </span>
+                      <Sparkles className="w-5 h-5 mr-2" />
+                      Generate Video ({selectedVersion.credits} credits)
                     </>
                   )}
-                </button>
+                </Button>
+
+                {/* Error Message */}
+                {error && (
+                  <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+                    {error}
+                  </div>
+                )}
+
+                {/* Generated Video Preview */}
+                {generatedVideo && (
+                  <div className="mt-6 rounded-xl overflow-hidden border-0">
+                    <video
+                      src={generatedVideo}
+                      controls
+                      className="w-full"
+                      autoPlay
+                      loop
+                    />
+                    <div className="p-4 bg-muted/50 flex gap-2">
+                      <Button
+                        onClick={() => window.open(generatedVideo, "_blank")}
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                      >
+                        <Upload className="w-4 h-4 mr-2" />
+                        Open Full Size
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          const a = document.createElement("a");
+                          a.href = generatedVideo;
+                          a.download = `generated-video-${Date.now()}.mp4`;
+                          a.click();
+                        }}
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                      >
+                        Download
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* LTX-2 Multimodal Inputs */}
+                {selectedModel?.id === "ltx" && selectedVersion && (
+                  <div className="space-y-4 p-4 rounded-lg bg-muted/50 border border-border">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Sparkles className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-semibold">Multimodal Inputs (Optional)</span>
+                    </div>
+                    
+                    {/* Image Input */}
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Reference Image</Label>
+                      <div className="flex gap-2">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          id="ltx-image-upload"
+                          onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                        />
+                        <label
+                          htmlFor="ltx-image-upload"
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-dashed border-border rounded-lg hover:bg-muted cursor-pointer transition-colors"
+                        >
+                          <ImageIcon className="w-4 h-4" />
+                          <span className="text-sm">{imageFile ? imageFile.name : "Upload Image"}</span>
+                        </label>
+                        {imageFile && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setImageFile(null)}
+                          >
+                            Clear
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Video Input */}
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Reference Video</Label>
+                      <div className="flex gap-2">
+                        <input
+                          type="file"
+                          accept="video/*"
+                          className="hidden"
+                          id="ltx-video-upload"
+                          onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                        />
+                        <label
+                          htmlFor="ltx-video-upload"
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-dashed border-border rounded-lg hover:bg-muted cursor-pointer transition-colors"
+                        >
+                          <Video className="w-4 h-4" />
+                          <span className="text-sm">{videoFile ? videoFile.name : "Upload Video"}</span>
+                        </label>
+                        {videoFile && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setVideoFile(null)}
+                          >
+                            Clear
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Audio Input */}
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Audio Track (Synced)</Label>
+                      <div className="flex gap-2">
+                        <input
+                          type="file"
+                          accept="audio/*"
+                          className="hidden"
+                          id="ltx-audio-upload"
+                          onChange={(e) => setAudioFile(e.target.files?.[0] || null)}
+                        />
+                        <label
+                          htmlFor="ltx-audio-upload"
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-dashed border-border rounded-lg hover:bg-muted cursor-pointer transition-colors"
+                        >
+                          <Volume2 className="w-4 h-4" />
+                          <span className="text-sm">{audioFile ? audioFile.name : "Upload Audio"}</span>
+                        </label>
+                        {audioFile && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setAudioFile(null)}
+                          >
+                            Clear
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
               </CardContent>
             </Card>
