@@ -114,13 +114,13 @@ export default async function handler(
     console.log("Calling fal.ai with:", { endpoint, payload });
 
     // Call fal.ai API
-    const result = await fal.subscribe(endpoint, {
+    const result = (await fal.subscribe(endpoint, {
       input: payload,
       logs: true,
       onQueueUpdate: (update) => {
         console.log("Queue update:", update);
       },
-    });
+    })) as any;
 
     console.log("fal.ai result:", result);
 
