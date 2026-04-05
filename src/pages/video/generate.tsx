@@ -4,28 +4,21 @@ import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Video, Loader2, Wand2, ArrowLeft, Volume2, VolumeX, Plus, Sparkles } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Video, Loader2, Wand2, ArrowLeft, Volume2, VolumeX, Upload, Search, Check, Sparkles } from "lucide-react";
 import Link from "next/link";
-
-type AspectRatio = "16:9" | "9:16" | "1:1" | "4:3" | "3:4";
-
-const ASPECT_RATIOS: Array<{ value: AspectRatio; label: string }> = [
-  { value: "16:9", label: "16:9 (Landscape)" },
-  { value: "9:16", label: "9:16 (Portrait)" },
-  { value: "1:1", label: "1:1 (Square)" },
-  { value: "4:3", label: "4:3 (Standard)" },
-  { value: "3:4", label: "3:4 (Portrait)" },
-];
 
 const VIDEO_MODELS = [
   {
     id: "kling",
     name: "Kling",
     company: "Kuaishou AI",
-    latestVersion: "3.0",
+    icon: "🎬",
+    badge: null,
+    description: "Perfect motion with advanced video control",
     versions: [
       { id: "kling-3.0", name: "Kling 3.0", credits: 20, duration: 10, hasAudio: true, hasElements: false },
       { id: "kling-2.6", name: "Kling 2.6", credits: 18, duration: 10, hasAudio: true, hasElements: false },
@@ -39,16 +32,20 @@ const VIDEO_MODELS = [
     id: "luma",
     name: "Luma Dream Machine",
     company: "Luma AI",
-    latestVersion: null,
+    icon: "⚡",
+    badge: null,
+    description: "Fast, high-quality video generation",
     versions: [
       { id: "luma-dream", name: "Luma Dream Machine", credits: 15, duration: 5, hasAudio: false, hasElements: false },
     ],
   },
   {
     id: "runway",
-    name: "Runway",
+    name: "Runway Gen-3",
     company: "Runway ML",
-    latestVersion: "Gen-3",
+    icon: "🎥",
+    badge: null,
+    description: "Professional-grade video generation",
     versions: [
       { id: "runway-gen3", name: "Gen-3 Alpha", credits: 18, duration: 10, hasAudio: false, hasElements: false },
       { id: "runway-gen3-turbo", name: "Gen-3 Turbo", credits: 15, duration: 10, hasAudio: false, hasElements: false },
@@ -56,9 +53,11 @@ const VIDEO_MODELS = [
   },
   {
     id: "minimax",
-    name: "MiniMax Video",
+    name: "MiniMax Hailuo",
     company: "Hailuo AI",
-    latestVersion: null,
+    icon: "🌟",
+    badge: null,
+    description: "High-dynamic, VFX-ready, fastest and most affordable",
     versions: [
       { id: "minimax-video", name: "MiniMax Video", credits: 12, duration: 6, hasAudio: false, hasElements: false },
     ],
@@ -67,16 +66,20 @@ const VIDEO_MODELS = [
     id: "hunyuan",
     name: "Hunyuan Video",
     company: "Tencent",
-    latestVersion: null,
+    icon: "🐉",
+    badge: null,
+    description: "Advanced scene understanding and realistic motion",
     versions: [
       { id: "hunyuan-video", name: "Hunyuan Video", credits: 16, duration: 8, hasAudio: false, hasElements: false },
     ],
   },
   {
     id: "grok",
-    name: "Grok Video",
+    name: "Grok Imagine",
     company: "xAI",
-    latestVersion: null,
+    icon: "🤖",
+    badge: null,
+    description: "Perfect motion with advanced video control",
     versions: [
       { id: "grok-video", name: "Grok Video", credits: 22, duration: 10, hasAudio: false, hasElements: false },
     ],
@@ -85,182 +88,254 @@ const VIDEO_MODELS = [
     id: "seedance",
     name: "Seedance",
     company: "Bytedance",
-    latestVersion: "1.5 Pro",
+    icon: "📊",
+    badge: null,
+    description: "Cinematic, multi-shot video creation",
     versions: [
       { id: "seedance-1.5-pro", name: "Seedance 1.5 Pro", credits: 20, duration: 12, hasAudio: false, hasElements: false },
     ],
   },
   {
     id: "sora",
-    name: "Sora",
+    name: "OpenAI Sora 2",
     company: "OpenAI",
-    latestVersion: "2.0",
+    icon: "🎯",
+    badge: null,
+    description: "Multi-shot video with sound generation",
     versions: [
       { id: "sora-2.0", name: "Sora 2.0", credits: 25, duration: 20, hasAudio: true, hasElements: false },
     ],
   },
   {
     id: "veo",
-    name: "Veo",
+    name: "Google Veo",
     company: "Google",
-    latestVersion: "3.1",
-    comingSoon: true,
+    icon: "🔮",
+    badge: "SOON",
+    description: "Precision video with sound control",
     versions: [
       { id: "veo-3.1", name: "Veo 3.1", credits: 22, duration: 15, hasAudio: false, hasElements: false },
       { id: "veo-3.1-fast", name: "Veo 3.1 Fast", credits: 18, duration: 15, hasAudio: false, hasElements: false },
     ],
   },
   {
+    id: "wan",
+    name: "Wan",
+    company: "Various",
+    icon: "🎪",
+    badge: null,
+    description: "Camera-controlled video with sound, more freedom",
+    versions: [
+      { id: "wan-2.2", name: "Wan 2.2", credits: 18, duration: 10, hasAudio: true, hasElements: false },
+    ],
+  },
+  {
     id: "seedream",
-    name: "Seedream",
+    name: "Seedream 2.0",
     company: "Bytedance",
-    latestVersion: "2.0",
-    comingSoon: true,
+    icon: "💫",
+    badge: "SOON",
+    description: "Next-gen video synthesis with temporal consistency",
     versions: [
       { id: "seedream-2.0", name: "Seedream 2.0", credits: 20, duration: 12, hasAudio: false, hasElements: false },
     ],
   },
 ];
 
-export default function VideoGenerator() {
-  const [selectedModelFamily, setSelectedModelFamily] = useState(VIDEO_MODELS[0]);
-  const [selectedVersion, setSelectedVersion] = useState(VIDEO_MODELS[0].versions[0]);
+const ASPECT_RATIOS = [
+  { id: "16:9", name: "16:9", value: "16:9" },
+  { id: "9:16", name: "9:16", value: "9:16" },
+  { id: "1:1", name: "1:1", value: "1:1" },
+  { id: "4:3", name: "4:3", value: "4:3" },
+  { id: "3:4", name: "3:4", value: "3:4" },
+];
+
+const DURATIONS = [
+  { id: "5s", name: "5s", value: 5 },
+  { id: "8s", name: "8s", value: 8 },
+  { id: "10s", name: "10s", value: 10 },
+  { id: "12s", name: "12s", value: 12 },
+  { id: "15s", name: "15s", value: 15 },
+  { id: "20s", name: "20s", value: 20 },
+];
+
+export default function VideoGenerate() {
+  const [selectedModel, setSelectedModel] = useState(VIDEO_MODELS[0]);
+  const [selectedVersion, setSelectedVersion] = useState(selectedModel.versions[0]);
   const [prompt, setPrompt] = useState("");
-  const [enhancePrompt, setEnhancePrompt] = useState(false);
+  const [enhancePrompt, setEnhancePrompt] = useState(true);
   const [audioEnabled, setAudioEnabled] = useState(false);
-  const [showElements, setShowElements] = useState(false);
-  const [aspectRatio, setAspectRatio] = useState<AspectRatio>("16:9");
+  const [aspectRatio, setAspectRatio] = useState(ASPECT_RATIOS[0]);
+  const [duration, setDuration] = useState(DURATIONS[2]);
+  const [batchCount, setBatchCount] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedVideo, setGeneratedVideo] = useState("");
-  const [credits, setCredits] = useState(0);
+  const [generatedVideo, setGeneratedVideo] = useState<string | null>(null);
 
-  useEffect(() => {
-    const storedCredits = localStorage.getItem("userCredits");
-    setCredits(storedCredits ? parseInt(storedCredits) : 0);
-  }, []);
-
-  const handleModelFamilyChange = (modelId: string) => {
-    const model = VIDEO_MODELS.find(m => m.id === modelId);
+  const handleModelChange = (modelId: string) => {
+    const model = VIDEO_MODELS.find((m) => m.id === modelId);
     if (model) {
-      setSelectedModelFamily(model);
+      setSelectedModel(model);
       setSelectedVersion(model.versions[0]);
-      // Reset toggles based on new model capabilities
       setAudioEnabled(false);
-      setShowElements(false);
     }
   };
 
   const handleVersionChange = (versionId: string) => {
-    const version = selectedModelFamily.versions.find(v => v.id === versionId);
+    const version = selectedModel.versions.find((v) => v.id === versionId);
     if (version) {
       setSelectedVersion(version);
-      // Reset toggles if new version doesn't support them
       if (!version.hasAudio) setAudioEnabled(false);
-      if (!version.hasElements) setShowElements(false);
     }
   };
+
+  const filteredModels = VIDEO_MODELS.filter(
+    (model) =>
+      model.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      model.company.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleGenerate = async () => {
-    if (!prompt.trim()) {
-      alert("Please enter a prompt");
-      return;
-    }
-
-    if (selectedModelFamily.comingSoon) {
-      alert(`${selectedModelFamily.name} is coming soon!`);
-      return;
-    }
-
-    if (credits < selectedVersion.credits) {
-      alert(`Not enough credits. Need ${selectedVersion.credits}, have ${credits}`);
-      return;
-    }
-
     setIsGenerating(true);
-    
-    try {
-      await new Promise(resolve => setTimeout(resolve, 5000));
-      
-      setGeneratedVideo("https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
-      
-      const newCredits = credits - selectedVersion.credits;
-      setCredits(newCredits);
-      localStorage.setItem("userCredits", newCredits.toString());
-    } catch (error) {
-      console.error("Generation error:", error);
-      alert("Failed to generate video");
-    } finally {
+    setTimeout(() => {
       setIsGenerating(false);
-    }
+    }, 3000);
   };
+
+  const totalCredits = selectedVersion.credits * batchCount;
 
   return (
     <>
       <SEO
         title="AI Video Generator - Back2Life.Studio"
-        description="Generate stunning videos with the latest AI models from Kling, Luma, Runway, Sora, Veo, and more."
+        description="Generate stunning videos with the latest AI models"
       />
-      
+
       <div className="min-h-screen bg-background">
         <Navigation />
-        
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
-          <div className="grid lg:grid-cols-2 gap-6">
-            <Card className="border-2">
-              <CardContent className="p-6 space-y-6">
-                <Link href="/video" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Video
-                </Link>
 
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h1 className="font-heading font-bold text-3xl">AI Video Generator</h1>
-                    <p className="text-sm text-muted-foreground mt-1">Choose from 10 professional models</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm text-muted-foreground">Credits</div>
-                    <div className="text-2xl font-bold">{credits}</div>
+        <div className="container mx-auto px-4 py-8 max-w-5xl">
+          <Card className="border-2">
+            <CardContent className="p-8">
+              <Link
+                href="/video"
+                className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Video
+              </Link>
+
+              <div className="mb-6">
+                <h1 className="font-heading font-bold text-3xl mb-2">Create Video</h1>
+                <p className="text-muted-foreground">
+                  Generate high-quality videos using AI models
+                </p>
+              </div>
+
+              <div className="space-y-6">
+                {/* Video Upload Area (for image-to-video) */}
+                <div className="border-2 border-dashed border-muted-foreground/20 rounded-xl p-12 text-center hover:border-muted-foreground/40 transition-colors cursor-pointer">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                      <Upload className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground font-medium">
+                        Choose images to upload <span className="text-muted-foreground/60">(up to 2)</span>
+                      </p>
+                      <p className="text-xs text-muted-foreground/60 mt-1">
+                        Optional - for image-to-video generation
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                {/* Model Family Selector */}
+                {/* Prompt */}
                 <div className="space-y-2">
-                  <Label>Model</Label>
-                  <Select value={selectedModelFamily.id} onValueChange={handleModelFamilyChange}>
-                    <SelectTrigger className="w-full h-14">
-                      <div className="flex items-center justify-between w-full">
-                        <div>
-                          <div className="font-semibold text-base">{selectedModelFamily.name}</div>
-                          <div className="text-xs text-muted-foreground">{selectedModelFamily.company}</div>
+                  <Textarea
+                    placeholder="Describe your video, like 'A woman walking through a neon-lit city'. Add elements using @"
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    className="min-h-[120px] resize-none text-base"
+                  />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id="enhance"
+                        checked={enhancePrompt}
+                        onCheckedChange={setEnhancePrompt}
+                      />
+                      <Label htmlFor="enhance" className="text-sm cursor-pointer">
+                        Enhance prompt with AI
+                      </Label>
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {prompt.length}/2000
+                    </span>
+                  </div>
+                </div>
+
+                {/* Model Selector */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2 text-muted-foreground text-sm">
+                    <Video className="w-4 h-4" />
+                    Model
+                  </Label>
+                  <Select value={selectedModel.id} onValueChange={handleModelChange}>
+                    <SelectTrigger className="h-14">
+                      <div className="flex items-center gap-3 w-full">
+                        <span className="text-2xl">{selectedModel.icon}</span>
+                        <div className="flex-1 text-left">
+                          <div className="font-semibold flex items-center gap-2">
+                            {selectedModel.name}
+                            {selectedModel.badge && (
+                              <span className="text-[10px] font-bold bg-yellow-500/20 text-yellow-500 px-2 py-0.5 rounded">
+                                {selectedModel.badge}
+                              </span>
+                            )}
+                          </div>
+                          {selectedModel.versions.length > 1 && (
+                            <div className="text-xs text-muted-foreground">
+                              {selectedVersion.name}
+                            </div>
+                          )}
                         </div>
-                        {selectedModelFamily.comingSoon && (
-                          <span className="text-xs bg-blue-500/10 text-blue-500 px-2 py-1 rounded-full">Coming Soon</span>
-                        )}
                       </div>
                     </SelectTrigger>
-                    <SelectContent className="max-h-[400px]">
-                      {VIDEO_MODELS.map((model) => (
+                    <SelectContent className="max-h-[500px]">
+                      <div className="sticky top-0 bg-background p-2 border-b">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            placeholder="Search..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-9"
+                          />
+                        </div>
+                      </div>
+                      {filteredModels.map((model) => (
                         <SelectItem key={model.id} value={model.id} className="h-auto py-3">
-                          <div className="flex items-start justify-between w-full gap-4">
-                            <div className="flex-1">
-                              <div className="font-semibold text-base mb-0.5 flex items-center gap-2">
+                          <div className="flex items-center gap-3 w-full">
+                            <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                              <span className="text-xl">{model.icon}</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-semibold flex items-center gap-2 mb-0.5">
                                 {model.name}
-                                {model.comingSoon && (
-                                  <span className="text-xs bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded-full">Soon</span>
+                                {model.badge && (
+                                  <span className="text-[10px] font-bold bg-yellow-500/20 text-yellow-500 px-2 py-0.5 rounded">
+                                    {model.badge}
+                                  </span>
                                 )}
                               </div>
-                              <div className="text-xs text-muted-foreground mb-1">{model.company}</div>
-                              <div className="text-xs text-muted-foreground/80">
-                                Max {model.versions[0].duration}s
-                                {model.versions.length > 1 && ` • ${model.versions.length} versions`}
-                                {model.versions[0].hasAudio && " • Audio"}
-                                {model.versions[0].hasElements && " • Elements"}
+                              <div className="text-xs text-muted-foreground line-clamp-1">
+                                {model.description}
                               </div>
                             </div>
-                            <div className="text-xs text-amber-500 font-semibold whitespace-nowrap">
-                              {model.versions[0].credits} credits
-                            </div>
+                            {selectedModel.id === model.id && (
+                              <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                            )}
                           </div>
                         </SelectItem>
                       ))}
@@ -268,30 +343,27 @@ export default function VideoGenerator() {
                   </Select>
                 </div>
 
-                {/* Version Selector (if model has multiple versions) */}
-                {selectedModelFamily.versions.length > 1 && (
+                {/* Version Selector */}
+                {selectedModel.versions.length > 1 && (
                   <div className="space-y-2">
-                    <Label>Version</Label>
+                    <Label className="text-sm text-muted-foreground">Version</Label>
                     <Select value={selectedVersion.id} onValueChange={handleVersionChange}>
-                      <SelectTrigger className="w-full h-12">
+                      <SelectTrigger className="h-12">
                         <div className="flex items-center justify-between w-full">
                           <span className="font-medium">{selectedVersion.name}</span>
-                          <span className="text-xs text-amber-500">{selectedVersion.credits} credits</span>
+                          <span className="text-xs text-amber-500">
+                            {selectedVersion.credits} credits
+                          </span>
                         </div>
                       </SelectTrigger>
                       <SelectContent>
-                        {selectedModelFamily.versions.map((version) => (
+                        {selectedModel.versions.map((version) => (
                           <SelectItem key={version.id} value={version.id} className="h-auto py-2.5">
                             <div className="flex items-center justify-between w-full gap-4">
-                              <div className="flex-1">
-                                <div className="font-medium text-sm mb-0.5">{version.name}</div>
-                                <div className="text-xs text-muted-foreground">
-                                  Max {version.duration}s
-                                  {version.hasAudio && " • Audio"}
-                                  {version.hasElements && " • Elements"}
-                                </div>
-                              </div>
-                              <span className="text-xs text-amber-500 font-semibold">{version.credits} credits</span>
+                              <span className="font-medium">{version.name}</span>
+                              <span className="text-xs text-amber-500">
+                                {version.credits} credits
+                              </span>
                             </div>
                           </SelectItem>
                         ))}
@@ -300,41 +372,14 @@ export default function VideoGenerator() {
                   </div>
                 )}
 
-                {/* Prompt */}
-                <div className="space-y-2">
-                  <Label htmlFor="prompt">Prompt</Label>
-                  <Textarea
-                    id="prompt"
-                    placeholder="A serene ocean sunset with waves gently rolling onto a sandy beach..."
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    rows={4}
-                    className="resize-none"
-                  />
-                  <div className="flex items-center justify-between">
-                    <div className="text-xs text-muted-foreground">{prompt.length} characters</div>
-                    
-                    {/* Enhance Prompt Toggle */}
-                    <div className="flex items-center gap-2">
-                      <Switch
-                        id="enhance-prompt"
-                        checked={enhancePrompt}
-                        onCheckedChange={setEnhancePrompt}
-                      />
-                      <Label htmlFor="enhance-prompt" className="text-sm cursor-pointer flex items-center gap-1">
-                        <Wand2 className="w-3 h-3" />
-                        Enhance Prompt
-                      </Label>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Audio Toggle (only if model supports it) */}
+                {/* Audio Toggle */}
                 {selectedVersion.hasAudio && (
                   <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                     <div className="flex items-center gap-2">
                       {audioEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-                      <Label htmlFor="audio-toggle" className="cursor-pointer">Generate with Audio</Label>
+                      <Label htmlFor="audio-toggle" className="cursor-pointer">
+                        Generate with Audio
+                      </Label>
                     </div>
                     <Switch
                       id="audio-toggle"
@@ -344,107 +389,94 @@ export default function VideoGenerator() {
                   </div>
                 )}
 
-                {/* Elements Button (only for Kling 01 & Omni) */}
-                {selectedVersion.hasElements && (
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowElements(!showElements)}
-                    className="w-full"
+                {/* Bottom Controls */}
+                <div className="flex items-center gap-3 pt-2">
+                  {/* Aspect Ratio */}
+                  <Select
+                    value={aspectRatio.id}
+                    onValueChange={(id) => setAspectRatio(ASPECT_RATIOS.find((r) => r.id === id)!)}
                   >
-                    <Plus className="w-4 h-4 mr-2" />
-                    {showElements ? "Hide" : "Add"} Elements
-                  </Button>
-                )}
+                    <SelectTrigger className="w-24 h-10 bg-muted/50">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ASPECT_RATIOS.map((ratio) => (
+                        <SelectItem key={ratio.id} value={ratio.id}>
+                          {ratio.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
-                {/* Elements Panel (Kling 01 & Omni only) */}
-                {selectedVersion.hasElements && showElements && (
-                  <div className="p-4 bg-muted/30 rounded-lg border-2 border-dashed space-y-3">
-                    <h3 className="font-medium text-sm">Scene Elements</h3>
-                    <p className="text-xs text-muted-foreground">
-                      Add specific elements to your video (camera movement, lighting, objects, etc.)
-                    </p>
-                    <Textarea
-                      placeholder="Example: Camera: Slow zoom in, Lighting: Golden hour, Objects: Flying birds..."
-                      rows={3}
-                      className="resize-none text-sm"
-                    />
-                  </div>
-                )}
+                  {/* Duration */}
+                  <Select
+                    value={duration.id}
+                    onValueChange={(id) => setDuration(DURATIONS.find((d) => d.id === id)!)}
+                  >
+                    <SelectTrigger className="w-20 h-10 bg-muted/50">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DURATIONS.map((dur) => (
+                        <SelectItem key={dur.id} value={dur.id}>
+                          {dur.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
-                {/* Aspect Ratio */}
-                <div className="space-y-2">
-                  <Label>Aspect Ratio</Label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {ASPECT_RATIOS.map((ratio) => (
-                      <Button
-                        key={ratio.value}
-                        variant={aspectRatio === ratio.value ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setAspectRatio(ratio.value)}
-                        className="text-xs"
-                      >
-                        {ratio.label}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Duration Info */}
-                <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
-                  <strong>Max Duration:</strong> {selectedVersion.duration} seconds
-                  {selectedModelFamily.comingSoon && (
-                    <span className="ml-2 text-xs bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded-full">Coming Soon</span>
-                  )}
+                  {/* Batch Count */}
+                  <Select
+                    value={batchCount.toString()}
+                    onValueChange={(val) => setBatchCount(parseInt(val))}
+                  >
+                    <SelectTrigger className="w-16 h-10 bg-muted/50">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4].map((count) => (
+                        <SelectItem key={count} value={count.toString()}>
+                          {count}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Generate Button */}
                 <Button
+                  size="lg"
+                  className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 text-black"
                   onClick={handleGenerate}
-                  disabled={isGenerating || !prompt.trim() || selectedModelFamily.comingSoon}
-                  className="w-full h-14 text-lg bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-90"
+                  disabled={!prompt.trim() || isGenerating}
                 >
                   {isGenerating ? (
                     <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                       Generating...
                     </>
                   ) : (
                     <>
-                      <Sparkles className="mr-2 h-5 w-5" />
-                      Generate ({selectedVersion.credits} credits)
+                      Generate
+                      <Sparkles className="w-5 h-5 ml-2" />
+                      {totalCredits}
                     </>
                   )}
                 </Button>
-              </CardContent>
-            </Card>
 
-            <Card className="border-2">
-              <CardContent className="p-6">
-                <h2 className="font-heading font-bold text-xl mb-4">Generated Video</h2>
-                
-                {!generatedVideo ? (
-                  <div className="aspect-video rounded-xl bg-muted/50 border-2 border-dashed flex items-center justify-center">
-                    <div className="text-center text-muted-foreground">
-                      <Video className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                      <p>Your generated video will appear here</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
+                {/* Generated Video Preview */}
+                {generatedVideo && (
+                  <div className="mt-6 rounded-xl overflow-hidden border-2">
                     <video
                       src={generatedVideo}
                       controls
-                      className="w-full rounded-xl border-2"
+                      className="w-full"
                     />
-                    <Button variant="outline" className="w-full">
-                      <ArrowLeft className="mr-2 h-4 w-4 rotate-90" />
-                      Download Video
-                    </Button>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </>
