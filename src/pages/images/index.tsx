@@ -162,10 +162,10 @@ export default function ImagesHub() {
               Create stunning images with state-of-the-art AI models
             </p>
             <Link href="/images/generate">
-              <Button variant="outline" className="gap-2">
-                <Sparkles className="w-4 h-4" />
-                Generate Images
-              </Button>
+              <div className="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:from-indigo-600 hover:via-purple-600 hover:to-cyan-600 text-white font-semibold text-lg shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all cursor-pointer border border-white/20">
+                <Sparkles className="w-5 h-5" />
+                Create Images
+              </div>
             </Link>
           </div>
 
