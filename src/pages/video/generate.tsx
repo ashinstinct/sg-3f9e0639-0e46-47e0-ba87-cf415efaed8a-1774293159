@@ -17,6 +17,8 @@ const VIDEO_MODELS = [
     name: "Kling",
     company: "Kuaishou AI",
     icon: "🎬",
+    badge: null,
+    description: "Perfect motion with advanced video control",
     latestVersion: "kling-3.0",
     versions: [
       { id: "kling-3.0", name: "Kling 3.0", credits: 20, duration: 10, hasAudio: true, hasElements: false },
@@ -32,6 +34,8 @@ const VIDEO_MODELS = [
     name: "Luma Dream Machine",
     company: "Luma AI",
     icon: "⚡",
+    badge: null,
+    description: "Fast, high-quality video generation",
     latestVersion: "luma-1.6",
     versions: [
       { id: "luma-1.6", name: "Dream Machine 1.6", credits: 15, duration: 5, hasAudio: false, hasElements: false },
@@ -42,6 +46,8 @@ const VIDEO_MODELS = [
     name: "Runway Gen-3",
     company: "Runway ML",
     icon: "🎥",
+    badge: null,
+    description: "Professional-grade video generation",
     latestVersion: "runway-gen3-alpha",
     versions: [
       { id: "runway-gen3-alpha", name: "Gen-3 Alpha", credits: 18, duration: 10, hasAudio: false, hasElements: false },
@@ -53,6 +59,8 @@ const VIDEO_MODELS = [
     name: "MiniMax Hailuo",
     company: "Hailuo AI",
     icon: "✨",
+    badge: null,
+    description: "High-dynamic, VFX-ready, fastest and most affordable",
     latestVersion: "minimax-02",
     versions: [
       { id: "minimax-02", name: "MiniMax 02", credits: 14, duration: 6, hasAudio: false, hasElements: false },
@@ -66,6 +74,8 @@ const VIDEO_MODELS = [
     name: "Hunyuan Video",
     company: "Tencent",
     icon: "🎬",
+    badge: null,
+    description: "Advanced scene understanding and realistic motion",
     latestVersion: "hunyuan-1.0",
     versions: [
       { id: "hunyuan-1.0", name: "Hunyuan Video", credits: 16, duration: 8, hasAudio: false, hasElements: false },
@@ -76,6 +86,8 @@ const VIDEO_MODELS = [
     name: "Grok Imagine",
     company: "xAI",
     icon: "🌟",
+    badge: null,
+    description: "Perfect motion with advanced video control",
     latestVersion: "grok-1.0",
     versions: [
       { id: "grok-1.0", name: "Grok Imagine", credits: 22, duration: 15, hasAudio: false, hasElements: false },
@@ -86,6 +98,8 @@ const VIDEO_MODELS = [
     name: "Seedance",
     company: "Bytedance",
     icon: "🎭",
+    badge: null,
+    description: "Cinematic, multi-shot video creation",
     latestVersion: "seedance-1.5-pro",
     versions: [
       { id: "seedance-1.5-pro", name: "Seedance 1.5 Pro", credits: 20, duration: 12, hasAudio: false, hasElements: false },
@@ -98,6 +112,8 @@ const VIDEO_MODELS = [
     name: "Sora",
     company: "OpenAI",
     icon: "🎬",
+    badge: null,
+    description: "Multi-shot video with sound generation",
     latestVersion: "sora-2-pro-max",
     versions: [
       { id: "sora-2-pro-max", name: "Sora 2 Pro Max", credits: 30, duration: 20, hasAudio: true, hasElements: false },
@@ -111,7 +127,10 @@ const VIDEO_MODELS = [
     name: "Veo 3",
     company: "Google",
     icon: "🎨",
+    badge: "SOON",
+    description: "Precision video with sound control",
     latestVersion: "veo-3.1",
+    comingSoon: true,
     versions: [
       { id: "veo-3.1", name: "Veo 3.1", credits: 22, duration: 15, hasAudio: true, hasElements: false },
       { id: "veo-3.1-fast", name: "Veo 3.1 Fast", credits: 20, duration: 15, hasAudio: true, hasElements: false },
@@ -124,6 +143,8 @@ const VIDEO_MODELS = [
     name: "Wan 2.2",
     company: "Wan AI",
     icon: "🎬",
+    badge: null,
+    description: "Camera-controlled video with sound, more freedom",
     latestVersion: "wan-2.2-pro",
     versions: [
       { id: "wan-2.2-pro", name: "Wan 2.2 Pro", credits: 18, duration: 10, hasAudio: false, hasElements: false },
@@ -138,6 +159,8 @@ const VIDEO_MODELS = [
     name: "Seedream 2.0",
     company: "Bytedance",
     icon: "🎭",
+    badge: "SOON",
+    description: "Next-gen video synthesis with temporal consistency",
     latestVersion: "seedream-2.0",
     comingSoon: true,
     versions: [
@@ -170,7 +193,7 @@ export default function VideoGenerate() {
   const [enhancePrompt, setEnhancePrompt] = useState(true);
   const [audioEnabled, setAudioEnabled] = useState(false);
   const [aspectRatio, setAspectRatio] = useState(ASPECT_RATIOS[0]);
-  const [duration, setDuration] = useState(DURATIONS[2]);
+  const [duration, setDuration] = useState(10);
   const [batchCount, setBatchCount] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -414,16 +437,16 @@ export default function VideoGenerate() {
 
                   {/* Duration */}
                   <Select
-                    value={duration.id}
-                    onValueChange={(id) => setDuration(DURATIONS.find((d) => d.id === id)!)}
+                    value={duration.toString()}
+                    onValueChange={(val) => setDuration(parseInt(val))}
                   >
                     <SelectTrigger className="w-20 h-10 bg-muted/50">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {DURATIONS.map((dur) => (
-                        <SelectItem key={dur.id} value={dur.id}>
-                          {dur.name}
+                      {Array.from({ length: selectedVersion.duration }, (_, i) => i + 1).map((d) => (
+                        <SelectItem key={d} value={d.toString()}>
+                          {d}s
                         </SelectItem>
                       ))}
                     </SelectContent>

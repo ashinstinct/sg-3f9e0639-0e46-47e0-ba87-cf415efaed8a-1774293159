@@ -17,6 +17,8 @@ const IMAGE_MODELS = [
     name: "FLUX.1",
     company: "Black Forest Labs",
     icon: "⚡",
+    badge: "NEW",
+    description: "State-of-the-art image generation",
     isNew: true,
     latestVersion: "flux-pro",
     versions: [
@@ -32,6 +34,8 @@ const IMAGE_MODELS = [
     name: "Nana Banana",
     company: "fal.ai",
     icon: "🍌",
+    badge: "NEW",
+    description: "Pro quality at Flash speed",
     isNew: true,
     latestVersion: "nana-banana-2",
     versions: [
@@ -45,6 +49,8 @@ const IMAGE_MODELS = [
     name: "Stable Diffusion 3.5",
     company: "Stability AI",
     icon: "🎨",
+    badge: null,
+    description: "Proven open-source standard",
     latestVersion: "sd-3.5-large",
     versions: [
       { id: "sd-3.5-large", name: "SD 3.5 Large", credits: 4, description: "Latest flagship model" },
@@ -56,6 +62,8 @@ const IMAGE_MODELS = [
     name: "Grok Image",
     company: "xAI",
     icon: "🌟",
+    badge: null,
+    description: "Creative interpretations",
     latestVersion: "grok-1.0",
     versions: [
       { id: "grok-1.0", name: "Grok Image", credits: 5, description: "Creative interpretations" },
@@ -66,6 +74,8 @@ const IMAGE_MODELS = [
     name: "Recraft V3",
     company: "Recraft AI",
     icon: "🎯",
+    badge: null,
+    description: "Perfect text rendering",
     latestVersion: "recraft-v3",
     versions: [
       { id: "recraft-v3", name: "Recraft V3", credits: 4, description: "Perfect text rendering" },
@@ -76,6 +86,8 @@ const IMAGE_MODELS = [
     name: "Ideogram",
     company: "Ideogram AI",
     icon: "💎",
+    badge: null,
+    description: "Best-in-class text quality",
     latestVersion: "ideogram-v2",
     versions: [
       { id: "ideogram-v2", name: "Ideogram v2", credits: 4, description: "Best-in-class text quality" },
@@ -87,6 +99,8 @@ const IMAGE_MODELS = [
     name: "Playground",
     company: "Playground AI",
     icon: "🎮",
+    badge: null,
+    description: "Photorealistic specialist",
     latestVersion: "playground-v2.5",
     versions: [
       { id: "playground-v2.5", name: "Playground v2.5", credits: 3, description: "Photorealistic specialist" },
@@ -98,6 +112,8 @@ const IMAGE_MODELS = [
     name: "AuraFlow",
     company: "Fal AI",
     icon: "🌊",
+    badge: null,
+    description: "Open-source FLUX alternative",
     latestVersion: "auraflow-1.0",
     versions: [
       { id: "auraflow-1.0", name: "AuraFlow", credits: 3, description: "Open-source FLUX alternative" },
@@ -108,6 +124,8 @@ const IMAGE_MODELS = [
     name: "GPT Image",
     company: "OpenAI",
     icon: "🤖",
+    badge: "NEW",
+    description: "Latest GPT image generation",
     isNew: true,
     latestVersion: "gpt-image-1.5",
     versions: [
@@ -120,6 +138,8 @@ const IMAGE_MODELS = [
     name: "Seedream",
     company: "Bytedance",
     icon: "🎭",
+    badge: "NEW",
+    description: "Intelligent visual reasoning",
     isNew: true,
     latestVersion: "seedream-5.0-lite",
     versions: [
