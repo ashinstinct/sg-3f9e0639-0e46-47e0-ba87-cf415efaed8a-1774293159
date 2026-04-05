@@ -144,17 +144,25 @@ const RESOLUTIONS = [
   { id: "2k", name: "2K", value: "2048x2048" },
 ];
 
-export default function ImageGenerate() {
+export default function ImageGeneratePage() {
   const [selectedModel, setSelectedModel] = useState(imageModels[1]); // Nano Banana (index 1)
   const [selectedVersion, setSelectedVersion] = useState(imageModels[1].versions[0]); // Nano Banana 2.0
   const [prompt, setPrompt] = useState("");
-  const [enhancePrompt, setEnhancePrompt] = useState(true);
-  const [aspectRatio, setAspectRatio] = useState(ASPECT_RATIOS[0]);
-  const [resolution, setResolution] = useState(RESOLUTIONS[0]);
-  const [batchCount, setBatchCount] = useState(1);
+  const [negativePrompt, setNegativePrompt] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Advanced settings
+  const [width, setWidth] = useState(1024);
+  const [height, setHeight] = useState(1024);
+  const [numImages, setNumImages] = useState(1);
+  const [guidanceScale, setGuidanceScale] = useState(7.5);
+  const [numSteps, setNumSteps] = useState(50);
+  const [seed, setSeed] = useState<number | undefined>(undefined);
+  const [enableSafety, setEnableSafety] = useState(true);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const handleModelChange = (modelId: string) => {
     const model = imageModels.find((m) => m.id === modelId);
@@ -171,18 +179,62 @@ export default function ImageGenerate() {
     }
   };
 
-  const filteredModels = imageModels.filter(
-    (model) =>
-      model.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      model.company.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredModels = imageModels.filter((model) => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      model.name.toLowerCase().includes(searchLower) ||
+      model.company.toLowerCase().includes(searchLower) ||
+      model.description.toLowerCase().includes(searchLower)
+    );
+  });
 
   const handleGenerate = async () => {
+    if (!prompt.trim()) {
+      setError("Please enter a prompt");
+      return;
+    }
+
     setIsGenerating(true);
-    // API call will go here
-    setTimeout(() => {
+    setError(null);
+    setGeneratedImage(null);
+
+    try {
+      const response = await fetch("/api/fal/image-generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: selectedVersion.id,
+          prompt: prompt.trim(),
+          negativePrompt: negativePrompt.trim() || undefined,
+          width,
+          height,
+          numImages,
+          guidanceScale,
+          numInferenceSteps: numSteps,
+          seed: seed || undefined,
+          enableSafetyChecker: enableSafety,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to generate image");
+      }
+
+      if (data.success && data.images && data.images.length > 0) {
+        setGeneratedImage(data.images[0].url);
+      } else {
+        throw new Error("No image returned from API");
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to generate image");
+      console.error("Generation error:", err);
+    } finally {
       setIsGenerating(false);
-    }, 3000);
+    }
   };
 
   const totalCredits = selectedVersion.credits * batchCount;
@@ -417,12 +469,105 @@ export default function ImageGenerate() {
                   </Select>
                 </div>
 
+                {/* Advanced Settings Toggle */}
+                <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Label className="text-sm font-medium cursor-pointer" htmlFor="advanced-toggle">
+                      Advanced Settings
+                    </Label>
+                  </div>
+                  <Switch
+                    id="advanced-toggle"
+                    checked={showAdvanced}
+                    onCheckedChange={setShowAdvanced}
+                  />
+                </div>
+
+                {/* Advanced Settings Panel */}
+                {showAdvanced && (
+                  <div className="space-y-4 p-4 rounded-lg bg-muted/50 border border-border">
+                    {/* Image Size */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Width</Label>
+                        <Input
+                          type="number"
+                          value={width}
+                          onChange={(e) => setWidth(Number(e.target.value))}
+                          min={256}
+                          max={2048}
+                          step={64}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Height</Label>
+                        <Input
+                          type="number"
+                          value={height}
+                          onChange={(e) => setHeight(Number(e.target.value))}
+                          min={256}
+                          max={2048}
+                          step={64}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Guidance Scale */}
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Guidance Scale: {guidanceScale}</Label>
+                      <input
+                        type="range"
+                        value={guidanceScale}
+                        onChange={(e) => setGuidanceScale(Number(e.target.value))}
+                        min={1}
+                        max={20}
+                        step={0.5}
+                        className="w-full"
+                      />
+                    </div>
+
+                    {/* Inference Steps */}
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Inference Steps: {numSteps}</Label>
+                      <input
+                        type="range"
+                        value={numSteps}
+                        onChange={(e) => setNumSteps(Number(e.target.value))}
+                        min={20}
+                        max={150}
+                        step={10}
+                        className="w-full"
+                      />
+                    </div>
+
+                    {/* Seed */}
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Seed (Optional)</Label>
+                      <Input
+                        type="number"
+                        value={seed || ""}
+                        onChange={(e) => setSeed(e.target.value ? Number(e.target.value) : undefined)}
+                        placeholder="Random"
+                      />
+                    </div>
+
+                    {/* Safety Checker */}
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs text-muted-foreground">Enable Safety Checker</Label>
+                      <Switch
+                        checked={enableSafety}
+                        onCheckedChange={setEnableSafety}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 {/* Generate Button */}
                 <Button
-                  size="lg"
-                  className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 text-black"
                   onClick={handleGenerate}
-                  disabled={!prompt.trim() || isGenerating}
+                  disabled={isGenerating || !prompt.trim()}
+                  className="w-full h-14 text-lg font-semibold"
+                  size="lg"
                 >
                   {isGenerating ? (
                     <>
@@ -431,12 +576,18 @@ export default function ImageGenerate() {
                     </>
                   ) : (
                     <>
-                      Generate
-                      <Sparkles className="w-5 h-5 ml-2" />
-                      {totalCredits}
+                      <Sparkles className="w-5 h-5 mr-2" />
+                      Generate Image ({selectedVersion.credits} credits)
                     </>
                   )}
                 </Button>
+
+                {/* Error Message */}
+                {error && (
+                  <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+                    {error}
+                  </div>
+                )}
 
                 {/* Generated Image Preview */}
                 {generatedImage && (
@@ -446,6 +597,30 @@ export default function ImageGenerate() {
                       alt="Generated"
                       className="w-full"
                     />
+                    <div className="p-4 bg-muted/50 flex gap-2">
+                      <Button
+                        onClick={() => window.open(generatedImage, "_blank")}
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                      >
+                        <Upload className="w-4 h-4 mr-2" />
+                        Open Full Size
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          const a = document.createElement("a");
+                          a.href = generatedImage;
+                          a.download = `generated-${Date.now()}.png`;
+                          a.click();
+                        }}
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                      >
+                        Download
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>
