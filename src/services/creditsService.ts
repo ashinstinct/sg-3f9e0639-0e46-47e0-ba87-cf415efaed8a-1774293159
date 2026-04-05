@@ -1,95 +1,222 @@
 import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
 
-export const creditsService = {
-  async getUserCredits(userId: string): Promise<Tables<"credits"> | null> {
+export type CreditTransaction = {
+  id: string;
+  user_id: string;
+  amount: number;
+  type: "purchase" | "usage" | "bonus" | "refund";
+  description: string | null;
+  metadata: any;
+  created_at: string;
+};
+
+export type CreditPackage = {
+  id: string;
+  name: string;
+  credits: number;
+  price_usd: number;
+  bonus_credits: number;
+  is_active: boolean;
+  display_order: number;
+};
+
+/**
+ * Get user's current credit balance
+ */
+export async function getCreditBalance(): Promise<number> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      throw new Error("User not authenticated");
+    }
+
     const { data, error } = await supabase
-      .from("credits")
-      .select("*")
-      .eq("user_id", userId)
+      .from("user_credits")
+      .select("balance")
+      .eq("user_id", user.id)
       .single();
 
     if (error) {
-      console.error("Error fetching credits:", error);
-      return null;
+      console.error("Error fetching credit balance:", error);
+      return 0;
     }
 
-    return data;
-  },
+    return data?.balance || 0;
+  } catch (err) {
+    console.error("Credit balance error:", err);
+    return 0;
+  }
+}
 
-  async deductCredits(userId: string, amount: number, tool: string): Promise<boolean> {
-    try {
-      const credits = await this.getUserCredits(userId);
-      if (!credits) return false;
+/**
+ * Check if user has enough credits
+ */
+export async function hasEnoughCredits(required: number): Promise<boolean> {
+  const balance = await getCreditBalance();
+  return balance >= required;
+}
 
-      let updatedFreeCredits = credits.free_credits;
-      let updatedPaidCredits = credits.paid_credits;
+/**
+ * Deduct credits from user account
+ */
+export async function deductCredits(
+  amount: number,
+  description: string,
+  metadata?: any
+): Promise<{ success: boolean; newBalance?: number; error?: string }> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return { success: false, error: "User not authenticated" };
+    }
 
-      // Use free credits first, then paid credits
-      if (credits.free_credits >= amount) {
-        updatedFreeCredits -= amount;
-      } else {
-        const remaining = amount - credits.free_credits;
-        if (credits.paid_credits >= remaining) {
-          updatedFreeCredits = 0;
-          updatedPaidCredits -= remaining;
-        } else {
-          // Not enough credits
-          return false;
-        }
-      }
+    // Check current balance
+    const currentBalance = await getCreditBalance();
+    
+    if (currentBalance < amount) {
+      return { success: false, error: "Insufficient credits" };
+    }
 
-      // Update credits
-      const { error: updateError } = await supabase
-        .from("credits")
-        .update({
-          free_credits: updatedFreeCredits,
-          paid_credits: updatedPaidCredits,
-        })
-        .eq("user_id", userId);
+    // Deduct credits
+    const newBalance = currentBalance - amount;
+    
+    const { error: updateError } = await supabase
+      .from("user_credits")
+      .update({ balance: newBalance })
+      .eq("user_id", user.id);
 
-      if (updateError) throw updateError;
+    if (updateError) {
+      console.error("Error deducting credits:", updateError);
+      return { success: false, error: updateError.message };
+    }
 
-      // Log usage
-      await supabase.from("usage_logs").insert({
-        user_id: userId,
-        tool_name: tool,
-        credits_used: amount,
-        tool_type: "free",
+    // Record transaction
+    const { error: transactionError } = await supabase
+      .from("credit_transactions")
+      .insert({
+        user_id: user.id,
+        amount: -amount, // Negative for usage
+        type: "usage",
+        description,
+        metadata,
       });
 
-      return true;
-    } catch (error) {
-      console.error("Error deducting credits:", error);
-      return false;
+    if (transactionError) {
+      console.error("Error recording transaction:", transactionError);
+      // Don't fail if transaction log fails, credits already deducted
     }
-  },
 
-  async addPaidCredits(userId: string, amount: number): Promise<boolean> {
-    try {
-      const credits = await this.getUserCredits(userId);
-      if (!credits) return false;
+    return { success: true, newBalance };
+  } catch (err: any) {
+    console.error("Deduct credits error:", err);
+    return { success: false, error: err.message };
+  }
+}
 
-      const { error } = await supabase
-        .from("credits")
-        .update({
-          paid_credits: credits.paid_credits + amount,
-        })
-        .eq("user_id", userId);
-
-      if (error) throw error;
-      return true;
-    } catch (error) {
-      console.error("Error adding credits:", error);
-      return false;
+/**
+ * Add credits to user account
+ */
+export async function addCredits(
+  amount: number,
+  type: "purchase" | "bonus" | "refund",
+  description: string,
+  metadata?: any
+): Promise<{ success: boolean; newBalance?: number; error?: string }> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return { success: false, error: "User not authenticated" };
     }
-  },
 
-  async hasEnoughCredits(userId: string, amount: number): Promise<boolean> {
-    const credits = await this.getUserCredits(userId);
-    if (!credits) return false;
+    // Get current balance
+    const currentBalance = await getCreditBalance();
+    const newBalance = currentBalance + amount;
 
-    const totalCredits = credits.free_credits + credits.paid_credits;
-    return totalCredits >= amount;
-  },
-};
+    // Add credits
+    const { error: updateError } = await supabase
+      .from("user_credits")
+      .update({ balance: newBalance })
+      .eq("user_id", user.id);
+
+    if (updateError) {
+      console.error("Error adding credits:", updateError);
+      return { success: false, error: updateError.message };
+    }
+
+    // Record transaction
+    const { error: transactionError } = await supabase
+      .from("credit_transactions")
+      .insert({
+        user_id: user.id,
+        amount, // Positive for additions
+        type,
+        description,
+        metadata,
+      });
+
+    if (transactionError) {
+      console.error("Error recording transaction:", transactionError);
+    }
+
+    return { success: true, newBalance };
+  } catch (err: any) {
+    console.error("Add credits error:", err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Get user's credit transaction history
+ */
+export async function getCreditHistory(limit: number = 50): Promise<CreditTransaction[]> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from("credit_transactions")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error("Error fetching credit history:", error);
+      return [];
+    }
+
+    return data || [];
+  } catch (err) {
+    console.error("Credit history error:", err);
+    return [];
+  }
+}
+
+/**
+ * Get available credit packages
+ */
+export async function getCreditPackages(): Promise<CreditPackage[]> {
+  try {
+    const { data, error } = await supabase
+      .from("credit_packages")
+      .select("*")
+      .eq("is_active", true)
+      .order("display_order", { ascending: true });
+
+    if (error) {
+      console.error("Error fetching packages:", error);
+      return [];
+    }
+
+    return data || [];
+  } catch (err) {
+    console.error("Packages error:", err);
+    return [];
+  }
+}

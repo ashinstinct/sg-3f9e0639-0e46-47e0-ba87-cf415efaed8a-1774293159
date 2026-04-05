@@ -1,4 +1,4 @@
- 
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 export type Json =
   | string
   | number
@@ -15,32 +15,76 @@ export type Database = {
   }
   public: {
     Tables: {
-      credits: {
+      credit_packages: {
         Row: {
+          bonus_credits: number | null
           created_at: string | null
-          free_credits: number
+          credits: number
+          display_order: number | null
           id: string
-          paid_credits: number
-          updated_at: string | null
+          is_active: boolean | null
+          name: string
+          price_usd: number
+        }
+        Insert: {
+          bonus_credits?: number | null
+          created_at?: string | null
+          credits: number
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          price_usd: number
+        }
+        Update: {
+          bonus_credits?: number | null
+          created_at?: string | null
+          credits?: number
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          price_usd?: number
+        }
+        Relationships: []
+      }
+      credit_transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          type: string
           user_id: string
         }
         Insert: {
+          amount: number
           created_at?: string | null
-          free_credits?: number
+          description?: string | null
           id?: string
-          paid_credits?: number
-          updated_at?: string | null
+          metadata?: Json | null
+          type: string
           user_id: string
         }
         Update: {
+          amount?: number
           created_at?: string | null
-          free_credits?: number
+          description?: string | null
           id?: string
-          paid_credits?: number
-          updated_at?: string | null
+          metadata?: Json | null
+          type?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "credit_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -69,68 +113,37 @@ export type Database = {
         }
         Relationships: []
       }
-      subscriptions: {
+      user_credits: {
         Row: {
+          balance: number
           created_at: string | null
-          current_period_end: string | null
           id: string
-          plan_type: string
-          status: string
-          stripe_customer_id: string | null
-          stripe_subscription_id: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          balance?: number
           created_at?: string | null
-          current_period_end?: string | null
           id?: string
-          plan_type?: string
-          status?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          balance?: number
           created_at?: string | null
-          current_period_end?: string | null
           id?: string
-          plan_type?: string
-          status?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
-      }
-      usage_logs: {
-        Row: {
-          created_at: string | null
-          credits_used: number
-          id: string
-          tool_name: string
-          tool_type: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          credits_used?: number
-          id?: string
-          tool_name: string
-          tool_type?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          credits_used?: number
-          id?: string
-          tool_name?: string
-          tool_type?: string | null
-          user_id?: string
-        }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_credits_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
