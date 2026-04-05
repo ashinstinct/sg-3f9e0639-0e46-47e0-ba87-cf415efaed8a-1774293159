@@ -7,131 +7,111 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Video, Loader2, Wand2, ArrowLeft, Volume2, VolumeX, Plus, Sparkles } from "lucide-react";
+import { Image, Loader2, Wand2, ArrowLeft, Download, Sparkles } from "lucide-react";
 import Link from "next/link";
 
-type AspectRatio = "16:9" | "9:16" | "1:1" | "4:3" | "3:4";
+type AspectRatio = "1:1" | "16:9" | "9:16" | "4:3" | "3:4";
 
 const ASPECT_RATIOS: Array<{ value: AspectRatio; label: string }> = [
+  { value: "1:1", label: "1:1 (Square)" },
   { value: "16:9", label: "16:9 (Landscape)" },
   { value: "9:16", label: "9:16 (Portrait)" },
-  { value: "1:1", label: "1:1 (Square)" },
   { value: "4:3", label: "4:3 (Standard)" },
   { value: "3:4", label: "3:4 (Portrait)" },
 ];
 
-const VIDEO_MODELS = [
+const IMAGE_MODELS = [
   {
-    id: "kling",
-    name: "Kling",
-    company: "Kuaishou AI",
-    latestVersion: "3.0",
+    id: "flux",
+    name: "FLUX.1",
+    company: "Black Forest Labs",
+    latestVersion: "Pro",
     versions: [
-      { id: "kling-3.0", name: "Kling 3.0", credits: 20, duration: 10, hasAudio: true, hasElements: false },
-      { id: "kling-2.6", name: "Kling 2.6", credits: 18, duration: 10, hasAudio: true, hasElements: false },
-      { id: "kling-2.5-pro", name: "Kling 2.5 Pro", credits: 16, duration: 8, hasAudio: true, hasElements: false },
-      { id: "kling-2.1", name: "Kling 2.1", credits: 14, duration: 5, hasAudio: false, hasElements: false },
-      { id: "kling-01", name: "Kling 01", credits: 18, duration: 10, hasAudio: true, hasElements: true },
-      { id: "kling-omni", name: "Kling Omni", credits: 20, duration: 10, hasAudio: true, hasElements: true },
+      { id: "flux-pro", name: "FLUX.1 Pro", credits: 5, description: "Highest quality, best details" },
+      { id: "flux-dev", name: "FLUX.1 Dev", credits: 4, description: "Great balance of speed/quality" },
+      { id: "flux-schnell", name: "FLUX.1 Schnell", credits: 2, description: "Fastest generation" },
+      { id: "flux-realism", name: "FLUX.1 Realism", credits: 4, description: "Photorealistic images" },
+      { id: "flux-lora", name: "FLUX.1 LoRA", credits: 3, description: "Fine-tuned variants" },
     ],
   },
   {
-    id: "luma",
-    name: "Luma Dream Machine",
-    company: "Luma AI",
-    latestVersion: null,
+    id: "nana-banana",
+    name: "Nana Banana",
+    company: "fal.ai",
+    latestVersion: "2.0",
     versions: [
-      { id: "luma-dream", name: "Luma Dream Machine", credits: 15, duration: 5, hasAudio: false, hasElements: false },
+      { id: "nana-2.0", name: "Nana Banana 2.0", credits: 5, description: "Ultra HD, fastest generation" },
+      { id: "nana-1.5-pro", name: "Nana Banana 1.5 Pro", credits: 4, description: "Artistic, creative styles" },
     ],
   },
   {
-    id: "runway",
-    name: "Runway",
-    company: "Runway ML",
-    latestVersion: "Gen-3",
+    id: "stable-diffusion",
+    name: "Stable Diffusion",
+    company: "Stability AI",
+    latestVersion: "3.5",
     versions: [
-      { id: "runway-gen3", name: "Gen-3 Alpha", credits: 18, duration: 10, hasAudio: false, hasElements: false },
-      { id: "runway-gen3-turbo", name: "Gen-3 Turbo", credits: 15, duration: 10, hasAudio: false, hasElements: false },
-    ],
-  },
-  {
-    id: "minimax",
-    name: "MiniMax Video",
-    company: "Hailuo AI",
-    latestVersion: null,
-    versions: [
-      { id: "minimax-video", name: "MiniMax Video", credits: 12, duration: 6, hasAudio: false, hasElements: false },
-    ],
-  },
-  {
-    id: "hunyuan",
-    name: "Hunyuan Video",
-    company: "Tencent",
-    latestVersion: null,
-    versions: [
-      { id: "hunyuan-video", name: "Hunyuan Video", credits: 16, duration: 8, hasAudio: false, hasElements: false },
+      { id: "sd-3.5-large", name: "SD 3.5 Large", credits: 4, description: "Most capable, best quality" },
+      { id: "sd-xl", name: "SD XL", credits: 3, description: "Fast, reliable, proven" },
     ],
   },
   {
     id: "grok",
-    name: "Grok Video",
+    name: "Grok Image",
     company: "xAI",
     latestVersion: null,
     versions: [
-      { id: "grok-video", name: "Grok Video", credits: 22, duration: 10, hasAudio: false, hasElements: false },
+      { id: "grok-image", name: "Grok Image", credits: 5, description: "Creative, unique style" },
     ],
   },
   {
-    id: "seedance",
-    name: "Seedance",
-    company: "Bytedance",
-    latestVersion: "1.5 Pro",
+    id: "recraft",
+    name: "Recraft",
+    company: "Recraft AI",
+    latestVersion: "V3",
     versions: [
-      { id: "seedance-1.5-pro", name: "Seedance 1.5 Pro", credits: 20, duration: 12, hasAudio: false, hasElements: false },
+      { id: "recraft-v3", name: "Recraft V3", credits: 4, description: "Perfect text rendering" },
     ],
   },
   {
-    id: "sora",
-    name: "Sora",
-    company: "OpenAI",
-    latestVersion: "2.0",
+    id: "ideogram",
+    name: "Ideogram",
+    company: "Ideogram AI",
+    latestVersion: "V2",
     versions: [
-      { id: "sora-2.0", name: "Sora 2.0", credits: 25, duration: 20, hasAudio: true, hasElements: false },
+      { id: "ideogram-v2", name: "Ideogram V2", credits: 4, description: "Industry-leading text quality" },
+      { id: "ideogram-v1", name: "Ideogram V1", credits: 3, description: "Original version" },
     ],
   },
   {
-    id: "veo",
-    name: "Veo",
-    company: "Google",
-    latestVersion: "3.1",
-    comingSoon: true,
+    id: "playground",
+    name: "Playground",
+    company: "Playground AI",
+    latestVersion: "V2.5",
     versions: [
-      { id: "veo-3.1", name: "Veo 3.1", credits: 22, duration: 15, hasAudio: false, hasElements: false },
-      { id: "veo-3.1-fast", name: "Veo 3.1 Fast", credits: 18, duration: 15, hasAudio: false, hasElements: false },
+      { id: "playground-v2.5", name: "Playground V2.5", credits: 3, description: "Photorealistic specialist" },
+      { id: "playground-v2", name: "Playground V2", credits: 3, description: "Previous version" },
     ],
   },
   {
-    id: "seedream",
-    name: "Seedream",
-    company: "Bytedance",
-    latestVersion: "2.0",
-    comingSoon: true,
+    id: "auraflow",
+    name: "AuraFlow",
+    company: "Fal AI",
+    latestVersion: null,
     versions: [
-      { id: "seedream-2.0", name: "Seedream 2.0", credits: 20, duration: 12, hasAudio: false, hasElements: false },
+      { id: "auraflow", name: "AuraFlow", credits: 3, description: "Open-source FLUX alternative" },
     ],
   },
 ];
 
-export default function VideoGenerator() {
-  const [selectedModelFamily, setSelectedModelFamily] = useState(VIDEO_MODELS[0]);
-  const [selectedVersion, setSelectedVersion] = useState(VIDEO_MODELS[0].versions[0]);
+export default function ImageGenerator() {
+  const [selectedModelFamily, setSelectedModelFamily] = useState(IMAGE_MODELS[0]);
+  const [selectedVersion, setSelectedVersion] = useState(IMAGE_MODELS[0].versions[0]);
   const [prompt, setPrompt] = useState("");
   const [enhancePrompt, setEnhancePrompt] = useState(false);
-  const [audioEnabled, setAudioEnabled] = useState(false);
-  const [showElements, setShowElements] = useState(false);
-  const [aspectRatio, setAspectRatio] = useState<AspectRatio>("16:9");
+  const [negativePrompt, setNegativePrompt] = useState("");
+  const [aspectRatio, setAspectRatio] = useState<AspectRatio>("1:1");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedVideo, setGeneratedVideo] = useState("");
+  const [generatedImage, setGeneratedImage] = useState("");
   const [credits, setCredits] = useState(0);
 
   useEffect(() => {
@@ -140,13 +120,10 @@ export default function VideoGenerator() {
   }, []);
 
   const handleModelFamilyChange = (modelId: string) => {
-    const model = VIDEO_MODELS.find(m => m.id === modelId);
+    const model = IMAGE_MODELS.find(m => m.id === modelId);
     if (model) {
       setSelectedModelFamily(model);
       setSelectedVersion(model.versions[0]);
-      // Reset toggles based on new model capabilities
-      setAudioEnabled(false);
-      setShowElements(false);
     }
   };
 
@@ -154,20 +131,12 @@ export default function VideoGenerator() {
     const version = selectedModelFamily.versions.find(v => v.id === versionId);
     if (version) {
       setSelectedVersion(version);
-      // Reset toggles if new version doesn't support them
-      if (!version.hasAudio) setAudioEnabled(false);
-      if (!version.hasElements) setShowElements(false);
     }
   };
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
       alert("Please enter a prompt");
-      return;
-    }
-
-    if (selectedModelFamily.comingSoon) {
-      alert(`${selectedModelFamily.name} is coming soon!`);
       return;
     }
 
@@ -179,16 +148,16 @@ export default function VideoGenerator() {
     setIsGenerating(true);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise(resolve => setTimeout(resolve, 3000));
       
-      setGeneratedVideo("https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
+      setGeneratedImage("https://images.unsplash.com/photo-1518770660439-4636190af475?w=1024");
       
       const newCredits = credits - selectedVersion.credits;
       setCredits(newCredits);
       localStorage.setItem("userCredits", newCredits.toString());
     } catch (error) {
       console.error("Generation error:", error);
-      alert("Failed to generate video");
+      alert("Failed to generate image");
     } finally {
       setIsGenerating(false);
     }
@@ -197,8 +166,8 @@ export default function VideoGenerator() {
   return (
     <>
       <SEO
-        title="AI Video Generator - Back2Life.Studio"
-        description="Generate stunning videos with the latest AI models from Kling, Luma, Runway, Sora, Veo, and more."
+        title="AI Image Generator - Back2Life.Studio"
+        description="Generate stunning images with the latest AI models from FLUX, Stable Diffusion, and more."
       />
       
       <div className="min-h-screen bg-background">
@@ -208,15 +177,15 @@ export default function VideoGenerator() {
           <div className="grid lg:grid-cols-2 gap-6">
             <Card className="border-2">
               <CardContent className="p-6 space-y-6">
-                <Link href="/video" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/images" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Video
+                  Back to Images
                 </Link>
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <h1 className="font-heading font-bold text-3xl">AI Video Generator</h1>
-                    <p className="text-sm text-muted-foreground mt-1">Choose from 10 professional models</p>
+                    <h1 className="font-heading font-bold text-3xl">AI Image Generator</h1>
+                    <p className="text-sm text-muted-foreground mt-1">Choose from 8 professional models</p>
                   </div>
                   <div className="text-right">
                     <div className="text-sm text-muted-foreground">Credits</div>
@@ -240,7 +209,7 @@ export default function VideoGenerator() {
                       </div>
                     </SelectTrigger>
                     <SelectContent>
-                      {VIDEO_MODELS.map((model) => (
+                      {IMAGE_MODELS.map((model) => (
                         <SelectItem key={model.id} value={model.id}>
                           <div className="flex items-center justify-between w-full">
                             <div>
@@ -248,9 +217,6 @@ export default function VideoGenerator() {
                                 {model.name}
                                 {model.latestVersion && (
                                   <span className="text-xs text-muted-foreground">{model.latestVersion}</span>
-                                )}
-                                {model.comingSoon && (
-                                  <span className="text-xs bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded-full">Coming Soon</span>
                                 )}
                               </div>
                               <div className="text-xs text-muted-foreground">{model.company}</div>
@@ -279,11 +245,7 @@ export default function VideoGenerator() {
                             <div className="flex items-center justify-between w-full">
                               <div>
                                 <div className="font-medium">{version.name}</div>
-                                <div className="text-xs text-muted-foreground">
-                                  Max {version.duration}s
-                                  {version.hasAudio && " • Audio"}
-                                  {version.hasElements && " • Elements"}
-                                </div>
+                                <div className="text-xs text-muted-foreground">{version.description}</div>
                               </div>
                               <span className="text-xs text-amber-500 ml-4">{version.credits} credits</span>
                             </div>
@@ -299,7 +261,7 @@ export default function VideoGenerator() {
                   <Label htmlFor="prompt">Prompt</Label>
                   <Textarea
                     id="prompt"
-                    placeholder="A serene ocean sunset with waves gently rolling onto a sandy beach..."
+                    placeholder="A serene landscape with mountains and a lake at sunset..."
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     rows={4}
@@ -323,47 +285,18 @@ export default function VideoGenerator() {
                   </div>
                 </div>
 
-                {/* Audio Toggle (only if model supports it) */}
-                {selectedVersion.hasAudio && (
-                  <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      {audioEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-                      <Label htmlFor="audio-toggle" className="cursor-pointer">Generate with Audio</Label>
-                    </div>
-                    <Switch
-                      id="audio-toggle"
-                      checked={audioEnabled}
-                      onCheckedChange={setAudioEnabled}
-                    />
-                  </div>
-                )}
-
-                {/* Elements Button (only for Kling 01 & Omni) */}
-                {selectedVersion.hasElements && (
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowElements(!showElements)}
-                    className="w-full"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    {showElements ? "Hide" : "Add"} Elements
-                  </Button>
-                )}
-
-                {/* Elements Panel (Kling 01 & Omni only) */}
-                {selectedVersion.hasElements && showElements && (
-                  <div className="p-4 bg-muted/30 rounded-lg border-2 border-dashed space-y-3">
-                    <h3 className="font-medium text-sm">Scene Elements</h3>
-                    <p className="text-xs text-muted-foreground">
-                      Add specific elements to your video (camera movement, lighting, objects, etc.)
-                    </p>
-                    <Textarea
-                      placeholder="Example: Camera: Slow zoom in, Lighting: Golden hour, Objects: Flying birds..."
-                      rows={3}
-                      className="resize-none text-sm"
-                    />
-                  </div>
-                )}
+                {/* Negative Prompt */}
+                <div className="space-y-2">
+                  <Label htmlFor="negative-prompt">Negative Prompt (Optional)</Label>
+                  <Textarea
+                    id="negative-prompt"
+                    placeholder="blurry, low quality, distorted..."
+                    value={negativePrompt}
+                    onChange={(e) => setNegativePrompt(e.target.value)}
+                    rows={2}
+                    className="resize-none"
+                  />
+                </div>
 
                 {/* Aspect Ratio */}
                 <div className="space-y-2">
@@ -383,18 +316,10 @@ export default function VideoGenerator() {
                   </div>
                 </div>
 
-                {/* Duration Info */}
-                <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
-                  <strong>Max Duration:</strong> {selectedVersion.duration} seconds
-                  {selectedModelFamily.comingSoon && (
-                    <span className="ml-2 text-xs bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded-full">Coming Soon</span>
-                  )}
-                </div>
-
                 {/* Generate Button */}
                 <Button
                   onClick={handleGenerate}
-                  disabled={isGenerating || !prompt.trim() || selectedModelFamily.comingSoon}
+                  disabled={isGenerating || !prompt.trim()}
                   className="w-full h-14 text-lg bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-90"
                 >
                   {isGenerating ? (
@@ -414,25 +339,25 @@ export default function VideoGenerator() {
 
             <Card className="border-2">
               <CardContent className="p-6">
-                <h2 className="font-heading font-bold text-xl mb-4">Generated Video</h2>
+                <h2 className="font-heading font-bold text-xl mb-4">Generated Image</h2>
                 
-                {!generatedVideo ? (
-                  <div className="aspect-video rounded-xl bg-muted/50 border-2 border-dashed flex items-center justify-center">
+                {!generatedImage ? (
+                  <div className="aspect-square rounded-xl bg-muted/50 border-2 border-dashed flex items-center justify-center">
                     <div className="text-center text-muted-foreground">
-                      <Video className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                      <p>Your generated video will appear here</p>
+                      <Image className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                      <p>Your generated image will appear here</p>
                     </div>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <video
-                      src={generatedVideo}
-                      controls
+                    <img
+                      src={generatedImage}
+                      alt="Generated"
                       className="w-full rounded-xl border-2"
                     />
                     <Button variant="outline" className="w-full">
-                      <ArrowLeft className="mr-2 h-4 w-4 rotate-90" />
-                      Download Video
+                      <Download className="mr-2 h-4 w-4" />
+                      Download Image
                     </Button>
                   </div>
                 )}

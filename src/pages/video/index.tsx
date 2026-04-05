@@ -93,7 +93,6 @@ export default function VideoHub() {
       versions: ["2.0"],
       features: ["20s Max", "OpenAI", "Revolutionary"],
       maxDuration: "20s",
-      comingSoon: true,
     },
     {
       name: "Veo 3.1",
