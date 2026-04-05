@@ -92,7 +92,7 @@ export default async function handler(
           console.log("Generation in progress...");
         }
       },
-    });
+    }) as any;
 
     console.log("Generation complete:", result);
 

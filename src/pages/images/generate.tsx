@@ -164,6 +164,12 @@ export default function ImageGeneratePage() {
   const [enableSafety, setEnableSafety] = useState(true);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
+  // Additional settings
+  const [enhancePrompt, setEnhancePrompt] = useState(false);
+  const [aspectRatio, setAspectRatio] = useState(ASPECT_RATIOS[0]);
+  const [resolution, setResolution] = useState(RESOLUTIONS[0]);
+  const [batchCount, setBatchCount] = useState(1);
+
   const handleModelChange = (modelId: string) => {
     const model = imageModels.find((m) => m.id === modelId);
     if (model) {
