@@ -602,7 +602,8 @@ export default function VideoGeneratePage() {
                     {uploadMode === "elements" ? (
                       <div className="border-2 border-dashed border-muted-foreground/20 rounded-xl p-12 text-center hover:border-primary/50 transition-colors cursor-pointer bg-muted/20">
                         <ImageIcon className="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" />
-                        <p className="text-sm text-muted-foreground">Add consistent element</p>
+                        <p className="text-sm text-muted-foreground mb-1">Add consistent element</p>
+                        <p className="text-xs text-muted-foreground/60">(optional)</p>
                       </div>
                     ) : (
                       <div className="grid grid-cols-2 gap-4">
@@ -654,30 +655,53 @@ export default function VideoGeneratePage() {
                       className="min-h-[120px] resize-none bg-background/50"
                     />
                     <div className="flex items-center justify-between mt-2">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          navigator.clipboard.writeText(prompt);
-                          setCopied(true);
-                          setTimeout(() => setCopied(false), 2000);
-                        }}
-                        disabled={!prompt.trim()}
-                        className="text-xs"
-                      >
-                        {copied ? (
-                          <>
-                            <Check className="w-3 h-3 mr-1" />
-                            Copied!
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-3 h-3 mr-1" />
-                            Copy Prompt
-                          </>
-                        )}
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            navigator.clipboard.writeText(prompt);
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 2000);
+                          }}
+                          disabled={!prompt.trim()}
+                          className="text-xs"
+                        >
+                          {copied ? (
+                            <>
+                              <Check className="w-3 h-3 mr-1" />
+                              Copied!
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3 h-3 mr-1" />
+                              Copy
+                            </>
+                          )}
+                        </Button>
+                        
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleEnhancePrompt}
+                          disabled={isEnhancing || !prompt.trim()}
+                          className="flex items-center gap-2 text-xs"
+                        >
+                          {isEnhancing ? (
+                            <>
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                              Enhancing...
+                            </>
+                          ) : (
+                            <>
+                              <Wand2 className="w-3 h-3" />
+                              Enhance
+                            </>
+                          )}
+                        </Button>
+                      </div>
                       <span className="text-xs text-muted-foreground">{prompt.length} characters</span>
                     </div>
                   </div>
@@ -690,7 +714,7 @@ export default function VideoGeneratePage() {
                       size="sm"
                       onClick={handleEnhancePrompt}
                       disabled={isEnhancing || !prompt.trim()}
-                      className="gap-2"
+                      className="flex items-center gap-2"
                     >
                       {isEnhancing ? (
                         <>
@@ -1095,6 +1119,130 @@ export default function VideoGeneratePage() {
                         )}
                       </div>
                     </div>
+
+                    {/* Start Frame Image */}
+                    {selectedModel.features?.startFrame && (
+                      <div>
+                        <Label className="text-base font-semibold mb-2 block">
+                          Start Frame Image (Optional)
+                        </Label>
+                        <div className="border-2 border-dashed border-border rounded-lg p-4 hover:border-primary/50 transition-colors">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                setStartFrameFile(file);
+                                const reader = new FileReader();
+                                reader.onload = (event) => {
+                                  setStartFramePreview(event.target?.result as string);
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            className="hidden"
+                            id="start-frame-upload"
+                          />
+                          <label
+                            htmlFor="start-frame-upload"
+                            className="flex flex-col items-center justify-center cursor-pointer"
+                          >
+                            {startFramePreview ? (
+                              <div className="relative w-full">
+                                <img
+                                  src={startFramePreview}
+                                  alt="Start frame preview"
+                                  className="w-full h-48 object-cover rounded"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="sm"
+                                  className="absolute top-2 right-2"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setStartFrameFile(null);
+                                    setStartFramePreview(null);
+                                  }}
+                                >
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <>
+                                <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                                <p className="text-sm text-muted-foreground">
+                                  Click to upload start frame image
+                                </p>
+                              </>
+                            )}
+                          </label>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* End Frame Image */}
+                    {selectedModel.features?.endFrame && (
+                      <div>
+                        <Label className="text-base font-semibold mb-2 block">
+                          End Frame Image (Optional)
+                        </Label>
+                        <div className="border-2 border-dashed border-border rounded-lg p-4 hover:border-primary/50 transition-colors">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                setEndFrameFile(file);
+                                const reader = new FileReader();
+                                reader.onload = (event) => {
+                                  setEndFramePreview(event.target?.result as string);
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            className="hidden"
+                            id="end-frame-upload"
+                          />
+                          <label
+                            htmlFor="end-frame-upload"
+                            className="flex flex-col items-center justify-center cursor-pointer"
+                          >
+                            {endFramePreview ? (
+                              <div className="relative w-full">
+                                <img
+                                  src={endFramePreview}
+                                  alt="End frame preview"
+                                  className="w-full h-48 object-cover rounded"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="sm"
+                                  className="absolute top-2 right-2"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setEndFrameFile(null);
+                                    setEndFramePreview(null);
+                                  }}
+                                >
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <>
+                                <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                                <p className="text-sm text-muted-foreground">
+                                  Click to upload end frame image
+                                </p>
+                              </>
+                            )}
+                          </label>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
