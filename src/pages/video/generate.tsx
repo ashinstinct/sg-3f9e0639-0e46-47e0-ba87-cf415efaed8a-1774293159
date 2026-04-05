@@ -189,17 +189,25 @@ const VIDEO_MODELS = [
 ];
 
 export default function VideoGeneratePage() {
-  const [selectedCategory, setSelectedCategory] = useState(videoModels[0]);
-  const [selectedModel, setSelectedModel] = useState(videoModels[0].versions[0]);
-  const [selectedVersion, setSelectedVersion] = useState(videoModels[0].versions[0].models[0]);
+  const [selectedModel, setSelectedModel] = useState(VIDEO_MODELS[0]);
+  const [selectedVersion, setSelectedVersion] = useState(VIDEO_MODELS[0].versions[0]);
   const [prompt, setPrompt] = useState("");
   const [negativePrompt, setNegativePrompt] = useState("");
   const [duration, setDuration] = useState(5);
-  const [aspectRatio, setAspectRatio] = useState("16:9");
+  const [aspectRatio, setAspectRatio] = useState(ASPECT_RATIOS[0]);
   const [searchQuery, setSearchQuery] = useState("");
   const [generatedVideo, setGeneratedVideo] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Missing UI states
+  const [audioEnabled, setAudioEnabled] = useState(VIDEO_MODELS[0].versions[0].hasAudio);
+  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [uploadMode, setUploadMode] = useState<"elements" | "frames">("elements");
+  const [multiShot, setMultiShot] = useState(false);
+  const [resolution, setResolution] = useState("1080p");
+  const [batchCount, setBatchCount] = useState(1);
 
   // LTX-2 multimodal inputs
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -317,7 +325,7 @@ export default function VideoGeneratePage() {
       let videoUrl: string | undefined;
       let audioUrl: string | undefined;
 
-      if (selectedCategory.id === "ltx") {
+      if (selectedModel.id === "ltx") {
         if (imageFile) {
           // In production, upload to storage and get URL
           // For now, create object URL (client-side only)
@@ -341,7 +349,7 @@ export default function VideoGeneratePage() {
           prompt: prompt.trim(),
           negativePrompt: negativePrompt.trim() || undefined,
           duration,
-          aspectRatio,
+          aspectRatio: aspectRatio.id,
           imageUrl,
           videoUrl,
           audioUrl,
@@ -367,7 +375,7 @@ export default function VideoGeneratePage() {
     }
   };
 
-  const filteredModels = videoModels.filter((model) => {
+  const filteredModels = VIDEO_MODELS.filter((model) => {
     const searchLower = searchQuery.toLowerCase();
     return (
       model.name.toLowerCase().includes(searchLower) ||
