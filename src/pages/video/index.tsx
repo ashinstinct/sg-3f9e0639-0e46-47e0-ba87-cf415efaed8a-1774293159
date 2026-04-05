@@ -2,7 +2,7 @@ import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
-import { Video, Film, Zap, Sparkles, ArrowLeft } from "lucide-react";
+import { Video, Film, Zap, Sparkles, ArrowRight } from "lucide-react";
 
 export default function VideoHub() {
   const videoTools = [
@@ -130,94 +130,92 @@ export default function VideoHub() {
       <div className="min-h-screen bg-background">
         <Navigation />
         
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
-          <Card className="border-2">
-            <CardContent className="p-8">
-              <Link href="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Home
-              </Link>
+        <div className="container mx-auto px-4 py-12 max-w-6xl">
+          {/* Hero Section - Matching Audio Page Style */}
+          <div className="text-center mb-16 space-y-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-cyan-500/10 border border-indigo-500/20 mb-4">
+              <Video className="w-4 h-4 text-cyan-500" />
+              <span className="text-sm font-medium text-cyan-500">Professional Video Tools</span>
+            </div>
+            
+            <h1 className="font-heading font-bold text-5xl md:text-7xl bg-gradient-to-r from-cyan-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent leading-tight">
+              AI Video Tools
+            </h1>
+            
+            <p className="text-muted-foreground text-lg md:text-xl max-w-3xl mx-auto">
+              Create stunning videos with state-of-the-art AI models from industry leaders
+            </p>
+          </div>
 
-              <div className="mb-8">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
-                    <Video className="w-6 h-6 text-white" />
-                  </div>
-                  <h1 className="font-heading font-bold text-4xl">AI Video Generators</h1>
-                </div>
-                <p className="text-muted-foreground text-lg">
-                  Professional AI video generation tools powered by the latest models from industry leaders.
-                </p>
-              </div>
-
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {videoTools.map((tool) => {
-                  const Icon = tool.icon;
-                  return (
-                    <Link key={tool.name} href={tool.link}>
-                      <div className="group relative bg-gradient-to-br from-background to-muted/30 rounded-2xl p-6 border hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/10 h-full">
-                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-cyan-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                        
-                        <div className="relative">
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
-                              <Icon className="w-6 h-6 text-white" />
-                            </div>
-                            <div className="flex gap-2">
-                              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                                {tool.credits}
-                              </span>
-                              {tool.comingSoon && (
-                                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-500 border border-blue-500/20">
-                                  Soon
-                                </span>
-                              )}
-                            </div>
-                          </div>
-
-                          <h3 className="font-heading font-bold text-xl mb-1">
-                            {tool.name}
-                          </h3>
-                          
-                          <p className="text-xs text-muted-foreground mb-3 font-medium">
-                            by {tool.company}
-                          </p>
-                          
-                          <p className="text-sm text-muted-foreground mb-4">
-                            {tool.description}
-                          </p>
-
-                          {tool.versions && (
-                            <div className="mb-3">
-                              <span className="text-xs font-medium text-primary">
-                                {tool.versions.length} versions available
-                              </span>
-                            </div>
+          {/* Tools Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {videoTools.map((tool) => {
+              const Icon = tool.icon;
+              return (
+                <Link key={tool.name} href={tool.link}>
+                  <Card className="group h-full hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/10">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                          <Icon className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="flex gap-2">
+                          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                            {tool.credits}
+                          </span>
+                          {tool.comingSoon && (
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                              Soon
+                            </span>
                           )}
-
-                          <div className="flex flex-wrap gap-2">
-                            {tool.features.map((feature) => (
-                              <span key={feature} className="px-2 py-1 rounded-md text-xs bg-muted text-muted-foreground">
-                                {feature}
-                              </span>
-                            ))}
-                          </div>
                         </div>
                       </div>
-                    </Link>
-                  );
-                })}
-              </div>
 
-              <div className="mt-8 p-6 bg-muted/50 rounded-xl">
-                <h3 className="font-semibold mb-2">Looking for free tools?</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Check out our free video tools - no credits required!
-                </p>
-                <Link href="/free-tools" className="text-sm text-primary hover:underline font-medium">
-                  Try Free Video Tools →
+                      <h3 className="font-heading font-bold text-xl mb-1">
+                        {tool.name}
+                      </h3>
+                      
+                      <p className="text-xs text-muted-foreground mb-3 font-medium">
+                        by {tool.company}
+                      </p>
+                      
+                      <p className="text-sm text-muted-foreground mb-4">
+                        {tool.description}
+                      </p>
+
+                      {tool.versions && (
+                        <div className="mb-3">
+                          <span className="text-xs font-medium text-primary">
+                            {tool.versions.length} versions available
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="flex flex-wrap gap-2">
+                        {tool.features.map((feature) => (
+                          <span key={feature} className="px-2 py-1 rounded-md text-xs bg-muted text-muted-foreground">
+                            {feature}
+                          </span>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
                 </Link>
-              </div>
+              );
+            })}
+          </div>
+
+          {/* CTA */}
+          <Card className="bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-cyan-500/10 border-indigo-500/20">
+            <CardContent className="p-8 text-center">
+              <h3 className="font-semibold text-xl mb-2">Looking for free tools?</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Check out our free video tools - no credits required!
+              </p>
+              <Link href="/free-tools" className="inline-flex items-center gap-2 text-sm text-primary hover:underline font-medium">
+                Try Free Video Tools
+                <ArrowRight className="w-4 h-4" />
+              </Link>
             </CardContent>
           </Card>
         </div>
