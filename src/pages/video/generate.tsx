@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import Link from "next/link";
-import { Sparkles, ArrowLeft, Wand2, Image as ImageIcon, Search, Check, Clock, Volume2, X, Info } from "lucide-react";
+import { Sparkles, ArrowLeft, Wand2, Image as ImageIcon, Search, Check, Clock, Volume2, X, Info, Maximize2, Monitor } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
 
@@ -500,6 +500,87 @@ export default function VideoGenerate() {
                   </div>
                 </div>
 
+                {/* Top Controls Row */}
+                <div className="flex flex-wrap gap-3">
+                  {/* Aspect Ratio */}
+                  <Select
+                    value={aspectRatio.value}
+                    onValueChange={(val) =>
+                      setAspectRatio(ASPECT_RATIOS.find((ar) => ar.value === val) || ASPECT_RATIOS[0])
+                    }
+                  >
+                    <SelectTrigger className="w-auto min-w-[140px] h-10 bg-muted/50">
+                      <div className="flex items-center gap-2">
+                        <Maximize2 className="w-4 h-4" />
+                        <span>{aspectRatio.label}</span>
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ASPECT_RATIOS.map((ar) => (
+                        <SelectItem key={ar.value} value={ar.value}>
+                          {ar.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* Duration - Only for non-slider models */}
+                  {!(selectedVersion.id === "kling-3.0" || selectedVersion.id === "kling-omni") && (
+                    <Select
+                      value={duration.toString()}
+                      onValueChange={(val) => setDuration(parseInt(val))}
+                    >
+                      <SelectTrigger className="w-20 h-10 bg-muted/50">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4" />
+                          <span>{duration}s</span>
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getDurationOptions(selectedVersion).map((d) => (
+                          <SelectItem key={d} value={d.toString()}>
+                            {d}s
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+
+                  {/* Resolution */}
+                  <Select value={resolution} onValueChange={setResolution}>
+                    <SelectTrigger className="w-24 h-10 bg-muted/50">
+                      <div className="flex items-center gap-2">
+                        <Monitor className="w-4 h-4" />
+                        <span>{resolution}</span>
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="720p">720p</SelectItem>
+                      <SelectItem value="1080p">1080p</SelectItem>
+                      <SelectItem value="4K">4K</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {/* Batch Count */}
+                  <Select
+                    value={batchCount.toString()}
+                    onValueChange={(val) => setBatchCount(parseInt(val))}
+                  >
+                    <SelectTrigger className="w-20 h-10 bg-muted/50">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">×{batchCount}</span>
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((count) => (
+                        <SelectItem key={count} value={count.toString()}>
+                          ×{count}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 {/* Bottom Row Controls */}
                 <div className="flex items-center gap-3">
                   {/* Duration */}
@@ -568,6 +649,46 @@ export default function VideoGenerate() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* Audio Toggle - Only show for models with audio support */}
+                {selectedVersion.hasAudio && (
+                  <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Volume2 className="w-5 h-5 text-primary" />
+                      <div>
+                        <div className="font-medium">Audio</div>
+                        <div className="text-xs text-muted-foreground">Generate video with sound</div>
+                      </div>
+                    </div>
+                    <Switch checked={audioEnabled} onCheckedChange={setAudioEnabled} />
+                  </div>
+                )}
+
+                {/* Duration Slider - Large and prominent for Kling 3.0/Omni */}
+                {(selectedVersion.id === "kling-3.0" || selectedVersion.id === "kling-omni") && (
+                  <div className="space-y-4 p-6 bg-muted/30 rounded-xl">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-5 h-5 text-primary" />
+                        <Label className="text-base font-medium">Duration</Label>
+                      </div>
+                      <span className="text-2xl font-bold text-primary">{duration}s</span>
+                    </div>
+                    <Slider
+                      value={[duration]}
+                      onValueChange={(vals) => setDuration(vals[0])}
+                      min={3}
+                      max={15}
+                      step={1}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>3s</span>
+                      <span>9s</span>
+                      <span>15s</span>
+                    </div>
+                  </div>
+                )}
 
                 <Button 
                   onClick={handleGenerate} 
