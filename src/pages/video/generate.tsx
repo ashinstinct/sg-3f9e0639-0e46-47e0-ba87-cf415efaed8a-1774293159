@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import Link from "next/link";
-import { Sparkles, ArrowLeft, Wand2, Image as ImageIcon, Search, Check, Clock, Volume2, X, Info, Maximize2, Monitor, Download, Share2, Twitter, Facebook, MessageCircle, Link2, CheckCircle } from "lucide-react";
+import { Sparkles, ArrowLeft, Wand2, Image as ImageIcon, Search, Check, Clock, Volume2, X, Info, Maximize2, Monitor, Download, Share2, Twitter, Facebook, MessageCircle, Link2, CheckCircle, Video } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
 
@@ -135,18 +135,66 @@ const VIDEO_MODELS = [
   },
   {
     id: "veo",
-    name: "Veo 3",
+    name: "Veo",
     company: "Google",
-    icon: "🎨",
+    icon: Video,
+    badge: null,
+    models: [
+      {
+        id: "veo-3.1",
+        name: "3.1",
+        credits: 22,
+        duration: 15,
+        hasAudio: true,
+        aspectRatios: ["16:9", "9:16", "1:1"],
+      },
+      {
+        id: "veo-3.0",
+        name: "3.0",
+        credits: 18,
+        duration: 10,
+        hasAudio: true,
+        aspectRatios: ["16:9", "9:16", "1:1"],
+      },
+    ],
+  },
+  {
+    id: "ltx",
+    name: "LTX-2",
+    company: "Lightricks",
+    icon: Sparkles,
+    badge: "MULTIMODAL",
+    models: [
+      {
+        id: "ltx-2-19b",
+        name: "19B",
+        credits: 16,
+        duration: 10,
+        hasAudio: true,
+        duration: 10,
+        hasAudio: true,
+        aspectRatios: ["16:9", "9:16", "1:1"],
+        supportsImage: true,
+        supportsVideo: true,
+        supportsAudio: true,
+      },
+    ],
+  },
+  {
+    id: "seedream",
+    name: "Seedream",
+    company: "Bytedance",
+    icon: Video,
     badge: "SOON",
-    description: "Precision video with sound control",
-    latestVersion: "veo-3.1",
-    comingSoon: true,
-    versions: [
-      { id: "veo-3.1", name: "Veo 3.1", credits: 22, duration: 15, hasAudio: true, hasElements: false, supportsMultipleFrames: false },
-      { id: "veo-3.1-fast", name: "Veo 3.1 Fast", credits: 20, duration: 15, hasAudio: true, hasElements: false, supportsMultipleFrames: false },
-      { id: "veo-3", name: "Veo 3", credits: 20, duration: 15, hasAudio: true, hasElements: false, supportsMultipleFrames: false },
-      { id: "veo-3-fast", name: "Veo 3 Fast", credits: 18, duration: 15, hasAudio: true, hasElements: false, supportsMultipleFrames: false },
+    models: [
+      {
+        id: "seedream-2.0",
+        name: "2.0",
+        credits: 20,
+        duration: 12,
+        hasAudio: true,
+        aspectRatios: ["16:9", "9:16", "1:1"],
+      },
     ],
   },
   {
@@ -163,19 +211,6 @@ const VIDEO_MODELS = [
       { id: "wan-2.1", name: "Wan 2.1", credits: 15, duration: 10, hasAudio: false, hasElements: false, supportsMultipleFrames: true },
       { id: "wan-2.0", name: "Wan 2.0", credits: 14, duration: 8, hasAudio: false, hasElements: false, supportsMultipleFrames: true },
       { id: "wan-1.5", name: "Wan 1.5", credits: 12, duration: 8, hasAudio: false, hasElements: false, supportsMultipleFrames: true },
-    ],
-  },
-  {
-    id: "seedream",
-    name: "Seedream 2.0",
-    company: "Bytedance",
-    icon: "🎭",
-    badge: "SOON",
-    description: "Next-gen video synthesis with temporal consistency",
-    latestVersion: "seedream-2.0",
-    comingSoon: true,
-    versions: [
-      { id: "seedream-2.0", name: "Seedream 2.0", credits: 20, duration: 12, hasAudio: false, hasElements: false, supportsMultipleFrames: true },
     ],
   },
 ];

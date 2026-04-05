@@ -40,6 +40,7 @@ export default function ToolsPage() {
     { name: "Seedance 1.5 Pro", description: "State-of-the-art video synthesis", link: "/video/generate", credits: "20 credits", free: false },
     { name: "Sora 2.0", description: "OpenAI's revolutionary 20-second video model", link: "/video/generate", credits: "25 credits", free: false },
     { name: "Veo 3.1", description: "Google's advanced video generation AI", link: "/video/generate", credits: "18-22 credits", free: false },
+    { name: "LTX-2-19B", description: "Multimodal video lab: text, image, video, audio inputs", link: "/video/generate", credits: "16 credits", free: false },
     { name: "Seedream 2.0", description: "Next-gen video synthesis from Bytedance", link: "/video/generate", credits: "20 credits", free: false, comingSoon: true },
   ];
 
