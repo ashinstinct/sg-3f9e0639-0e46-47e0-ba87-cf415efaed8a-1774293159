@@ -1,6 +1,7 @@
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Video, Film, Zap, Sparkles, ArrowRight } from "lucide-react";
 
