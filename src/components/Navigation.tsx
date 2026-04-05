@@ -69,13 +69,13 @@ export function Navigation() {
   const fetchCredits = async (userId: string) => {
     try {
       const { data, error } = await supabase
-        .from("credits")
-        .select("balance")
+        .from("user_credits")
+        .select("credits")
         .eq("user_id", userId)
         .single();
 
       if (error) throw error;
-      setCredits(data?.balance || 0);
+      setCredits(data?.credits || 0);
     } catch (err) {
       console.error("Error fetching credits:", err);
       setCredits(0);
