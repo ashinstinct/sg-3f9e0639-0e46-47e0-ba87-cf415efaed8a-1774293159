@@ -1,230 +1,303 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Image, Loader2, Wand2, ArrowLeft, Download, Sparkles } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import Link from "next/link";
-
-type AspectRatio = "1:1" | "16:9" | "9:16" | "4:3" | "3:4";
-
-const ASPECT_RATIOS: Array<{ value: AspectRatio; label: string }> = [
-  { value: "1:1", label: "1:1 (Square)" },
-  { value: "16:9", label: "16:9 (Landscape)" },
-  { value: "9:16", label: "9:16 (Portrait)" },
-  { value: "4:3", label: "4:3 (Standard)" },
-  { value: "3:4", label: "3:4 (Portrait)" },
-];
+import { ArrowLeft, Sparkles, Image as ImageIcon, Loader2, Upload, Search, Check } from "lucide-react";
 
 const IMAGE_MODELS = [
   {
     id: "flux",
     name: "FLUX.1",
     company: "Black Forest Labs",
-    latestVersion: "Pro",
+    icon: "⚡",
+    badge: null,
+    description: "State-of-the-art text-to-image generation",
     versions: [
-      { id: "flux-pro", name: "FLUX.1 Pro", credits: 5, description: "Highest quality, best details" },
-      { id: "flux-dev", name: "FLUX.1 Dev", credits: 4, description: "Great balance of speed/quality" },
-      { id: "flux-schnell", name: "FLUX.1 Schnell", credits: 2, description: "Fastest generation" },
-      { id: "flux-realism", name: "FLUX.1 Realism", credits: 4, description: "Photorealistic images" },
-      { id: "flux-lora", name: "FLUX.1 LoRA", credits: 3, description: "Fine-tuned variants" },
+      { id: "flux-pro", name: "Pro", credits: 5, maxRes: "2048x2048" },
+      { id: "flux-dev", name: "Dev", credits: 4, maxRes: "2048x2048" },
+      { id: "flux-schnell", name: "Schnell", credits: 2, maxRes: "2048x2048" },
+      { id: "flux-realism", name: "Realism", credits: 4, maxRes: "2048x2048" },
+      { id: "flux-lora", name: "LoRA", credits: 3, maxRes: "2048x2048" },
     ],
   },
   {
     id: "nana-banana",
     name: "Nana Banana",
     company: "fal.ai",
-    latestVersion: "2.0",
+    icon: "🍌",
+    badge: "NEW",
+    description: "Pro quality at Flash speed",
     versions: [
-      { id: "nana-2.0", name: "Nana Banana 2.0", credits: 5, description: "Ultra HD, fastest generation" },
-      { id: "nana-1.5-pro", name: "Nana Banana 1.5 Pro", credits: 4, description: "Artistic, creative styles" },
+      { id: "nana-2.0", name: "2.0", credits: 5, maxRes: "2048x2048" },
+      { id: "nana-1.5-pro", name: "1.5 Pro", credits: 4, maxRes: "2048x2048" },
     ],
   },
   {
     id: "stable-diffusion",
     name: "Stable Diffusion",
     company: "Stability AI",
-    latestVersion: "3.5",
+    icon: "🎨",
+    badge: null,
+    description: "Industry-standard open-source model",
     versions: [
-      { id: "sd-3.5-large", name: "SD 3.5 Large", credits: 4, description: "Most capable, best quality" },
-      { id: "sd-xl", name: "SD XL", credits: 3, description: "Fast, reliable, proven" },
+      { id: "sd-3.5-large", name: "3.5 Large", credits: 4, maxRes: "2048x2048" },
+      { id: "sd-xl", name: "XL", credits: 3, maxRes: "2048x2048" },
     ],
   },
   {
     id: "grok",
     name: "Grok Image",
     company: "xAI",
-    latestVersion: null,
+    icon: "🤖",
+    badge: null,
+    description: "Creative interpretations and unique style",
     versions: [
-      { id: "grok-image", name: "Grok Image", credits: 5, description: "Creative, unique style" },
+      { id: "grok-image", name: "Grok Image", credits: 5, maxRes: "2048x2048" },
     ],
   },
   {
     id: "recraft",
-    name: "Recraft",
+    name: "Recraft V3",
     company: "Recraft AI",
-    latestVersion: "V3",
+    icon: "✨",
+    badge: null,
+    description: "Perfect for logos and designs with text",
     versions: [
-      { id: "recraft-v3", name: "Recraft V3", credits: 4, description: "Perfect text rendering" },
+      { id: "recraft-v3", name: "V3", credits: 4, maxRes: "2048x2048" },
     ],
   },
   {
     id: "ideogram",
     name: "Ideogram",
     company: "Ideogram AI",
-    latestVersion: "V2",
+    icon: "💡",
+    badge: null,
+    description: "Industry-leading text rendering quality",
     versions: [
-      { id: "ideogram-v2", name: "Ideogram V2", credits: 4, description: "Industry-leading text quality" },
-      { id: "ideogram-v1", name: "Ideogram V1", credits: 3, description: "Original version" },
+      { id: "ideogram-v2", name: "V2", credits: 4, maxRes: "2048x2048" },
+      { id: "ideogram-v1", name: "V1", credits: 3, maxRes: "2048x2048" },
     ],
   },
   {
     id: "playground",
     name: "Playground",
     company: "Playground AI",
-    latestVersion: "V2.5",
+    icon: "🎮",
+    badge: null,
+    description: "Photorealistic specialist with vibrant colors",
     versions: [
-      { id: "playground-v2.5", name: "Playground V2.5", credits: 3, description: "Photorealistic specialist" },
-      { id: "playground-v2", name: "Playground V2", credits: 3, description: "Previous version" },
+      { id: "playground-v2.5", name: "V2.5", credits: 3, maxRes: "2048x2048" },
+      { id: "playground-v2", name: "V2", credits: 3, maxRes: "2048x2048" },
     ],
   },
   {
     id: "auraflow",
     name: "AuraFlow",
     company: "Fal AI",
-    latestVersion: null,
+    icon: "🌊",
+    badge: null,
+    description: "Open-source alternative to FLUX",
     versions: [
-      { id: "auraflow", name: "AuraFlow", credits: 3, description: "Open-source FLUX alternative" },
+      { id: "auraflow", name: "AuraFlow", credits: 3, maxRes: "2048x2048" },
     ],
   },
 ];
 
-export default function ImageGenerator() {
-  const [selectedModelFamily, setSelectedModelFamily] = useState(IMAGE_MODELS[0]);
-  const [selectedVersion, setSelectedVersion] = useState(IMAGE_MODELS[0].versions[0]);
+const ASPECT_RATIOS = [
+  { id: "1:1", name: "1:1", value: "1:1" },
+  { id: "16:9", name: "16:9", value: "16:9" },
+  { id: "9:16", name: "9:16", value: "9:16" },
+  { id: "4:3", name: "4:3", value: "4:3" },
+  { id: "3:4", name: "3:4", value: "3:4" },
+];
+
+const RESOLUTIONS = [
+  { id: "1k", name: "1K", value: "1024x1024" },
+  { id: "2k", name: "2K", value: "2048x2048" },
+];
+
+export default function ImageGenerate() {
+  const [selectedModel, setSelectedModel] = useState(IMAGE_MODELS[0]);
+  const [selectedVersion, setSelectedVersion] = useState(selectedModel.versions[0]);
   const [prompt, setPrompt] = useState("");
-  const [enhancePrompt, setEnhancePrompt] = useState(false);
-  const [negativePrompt, setNegativePrompt] = useState("");
-  const [aspectRatio, setAspectRatio] = useState<AspectRatio>("1:1");
+  const [enhancePrompt, setEnhancePrompt] = useState(true);
+  const [aspectRatio, setAspectRatio] = useState(ASPECT_RATIOS[0]);
+  const [resolution, setResolution] = useState(RESOLUTIONS[0]);
+  const [batchCount, setBatchCount] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedImage, setGeneratedImage] = useState("");
-  const [credits, setCredits] = useState(0);
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
 
-  useEffect(() => {
-    const storedCredits = localStorage.getItem("userCredits");
-    setCredits(storedCredits ? parseInt(storedCredits) : 0);
-  }, []);
-
-  const handleModelFamilyChange = (modelId: string) => {
-    const model = IMAGE_MODELS.find(m => m.id === modelId);
+  const handleModelChange = (modelId: string) => {
+    const model = IMAGE_MODELS.find((m) => m.id === modelId);
     if (model) {
-      setSelectedModelFamily(model);
+      setSelectedModel(model);
       setSelectedVersion(model.versions[0]);
     }
   };
 
   const handleVersionChange = (versionId: string) => {
-    const version = selectedModelFamily.versions.find(v => v.id === versionId);
+    const version = selectedModel.versions.find((v) => v.id === versionId);
     if (version) {
       setSelectedVersion(version);
     }
   };
 
+  const filteredModels = IMAGE_MODELS.filter(
+    (model) =>
+      model.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      model.company.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const handleGenerate = async () => {
-    if (!prompt.trim()) {
-      alert("Please enter a prompt");
-      return;
-    }
-
-    if (credits < selectedVersion.credits) {
-      alert(`Not enough credits. Need ${selectedVersion.credits}, have ${credits}`);
-      return;
-    }
-
     setIsGenerating(true);
-    
-    try {
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      setGeneratedImage("https://images.unsplash.com/photo-1518770660439-4636190af475?w=1024");
-      
-      const newCredits = credits - selectedVersion.credits;
-      setCredits(newCredits);
-      localStorage.setItem("userCredits", newCredits.toString());
-    } catch (error) {
-      console.error("Generation error:", error);
-      alert("Failed to generate image");
-    } finally {
+    // API call will go here
+    setTimeout(() => {
       setIsGenerating(false);
-    }
+    }, 3000);
   };
+
+  const totalCredits = selectedVersion.credits * batchCount;
 
   return (
     <>
       <SEO
         title="AI Image Generator - Back2Life.Studio"
-        description="Generate stunning images with the latest AI models from FLUX, Stable Diffusion, and more."
+        description="Generate stunning images with the latest AI models"
       />
-      
+
       <div className="min-h-screen bg-background">
         <Navigation />
-        
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
-          <div className="grid lg:grid-cols-2 gap-6">
-            <Card className="border-2">
-              <CardContent className="p-6 space-y-6">
-                <Link href="/images" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Images
-                </Link>
 
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h1 className="font-heading font-bold text-3xl">AI Image Generator</h1>
-                    <p className="text-sm text-muted-foreground mt-1">Choose from 8 professional models</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm text-muted-foreground">Credits</div>
-                    <div className="text-2xl font-bold">{credits}</div>
+        <div className="container mx-auto px-4 py-8 max-w-5xl">
+          <Card className="border-2">
+            <CardContent className="p-8">
+              <Link
+                href="/images"
+                className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Images
+              </Link>
+
+              <div className="mb-6">
+                <h1 className="font-heading font-bold text-3xl mb-2">Create Image</h1>
+                <p className="text-muted-foreground">
+                  Generate high-quality images using AI models
+                </p>
+              </div>
+
+              <div className="space-y-6">
+                {/* Image Upload Area */}
+                <div className="border-2 border-dashed border-muted-foreground/20 rounded-xl p-12 text-center hover:border-muted-foreground/40 transition-colors cursor-pointer">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                      <Upload className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground font-medium">
+                        Choose images to upload <span className="text-muted-foreground/60">(up to 14)</span>
+                      </p>
+                      <p className="text-xs text-muted-foreground/60 mt-1">
+                        Optional - for image-to-image generation
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                {/* Model Family Selector */}
+                {/* Prompt */}
                 <div className="space-y-2">
-                  <Label>Model</Label>
-                  <Select value={selectedModelFamily.id} onValueChange={handleModelFamilyChange}>
-                    <SelectTrigger className="w-full h-14">
-                      <div className="flex items-center justify-between w-full">
-                        <div>
-                          <div className="font-semibold text-base">{selectedModelFamily.name}</div>
-                          <div className="text-xs text-muted-foreground">{selectedModelFamily.company}</div>
+                  <Textarea
+                    placeholder="Describe your concept, scene, or idea"
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    className="min-h-[120px] resize-none text-base"
+                  />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id="enhance"
+                        checked={enhancePrompt}
+                        onCheckedChange={setEnhancePrompt}
+                      />
+                      <Label htmlFor="enhance" className="text-sm cursor-pointer">
+                        Enhance prompt with AI
+                      </Label>
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {prompt.length}/2000
+                    </span>
+                  </div>
+                </div>
+
+                {/* Model Selector */}
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2 text-muted-foreground text-sm">
+                    <ImageIcon className="w-4 h-4" />
+                    Model
+                  </Label>
+                  <Select value={selectedModel.id} onValueChange={handleModelChange}>
+                    <SelectTrigger className="h-14">
+                      <div className="flex items-center gap-3 w-full">
+                        <span className="text-2xl">{selectedModel.icon}</span>
+                        <div className="flex-1 text-left">
+                          <div className="font-semibold flex items-center gap-2">
+                            {selectedModel.name}
+                            {selectedModel.badge && (
+                              <span className="text-[10px] font-bold bg-green-500/20 text-green-500 px-2 py-0.5 rounded">
+                                {selectedModel.badge}
+                              </span>
+                            )}
+                          </div>
+                          {selectedModel.versions.length > 1 && (
+                            <div className="text-xs text-muted-foreground">
+                              {selectedVersion.name}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </SelectTrigger>
-                    <SelectContent className="max-h-[400px]">
-                      {IMAGE_MODELS.map((model) => (
+                    <SelectContent className="max-h-[500px]">
+                      <div className="sticky top-0 bg-background p-2 border-b">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            placeholder="Search..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-9"
+                          />
+                        </div>
+                      </div>
+                      {filteredModels.map((model) => (
                         <SelectItem key={model.id} value={model.id} className="h-auto py-3">
-                          <div className="flex items-start justify-between w-full gap-4">
-                            <div className="flex-1">
-                              <div className="font-semibold text-base mb-0.5">{model.name}</div>
-                              <div className="text-xs text-muted-foreground mb-1">{model.company}</div>
-                              <div className="text-xs text-muted-foreground/80">
-                                {model.versions.length > 1 
-                                  ? `${model.versions.length} versions available` 
-                                  : model.versions[0].description
-                                }
+                          <div className="flex items-center gap-3 w-full">
+                            <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                              <span className="text-xl">{model.icon}</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-semibold flex items-center gap-2 mb-0.5">
+                                {model.name}
+                                {model.badge && (
+                                  <span className="text-[10px] font-bold bg-green-500/20 text-green-500 px-2 py-0.5 rounded">
+                                    {model.badge}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-xs text-muted-foreground line-clamp-1">
+                                {model.description}
                               </div>
                             </div>
-                            <div className="text-xs text-amber-500 font-semibold whitespace-nowrap">
-                              {model.versions.length === 1 
-                                ? `${model.versions[0].credits} credits`
-                                : `${Math.min(...model.versions.map(v => v.credits))}-${Math.max(...model.versions.map(v => v.credits))} credits`
-                              }
-                            </div>
+                            {selectedModel.id === model.id && (
+                              <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                            )}
                           </div>
                         </SelectItem>
                       ))}
@@ -232,26 +305,27 @@ export default function ImageGenerator() {
                   </Select>
                 </div>
 
-                {/* Version Selector (if model has multiple versions) */}
-                {selectedModelFamily.versions.length > 1 && (
+                {/* Version Selector */}
+                {selectedModel.versions.length > 1 && (
                   <div className="space-y-2">
-                    <Label>Version</Label>
+                    <Label className="text-sm text-muted-foreground">Version</Label>
                     <Select value={selectedVersion.id} onValueChange={handleVersionChange}>
-                      <SelectTrigger className="w-full h-12">
+                      <SelectTrigger className="h-12">
                         <div className="flex items-center justify-between w-full">
                           <span className="font-medium">{selectedVersion.name}</span>
-                          <span className="text-xs text-amber-500">{selectedVersion.credits} credits</span>
+                          <span className="text-xs text-amber-500">
+                            {selectedVersion.credits} credits
+                          </span>
                         </div>
                       </SelectTrigger>
                       <SelectContent>
-                        {selectedModelFamily.versions.map((version) => (
+                        {selectedModel.versions.map((version) => (
                           <SelectItem key={version.id} value={version.id} className="h-auto py-2.5">
                             <div className="flex items-center justify-between w-full gap-4">
-                              <div className="flex-1">
-                                <div className="font-medium text-sm mb-0.5">{version.name}</div>
-                                <div className="text-xs text-muted-foreground">{version.description}</div>
-                              </div>
-                              <span className="text-xs text-amber-500 font-semibold">{version.credits} credits</span>
+                              <span className="font-medium">{version.name}</span>
+                              <span className="text-xs text-amber-500">
+                                {version.credits} credits
+                              </span>
                             </div>
                           </SelectItem>
                         ))}
@@ -260,114 +334,94 @@ export default function ImageGenerator() {
                   </div>
                 )}
 
-                {/* Prompt */}
-                <div className="space-y-2">
-                  <Label htmlFor="prompt">Prompt</Label>
-                  <Textarea
-                    id="prompt"
-                    placeholder="A serene landscape with mountains and a lake at sunset..."
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    rows={4}
-                    className="resize-none"
-                  />
-                  <div className="flex items-center justify-between">
-                    <div className="text-xs text-muted-foreground">{prompt.length} characters</div>
-                    
-                    {/* Enhance Prompt Toggle */}
-                    <div className="flex items-center gap-2">
-                      <Switch
-                        id="enhance-prompt"
-                        checked={enhancePrompt}
-                        onCheckedChange={setEnhancePrompt}
-                      />
-                      <Label htmlFor="enhance-prompt" className="text-sm cursor-pointer flex items-center gap-1">
-                        <Wand2 className="w-3 h-3" />
-                        Enhance Prompt
-                      </Label>
-                    </div>
-                  </div>
-                </div>
+                {/* Bottom Controls */}
+                <div className="flex items-center gap-3 pt-2">
+                  {/* Aspect Ratio */}
+                  <Select
+                    value={aspectRatio.id}
+                    onValueChange={(id) => setAspectRatio(ASPECT_RATIOS.find((r) => r.id === id)!)}
+                  >
+                    <SelectTrigger className="w-24 h-10 bg-muted/50">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ASPECT_RATIOS.map((ratio) => (
+                        <SelectItem key={ratio.id} value={ratio.id}>
+                          {ratio.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
-                {/* Negative Prompt */}
-                <div className="space-y-2">
-                  <Label htmlFor="negative-prompt">Negative Prompt (Optional)</Label>
-                  <Textarea
-                    id="negative-prompt"
-                    placeholder="blurry, low quality, distorted..."
-                    value={negativePrompt}
-                    onChange={(e) => setNegativePrompt(e.target.value)}
-                    rows={2}
-                    className="resize-none"
-                  />
-                </div>
+                  {/* Resolution */}
+                  <Select
+                    value={resolution.id}
+                    onValueChange={(id) => setResolution(RESOLUTIONS.find((r) => r.id === id)!)}
+                  >
+                    <SelectTrigger className="w-20 h-10 bg-muted/50">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {RESOLUTIONS.map((res) => (
+                        <SelectItem key={res.id} value={res.id}>
+                          {res.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
-                {/* Aspect Ratio */}
-                <div className="space-y-2">
-                  <Label>Aspect Ratio</Label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {ASPECT_RATIOS.map((ratio) => (
-                      <Button
-                        key={ratio.value}
-                        variant={aspectRatio === ratio.value ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setAspectRatio(ratio.value)}
-                        className="text-xs"
-                      >
-                        {ratio.label}
-                      </Button>
-                    ))}
-                  </div>
+                  {/* Batch Count */}
+                  <Select
+                    value={batchCount.toString()}
+                    onValueChange={(val) => setBatchCount(parseInt(val))}
+                  >
+                    <SelectTrigger className="w-16 h-10 bg-muted/50">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4].map((count) => (
+                        <SelectItem key={count} value={count.toString()}>
+                          {count}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Generate Button */}
                 <Button
+                  size="lg"
+                  className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 text-black"
                   onClick={handleGenerate}
-                  disabled={isGenerating || !prompt.trim()}
-                  className="w-full h-14 text-lg bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-90"
+                  disabled={!prompt.trim() || isGenerating}
                 >
                   {isGenerating ? (
                     <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                       Generating...
                     </>
                   ) : (
                     <>
-                      <Sparkles className="mr-2 h-5 w-5" />
-                      Generate ({selectedVersion.credits} credits)
+                      Generate
+                      <Sparkles className="w-5 h-5 ml-2" />
+                      {totalCredits}
                     </>
                   )}
                 </Button>
-              </CardContent>
-            </Card>
 
-            <Card className="border-2">
-              <CardContent className="p-6">
-                <h2 className="font-heading font-bold text-xl mb-4">Generated Image</h2>
-                
-                {!generatedImage ? (
-                  <div className="aspect-square rounded-xl bg-muted/50 border-2 border-dashed flex items-center justify-center">
-                    <div className="text-center text-muted-foreground">
-                      <Image className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                      <p>Your generated image will appear here</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
+                {/* Generated Image Preview */}
+                {generatedImage && (
+                  <div className="mt-6 rounded-xl overflow-hidden border-2">
                     <img
                       src={generatedImage}
                       alt="Generated"
-                      className="w-full rounded-xl border-2"
+                      className="w-full"
                     />
-                    <Button variant="outline" className="w-full">
-                      <Download className="mr-2 h-4 w-4" />
-                      Download Image
-                    </Button>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </>
