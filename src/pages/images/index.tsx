@@ -173,13 +173,12 @@ export default function ImagesHub() {
               return (
                 <Link key={tool.name} href={tool.link}>
                   <Card className="group relative overflow-hidden border-2 border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 cursor-pointer h-full">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${tool.color} opacity-0 group-hover:opacity-5 transition-opacity`} />
-                    
-                    <CardContent className="p-4">
+                    <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <CardContent className="p-4 relative z-10">
                       <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className={`text-3xl bg-gradient-to-br ${tool.color} bg-clip-text`}>
-                            {tool.icon}
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                            <Icon className="w-5 h-5" />
                           </div>
                           <div>
                             <h3 className="font-heading font-bold text-base group-hover:text-primary transition-colors">
@@ -194,14 +193,14 @@ export default function ImagesHub() {
                       
                       <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
                         <div className="flex flex-wrap gap-1">
-                          {tool.versions.map((version) => (
-                            <span key={version.id} className="text-xs px-2 py-0.5 rounded-full bg-muted/50 text-muted-foreground">
-                              {version.name}
+                          {tool.versions?.map((version) => (
+                            <span key={version} className="text-xs px-2 py-0.5 rounded-full bg-muted/50 text-muted-foreground">
+                              {version}
                             </span>
                           ))}
                         </div>
-                        <span className="text-xs font-medium text-amber-500">
-                          {tool.versions[0].credits}+ credits
+                        <span className="text-xs font-medium text-amber-500 whitespace-nowrap">
+                          {tool.credits}
                         </span>
                       </div>
                     </CardContent>
