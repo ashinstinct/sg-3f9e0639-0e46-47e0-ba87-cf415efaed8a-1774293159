@@ -136,11 +136,11 @@ export function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2 shrink-0">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-xl text-foreground">
+            <span className="font-bold text-xl text-foreground whitespace-nowrap">
               Back2Life<span className="text-indigo-400">.Studio</span>
             </span>
           </Link>
@@ -152,26 +152,26 @@ export function Navigation() {
                 <Link
                   href={tool.href}
                   className={cn(
-                    "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                    "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap",
                     isActive(tool.href)
                       ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
                       : "text-foreground/70 hover:text-foreground hover:bg-muted"
                   )}
                 >
-                  <tool.icon className="w-4 h-4" />
-                  {tool.label}
+                  <tool.icon className="w-4 h-4 shrink-0" />
+                  <span className="whitespace-nowrap">{tool.label}</span>
                 </Link>
 
                 {tool.items && (
-                  <div className="absolute top-full left-0 mt-1 w-48 py-2 bg-popover border border-border rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <div className="absolute top-full left-0 mt-1 w-48 py-2 bg-popover border border-border rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                     {tool.items.map((item) => (
                       <Link
                         key={item.label}
                         href={item.href}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground/70 hover:text-foreground hover:bg-muted transition-colors"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground/70 hover:text-foreground hover:bg-muted transition-colors whitespace-nowrap"
                       >
-                        <item.icon className="w-4 h-4 text-indigo-400" />
-                        {item.label}
+                        <item.icon className="w-4 h-4 text-indigo-400 shrink-0" />
+                        <span className="whitespace-nowrap">{item.label}</span>
                       </Link>
                     ))}
                   </div>
@@ -181,18 +181,18 @@ export function Navigation() {
           </div>
 
           {/* Right Side - User Profile OR Auth Buttons */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 shrink-0">
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-3 px-3 py-1.5 rounded-full bg-muted/50 hover:bg-muted transition-colors border border-border/50">
+                  <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 hover:bg-muted transition-colors border border-border/50">
                     <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30">
-                      <Coins className="w-3.5 h-3.5 text-amber-400" />
-                      <span className="text-xs font-semibold text-amber-300">
+                      <Coins className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                      <span className="text-xs font-semibold text-amber-300 whitespace-nowrap">
                         {credits}
                       </span>
                     </div>
-                    <Avatar className="w-7 h-7 border border-border">
+                    <Avatar className="w-7 h-7 border border-border shrink-0">
                       <AvatarImage src={user.user_metadata?.avatar_url} />
                       <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-xs">
                         {user.email?.charAt(0).toUpperCase() || "U"}
@@ -201,10 +201,10 @@ export function Navigation() {
                   </button>
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent align="end" className="w-64 bg-popover border-border">
+                <DropdownMenuContent align="end" className="w-56 bg-popover border-border">
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col gap-1">
-                      <p className="text-sm font-medium text-foreground">
+                      <p className="text-sm font-medium text-foreground truncate">
                         {user.user_metadata?.full_name || "User"}
                       </p>
                       <p className="text-xs text-muted-foreground truncate">
@@ -215,8 +215,8 @@ export function Navigation() {
                   
                   <DropdownMenuSeparator />
                   
-                  <div className="px-3 py-2">
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                  <div className="px-2 py-2">
+                    <div className="flex items-center justify-between p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
                       <div className="flex items-center gap-2">
                         <Coins className="w-4 h-4 text-amber-400" />
                         <span className="text-sm text-amber-300">Credits</span>
@@ -229,21 +229,21 @@ export function Navigation() {
 
                   <DropdownMenuSeparator />
 
-                  <DropdownMenuItem asChild className="cursor-pointer text-foreground focus:text-foreground">
+                  <DropdownMenuItem asChild className="cursor-pointer">
                     <Link href="/library" className="flex items-center gap-2">
                       <Library className="w-4 h-4" />
                       My Library
                     </Link>
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem asChild className="cursor-pointer text-foreground focus:text-foreground">
+                  <DropdownMenuItem asChild className="cursor-pointer">
                     <Link href="/images/generate" className="flex items-center gap-2">
                       <Wand2 className="w-4 h-4" />
                       Generate
                     </Link>
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem asChild className="cursor-pointer text-foreground focus:text-foreground">
+                  <DropdownMenuItem asChild className="cursor-pointer">
                     <Link href="/dashboard" className="flex items-center gap-2">
                       <User className="w-4 h-4" />
                       Profile
@@ -281,7 +281,7 @@ export function Navigation() {
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg hover:bg-muted"
+              className="lg:hidden p-2 rounded-lg hover:bg-muted shrink-0"
             >
               {mobileMenuOpen ? (
                 <X className="w-5 h-5" />
@@ -309,7 +309,7 @@ export function Navigation() {
                   )}
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <tool.icon className="w-5 h-5" />
+                  <tool.icon className="w-5 h-5 shrink-0" />
                   {tool.label}
                 </Link>
                 
@@ -322,7 +322,7 @@ export function Navigation() {
                         className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-foreground/70 hover:bg-muted"
                         onClick={() => setMobileMenuOpen(false)}
                       >
-                        <item.icon className="w-4 h-4 text-indigo-400" />
+                        <item.icon className="w-4 h-4 text-indigo-400 shrink-0" />
                         {item.label}
                       </Link>
                     ))}
