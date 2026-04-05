@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Menu, X, Image, Video, Music, Wand2, Scissors, Home } from "lucide-react";
+import { ThemeSwitch } from "@/components/ThemeSwitch";
 
 export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -49,10 +50,13 @@ export function Navigation() {
               </Link>
             </div>
 
-            {/* Right: Home Icon (Mobile) */}
-            <Link href="/" className="p-2 hover:bg-muted rounded-lg transition-colors">
-              <Home className="w-5 h-5" />
-            </Link>
+            {/* Right: Theme Toggle + Home Icon */}
+            <div className="flex items-center gap-2">
+              <ThemeSwitch />
+              <Link href="/" className="p-2 hover:bg-muted rounded-lg transition-colors">
+                <Home className="w-5 h-5" />
+              </Link>
+            </div>
           </div>
         </div>
       </nav>

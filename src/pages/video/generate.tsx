@@ -421,67 +421,82 @@ export default function VideoGenerate() {
 
                   {/* Higgsfield Model Selector (Inside the prompt box card) */}
                   <div className="p-3 border-t border-white/5 bg-black/40">
-                    <Select open={isModelDropdownOpen} onOpenChange={setIsModelDropdownOpen}>
-                      <SelectTrigger className="w-full border-0 bg-transparent hover:bg-white/5 h-auto py-2 px-3 shadow-none focus:ring-0">
-                        <div className="flex flex-col items-start text-left w-full">
-                          <span className="text-xs text-muted-foreground mb-1">Model</span>
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-sm">{selectedVersion.name}</span>
-                            <span className="text-xs text-amber-500">⚛</span>
+                    {/* Model Selector - Dropdown */}
+                    <div className="relative">
+                      <button
+                        onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
+                        className="w-full flex items-center justify-between px-4 py-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">{selectedModel.icon}</span>
+                          <div className="text-left">
+                            <div className="font-semibold">{selectedModel.name}</div>
+                            <div className="text-xs text-muted-foreground">{selectedVersion.name}</div>
                           </div>
                         </div>
-                      </SelectTrigger>
-                      
-                      <SelectContent className="w-[380px] p-0 border-white/10 bg-[#121212]">
-                        <div className="p-3 border-b border-white/10">
-                          <div className="relative">
-                            <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
-                            <input 
+                        <div className="flex items-center gap-2">
+                          {selectedModel.badge && (
+                            <span className="px-2 py-1 rounded text-xs font-semibold bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                              {selectedModel.badge}
+                            </span>
+                          )}
+                          <span className="text-muted-foreground">▼</span>
+                        </div>
+                      </button>
+
+                      {isModelDropdownOpen && (
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-lg shadow-2xl z-50 max-h-[60vh] overflow-y-auto">
+                          {/* Search */}
+                          <div className="p-3 border-b border-border sticky top-0 bg-background">
+                            <input
                               type="text"
                               placeholder="Search models..."
-                              className="w-full bg-black/50 border border-white/10 rounded-full pl-9 pr-4 py-2 text-sm focus:outline-none focus:border-white/20 transition-colors"
                               value={searchQuery}
                               onChange={(e) => setSearchQuery(e.target.value)}
+                              className="w-full px-3 py-2 bg-muted rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                           </div>
-                        </div>
-                        
-                        <div className="max-h-[60vh] overflow-y-auto p-2">
-                          <div className="text-xs font-semibold text-muted-foreground mb-2 px-2 pt-2">All models</div>
-                          {filteredModels.map((model) => (
-                            <div key={model.id} className="mb-4">
-                              {model.versions.map((version) => (
-                                <button
-                                  key={version.id}
-                                  onClick={() => handleModelVersionSelect(model, version)}
-                                  className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors text-left group relative"
-                                >
-                                  <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-xl shrink-0 group-hover:bg-white/10 transition-colors">
-                                    {model.icon}
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-0.5">
-                                      <span className="font-semibold text-sm truncate">{version.name}</span>
-                                      {model.badge && (
-                                        <span className="text-[10px] font-bold bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded uppercase">
-                                          {model.badge}
-                                        </span>
-                                      )}
-                                    </div>
-                                    <div className="text-xs text-muted-foreground truncate">
-                                      {model.description}
-                                    </div>
-                                  </div>
-                                  {selectedVersion.id === version.id && (
-                                    <Check className="w-4 h-4 text-amber-500 shrink-0" />
+
+                          {/* Models List */}
+                          <div className="p-2">
+                            {filteredModels.map((model) => (
+                              <div key={model.id} className="mb-3">
+                                <div className="px-2 py-1 text-xs font-semibold text-muted-foreground flex items-center gap-2">
+                                  <span className="text-lg">{model.icon}</span>
+                                  {model.name}
+                                  {model.badge && (
+                                    <span className="px-2 py-0.5 rounded text-xs bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                                      {model.badge}
+                                    </span>
                                   )}
-                                </button>
-                              ))}
-                            </div>
-                          ))}
+                                </div>
+                                {model.versions.map((version) => (
+                                  <button
+                                    key={version.id}
+                                    onClick={() => handleModelVersionSelect(model, version)}
+                                    className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                                      selectedVersion.id === version.id
+                                        ? "bg-primary/10 text-primary font-medium"
+                                        : "hover:bg-muted/50"
+                                    }`}
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-sm">{version.name}</span>
+                                      <div className="flex items-center gap-2">
+                                        <span className="px-2 py-0.5 rounded text-xs bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                                          {version.credits}c
+                                        </span>
+                                        <span className="text-xs text-muted-foreground">{version.duration}s max</span>
+                                      </div>
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </SelectContent>
-                    </Select>
+                      )}
+                    </div>
                   </div>
                 </div>
 
