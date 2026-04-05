@@ -135,15 +135,31 @@ export function Navigation() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-bold text-xl text-foreground whitespace-nowrap">
-              Back2Life<span className="text-indigo-400">.Studio</span>
-            </span>
-          </Link>
+          {/* Left: Mobile Menu Button + Logo */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden p-2 rounded-lg hover:bg-muted"
+            >
+              {mobileMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </button>
+
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <span className="font-bold text-xl text-foreground hidden sm:block">
+                Back2Life<span className="text-indigo-400">.Studio</span>
+              </span>
+              <span className="font-bold text-lg text-foreground sm:hidden">
+                B2L<span className="text-indigo-400">.Studio</span>
+              </span>
+            </Link>
+          </div>
 
           {/* Desktop Navigation - Tools Menu */}
           <div className="hidden lg:flex items-center gap-1">
@@ -152,26 +168,26 @@ export function Navigation() {
                 <Link
                   href={tool.href}
                   className={cn(
-                    "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap",
+                    "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
                     isActive(tool.href)
                       ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
                       : "text-foreground/70 hover:text-foreground hover:bg-muted"
                   )}
                 >
-                  <tool.icon className="w-4 h-4 shrink-0" />
-                  <span className="whitespace-nowrap">{tool.label}</span>
+                  <tool.icon className="w-4 h-4" />
+                  {tool.label}
                 </Link>
 
                 {tool.items && (
-                  <div className="absolute top-full left-0 mt-1 w-48 py-2 bg-popover border border-border rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="absolute top-full left-0 mt-1 w-48 py-2 bg-popover border border-border rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                     {tool.items.map((item) => (
                       <Link
                         key={item.label}
                         href={item.href}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground/70 hover:text-foreground hover:bg-muted transition-colors whitespace-nowrap"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground/70 hover:text-foreground hover:bg-muted transition-colors"
                       >
-                        <item.icon className="w-4 h-4 text-indigo-400 shrink-0" />
-                        <span className="whitespace-nowrap">{item.label}</span>
+                        <item.icon className="w-4 h-4 text-indigo-400" />
+                        {item.label}
                       </Link>
                     ))}
                   </div>
@@ -181,30 +197,30 @@ export function Navigation() {
           </div>
 
           {/* Right Side - User Profile OR Auth Buttons */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-3">
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 hover:bg-muted transition-colors border border-border/50">
-                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30">
-                      <Coins className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                      <span className="text-xs font-semibold text-amber-300 whitespace-nowrap">
+                  <button className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-1.5 rounded-full bg-muted/50 hover:bg-muted transition-colors border border-border/50">
+                    <div className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30">
+                      <Coins className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-400" />
+                      <span className="text-xs font-semibold text-amber-300">
                         {credits}
                       </span>
                     </div>
-                    <Avatar className="w-7 h-7 border border-border shrink-0">
+                    <Avatar className="w-6 h-6 sm:w-7 sm:h-7 border border-border">
                       <AvatarImage src={user.user_metadata?.avatar_url} />
-                      <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-xs">
+                      <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-[10px] sm:text-xs">
                         {user.email?.charAt(0).toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
                   </button>
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent align="end" className="w-56 bg-popover border-border">
+                <DropdownMenuContent align="end" className="w-64 bg-popover border-border">
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col gap-1">
-                      <p className="text-sm font-medium text-foreground truncate">
+                      <p className="text-sm font-medium text-foreground">
                         {user.user_metadata?.full_name || "User"}
                       </p>
                       <p className="text-xs text-muted-foreground truncate">
@@ -215,8 +231,8 @@ export function Navigation() {
                   
                   <DropdownMenuSeparator />
                   
-                  <div className="px-2 py-2">
-                    <div className="flex items-center justify-between p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                  <div className="px-3 py-2">
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
                       <div className="flex items-center gap-2">
                         <Coins className="w-4 h-4 text-amber-400" />
                         <span className="text-sm text-amber-300">Credits</span>
@@ -229,21 +245,21 @@ export function Navigation() {
 
                   <DropdownMenuSeparator />
 
-                  <DropdownMenuItem asChild className="cursor-pointer">
+                  <DropdownMenuItem asChild className="cursor-pointer text-foreground focus:text-foreground">
                     <Link href="/library" className="flex items-center gap-2">
                       <Library className="w-4 h-4" />
                       My Library
                     </Link>
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem asChild className="cursor-pointer">
+                  <DropdownMenuItem asChild className="cursor-pointer text-foreground focus:text-foreground">
                     <Link href="/images/generate" className="flex items-center gap-2">
                       <Wand2 className="w-4 h-4" />
                       Generate
                     </Link>
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem asChild className="cursor-pointer">
+                  <DropdownMenuItem asChild className="cursor-pointer text-foreground focus:text-foreground">
                     <Link href="/dashboard" className="flex items-center gap-2">
                       <User className="w-4 h-4" />
                       Profile
@@ -263,7 +279,7 @@ export function Navigation() {
               </DropdownMenu>
             ) : (
               <div className="flex items-center gap-2">
-                <Link href="/auth/login">
+                <Link href="/auth/login" className="hidden sm:block">
                   <Button variant="ghost" size="sm">
                     Sign In
                   </Button>
@@ -273,22 +289,12 @@ export function Navigation() {
                     size="sm"
                     className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
                   >
-                    Get Started
+                    <span className="hidden sm:inline">Get Started</span>
+                    <span className="sm:hidden">Start</span>
                   </Button>
                 </Link>
               </div>
             )}
-
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg hover:bg-muted shrink-0"
-            >
-              {mobileMenuOpen ? (
-                <X className="w-5 h-5" />
-              ) : (
-                <Menu className="w-5 h-5" />
-              )}
-            </button>
           </div>
         </div>
       </div>
