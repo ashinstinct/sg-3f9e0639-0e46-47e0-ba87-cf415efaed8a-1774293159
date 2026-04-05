@@ -11,7 +11,24 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { ArrowLeft, Sparkles, Image as ImageIcon, Loader2, Upload, Search, Check, Layers, Wand2 } from "lucide-react";
 
-const imageModels = [
+type Version = {
+  id: string;
+  name: string;
+  credits: number;
+  speed: string;
+};
+
+type ImageModel = {
+  id: string;
+  name: string;
+  company: string;
+  description: string;
+  icon: any;
+  badge?: string | null;
+  versions: Version[];
+};
+
+const imageModels: ImageModel[] = [
   {
     id: "flux",
     name: "FLUX.1",
@@ -32,6 +49,7 @@ const imageModels = [
     company: "fal.ai",
     description: "Ultra HD image generation in 10 seconds",
     icon: Sparkles,
+    badge: "NEW",
     versions: [
       { id: "nana-banana-2", name: "2.0", credits: 5, speed: "10s" },
       { id: "nana-banana-1.5-pro", name: "1.5 Pro", credits: 4, speed: "8s" },
@@ -106,6 +124,7 @@ const imageModels = [
     company: "Google",
     description: "Google's photorealistic image generation",
     icon: Sparkles,
+    badge: "NEW",
     versions: [
       { id: "imagen-4", name: "4.0", credits: 6, speed: "12s" },
     ],
@@ -179,8 +198,8 @@ export default function ImageGenerate() {
         <Navigation />
 
         <div className="container mx-auto px-4 py-8 max-w-[1800px]">
-          <Card className="border-2">
-            <CardContent className="p-8">
+          <Card className="border-0 shadow-none bg-transparent">
+            <CardContent className="p-0 lg:p-8">
               <Link
                 href="/images"
                 className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
@@ -248,7 +267,12 @@ export default function ImageGenerate() {
                   <Select value={selectedModel.id} onValueChange={handleModelChange}>
                     <SelectTrigger className="h-14">
                       <div className="flex items-center gap-3 w-full">
-                        <span className="text-2xl">{selectedModel.icon}</span>
+                        <span className="text-2xl">
+                          {(() => {
+                            const Icon = selectedModel.icon;
+                            return <Icon className="w-6 h-6" />;
+                          })()}
+                        </span>
                         <div className="flex-1 text-left">
                           <div className="font-semibold flex items-center gap-2">
                             {selectedModel.name}
@@ -278,11 +302,13 @@ export default function ImageGenerate() {
                           />
                         </div>
                       </div>
-                      {filteredModels.map((model) => (
+                      {filteredModels.map((model) => {
+                        const ModelIcon = model.icon;
+                        return (
                         <SelectItem key={model.id} value={model.id} className="h-auto py-3">
                           <div className="flex items-center gap-3 w-full">
                             <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                              <span className="text-xl">{model.icon}</span>
+                              <span className="text-xl"><ModelIcon className="w-5 h-5" /></span>
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="font-semibold flex items-center gap-2 mb-0.5">
@@ -302,7 +328,8 @@ export default function ImageGenerate() {
                             )}
                           </div>
                         </SelectItem>
-                      ))}
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                 </div>
@@ -413,7 +440,7 @@ export default function ImageGenerate() {
 
                 {/* Generated Image Preview */}
                 {generatedImage && (
-                  <div className="mt-6 rounded-xl overflow-hidden border-2">
+                  <div className="mt-6 rounded-xl overflow-hidden border-0">
                     <img
                       src={generatedImage}
                       alt="Generated"
