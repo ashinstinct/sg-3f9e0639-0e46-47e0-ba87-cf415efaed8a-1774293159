@@ -63,70 +63,57 @@ export default function Home() {
         
         <div className="container mx-auto px-4 py-8 max-w-6xl">
           {/* Hero Section */}
-          <div className="mb-12">
-            <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center">
-              WHAT WILL YOU{" "}
-              <span className="bg-gradient-to-r from-[#D4FF00] via-[#C8F500] to-[#BDEB00] bg-clip-text text-transparent">
-                CREATE TODAY?
+          <div className="text-center mb-12 space-y-8">
+            <h1 className="font-heading font-bold text-4xl md:text-6xl leading-tight">
+              <span className="text-foreground">Bring your imagination</span>
+              <br />
+              <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">
+                Back2Life
               </span>
             </h1>
 
             {/* Create Cards */}
-            <div className="grid md:grid-cols-2 gap-4 mb-6">
+            <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
               {/* Create Image */}
               <Link href="/images/generate">
-                <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/50 bg-muted/30">
-                  <div className="aspect-[16/10] relative overflow-hidden">
+                <Card className="group overflow-hidden hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/10 cursor-pointer h-[280px]">
+                  <CardContent className="p-0 relative h-full">
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-500/20" />
                     <img
-                      src="https://images.unsplash.com/photo-1617791160505-6f00504e3519?w=800&q=80"
-                      alt="Create Image"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      src="https://images.unsplash.com/photo-1614850715649-1d0106293bd1?w=600&h=400&fit=crop"
+                      alt="AI Generated"
+                      className="w-full h-full object-cover opacity-80"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
-                            Create Image
-                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                          </h3>
-                          <p className="text-white/80 text-sm">Generate AI images</p>
-                        </div>
-                      </div>
+                    <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
+                      <h3 className="text-2xl font-bold text-white mb-1">Create Image</h3>
+                      <p className="text-white/80 text-sm">Generate AI images</p>
                     </div>
-                  </div>
+                  </CardContent>
                 </Card>
               </Link>
 
               {/* Create Video */}
               <Link href="/video/generate">
-                <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/50 bg-muted/30">
-                  <div className="aspect-[16/10] relative overflow-hidden">
+                <Card className="group overflow-hidden hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/10 cursor-pointer h-[280px]">
+                  <CardContent className="p-0 relative h-full">
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-cyan-500/20" />
                     <img
-                      src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=800&q=80"
-                      alt="Create Video"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      src="https://images.unsplash.com/photo-1536240478700-b869070f9279?w=600&h=400&fit=crop"
+                      alt="AI Video"
+                      className="w-full h-full object-cover opacity-80"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
-                            Create Video
-                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                          </h3>
-                          <p className="text-white/80 text-sm">Generate AI videos</p>
-                        </div>
-                      </div>
+                    <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
+                      <h3 className="text-2xl font-bold text-white mb-1">Create Video</h3>
+                      <p className="text-white/80 text-sm">Generate AI videos</p>
                     </div>
-                  </div>
+                  </CardContent>
                 </Card>
               </Link>
             </div>
 
             {/* Explore All Tools Button */}
-            <Link href="/free-tools">
-              <button className="w-full h-14 rounded-xl font-semibold text-lg bg-gradient-to-r from-[#D4FF00] via-[#C8F500] to-[#BDEB00] text-black hover:shadow-lg hover:shadow-[#D4FF00]/20 transition-all flex items-center justify-center gap-2">
+            <Link href="/tools">
+              <button className="px-8 py-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:from-indigo-600 hover:via-purple-600 hover:to-cyan-600 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 mx-auto transition-all shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30">
                 Explore all tools
                 <Sparkles className="w-5 h-5" />
               </button>
