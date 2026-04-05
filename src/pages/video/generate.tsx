@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import Link from "next/link";
-import { Sparkles, ArrowLeft, Wand2, Image as ImageIcon, Search, Check, Clock, Volume2, X, Info, Maximize2, Monitor } from "lucide-react";
+import { Sparkles, ArrowLeft, Wand2, Image as ImageIcon, Search, Check, Clock, Volume2, X, Info, Maximize2, Monitor, Download, Share2, Twitter, Facebook, MessageCircle, Link2, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
 
@@ -199,6 +199,7 @@ export default function VideoGenerate() {
   const [elementImage, setElementImage] = useState<string | null>(null);
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const [resolution, setResolution] = useState("1080p");
+  const [copySuccess, setCopySuccess] = useState(false);
 
   const handleModelChange = (modelId: string) => {
     const model = VIDEO_MODELS.find((m) => m.id === modelId);
@@ -234,6 +235,65 @@ export default function VideoGenerate() {
     if (version.id.startsWith("veo")) return [5, 10, 15].filter(d => d <= version.duration);
     if (version.id.startsWith("kling") && !version.id.includes("3.0") && !version.id.includes("omni")) return [5, 10].filter(d => d <= version.duration);
     return [version.duration];
+  };
+
+  const handleDownload = async () => {
+    if (!generatedVideo) return;
+    
+    try {
+      const response = await fetch(generatedVideo);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `back2life-video-${Date.now()}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download error:", error);
+      alert("Failed to download video. Please try right-clicking and selecting 'Save video as...'");
+    }
+  };
+
+  const handleCopyLink = async () => {
+    if (!generatedVideo) return;
+    
+    try {
+      await navigator.clipboard.writeText(generatedVideo);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (error) {
+      console.error("Copy error:", error);
+      alert("Failed to copy link");
+    }
+  };
+
+  const handleShare = (platform: string) => {
+    if (!generatedVideo) return;
+    
+    const text = `Check out this AI-generated video I created with Back2Life.Studio!`;
+    const url = encodeURIComponent(generatedVideo);
+    const encodedText = encodeURIComponent(text);
+    
+    let shareUrl = "";
+    
+    switch (platform) {
+      case "twitter":
+        shareUrl = `https://twitter.com/intent/tweet?text=${encodedText}&url=${url}`;
+        break;
+      case "facebook":
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+        break;
+      case "whatsapp":
+        shareUrl = `https://wa.me/?text=${encodedText}%20${url}`;
+        break;
+    }
+    
+    if (shareUrl) {
+      window.open(shareUrl, "_blank", "width=600,height=400");
+    }
   };
 
   const handleGenerate = async () => {
@@ -653,23 +713,81 @@ export default function VideoGenerate() {
 
             {/* Output Preview Area */}
             <div className="sticky top-6">
-              <div className="aspect-[9/16] bg-[#121212] border border-white/5 rounded-2xl flex flex-col items-center justify-center overflow-hidden">
+              <div className="aspect-[9/16] bg-[#121212] border border-white/5 rounded-2xl flex flex-col overflow-hidden">
                 {generatedVideo ? (
-                  <video 
-                    src={generatedVideo} 
-                    className="w-full h-full object-cover" 
-                    controls 
-                    autoPlay 
-                    loop 
-                    muted 
-                  />
-                ) : (
-                  <div className="text-center p-6">
-                    <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4 border border-white/10">
-                      <Sparkles className="w-8 h-8 text-muted-foreground/50" />
+                  <div className="relative w-full h-full flex flex-col">
+                    {/* Video Player */}
+                    <div className="flex-1 relative">
+                      <video 
+                        src={generatedVideo} 
+                        className="w-full h-full object-cover" 
+                        controls 
+                        autoPlay 
+                        loop 
+                        playsInline
+                      />
                     </div>
-                    <p className="text-muted-foreground font-medium">Your video will appear here</p>
-                    <p className="text-sm text-muted-foreground/60 mt-2">Adjust settings and click generate</p>
+                    
+                    {/* Action Buttons */}
+                    <div className="p-4 space-y-3 bg-[#1a1a1a] border-t border-white/5">
+                      {/* Download Button */}
+                      <button
+                        onClick={handleDownload}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black rounded-lg font-semibold transition-all"
+                      >
+                        <Download className="w-4 h-4" />
+                        Download Video
+                      </button>
+                      
+                      {/* Share Buttons */}
+                      <div className="space-y-2">
+                        <div className="text-xs text-muted-foreground text-center">Share</div>
+                        <div className="grid grid-cols-4 gap-2">
+                          <button
+                            onClick={() => handleShare("twitter")}
+                            className="flex items-center justify-center p-3 bg-[#1DA1F2]/10 hover:bg-[#1DA1F2]/20 rounded-lg transition-colors group"
+                            title="Share on Twitter"
+                          >
+                            <Twitter className="w-4 h-4 text-[#1DA1F2]" />
+                          </button>
+                          <button
+                            onClick={() => handleShare("facebook")}
+                            className="flex items-center justify-center p-3 bg-[#1877F2]/10 hover:bg-[#1877F2]/20 rounded-lg transition-colors group"
+                            title="Share on Facebook"
+                          >
+                            <Facebook className="w-4 h-4 text-[#1877F2]" />
+                          </button>
+                          <button
+                            onClick={() => handleShare("whatsapp")}
+                            className="flex items-center justify-center p-3 bg-[#25D366]/10 hover:bg-[#25D366]/20 rounded-lg transition-colors group"
+                            title="Share on WhatsApp"
+                          >
+                            <MessageCircle className="w-4 h-4 text-[#25D366]" />
+                          </button>
+                          <button
+                            onClick={handleCopyLink}
+                            className="flex items-center justify-center p-3 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors group relative"
+                            title="Copy Link"
+                          >
+                            {copySuccess ? (
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                            ) : (
+                              <Link2 className="w-4 h-4 text-primary" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center text-center p-6">
+                    <div>
+                      <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4 border border-white/10">
+                        <Sparkles className="w-8 h-8 text-muted-foreground/50" />
+                      </div>
+                      <p className="text-muted-foreground font-medium">Your video will appear here</p>
+                      <p className="text-sm text-muted-foreground/60 mt-2">Adjust settings and click generate</p>
+                    </div>
                   </div>
                 )}
               </div>
