@@ -504,9 +504,9 @@ export default function VideoGenerate() {
                 <div className="flex flex-wrap gap-3">
                   {/* Aspect Ratio */}
                   <Select
-                    value={aspectRatio.value}
+                    value={aspectRatio.id}
                     onValueChange={(val) =>
-                      setAspectRatio(ASPECT_RATIOS.find((ar) => ar.value === val) || ASPECT_RATIOS[0])
+                      setAspectRatio(ASPECT_RATIOS.find((ar) => ar.id === val) || ASPECT_RATIOS[0])
                     }
                   >
                     <SelectTrigger className="w-auto min-w-[140px] h-10 bg-muted/50">
@@ -517,7 +517,7 @@ export default function VideoGenerate() {
                     </SelectTrigger>
                     <SelectContent>
                       {ASPECT_RATIOS.map((ar) => (
-                        <SelectItem key={ar.value} value={ar.value}>
+                        <SelectItem key={ar.id} value={ar.id}>
                           {ar.label}
                         </SelectItem>
                       ))}
