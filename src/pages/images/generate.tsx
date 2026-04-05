@@ -598,7 +598,7 @@ export default function ImageGeneratePage() {
 
                 <div>
                   <Label htmlFor="prompt" className="text-base font-semibold mb-2 block">
-                    Image Prompt
+                    Prompt
                   </Label>
                   <Textarea
                     id="prompt"
@@ -633,6 +633,39 @@ export default function ImageGeneratePage() {
                       )}
                     </Button>
                     <span className="text-xs text-muted-foreground">{prompt.length} characters</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleEnhancePrompt}
+                    disabled={isEnhancing || !prompt.trim()}
+                    className="flex items-center gap-2"
+                  >
+                    {isEnhancing ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Enhancing...
+                      </>
+                    ) : (
+                      <>
+                        <Wand2 className="w-4 h-4" />
+                        Enhance Prompt
+                      </>
+                    )}
+                  </Button>
+                  
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="auto-enhance" className="text-sm cursor-pointer">
+                      Auto-enhance
+                    </Label>
+                    <Switch
+                      id="auto-enhance"
+                      checked={autoEnhance}
+                      onCheckedChange={setAutoEnhance}
+                    />
                   </div>
                 </div>
 
