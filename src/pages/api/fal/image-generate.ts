@@ -72,27 +72,171 @@ export default async function handler(
 
     console.log(`Generating image with ${endpoint}...`);
 
-    const result = await fal.subscribe(endpoint, {
-      input: {
-        prompt,
-        negative_prompt: negativePrompt,
-        image_size: {
-          width,
-          height,
-        },
-        num_images: numImages,
-        guidance_scale: guidanceScale,
-        num_inference_steps: numInferenceSteps,
-        ...(seed && { seed }),
-        enable_safety_checker: enableSafetyChecker,
-      },
-      logs: true,
-      onQueueUpdate: (update) => {
-        if (update.status === "IN_PROGRESS") {
-          console.log("Generation in progress...");
-        }
-      },
-    }) as any;
+    let result: any;
+    switch (model) {
+      case "nana-banana-2":
+        result = await fal.subscribe("fal-ai/nana-banana/v2", {
+          input: {
+            prompt,
+            negative_prompt: negativePrompt,
+            image_size: {
+              width,
+              height,
+            },
+            num_inference_steps: numInferenceSteps || 28,
+            guidance_scale: guidanceScale || 3.5,
+            num_images: numImages || 1,
+            seed: seed,
+            enable_safety_checker: enableSafetyChecker,
+          },
+        });
+        break;
+
+      case "nana-banana-2-pro":
+        result = await fal.subscribe("fal-ai/nana-banana/v2/pro", {
+          input: {
+            prompt,
+            negative_prompt: negativePrompt,
+            image_size: {
+              width,
+              height,
+            },
+            num_inference_steps: numInferenceSteps || 40,
+            guidance_scale: guidanceScale || 4.0,
+            num_images: numImages || 1,
+            seed: seed,
+            enable_safety_checker: enableSafetyChecker,
+          },
+        });
+        break;
+
+      case "seedream-4.5":
+        result = await fal.subscribe("fal-ai/seedream/v4.5", {
+          input: {
+            prompt,
+            negative_prompt: negativePrompt,
+            image_size: {
+              width,
+              height,
+            },
+            num_inference_steps: numInferenceSteps || 30,
+            guidance_scale: guidanceScale || 7.0,
+            num_images: numImages || 1,
+            seed: seed,
+          },
+        });
+        break;
+
+      case "seedream-4.5-turbo":
+        result = await fal.subscribe("fal-ai/seedream/v4.5/turbo", {
+          input: {
+            prompt,
+            negative_prompt: negativePrompt,
+            image_size: {
+              width,
+              height,
+            },
+            num_inference_steps: numInferenceSteps || 20,
+            guidance_scale: guidanceScale || 7.0,
+            num_images: numImages || 1,
+            seed: seed,
+          },
+        });
+        break;
+
+      case "grok-1.5":
+        result = await fal.subscribe("fal-ai/grok-vision/image", {
+          input: {
+            prompt,
+            negative_prompt: negativePrompt,
+            image_size: {
+              width,
+              height,
+            },
+            num_inference_steps: numInferenceSteps || 35,
+            guidance_scale: guidanceScale || 7.5,
+            num_images: numImages || 1,
+            seed: seed,
+          },
+        });
+        break;
+
+      case "imagen-4":
+        result = await fal.subscribe("fal-ai/google/imagen-4", {
+          input: {
+            prompt,
+            negative_prompt: negativePrompt,
+            image_size: {
+              width,
+              height,
+            },
+            num_inference_steps: numInferenceSteps || 30,
+            guidance_scale: guidanceScale || 7.0,
+            num_images: numImages || 1,
+            seed: seed,
+          },
+        });
+        break;
+
+      case "imagen-4-pro":
+        result = await fal.subscribe("fal-ai/google/imagen-4/pro", {
+          input: {
+            prompt,
+            negative_prompt: negativePrompt,
+            image_size: {
+              width,
+              height,
+            },
+            num_inference_steps: numInferenceSteps || 50,
+            guidance_scale: guidanceScale || 7.5,
+            num_images: numImages || 1,
+            seed: seed,
+          },
+        });
+        break;
+
+      case "flux-1-schnell":
+        result = await fal.subscribe("fal-ai/flux/schnell", {
+          input: {
+            prompt,
+            negative_prompt: negativePrompt,
+            image_size: {
+              width,
+              height,
+            },
+            num_inference_steps: numInferenceSteps || 50,
+            guidance_scale: guidanceScale || 7.5,
+            num_images: numImages || 1,
+            seed: seed,
+            enable_safety_checker: enableSafetyChecker,
+          },
+        });
+        break;
+
+      default:
+        result = await fal.subscribe(endpoint, {
+          input: {
+            prompt,
+            negative_prompt: negativePrompt,
+            image_size: {
+              width,
+              height,
+            },
+            num_images: numImages,
+            guidance_scale: guidanceScale,
+            num_inference_steps: numInferenceSteps,
+            ...(seed && { seed }),
+            enable_safety_checker: enableSafetyChecker,
+          },
+          logs: true,
+          onQueueUpdate: (update) => {
+            if (update.status === "IN_PROGRESS") {
+              console.log("Generation in progress...");
+            }
+          },
+        });
+        break;
+    }
 
     console.log("Generation complete:", result);
 

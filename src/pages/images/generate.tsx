@@ -33,6 +33,117 @@ type ImageModel = {
   resolutions?: string[];
 };
 
+const IMAGE_MODELS = [
+  {
+    id: "nana-banana-2",
+    name: "Nana Banana 2",
+    description: "State-of-the-art image generation with photorealistic results",
+    icon: "🍌",
+    color: "from-yellow-400 to-orange-500",
+    versions: [
+      { id: "nana-banana-2", name: "Standard", credits: 4 },
+      { id: "nana-banana-2-pro", name: "Pro", credits: 6 },
+    ],
+  },
+  {
+    id: "seedream",
+    name: "Seedream 4.5",
+    description: "Advanced photorealistic image synthesis",
+    icon: "🌱",
+    color: "from-green-400 to-emerald-500",
+    versions: [
+      { id: "seedream-4.5", name: "Standard", credits: 4 },
+      { id: "seedream-4.5-turbo", name: "Turbo", credits: 5 },
+    ],
+  },
+  {
+    id: "grok",
+    name: "Grok Image 1.5",
+    description: "X.AI's powerful image generation model",
+    icon: "⚡",
+    color: "from-blue-400 to-cyan-500",
+    versions: [
+      { id: "grok-1.5", name: "Standard", credits: 5 },
+    ],
+  },
+  {
+    id: "imagen",
+    name: "Google Imagen 4",
+    description: "Google's latest text-to-image model",
+    icon: "🎨",
+    color: "from-red-400 to-pink-500",
+    versions: [
+      { id: "imagen-4", name: "Standard", credits: 5 },
+      { id: "imagen-4-pro", name: "Pro", credits: 7 },
+    ],
+  },
+  {
+    id: "flux",
+    name: "FLUX.1",
+    description: "High-quality, fast image generation",
+    icon: "⚡",
+    color: "from-purple-400 to-pink-500",
+    versions: [
+      { id: "flux-1-schnell", name: "Schnell (Fast)", credits: 2 },
+      { id: "flux-1-dev", name: "Dev (Quality)", credits: 3 },
+      { id: "flux-1-pro", name: "Pro (Best)", credits: 5 },
+    ],
+  },
+  {
+    id: "stable-diffusion",
+    name: "Stable Diffusion",
+    description: "Popular open-source image model",
+    icon: "🎨",
+    color: "from-blue-400 to-purple-500",
+    versions: [
+      { id: "sd-3.5-large", name: "3.5 Large", credits: 3 },
+      { id: "sd-3.5-medium", name: "3.5 Medium", credits: 2 },
+      { id: "sd-xl", name: "XL", credits: 2 },
+    ],
+  },
+  {
+    id: "recraft",
+    name: "Recraft v3",
+    description: "Professional design-focused generation",
+    icon: "✨",
+    color: "from-indigo-400 to-blue-500",
+    versions: [
+      { id: "recraft-v3", name: "v3", credits: 3 },
+    ],
+  },
+  {
+    id: "ideogram",
+    name: "Ideogram",
+    description: "Text rendering specialist",
+    icon: "📝",
+    color: "from-green-400 to-teal-500",
+    versions: [
+      { id: "ideogram-v2", name: "v2", credits: 3 },
+      { id: "ideogram-v2-turbo", name: "v2 Turbo", credits: 4 },
+    ],
+  },
+  {
+    id: "playground",
+    name: "Playground v3",
+    description: "Creative and artistic generations",
+    icon: "🎮",
+    color: "from-pink-400 to-rose-500",
+    versions: [
+      { id: "playground-v3", name: "v3", credits: 3 },
+    ],
+  },
+  {
+    id: "auraflow",
+    name: "AuraFlow",
+    description: "Open-source quality model",
+    icon: "🌊",
+    color: "from-cyan-400 to-blue-500",
+    versions: [
+      { id: "auraflow-v0.3", name: "v0.3", credits: 2 },
+    ],
+  },
+];
+
 const imageModels: ImageModel[] = [
   {
     id: "flux",
