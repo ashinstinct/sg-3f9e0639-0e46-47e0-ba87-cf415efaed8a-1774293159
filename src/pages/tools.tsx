@@ -3,7 +3,7 @@ import { SEO } from "@/components/SEO";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { 
-  Image, Video, Music, Wand2, Scissors, Download, SplitSquareHorizontal,
+  Image as ImageIcon, Video, Music, Wand2, Scissors, Download, SplitSquareHorizontal,
   FileAudio, Edit3, Volume2, Mic, MonitorPlay, Film, Sparkles, RefreshCw,
   Frame, ArrowRight, Search
 } from "lucide-react";
@@ -195,7 +195,7 @@ export default function ToolsPage() {
   const toolCategories = [
     {
       name: "Image Tools",
-      icon: Image,
+      icon: ImageIcon,
       color: "from-indigo-500 to-purple-500",
       tools: imageTools,
     },
@@ -218,20 +218,6 @@ export default function ToolsPage() {
       tools: editTools,
     },
   ];
-
-  const filterTools = (query) => {
-    const lowerCaseQuery = query.toLowerCase();
-    return toolCategories.map((category) => {
-      const filteredTools = category.tools.filter((tool) => {
-        const nameMatch = tool.name.toLowerCase().includes(lowerCaseQuery);
-        const descriptionMatch = tool.description.toLowerCase().includes(lowerCaseQuery);
-        return nameMatch || descriptionMatch;
-      });
-      return { ...category, tools: filteredTools };
-    });
-  };
-
-  const filteredCategories = filterTools(searchQuery);
 
   return (
     <>
