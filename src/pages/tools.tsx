@@ -12,109 +12,25 @@ import { useState } from "react";
 export default function ToolsPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
-  const imageTools = [
-    {
-      name: "FLUX.1 Pro",
-      description: "State-of-the-art text-to-image generation",
-      icon: Sparkles,
-      link: "/images/generate",
-      badge: "Premium",
-      credits: "2-5 credits",
-    },
-    {
-      name: "Nano Banana 2.0",
-      description: "Best 4K image model ever",
-      icon: Image,
-      link: "/images/generate",
-      badge: "Premium",
-      credits: "4-5 credits",
-    },
-    {
-      name: "Grok Image",
-      description: "Creative AI interpretations",
-      icon: Sparkles,
-      link: "/images/generate",
-      badge: "Premium",
-      credits: "5 credits",
-    },
-    {
-      name: "Stable Diffusion 3.5",
-      description: "Industry-standard open-source models",
-      icon: Image,
-      link: "/images/generate",
-      badge: "Premium",
-      credits: "3-4 credits",
-    },
-    {
-      name: "AI Image Generator",
-      description: "Free FLUX.1-Schnell image generation",
-      icon: Image,
-      link: "/generate",
-      badge: "Free",
-    },
+  const imageGenerators = [
+    { name: "FLUX.1 Pro", description: "State-of-the-art text-to-image generation", link: "/images/generate", credits: "2-5 credits", free: false },
+    { name: "Nano Banana 2.0", description: "Ultra HD image generation in 10 seconds", link: "/images/generate", credits: "4-5 credits", free: false },
+    { name: "Grok Image", description: "xAI's creative image generation", link: "/images/generate", credits: "5 credits", free: false },
+    { name: "Stable Diffusion 3.5", description: "Industry-standard open-source generation", link: "/images/generate", credits: "3-4 credits", free: false },
+  ];
+
+  const videoGenerators = [
+    { name: "Kling 3.0", description: "Advanced video generation with multiple versions", link: "/video/generate", credits: "14-20 credits", free: false },
+    { name: "Seedance 1.5 Pro", description: "State-of-the-art video synthesis", link: "/video/generate", credits: "20 credits", free: false },
+    { name: "Luma Dream Machine", description: "Fast, high-quality video generation", link: "/video/generate", credits: "15 credits", free: false },
+    { name: "Runway Gen-3", description: "Professional-grade video generation", link: "/video/generate", credits: "18 credits", free: false },
   ];
 
   const videoTools = [
-    {
-      name: "Kling 3.0",
-      description: "Cinema-grade video generation",
-      icon: Video,
-      link: "/video/generate",
-      badge: "Premium",
-      credits: "14-20 credits",
-    },
-    {
-      name: "Seedance 1.5 Pro",
-      description: "Cinematic multi-shot videos",
-      icon: Film,
-      link: "/video/generate",
-      badge: "Premium",
-      credits: "20 credits",
-    },
-    {
-      name: "Luma Dream Machine",
-      description: "Fast, high-quality video generation",
-      icon: Video,
-      link: "/video/generate",
-      badge: "Premium",
-      credits: "15 credits",
-    },
-    {
-      name: "Runway Gen-3",
-      description: "Professional-grade video generation",
-      icon: Film,
-      link: "/video/generate",
-      badge: "Premium",
-      credits: "18 credits",
-    },
-    {
-      name: "Frame Extractor",
-      description: "Extract frames from videos",
-      icon: Frame,
-      link: "/extract",
-      badge: "Free",
-    },
-    {
-      name: "Video Downloader",
-      description: "Download videos from YouTube & more",
-      icon: Download,
-      link: "/download",
-      badge: "Free",
-    },
-    {
-      name: "Video Splitter",
-      description: "Split videos into segments",
-      icon: SplitSquareHorizontal,
-      link: "/split",
-      badge: "Free",
-    },
-    {
-      name: "Screen Recorder",
-      description: "Record your screen activity",
-      icon: MonitorPlay,
-      link: "/record-screen",
-      badge: "Free",
-    },
+    { name: "Frame Extractor", description: "Extract frames from videos", link: "/extract", credits: null, free: true },
+    { name: "Video Downloader", description: "Download videos from YouTube and more", link: "/download", credits: null, free: true },
+    { name: "Video Splitter", description: "Split videos into segments", link: "/split", credits: null, free: true },
+    { name: "Screen Recorder", description: "Record your screen activity", link: "/record-screen", credits: null, free: true },
   ];
 
   const audioTools = [
@@ -184,20 +100,27 @@ export default function ToolsPage() {
     );
   };
 
-  const filteredImageTools = filterTools(imageTools);
+  const filteredImageGenerators = filterTools(imageGenerators);
+  const filteredVideoGenerators = filterTools(videoGenerators);
   const filteredVideoTools = filterTools(videoTools);
   const filteredAudioTools = filterTools(audioTools);
   const filteredEditTools = filterTools(editTools);
 
-  const hasResults = filteredImageTools.length > 0 || filteredVideoTools.length > 0 || 
-                     filteredAudioTools.length > 0 || filteredEditTools.length > 0;
+  const hasResults = filteredImageGenerators.length > 0 || filteredVideoGenerators.length > 0 || 
+                     filteredVideoTools.length > 0 || filteredAudioTools.length > 0 || filteredEditTools.length > 0;
 
   const toolCategories = [
     {
-      name: "Image Tools",
+      name: "Image Generators",
       icon: ImageIcon,
       color: "from-indigo-500 to-purple-500",
-      tools: imageTools,
+      tools: imageGenerators,
+    },
+    {
+      name: "Video Generators",
+      icon: Video,
+      color: "from-purple-500 to-cyan-500",
+      tools: videoGenerators,
     },
     {
       name: "Video Tools",
@@ -281,18 +204,18 @@ export default function ToolsPage() {
             </div>
           )}
 
-          {/* Image Tools */}
-          {filteredImageTools.length > 0 && (
+          {/* Image Generators */}
+          {filteredImageGenerators.length > 0 && (
             <div className="mb-16">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
                   <ImageIcon className="w-6 h-6 text-white" />
                 </div>
-                <h2 className="text-3xl font-bold">Image Tools</h2>
+                <h2 className="text-3xl font-bold">Image Generators</h2>
               </div>
               
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredImageTools.map((tool) => (
+                {filteredImageGenerators.map((tool) => (
                   <Link key={tool.name} href={tool.link}>
                     <Card className="group h-full hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/10">
                       <CardContent className="p-6">
@@ -317,12 +240,48 @@ export default function ToolsPage() {
             </div>
           )}
 
-          {/* Video Tools */}
-          {filteredVideoTools.length > 0 && (
+          {/* Video Generators */}
+          {filteredVideoGenerators.length > 0 && (
             <div className="mb-16">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center">
                   <Video className="w-6 h-6 text-white" />
+                </div>
+                <h2 className="text-3xl font-bold">Video Generators</h2>
+              </div>
+              
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredVideoGenerators.map((tool) => (
+                  <Link key={tool.name} href={tool.link}>
+                    <Card className="group h-full hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/10">
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between mb-3">
+                          <h3 className="font-heading font-bold text-xl">{tool.name}</h3>
+                          {tool.free ? (
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-500/10 text-green-500 border border-green-500/20">
+                              Free
+                            </span>
+                          ) : (
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                              {tool.credits}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground">{tool.description}</p>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Video Tools (Non-Generators) */}
+          {filteredVideoTools.length > 0 && (
+            <div className="mb-16">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center">
+                  <Film className="w-6 h-6 text-white" />
                 </div>
                 <h2 className="text-3xl font-bold">Video Tools</h2>
               </div>
