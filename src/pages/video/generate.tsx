@@ -10,7 +10,33 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import Link from "next/link";
-import { Sparkles, Wand2, Image as ImageIcon, Search, Check, Clock, Volume2, X, Info, Maximize2, Monitor, Download, Share2, Twitter, Facebook, MessageCircle, Link2, CheckCircle, Video, Loader2, Upload, Copy, Share2, Download, ChevronDown } from "lucide-react";
+import { hasEnoughCredits, deductCredits } from "@/services/creditsService";
+import {
+  Video,
+  Sparkles,
+  Wand2,
+  Image as ImageIcon,
+  Volume2,
+  Clock,
+  Maximize2,
+  Loader2,
+  ChevronDown,
+  Upload,
+  Copy,
+  Share2,
+  Download,
+  ArrowLeft,
+  Search,
+  Check,
+  X,
+  Info,
+  Monitor,
+  Twitter,
+  Facebook,
+  MessageCircle,
+  Link2,
+  CheckCircle
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
 

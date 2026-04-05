@@ -191,7 +191,7 @@ export async function getCreditHistory(limit: number = 50): Promise<CreditTransa
       return [];
     }
 
-    return data || [];
+    return (data || []) as CreditTransaction[];
   } catch (err) {
     console.error("Credit history error:", err);
     return [];
