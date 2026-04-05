@@ -388,10 +388,10 @@ export default function VideoGenerate() {
     <>
       <SEO title="AI Video Generator - Back2Life.Studio" description="Professional AI video generation." />
       
-      <div className="min-h-screen bg-background flex flex-col">
+      <div className="min-h-screen bg-background">
         <Navigation />
         
-        <div className="flex-1 container mx-auto px-4 py-6 max-w-6xl">
+        <div className="container mx-auto px-4 py-8 max-w-[1800px]">
           <div className="flex items-center gap-4 mb-6">
             <Link href="/video" className="p-2 hover:bg-muted rounded-full transition-colors">
               <ArrowLeft className="w-5 h-5" />

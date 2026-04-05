@@ -9,142 +9,105 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { ArrowLeft, Sparkles, Image as ImageIcon, Loader2, Upload, Search, Check } from "lucide-react";
+import { ArrowLeft, Sparkles, Image as ImageIcon, Loader2, Upload, Search, Check, Layers, Wand2 } from "lucide-react";
 
-const IMAGE_MODELS = [
+const imageModels = [
   {
     id: "flux",
     name: "FLUX.1",
     company: "Black Forest Labs",
-    icon: "⚡",
-    badge: "NEW",
-    description: "State-of-the-art image generation",
-    isNew: true,
-    latestVersion: "flux-pro",
+    description: "State-of-the-art text-to-image generation",
+    icon: Sparkles,
     versions: [
-      { id: "flux-pro", name: "FLUX.1 Pro", credits: 5, description: "Highest quality, slowest generation" },
-      { id: "flux-dev", name: "FLUX.1 Dev", credits: 4, description: "Balanced quality and speed" },
-      { id: "flux-schnell", name: "FLUX.1 Schnell", credits: 2, description: "Fast generation, good quality" },
-      { id: "flux-realism", name: "FLUX.1 Realism", credits: 5, description: "Photorealistic outputs" },
-      { id: "flux-lora", name: "FLUX.1 LoRA", credits: 4, description: "Custom model fine-tuning" },
+      { id: "flux-pro-1.1", name: "Pro 1.1", credits: 5, speed: "10-15s" },
+      { id: "flux-pro", name: "Pro", credits: 4, speed: "10-15s" },
+      { id: "flux-dev", name: "Dev", credits: 3, speed: "10-15s" },
+      { id: "flux-schnell", name: "Schnell", credits: 2, speed: "5s" },
+      { id: "flux-realism", name: "Realism", credits: 3, speed: "10s" },
     ],
   },
   {
     id: "nana-banana",
-    name: "Nana Banana",
+    name: "Nano Banana",
     company: "fal.ai",
-    icon: "🍌",
-    badge: "NEW",
-    description: "Pro quality at Flash speed",
-    isNew: true,
-    latestVersion: "nana-banana-2",
+    description: "Ultra HD image generation in 10 seconds",
+    icon: Sparkles,
     versions: [
-      { id: "nana-banana-2", name: "Nana Banana 2", credits: 5, description: "Latest version, ultra HD quality" },
-      { id: "nana-banana-pro", name: "Nana Banana Pro", credits: 4, description: "Pro quality, balanced speed" },
-      { id: "nana-banana", name: "Nana Banana", credits: 3, description: "Standard quality, fast generation" },
+      { id: "nana-banana-2", name: "2.0", credits: 5, speed: "10s" },
+      { id: "nana-banana-1.5-pro", name: "1.5 Pro", credits: 4, speed: "8s" },
     ],
   },
   {
     id: "stable-diffusion",
-    name: "Stable Diffusion 3.5",
+    name: "Stable Diffusion",
     company: "Stability AI",
-    icon: "🎨",
-    badge: null,
-    description: "Proven open-source standard",
-    latestVersion: "sd-3.5-large",
+    description: "Industry-standard open-source image generation",
+    icon: Layers,
     versions: [
-      { id: "sd-3.5-large", name: "SD 3.5 Large", credits: 4, description: "Latest flagship model" },
-      { id: "sd-xl", name: "SDXL", credits: 3, description: "Proven open-source standard" },
+      { id: "sd-3.5-large", name: "3.5 Large", credits: 4, speed: "12s" },
+      { id: "sd-xl", name: "XL", credits: 3, speed: "10s" },
     ],
   },
   {
     id: "grok",
     name: "Grok Image",
     company: "xAI",
-    icon: "🌟",
-    badge: null,
-    description: "Creative interpretations",
-    latestVersion: "grok-1.0",
+    description: "xAI's creative image generation",
+    icon: Sparkles,
     versions: [
-      { id: "grok-1.0", name: "Grok Image", credits: 5, description: "Creative interpretations" },
+      { id: "grok-image", name: "Grok", credits: 5, speed: "15s" },
     ],
   },
   {
     id: "recraft",
     name: "Recraft V3",
     company: "Recraft AI",
-    icon: "🎯",
-    badge: null,
-    description: "Perfect text rendering",
-    latestVersion: "recraft-v3",
+    description: "Perfect for logos and UI elements",
+    icon: Wand2,
     versions: [
-      { id: "recraft-v3", name: "Recraft V3", credits: 4, description: "Perfect text rendering" },
+      { id: "recraft-v3", name: "V3", credits: 4, speed: "8s" },
     ],
   },
   {
     id: "ideogram",
     name: "Ideogram",
     company: "Ideogram AI",
-    icon: "💎",
-    badge: null,
-    description: "Best-in-class text quality",
-    latestVersion: "ideogram-v2",
+    description: "Industry-leading text rendering",
+    icon: ImageIcon,
     versions: [
-      { id: "ideogram-v2", name: "Ideogram v2", credits: 4, description: "Best-in-class text quality" },
-      { id: "ideogram-v1", name: "Ideogram v1", credits: 3, description: "Original proven model" },
+      { id: "ideogram-v2", name: "V2", credits: 4, speed: "10s" },
+      { id: "ideogram-v1", name: "V1", credits: 3, speed: "8s" },
     ],
   },
   {
     id: "playground",
     name: "Playground",
     company: "Playground AI",
-    icon: "🎮",
-    badge: null,
     description: "Photorealistic specialist",
-    latestVersion: "playground-v2.5",
+    icon: ImageIcon,
     versions: [
-      { id: "playground-v2.5", name: "Playground v2.5", credits: 3, description: "Photorealistic specialist" },
-      { id: "playground-v2", name: "Playground v2", credits: 3, description: "Vibrant colors" },
+      { id: "playground-v2.5", name: "V2.5", credits: 3, speed: "8s" },
+      { id: "playground-v2", name: "V2", credits: 3, speed: "8s" },
     ],
   },
   {
     id: "auraflow",
     name: "AuraFlow",
     company: "Fal AI",
-    icon: "🌊",
-    badge: null,
     description: "Open-source FLUX alternative",
-    latestVersion: "auraflow-1.0",
+    icon: Sparkles,
     versions: [
-      { id: "auraflow-1.0", name: "AuraFlow", credits: 3, description: "Open-source FLUX alternative" },
+      { id: "auraflow", name: "AuraFlow", credits: 3, speed: "8s" },
     ],
   },
   {
-    id: "gpt-image",
-    name: "GPT Image",
-    company: "OpenAI",
-    icon: "🤖",
-    badge: "NEW",
-    description: "Latest GPT image generation",
-    isNew: true,
-    latestVersion: "gpt-image-1.5",
+    id: "imagen",
+    name: "Imagen",
+    company: "Google",
+    description: "Google's photorealistic image generation",
+    icon: Sparkles,
     versions: [
-      { id: "gpt-image-1.5", name: "GPT Image 1.5", credits: 6, description: "Latest GPT image generation" },
-      { id: "gpt-image", name: "GPT Image", credits: 5, description: "Standard GPT image quality" },
-    ],
-  },
-  {
-    id: "seedream",
-    name: "Seedream",
-    company: "Bytedance",
-    icon: "🎭",
-    badge: "NEW",
-    description: "Intelligent visual reasoning",
-    isNew: true,
-    latestVersion: "seedream-5.0-lite",
-    versions: [
-      { id: "seedream-5.0-lite", name: "Seedream 5.0 Lite", credits: 4, description: "Latest fast generation" },
-      { id: "seedream-4", name: "Seedream 4", credits: 5, description: "High quality standard" },
+      { id: "imagen-4", name: "4.0", credits: 6, speed: "12s" },
     ],
   },
 ];
@@ -163,8 +126,8 @@ const RESOLUTIONS = [
 ];
 
 export default function ImageGenerate() {
-  const [selectedModel, setSelectedModel] = useState(IMAGE_MODELS[0]);
-  const [selectedVersion, setSelectedVersion] = useState(selectedModel.versions[0]);
+  const [selectedModel, setSelectedModel] = useState(imageModels[1]); // Nano Banana (index 1)
+  const [selectedVersion, setSelectedVersion] = useState(imageModels[1].versions[0]); // Nano Banana 2.0
   const [prompt, setPrompt] = useState("");
   const [enhancePrompt, setEnhancePrompt] = useState(true);
   const [aspectRatio, setAspectRatio] = useState(ASPECT_RATIOS[0]);
@@ -175,7 +138,7 @@ export default function ImageGenerate() {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
 
   const handleModelChange = (modelId: string) => {
-    const model = IMAGE_MODELS.find((m) => m.id === modelId);
+    const model = imageModels.find((m) => m.id === modelId);
     if (model) {
       setSelectedModel(model);
       setSelectedVersion(model.versions[0]);
@@ -189,7 +152,7 @@ export default function ImageGenerate() {
     }
   };
 
-  const filteredModels = IMAGE_MODELS.filter(
+  const filteredModels = imageModels.filter(
     (model) =>
       model.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       model.company.toLowerCase().includes(searchQuery.toLowerCase())
@@ -215,7 +178,7 @@ export default function ImageGenerate() {
       <div className="min-h-screen bg-background">
         <Navigation />
 
-        <div className="container mx-auto px-4 py-8 max-w-5xl">
+        <div className="container mx-auto px-4 py-8 max-w-[1800px]">
           <Card className="border-2">
             <CardContent className="p-8">
               <Link

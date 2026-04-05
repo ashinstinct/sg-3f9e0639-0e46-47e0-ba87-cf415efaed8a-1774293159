@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
-type Theme = "dark" | "light";
+type Theme = "dark" | "light" | "system";
 
 type ThemeProviderProps = {
   children: ReactNode;
@@ -23,32 +23,35 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 export function ThemeProvider({
   children,
   defaultTheme = "dark",
-  storageKey = "back2life-theme",
+  storageKey = "ui-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(defaultTheme);
+  const [theme, setTheme] = useState<Theme>(
+    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
+  );
 
   useEffect(() => {
-    // On mount, check localStorage or use default (dark)
-    const stored = localStorage.getItem(storageKey) as Theme | null;
-    const initialTheme = stored || defaultTheme;
-    setTheme(initialTheme);
-    
-    // Apply theme to document
     const root = window.document.documentElement;
+
     root.classList.remove("light", "dark");
-    root.classList.add(initialTheme);
-  }, [defaultTheme, storageKey]);
+
+    if (theme === "system") {
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+
+      root.classList.add(systemTheme);
+      return;
+    }
+
+    root.classList.add(theme);
+  }, [theme]);
 
   const value = {
     theme,
-    setTheme: (newTheme: Theme) => {
-      localStorage.setItem(storageKey, newTheme);
-      setTheme(newTheme);
-      
-      const root = window.document.documentElement;
-      root.classList.remove("light", "dark");
-      root.classList.add(newTheme);
+    setTheme: (theme: Theme) => {
+      localStorage.setItem(storageKey, theme);
+      setTheme(theme);
     },
   };
 
