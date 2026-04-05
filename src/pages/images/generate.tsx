@@ -197,29 +197,33 @@ export default function ImageGenerator() {
                 <div className="space-y-2">
                   <Label>Model</Label>
                   <Select value={selectedModelFamily.id} onValueChange={handleModelFamilyChange}>
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="w-full h-14">
                       <div className="flex items-center justify-between w-full">
                         <div>
-                          <span className="font-medium">{selectedModelFamily.name}</span>
-                          {selectedModelFamily.latestVersion && (
-                            <span className="text-xs text-muted-foreground ml-2">{selectedModelFamily.latestVersion}</span>
-                          )}
+                          <div className="font-semibold text-base">{selectedModelFamily.name}</div>
+                          <div className="text-xs text-muted-foreground">{selectedModelFamily.company}</div>
                         </div>
-                        <span className="text-xs text-muted-foreground ml-2">{selectedModelFamily.company}</span>
                       </div>
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-h-[400px]">
                       {IMAGE_MODELS.map((model) => (
-                        <SelectItem key={model.id} value={model.id}>
-                          <div className="flex items-center justify-between w-full">
-                            <div>
-                              <div className="font-medium flex items-center gap-2">
-                                {model.name}
-                                {model.latestVersion && (
-                                  <span className="text-xs text-muted-foreground">{model.latestVersion}</span>
-                                )}
+                        <SelectItem key={model.id} value={model.id} className="h-auto py-3">
+                          <div className="flex items-start justify-between w-full gap-4">
+                            <div className="flex-1">
+                              <div className="font-semibold text-base mb-0.5">{model.name}</div>
+                              <div className="text-xs text-muted-foreground mb-1">{model.company}</div>
+                              <div className="text-xs text-muted-foreground/80">
+                                {model.versions.length > 1 
+                                  ? `${model.versions.length} versions available` 
+                                  : model.versions[0].description
+                                }
                               </div>
-                              <div className="text-xs text-muted-foreground">{model.company}</div>
+                            </div>
+                            <div className="text-xs text-amber-500 font-semibold whitespace-nowrap">
+                              {model.versions.length === 1 
+                                ? `${model.versions[0].credits} credits`
+                                : `${Math.min(...model.versions.map(v => v.credits))}-${Math.max(...model.versions.map(v => v.credits))} credits`
+                              }
                             </div>
                           </div>
                         </SelectItem>
@@ -233,21 +237,21 @@ export default function ImageGenerator() {
                   <div className="space-y-2">
                     <Label>Version</Label>
                     <Select value={selectedVersion.id} onValueChange={handleVersionChange}>
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger className="w-full h-12">
                         <div className="flex items-center justify-between w-full">
-                          <span>{selectedVersion.name}</span>
-                          <span className="text-xs text-amber-500 ml-2">{selectedVersion.credits} credits</span>
+                          <span className="font-medium">{selectedVersion.name}</span>
+                          <span className="text-xs text-amber-500">{selectedVersion.credits} credits</span>
                         </div>
                       </SelectTrigger>
                       <SelectContent>
                         {selectedModelFamily.versions.map((version) => (
-                          <SelectItem key={version.id} value={version.id}>
-                            <div className="flex items-center justify-between w-full">
-                              <div>
-                                <div className="font-medium">{version.name}</div>
+                          <SelectItem key={version.id} value={version.id} className="h-auto py-2.5">
+                            <div className="flex items-center justify-between w-full gap-4">
+                              <div className="flex-1">
+                                <div className="font-medium text-sm mb-0.5">{version.name}</div>
                                 <div className="text-xs text-muted-foreground">{version.description}</div>
                               </div>
-                              <span className="text-xs text-amber-500 ml-4">{version.credits} credits</span>
+                              <span className="text-xs text-amber-500 font-semibold">{version.credits} credits</span>
                             </div>
                           </SelectItem>
                         ))}
