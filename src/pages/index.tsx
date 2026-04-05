@@ -1,33 +1,230 @@
 import { Navigation } from "@/components/Navigation";
-import { Hero } from "@/components/Hero";
 import { SEO } from "@/components/SEO";
+import { Card } from "@/components/ui/card";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles, Image as ImageIcon, Video, Music, Scissors, Wand2, Play } from "lucide-react";
 
 export default function Home() {
+  const featuredTools = [
+    {
+      name: "Nano Banana 2",
+      description: "Best 4K image model ever",
+      category: "Image Generation",
+      link: "/images/generate",
+      image: "https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?w=800&q=80", // Placeholder - replace with actual AI output
+      gradient: "from-yellow-500 to-orange-500",
+      badge: "TOP RATED",
+    },
+    {
+      name: "Grok Image",
+      description: "Creative AI interpretations",
+      category: "Image Generation",
+      link: "/images/generate",
+      image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80", // Placeholder
+      gradient: "from-purple-500 to-pink-500",
+      badge: "CREATIVE",
+    },
+    {
+      name: "Kling 3.0",
+      description: "Cinema-grade video generation",
+      category: "Video Generation",
+      link: "/video/generate",
+      image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&q=80", // Placeholder
+      gradient: "from-blue-500 to-cyan-500",
+      badge: "BEST VIDEO",
+    },
+    {
+      name: "Seedance 1.5 Pro",
+      description: "Cinematic multi-shot videos",
+      category: "Video Generation",
+      link: "/video/generate",
+      image: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&q=80", // Placeholder
+      gradient: "from-indigo-500 to-purple-500",
+      badge: "CINEMATIC",
+    },
+  ];
+
+  const freeTools = [
+    { name: "Frame Extractor", icon: Scissors, link: "/extract", desc: "Extract video frames" },
+    { name: "Audio Converter", icon: Music, link: "/convert", desc: "Convert audio formats" },
+    { name: "Video Downloader", icon: Video, link: "/download", desc: "Download from YouTube" },
+    { name: "AI Transcriber", icon: Wand2, link: "/transcriber", desc: "Audio to text" },
+  ];
+
   return (
     <>
-      <SEO />
+      <SEO
+        title="Back2Life.Studio - Professional AI Creation Tools"
+        description="Create stunning images and videos with state-of-the-art AI models. Featuring Nano Banana 2, Grok, Kling 3.0, and Seedance."
+      />
+      
       <div className="min-h-screen bg-background">
         <Navigation />
-        <Hero />
         
-        <div className="container mx-auto px-4 py-16">
-          <div className="text-center mb-12">
-            <h2 className="font-heading font-bold text-4xl mb-4">
-              14 Free AI-Powered Tools
-            </h2>
-            <p className="text-muted-foreground text-lg mb-8">
-              Audio, video, and image processing tools. No signup required.
-            </p>
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
+          {/* Hero Section */}
+          <div className="mb-12">
+            <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center">
+              WHAT WILL YOU{" "}
+              <span className="bg-gradient-to-r from-[#D4FF00] via-[#C8F500] to-[#BDEB00] bg-clip-text text-transparent">
+                CREATE TODAY?
+              </span>
+            </h1>
+
+            {/* Create Cards */}
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
+              {/* Create Image */}
+              <Link href="/images/generate">
+                <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/50 bg-muted/30">
+                  <div className="aspect-[16/10] relative overflow-hidden">
+                    <img
+                      src="https://images.unsplash.com/photo-1617791160505-6f00504e3519?w=800&q=80"
+                      alt="Create Image"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
+                            Create Image
+                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                          </h3>
+                          <p className="text-white/80 text-sm">Generate AI images</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </Link>
+
+              {/* Create Video */}
+              <Link href="/video/generate">
+                <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/50 bg-muted/30">
+                  <div className="aspect-[16/10] relative overflow-hidden">
+                    <img
+                      src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=800&q=80"
+                      alt="Create Video"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
+                            Create Video
+                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                          </h3>
+                          <p className="text-white/80 text-sm">Generate AI videos</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </Link>
+            </div>
+
+            {/* Explore All Tools Button */}
             <Link href="/free-tools">
-              <Button size="lg" className="bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:opacity-90">
-                Explore All Tools
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
+              <button className="w-full h-14 rounded-xl font-semibold text-lg bg-gradient-to-r from-[#D4FF00] via-[#C8F500] to-[#BDEB00] text-black hover:shadow-lg hover:shadow-[#D4FF00]/20 transition-all flex items-center justify-center gap-2">
+                Explore all tools
+                <Sparkles className="w-5 h-5" />
+              </button>
             </Link>
           </div>
+
+          {/* Featured Tools Section */}
+          <div className="mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold mb-1">TOP CHOICE</h2>
+                <p className="text-muted-foreground text-sm">Creator-recommended tools tailored for you</p>
+              </div>
+              <Link href="/images" className="text-sm font-medium hover:underline flex items-center gap-1">
+                See all
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              {featuredTools.map((tool) => (
+                <Link key={tool.name} href={tool.link}>
+                  <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/50 bg-muted/30">
+                    <div className="aspect-square relative overflow-hidden">
+                      <img
+                        src={tool.image}
+                        alt={tool.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                      
+                      {/* Badge */}
+                      <div className="absolute top-4 right-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r ${tool.gradient} text-white shadow-lg`}>
+                          {tool.badge}
+                        </span>
+                      </div>
+
+                      {/* Content */}
+                      <div className="absolute bottom-0 left-0 right-0 p-6">
+                        <h3 className="text-2xl font-bold text-white mb-1">{tool.name}</h3>
+                        <p className="text-white/80 text-sm">{tool.description}</p>
+                      </div>
+                    </div>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Free Tools Section */}
+          <div className="mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold mb-1">FREE TOOLS</h2>
+                <p className="text-muted-foreground text-sm">Professional tools at no cost</p>
+              </div>
+              <Link href="/free-tools" className="text-sm font-medium hover:underline flex items-center gap-1">
+                See all 14
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {freeTools.map((tool) => {
+                const Icon = tool.icon;
+                return (
+                  <Link key={tool.name} href={tool.link}>
+                    <Card className="group hover:border-primary/50 transition-all hover:shadow-lg bg-muted/30 h-full">
+                      <div className="p-6 text-center">
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                          <Icon className="w-7 h-7 text-indigo-400" />
+                        </div>
+                        <h3 className="font-semibold text-sm mb-1">{tool.name}</h3>
+                        <p className="text-xs text-muted-foreground">{tool.desc}</p>
+                      </div>
+                    </Card>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Bottom CTA */}
+          <Card className="bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-cyan-500/10 border-indigo-500/20">
+            <div className="p-8 text-center">
+              <Sparkles className="w-12 h-12 mx-auto mb-4 text-primary" />
+              <h3 className="font-bold text-2xl mb-2">Ready to create something amazing?</h3>
+              <p className="text-muted-foreground mb-6">
+                Join thousands of creators using Back2Life.Studio
+              </p>
+              <Link href="/images/generate">
+                <button className="px-8 py-3 rounded-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+                  Start Creating Now
+                </button>
+              </Link>
+            </div>
+          </Card>
         </div>
       </div>
     </>
