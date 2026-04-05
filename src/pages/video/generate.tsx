@@ -248,6 +248,11 @@ export default function VideoGeneratePage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
+  
+  const [startFramePreview, setStartFramePreview] = useState<string | null>(null);
+  const [endFramePreview, setEndFramePreview] = useState<string | null>(null);
+  const [singleImagePreview, setSingleImagePreview] = useState<string | null>(null);
+  const [elementPreview, setElementPreview] = useState<string | null>(null);
 
   const handleModelChange = (modelId: string) => {
     const model = VIDEO_MODELS.find((m) => m.id === modelId);
@@ -600,44 +605,56 @@ export default function VideoGeneratePage() {
                     </div>
 
                     {uploadMode === "elements" ? (
-                      <div className="border-2 border-dashed border-muted-foreground/20 rounded-xl p-12 text-center hover:border-primary/50 transition-colors cursor-pointer bg-muted/20">
-                        <ImageIcon className="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" />
-                        <p className="text-sm text-muted-foreground mb-1">Add consistent element</p>
-                        <p className="text-xs text-muted-foreground/60">(optional)</p>
-                      </div>
+                      <UploadBox 
+                        label="Add consistent element" 
+                        image={elementPreview} 
+                        onUpload={setElementPreview} 
+                        onClear={() => setElementPreview(null)} 
+                        isOptional 
+                      />
                     ) : (
                       <div className="grid grid-cols-2 gap-4">
-                        <div className="border-2 border-dashed border-muted-foreground/20 rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer bg-muted/20">
-                          <ImageIcon className="w-10 h-10 mx-auto mb-2 text-muted-foreground/50" />
-                          <p className="text-sm text-muted-foreground mb-1">Start frame</p>
-                        </div>
-                        <div className="border-2 border-dashed border-muted-foreground/20 rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer bg-muted/20 relative">
-                          <span className="absolute top-2 right-2 text-xs text-muted-foreground bg-muted px-2 py-1 rounded">Optional</span>
-                          <ImageIcon className="w-10 h-10 mx-auto mb-2 text-muted-foreground/50" />
-                          <p className="text-sm text-muted-foreground mb-1">End frame</p>
-                        </div>
+                        <UploadBox 
+                          label="Start frame" 
+                          image={startFramePreview} 
+                          onUpload={setStartFramePreview} 
+                          onClear={() => setStartFramePreview(null)} 
+                        />
+                        <UploadBox 
+                          label="End frame" 
+                          image={endFramePreview} 
+                          onUpload={setEndFramePreview} 
+                          onClear={() => setEndFramePreview(null)} 
+                          isOptional 
+                        />
                       </div>
                     )}
                   </div>
                 ) : selectedVersion.id.startsWith("sora") || selectedVersion.id.startsWith("veo") || !selectedVersion.supportsMultipleFrames ? (
                   // Sora, Veo, and other single-image models - ONE upload only
-                  <div className="border-2 border-dashed border-muted-foreground/20 rounded-xl p-12 text-center hover:border-primary/50 transition-colors cursor-pointer bg-muted/20">
-                    <ImageIcon className="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" />
-                    <p className="text-sm text-muted-foreground mb-1">Choose image to upload</p>
-                    <p className="text-xs text-muted-foreground/60">(optional)</p>
-                  </div>
+                  <UploadBox 
+                    label="Choose image to upload" 
+                    image={singleImagePreview} 
+                    onUpload={setSingleImagePreview} 
+                    onClear={() => setSingleImagePreview(null)} 
+                    isOptional 
+                  />
                 ) : (
                   // Other models - Start/End frames
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="border-2 border-dashed border-muted-foreground/20 rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer bg-muted/20">
-                      <ImageIcon className="w-10 h-10 mx-auto mb-2 text-muted-foreground/50" />
-                      <p className="text-sm text-muted-foreground mb-1">Start frame</p>
-                    </div>
-                    <div className="border-2 border-dashed border-muted-foreground/20 rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer bg-muted/20 relative">
-                      <span className="absolute top-2 right-2 text-xs text-muted-foreground bg-muted px-2 py-1 rounded">Optional</span>
-                      <ImageIcon className="w-10 h-10 mx-auto mb-2 text-muted-foreground/50" />
-                      <p className="text-sm text-muted-foreground mb-1">End frame</p>
-                    </div>
+                    <UploadBox 
+                      label="Start frame" 
+                      image={startFramePreview} 
+                      onUpload={setStartFramePreview} 
+                      onClear={() => setStartFramePreview(null)} 
+                    />
+                    <UploadBox 
+                      label="End frame" 
+                      image={endFramePreview} 
+                      onUpload={setEndFramePreview} 
+                      onClear={() => setEndFramePreview(null)} 
+                      isOptional 
+                    />
                   </div>
                 )}
 
@@ -656,6 +673,27 @@ export default function VideoGeneratePage() {
                     />
                     <div className="flex items-center justify-between mt-2">
                       <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleEnhancePrompt}
+                          disabled={isEnhancing || !prompt.trim()}
+                          className="flex items-center gap-2 text-xs"
+                        >
+                          {isEnhancing ? (
+                            <>
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                              Enhancing...
+                            </>
+                          ) : (
+                            <>
+                              <Wand2 className="w-3 h-3" />
+                              Enhance
+                            </>
+                          )}
+                        </Button>
+
                         <Button
                           type="button"
                           variant="outline"
@@ -680,29 +718,21 @@ export default function VideoGeneratePage() {
                             </>
                           )}
                         </Button>
-                        
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={handleEnhancePrompt}
-                          disabled={isEnhancing || !prompt.trim()}
-                          className="flex items-center gap-2 text-xs"
-                        >
-                          {isEnhancing ? (
-                            <>
-                              <Loader2 className="w-3 h-3 animate-spin" />
-                              Enhancing...
-                            </>
-                          ) : (
-                            <>
-                              <Wand2 className="w-3 h-3" />
-                              Enhance
-                            </>
-                          )}
-                        </Button>
                       </div>
-                      <span className="text-xs text-muted-foreground">{prompt.length} characters</span>
+                      
+                      <div className="flex items-center gap-4">
+                        <span className="text-xs text-muted-foreground">{prompt.length} characters</span>
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor="video-auto-enhance" className="text-xs text-muted-foreground cursor-pointer">
+                            Auto-enhance
+                          </Label>
+                          <Switch
+                            id="video-auto-enhance"
+                            checked={autoEnhance}
+                            onCheckedChange={setAutoEnhance}
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
 
