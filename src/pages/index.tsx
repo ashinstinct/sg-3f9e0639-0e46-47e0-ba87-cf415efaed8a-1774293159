@@ -5,55 +5,9 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowRight, Sparkles, Image as ImageIcon, Video, Music, Scissors, Wand2, Play } from "lucide-react";
 import { Hero } from "@/components/Hero";
-import { ToolsGrid } from "@/components/ToolsGrid";
+import { FeaturedModels } from "@/components/FeaturedModels";
 
 export default function Home() {
-  const featuredTools = [
-    {
-      name: "Nano Banana 2",
-      description: "Best 4K image model ever",
-      category: "Image Generation",
-      link: "/images/generate",
-      image: "https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?w=800&q=80", // Placeholder - replace with actual AI output
-      gradient: "from-yellow-500 to-orange-500",
-      badge: "TOP RATED",
-    },
-    {
-      name: "Grok Image",
-      description: "Creative AI interpretations",
-      category: "Image Generation",
-      link: "/images/generate",
-      image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80", // Placeholder
-      gradient: "from-purple-500 to-pink-500",
-      badge: "CREATIVE",
-    },
-    {
-      name: "Kling 3.0",
-      description: "Cinema-grade video generation",
-      category: "Video Generation",
-      link: "/video/generate",
-      image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&q=80", // Placeholder
-      gradient: "from-blue-500 to-cyan-500",
-      badge: "BEST VIDEO",
-    },
-    {
-      name: "Seedance 1.5 Pro",
-      description: "Cinematic multi-shot videos",
-      category: "Video Generation",
-      link: "/video/generate",
-      image: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&q=80", // Placeholder
-      gradient: "from-indigo-500 to-purple-500",
-      badge: "CINEMATIC",
-    },
-  ];
-
-  const freeTools = [
-    { name: "Frame Extractor", icon: Scissors, link: "/extract", desc: "Extract video frames" },
-    { name: "Audio Converter", icon: Music, link: "/convert", desc: "Convert audio formats" },
-    { name: "Video Downloader", icon: Video, link: "/download", desc: "Download from YouTube" },
-    { name: "AI Transcriber", icon: Wand2, link: "/transcriber", desc: "Audio to text" },
-  ];
-
   return (
     <>
       <SEO
@@ -73,7 +27,7 @@ export default function Home() {
         
         <main className="container mx-auto px-4 py-4 max-w-7xl">
           <Hero />
-          <ToolsGrid />
+          <FeaturedModels />
         </main>
       </div>
     </>
