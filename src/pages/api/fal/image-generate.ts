@@ -1,14 +1,22 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { fal } from "@fal-ai/client";
+import * as fal from "@fal-ai/serverless-client";
 
-export const config = {
-  maxDuration: 60,
-};
-
-// Configure fal client with API key
 fal.config({
   credentials: process.env.FAL_KEY,
 });
+
+type ImageGenerateRequest = {
+  model: string;
+  prompt: string;
+  negativePrompt?: string;
+  width?: number;
+  height?: number;
+  numImages?: number;
+  guidanceScale?: number;
+  numInferenceSteps?: number;
+  seed?: number;
+  enableSafetyChecker?: boolean;
+};
 
 export default async function handler(
   req: NextApiRequest,
@@ -19,65 +27,84 @@ export default async function handler(
   }
 
   try {
-    const { prompt, model = "fal-ai/flux-pro", aspect_ratio = "1:1", negative_prompt } = req.body;
+    const {
+      model,
+      prompt,
+      negativePrompt,
+      width = 1024,
+      height = 1024,
+      numImages = 1,
+      guidanceScale = 7.5,
+      numInferenceSteps = 50,
+      seed,
+      enableSafetyChecker = true,
+    } = req.body as ImageGenerateRequest;
 
-    if (!prompt) {
-      return res.status(400).json({ error: "Prompt is required" });
+    if (!model || !prompt) {
+      return res.status(400).json({ error: "Model and prompt are required" });
     }
 
-    if (!process.env.FAL_KEY) {
-      return res.status(500).json({ error: "FAL_KEY not configured in environment variables" });
-    }
-
-    // Map aspect ratios to dimensions
-    const aspectRatioMap: Record<string, { width: number; height: number }> = {
-      "1:1": { width: 1024, height: 1024 },
-      "16:9": { width: 1344, height: 768 },
-      "9:16": { width: 768, height: 1344 },
-      "4:3": { width: 1152, height: 896 },
-      "3:4": { width: 896, height: 1152 },
+    // Map model IDs to Fal.ai endpoints
+    const modelEndpoints: Record<string, string> = {
+      "flux-pro-1.1": "fal-ai/flux-pro/v1.1",
+      "flux-pro": "fal-ai/flux-pro",
+      "flux-dev": "fal-ai/flux/dev",
+      "flux-schnell": "fal-ai/flux/schnell",
+      "flux-realism": "fal-ai/flux-realism",
+      "nana-banana-2": "fal-ai/nano-banana-2",
+      "nana-banana-1.5-pro": "fal-ai/nano-banana/v1.5-pro",
+      "sd-3.5-large": "fal-ai/stable-diffusion-v35-large",
+      "sd-xl": "fal-ai/fast-sdxl",
+      "grok-image": "fal-ai/grok/image",
+      "recraft-v3": "fal-ai/recraft-v3",
+      "ideogram-v2": "fal-ai/ideogram/v2",
+      "ideogram-v1": "fal-ai/ideogram/v1",
+      "playground-v2.5": "fal-ai/playground-v25",
+      "playground-v2": "fal-ai/playground-v2",
+      "auraflow": "fal-ai/aura-flow",
+      "imagen-4": "fal-ai/imagen/v4",
     };
 
-    const dimensions = aspectRatioMap[aspect_ratio] || aspectRatioMap["1:1"];
+    const endpoint = modelEndpoints[model];
+    if (!endpoint) {
+      return res.status(400).json({ error: `Unsupported model: ${model}` });
+    }
 
-    // Call fal.ai API
-    const result = await fal.subscribe(model, {
+    console.log(`Generating image with ${endpoint}...`);
+
+    const result = await fal.subscribe(endpoint, {
       input: {
         prompt,
-        negative_prompt,
+        negative_prompt: negativePrompt,
         image_size: {
-          width: dimensions.width,
-          height: dimensions.height,
+          width,
+          height,
         },
-        num_inference_steps: model.includes("flux-pro") ? 28 : 4,
-        guidance_scale: 3.5,
-        num_images: 1,
-        enable_safety_checker: true,
+        num_images: numImages,
+        guidance_scale: guidanceScale,
+        num_inference_steps: numInferenceSteps,
+        ...(seed && { seed }),
+        enable_safety_checker: enableSafetyChecker,
       },
       logs: true,
       onQueueUpdate: (update) => {
         if (update.status === "IN_PROGRESS") {
-          console.log("Generation progress:", update.logs);
+          console.log("Generation in progress...");
         }
       },
     });
 
-    // Return the generated image URL
-    const imageUrl = result.data?.images?.[0]?.url;
-    
-    if (!imageUrl) {
-      throw new Error("No image generated");
-    }
+    console.log("Generation complete:", result);
 
     return res.status(200).json({
       success: true,
-      image_url: imageUrl,
-      seed: result.data?.seed,
+      images: result.data.images,
+      seed: result.data.seed,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Image generation error:", error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : "Failed to generate image",
+      error: error.message || "Failed to generate image",
     });
   }
 }
