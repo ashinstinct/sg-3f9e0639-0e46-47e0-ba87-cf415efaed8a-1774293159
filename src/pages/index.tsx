@@ -80,9 +80,9 @@ export default function Home() {
                   <CardContent className="p-0 relative h-full">
                     <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-500/20" />
                     <img
-                      src="https://images.unsplash.com/photo-1614850715649-1d0106293bd1?w=600&h=400&fit=crop"
-                      alt="AI Generated"
-                      className="w-full h-full object-cover opacity-80"
+                      src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=600&h=400&fit=crop"
+                      alt="AI Generated Image"
+                      className="w-full h-full object-cover"
                     />
                     <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
                       <h3 className="text-2xl font-bold text-white mb-1">Create Image</h3>
@@ -98,9 +98,9 @@ export default function Home() {
                   <CardContent className="p-0 relative h-full">
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-cyan-500/20" />
                     <img
-                      src="https://images.unsplash.com/photo-1536240478700-b869070f9279?w=600&h=400&fit=crop"
-                      alt="AI Video"
-                      className="w-full h-full object-cover opacity-80"
+                      src="https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=600&h=400&fit=crop"
+                      alt="AI Video Generation"
+                      className="w-full h-full object-cover"
                     />
                     <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
                       <h3 className="text-2xl font-bold text-white mb-1">Create Video</h3>
