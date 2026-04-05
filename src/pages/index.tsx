@@ -1,6 +1,6 @@
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { ArrowRight, Sparkles, Image as ImageIcon, Video, Music, Scissors, Wand2, Play } from "lucide-react";
 
