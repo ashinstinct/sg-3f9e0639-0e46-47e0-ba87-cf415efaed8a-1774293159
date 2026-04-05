@@ -200,6 +200,12 @@ export default function VideoGeneratePage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Prompt enhancer states
+  const [isEnhancing, setIsEnhancing] = useState(false);
+  const [autoEnhance, setAutoEnhance] = useState(false);
+  const [originalPrompt, setOriginalPrompt] = useState("");
+  const [enhancedPrompt, setEnhancedPrompt] = useState("");
+
   // Missing UI states
   const [audioEnabled, setAudioEnabled] = useState(VIDEO_MODELS[0].versions[0].hasAudio);
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
@@ -309,6 +315,34 @@ export default function VideoGeneratePage() {
     }
   };
 
+  const handleEnhancePrompt = async () => {
+    if (!prompt.trim()) return;
+    
+    setIsEnhancing(true);
+    setOriginalPrompt(prompt);
+    
+    try {
+      const response = await fetch("/api/enhance-prompt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: prompt.trim() }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success && data.enhancedPrompt) {
+        setEnhancedPrompt(data.enhancedPrompt);
+        if (!autoEnhance) {
+          setPrompt(data.enhancedPrompt);
+        }
+      }
+    } catch (err) {
+      console.error("Prompt enhancement failed:", err);
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
+
   const handleGenerate = async () => {
     if (!prompt.trim()) {
       setError("Please enter a prompt");
@@ -320,6 +354,31 @@ export default function VideoGeneratePage() {
     setGeneratedVideo(null);
 
     try {
+      let finalPrompt = prompt.trim();
+      
+      // Auto-enhance if enabled
+      if (autoEnhance) {
+        setIsEnhancing(true);
+        try {
+          const enhanceResponse = await fetch("/api/enhance-prompt", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt: finalPrompt }),
+          });
+          
+          const enhanceData = await enhanceResponse.json();
+          
+          if (enhanceData.success && enhanceData.enhancedPrompt) {
+            finalPrompt = enhanceData.enhancedPrompt;
+            setEnhancedPrompt(finalPrompt);
+          }
+        } catch (err) {
+          console.error("Auto-enhancement failed, using original prompt:", err);
+        } finally {
+          setIsEnhancing(false);
+        }
+      }
+
       // For LTX-2, convert files to URLs if provided
       let imageUrl: string | undefined;
       let videoUrl: string | undefined;
@@ -346,7 +405,7 @@ export default function VideoGeneratePage() {
         },
         body: JSON.stringify({
           model: selectedVersion.id,
-          prompt: prompt.trim(),
+          prompt: finalPrompt,
           negativePrompt: negativePrompt.trim() || undefined,
           duration,
           aspectRatio: aspectRatio.id,
@@ -364,6 +423,10 @@ export default function VideoGeneratePage() {
 
       if (data.success && data.video) {
         setGeneratedVideo(data.video.url);
+        
+        if (autoEnhance && enhancedPrompt) {
+          setPrompt(enhancedPrompt);
+        }
       } else {
         throw new Error("No video returned from API");
       }
@@ -519,9 +582,56 @@ export default function VideoGeneratePage() {
                     className="min-h-[120px] bg-muted/50 border-muted-foreground/20 resize-none"
                   />
 
+                  {/* Prompt Enhancer Controls */}
+                  <div className="flex items-center gap-3 pt-1">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleEnhancePrompt}
+                      disabled={isEnhancing || !prompt.trim()}
+                      className="gap-2"
+                    >
+                      {isEnhancing ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Enhancing...
+                        </>
+                      ) : (
+                        <>
+                          <Wand2 className="w-4 h-4" />
+                          Enhance Prompt
+                        </>
+                      )}
+                    </Button>
+                    
+                    <div className="flex items-center gap-2 ml-auto">
+                      <Label htmlFor="video-auto-enhance" className="text-xs text-muted-foreground cursor-pointer">
+                        Auto-enhance
+                      </Label>
+                      <Switch
+                        id="video-auto-enhance"
+                        checked={autoEnhance}
+                        onCheckedChange={setAutoEnhance}
+                      />
+                    </div>
+                  </div>
+
+                  {enhancedPrompt && !autoEnhance && enhancedPrompt !== originalPrompt && (
+                    <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-sm">
+                      <div className="flex items-start gap-2">
+                        <Wand2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="font-medium text-primary mb-1">Enhanced Prompt:</p>
+                          <p className="text-muted-foreground">{enhancedPrompt}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Multi-shot toggle */}
                   {selectedVersion.id.startsWith("sora") && (
-                    <div className="flex items-center gap-2 text-sm">
+                    <div className="flex items-center gap-2 text-sm mt-4">
                       <Switch checked={multiShot} onCheckedChange={setMultiShot} />
                       <span className="text-muted-foreground">Multi-shot mode</span>
                     </div>

@@ -26,6 +26,8 @@ type ImageModel = {
   icon: any;
   badge?: string | null;
   versions: Version[];
+  maxImages?: number;
+  resolutions?: string[];
 };
 
 const imageModels: ImageModel[] = [
@@ -35,6 +37,8 @@ const imageModels: ImageModel[] = [
     company: "Black Forest Labs",
     description: "State-of-the-art text-to-image generation",
     icon: Sparkles,
+    maxImages: 1,
+    resolutions: ["720p", "1080p", "2K (2048x2048)"],
     versions: [
       { id: "flux-pro-1.1", name: "Pro 1.1", credits: 5, speed: "10-15s" },
       { id: "flux-pro", name: "Pro", credits: 4, speed: "10-15s" },
@@ -50,6 +54,8 @@ const imageModels: ImageModel[] = [
     description: "Ultra HD image generation in 10 seconds",
     icon: Sparkles,
     badge: "NEW",
+    maxImages: 1,
+    resolutions: ["720p", "1080p", "2K", "4K (3840x2160)"],
     versions: [
       { id: "nana-banana-2", name: "2.0", credits: 5, speed: "10s" },
       { id: "nana-banana-1.5-pro", name: "1.5 Pro", credits: 4, speed: "8s" },
@@ -61,6 +67,8 @@ const imageModels: ImageModel[] = [
     company: "Stability AI",
     description: "Industry-standard open-source image generation",
     icon: Layers,
+    maxImages: 1,
+    resolutions: ["720p", "1080p", "2K"],
     versions: [
       { id: "sd-3.5-large", name: "3.5 Large", credits: 4, speed: "12s" },
       { id: "sd-xl", name: "XL", credits: 3, speed: "10s" },
@@ -72,6 +80,8 @@ const imageModels: ImageModel[] = [
     company: "xAI",
     description: "xAI's creative image generation",
     icon: Sparkles,
+    maxImages: 0,
+    resolutions: ["1080p", "2K"],
     versions: [
       { id: "grok-image", name: "Grok", credits: 5, speed: "15s" },
     ],
@@ -82,6 +92,8 @@ const imageModels: ImageModel[] = [
     company: "Recraft AI",
     description: "Perfect for logos and UI elements",
     icon: Wand2,
+    maxImages: 1,
+    resolutions: ["1080p", "2K", "Vector (SVG)"],
     versions: [
       { id: "recraft-v3", name: "V3", credits: 4, speed: "8s" },
     ],
@@ -92,6 +104,8 @@ const imageModels: ImageModel[] = [
     company: "Ideogram AI",
     description: "Industry-leading text rendering",
     icon: ImageIcon,
+    maxImages: 0,
+    resolutions: ["1080p", "2K"],
     versions: [
       { id: "ideogram-v2", name: "V2", credits: 4, speed: "10s" },
       { id: "ideogram-v1", name: "V1", credits: 3, speed: "8s" },
@@ -103,6 +117,8 @@ const imageModels: ImageModel[] = [
     company: "Playground AI",
     description: "Photorealistic specialist",
     icon: ImageIcon,
+    maxImages: 1,
+    resolutions: ["1080p", "2K"],
     versions: [
       { id: "playground-v2.5", name: "V2.5", credits: 3, speed: "8s" },
       { id: "playground-v2", name: "V2", credits: 3, speed: "8s" },
@@ -114,6 +130,8 @@ const imageModels: ImageModel[] = [
     company: "Fal AI",
     description: "Open-source FLUX alternative",
     icon: Sparkles,
+    maxImages: 0,
+    resolutions: ["1080p", "2K"],
     versions: [
       { id: "auraflow", name: "AuraFlow", credits: 3, speed: "8s" },
     ],
@@ -125,6 +143,8 @@ const imageModels: ImageModel[] = [
     description: "Google's photorealistic image generation",
     icon: Sparkles,
     badge: "NEW",
+    maxImages: 1,
+    resolutions: ["1080p", "2K", "4K (3840x2160)"],
     versions: [
       { id: "imagen-4", name: "4.0", credits: 6, speed: "12s" },
     ],
@@ -340,21 +360,23 @@ export default function ImageGeneratePage() {
 
               <div className="space-y-6">
                 {/* Image Upload Area */}
-                <div className="border-2 border-dashed border-muted-foreground/20 rounded-xl p-12 text-center hover:border-muted-foreground/40 transition-colors cursor-pointer">
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
-                      <Upload className="w-8 h-8 text-muted-foreground" />
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground font-medium">
-                        Choose images to upload <span className="text-muted-foreground/60">(up to 14)</span>
-                      </p>
-                      <p className="text-xs text-muted-foreground/60 mt-1">
-                        Optional - for image-to-image generation
-                      </p>
+                {selectedModel.maxImages !== undefined && selectedModel.maxImages > 0 && (
+                  <div className="border-2 border-dashed border-muted-foreground/20 rounded-xl p-12 text-center hover:border-muted-foreground/40 transition-colors cursor-pointer">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                        <Upload className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground font-medium">
+                          Choose images to upload <span className="text-muted-foreground/60">(up to {selectedModel.maxImages} {selectedModel.maxImages === 1 ? 'image' : 'images'})</span>
+                        </p>
+                        <p className="text-xs text-muted-foreground/60 mt-1">
+                          Optional - for image-to-image generation
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* Prompt Input */}
                 <div className="space-y-2">
@@ -547,15 +569,18 @@ export default function ImageGeneratePage() {
                   {/* Resolution */}
                   <Select
                     value={resolution.id}
-                    onValueChange={(id) => setResolution(RESOLUTIONS.find((r) => r.id === id)!)}
+                    onValueChange={(val) => {
+                      const res = RESOLUTIONS.find((r) => r.id === val);
+                      if (res) setResolution(res);
+                    }}
                   >
-                    <SelectTrigger className="w-20 h-10 bg-muted/50">
-                      <SelectValue />
+                    <SelectTrigger className="w-32 h-10 bg-muted/50">
+                      <SelectValue placeholder="Resolution" />
                     </SelectTrigger>
                     <SelectContent>
-                      {RESOLUTIONS.map((res) => (
-                        <SelectItem key={res.id} value={res.id}>
-                          {res.name}
+                      {(selectedModel.resolutions || ["1K", "2K"]).map((res, idx) => (
+                        <SelectItem key={idx} value={res}>
+                          {res}
                         </SelectItem>
                       ))}
                     </SelectContent>

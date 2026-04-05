@@ -1,6 +1,7 @@
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowRight, Sparkles, Image as ImageIcon, Video, Music, Scissors, Wand2, Play } from "lucide-react";
 
@@ -113,7 +114,7 @@ export default function Home() {
 
             {/* Explore All Tools Button */}
             <Link href="/tools">
-              <button className="px-8 py-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:from-indigo-600 hover:via-purple-600 hover:to-cyan-600 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 mx-auto transition-all shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 border-2 border-primary/20">
+              <button className="mt-10 px-8 py-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:from-indigo-600 hover:via-purple-600 hover:to-cyan-600 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 mx-auto transition-all shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 border-2 border-white/20 dark:border-white/10 ring-4 ring-background">
                 Explore all tools
                 <Sparkles className="w-5 h-5" />
               </button>
