@@ -1,290 +1,523 @@
-import { useState, useEffect } from "react";
-import { Navigation } from "@/components/Navigation";
+<![CDATA[import { useState, useEffect } from "react";
+import Head from "next/head";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  getImageGenerations,
-  getVideoGenerations,
-  deleteImageGeneration,
-  deleteVideoGeneration,
-  type ImageGeneration,
-  type VideoGeneration,
-} from "@/services/libraryService";
-import { supabase } from "@/integrations/supabase/client";
-import { useRouter } from "next/router";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import {
-  ImageIcon,
-  Video,
   Download,
   Trash2,
-  Calendar,
-  Sparkles,
-  Loader2,
-  Copy,
-  Check,
-  Library as LibraryIcon,
+  ImageIcon,
+  Video,
+  Clock,
+  Filter,
+  Search,
+  Grid3X3,
+  List,
+  MoreHorizontal,
+  ExternalLink,
+  Wand2,
 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { formatDistanceToNow } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import Link from "next/link";
+
+interface Generation {
+  id: string;
+  type: "image" | "video";
+  prompt: string;
+  url: string;
+  status: "completed" | "processing" | "failed";
+  created_at: string;
+  model: string;
+  credits_used: number;
+  aspect_ratio?: string;
+  duration?: string;
+}
 
 export default function Library() {
-  const router = useRouter();
-  const [images, setImages] = useState<ImageGeneration[]>([]);
-  const [videos, setVideos] = useState<VideoGeneration[]>([]);
+  const [generations, setGenerations] = useState<Generation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("images");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [filter, setFilter] = useState<"all" | "image" | "video">("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
 
   useEffect(() => {
-    checkAuth();
+    fetchGenerations();
   }, []);
 
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      router.push("/auth/login");
-      return;
-    }
-    loadGenerations();
-  };
-
-  const loadGenerations = async () => {
+  const fetchGenerations = async () => {
     setIsLoading(true);
-    const [imageData, videoData] = await Promise.all([
-      getImageGenerations(),
-      getVideoGenerations(),
-    ]);
-    setImages(imageData);
-    setVideos(videoData);
-    setIsLoading(false);
-  };
+    try {
+      // Mock data for now - replace with actual API call
+      const mockGenerations: Generation[] = [
+        {
+          id: "1",
+          type: "image",
+          prompt: "A futuristic cityscape with neon lights and flying cars",
+          url: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&q=80",
+          status: "completed",
+          created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+          model: "FLUX.1",
+          credits_used: 4,
+          aspect_ratio: "16:9",
+        },
+        {
+          id: "2",
+          type: "video",
+          prompt: "A cat playing piano in a jazz club",
+          url: "https://images.unsplash.com/photo-1516280440614-6697288d5d38?w=800&q=80",
+          status: "completed",
+          created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+          model: "Kling 1.6",
+          credits_used: 15,
+          duration: "5s",
+        },
+        {
+          id: "3",
+          type: "image",
+          prompt: "Abstract art with flowing colors and geometric shapes",
+          url: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&q=80",
+          status: "completed",
+          created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+          model: "Nana Banana 2",
+          credits_used: 5,
+          aspect_ratio: "1:1",
+        },
+        {
+          id: "4",
+          type: "video",
+          prompt: "Sunset over mountains with dramatic clouds",
+          url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+          status: "processing",
+          created_at: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+          model: "Luma Dream Machine",
+          credits_used: 12,
+          duration: "4s",
+        },
+        {
+          id: "5",
+          type: "image",
+          prompt: "Portrait of a cyberpunk character with glowing eyes",
+          url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80",
+          status: "completed",
+          created_at: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
+          model: "Seedream 4.5",
+          credits_used: 4,
+          aspect_ratio: "9:16",
+        },
+        {
+          id: "6",
+          type: "video",
+          prompt: "Ocean waves crashing on rocky shore",
+          url: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&q=80",
+          status: "failed",
+          created_at: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
+          model: "Runway Gen-4",
+          credits_used: 0,
+          duration: "5s",
+        },
+      ];
 
-  const handleCopyPrompt = (prompt: string, id: string) => {
-    navigator.clipboard.writeText(prompt);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
-  const handleDeleteImage = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this image?")) return;
-    const result = await deleteImageGeneration(id);
-    if (result.success) {
-      setImages(images.filter(img => img.id !== id));
+      setGenerations(mockGenerations);
+    } catch (error) {
+      console.error("Error fetching generations:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleDeleteVideo = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this video?")) return;
-    const result = await deleteVideoGeneration(id);
-    if (result.success) {
-      setVideos(videos.filter(vid => vid.id !== id));
+  const handleDelete = async (id: string) => {
+    try {
+      // Mock delete - replace with actual API call
+      setGenerations((prev) => prev.filter((g) => g.id !== id));
+    } catch (error) {
+      console.error("Error deleting generation:", error);
+    }
+  };
+
+  const handleDownload = async (url: string, type: string) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = `generation-${Date.now()}.${type === "video" ? "mp4" : "png"}`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error("Error downloading:", error);
+    }
+  };
+
+  const filteredGenerations = generations
+    .filter((g) => {
+      if (filter === "all") return true;
+      return g.type === filter;
+    })
+    .filter((g) =>
+      g.prompt.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sortBy === "newest") {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+      return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    });
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "completed":
+        return (
+          <Badge
+            variant="secondary"
+            className="bg-emerald-500/10 text-emerald-500 border-0"
+          >
+            Completed
+          </Badge>
+        );
+      case "processing":
+        return (
+          <Badge
+            variant="secondary"
+            className="bg-amber-500/10 text-amber-500 border-0"
+          >
+            Processing
+          </Badge>
+        );
+      case "failed":
+        return (
+          <Badge
+            variant="secondary"
+            className="bg-red-500/10 text-red-500 border-0"
+          >
+            Failed
+          </Badge>
+        );
+      default:
+        return null;
     }
   };
 
   return (
     <>
-      <SEO
-        title="My Library - Back2Life.Studio"
-        description="View your AI generation history"
-      />
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        
-        <main className="container mx-auto px-4 py-4 max-w-7xl">
-          <div className="text-center space-y-3 mb-4">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20">
-              <LibraryIcon className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">Your Creations</span>
+      <SEO title="Library - Back2Life.Studio" />
+      <Head>
+        <title>Library - Back2Life.Studio</title>
+      </Head>
+
+      <main className="min-h-screen bg-background pt-24 pb-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">My Library</h1>
+              <p className="text-muted-foreground mt-1">
+                View and manage all your AI-generated content
+              </p>
             </div>
-            
-            <h1 className="font-heading font-bold text-4xl md:text-5xl bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              Library
-            </h1>
-            
-            <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
-              Browse your AI-generated images and videos
-            </p>
+            <Link href="/dashboard">
+              <Button className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700">
+                <Wand2 className="w-4 h-4 mr-2" />
+                Create New
+              </Button>
+            </Link>
           </div>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-4">
-              <TabsTrigger value="images" className="gap-2">
-                <ImageIcon className="w-4 h-4" />
-                Images ({images.length})
-              </TabsTrigger>
-              <TabsTrigger value="videos" className="gap-2">
-                <Video className="w-4 h-4" />
-                Videos ({videos.length})
-              </TabsTrigger>
-            </TabsList>
+          {/* Filters & Search */}
+          <div className="flex flex-col lg:flex-row gap-4 mb-8">
+            <div className="flex-1 flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search generations..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
 
-            <TabsContent value="images">
-              {isLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                </div>
-              ) : images.length === 0 ? (
-                <Card className="border-dashed">
-                  <CardContent className="flex flex-col items-center justify-center py-12">
-                    <ImageIcon className="w-16 h-16 text-muted-foreground mb-4" />
-                    <h3 className="font-semibold text-xl mb-2">No images yet</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Start creating beautiful images with AI
-                    </p>
-                    <Button onClick={() => router.push("/images/generate")}>
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Generate Image
-                    </Button>
+              <Tabs
+                value={filter}
+                onValueChange={(v) => setFilter(v as any)}
+                className="w-full sm:w-auto"
+              >
+                <TabsList className="grid w-full sm:w-auto grid-cols-3">
+                  <TabsTrigger value="all" className="gap-2">
+                    <Grid3X3 className="w-4 h-4" />
+                    All
+                  </TabsTrigger>
+                  <TabsTrigger value="image" className="gap-2">
+                    <ImageIcon className="w-4 h-4" />
+                    Images
+                  </TabsTrigger>
+                  <TabsTrigger value="video" className="gap-2">
+                    <Video className="w-4 h-4" />
+                    Videos
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-[140px]">
+                  <Filter className="w-4 h-4 mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Newest First</SelectItem>
+                  <SelectItem value="oldest">Oldest First</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <div className="flex items-center border rounded-lg p-1">
+                <Button
+                  variant={viewMode === "grid" ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("grid")}
+                  className="px-3"
+                >
+                  <Grid3X3 className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "list" ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                  className="px-3"
+                >
+                  <List className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Content */}
+          {isLoading ? (
+            <div
+              className={
+                viewMode === "grid"
+                  ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                  : "flex flex-col gap-4"
+              }
+            >
+              {[...Array(6)].map((_, i) => (
+                <Card
+                  key={i}
+                  className="animate-pulse bg-muted border-border"
+                >
+                  <div className="aspect-video bg-muted/50" />
+                  <CardContent className="p-4">
+                    <div className="h-4 bg-muted rounded w-3/4 mb-2" />
+                    <div className="h-3 bg-muted rounded w-1/2" />
                   </CardContent>
                 </Card>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {images.map((image) => (
-                    <Card key={image.id} className="overflow-hidden group">
-                      <div className="relative aspect-square bg-muted">
-                        <img
-                          src={image.image_url}
-                          alt={image.prompt}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <CardContent className="p-4">
-                        <div className="flex items-start gap-2 mb-3">
-                          <Sparkles className="w-4 h-4 text-primary mt-1 flex-shrink-0" />
-                          <p className="text-sm line-clamp-2 flex-1">{image.prompt}</p>
-                        </div>
-                        
-                        <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
-                          <span className="font-medium">{image.model_name}</span>
-                          <span>{image.credits_used} credits</span>
-                        </div>
+              ))}
+            </div>
+          ) : filteredGenerations.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
+                <Grid3X3 className="w-10 h-10 text-muted-foreground" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">No generations yet</h3>
+              <p className="text-muted-foreground mb-6">
+                Start creating amazing AI-generated images and videos
+              </p>
+              <Link href="/dashboard">
+                <Button className="bg-gradient-to-r from-indigo-500 to-purple-600">
+                  <Wand2 className="w-4 h-4 mr-2" />
+                  Create Your First Generation
+                </Button>
+              </Link>
+            </div>
+          ) : viewMode === "grid" ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredGenerations.map((generation) => (
+                <Card
+                  key={generation.id}
+                  className="group overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300"
+                >
+                  <div className="relative aspect-video overflow-hidden bg-muted">
+                    <img
+                      src={generation.url}
+                      alt={generation.prompt}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground mb-4">
-                          <Calendar className="w-3 h-3" />
-                          <span>{formatDistanceToNow(new Date(image.created_at), { addSuffix: true })}</span>
-                        </div>
-
-                        <div className="flex gap-2">
+                    {/* Overlay Actions */}
+                    <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="bg-white/90 text-foreground hover:bg-white"
+                        onClick={() => handleDownload(generation.url, generation.type)}
+                      >
+                        <Download className="w-4 h-4" />
+                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
                           <Button
                             size="sm"
-                            variant="outline"
-                            className="flex-1"
-                            onClick={() => handleCopyPrompt(image.prompt, image.id)}
+                            variant="secondary"
+                            className="bg-white/90 text-foreground hover:bg-white"
                           >
-                            {copiedId === image.id ? (
-                              <Check className="w-4 h-4 mr-1" />
-                            ) : (
-                              <Copy className="w-4 h-4 mr-1" />
-                            )}
-                            Prompt
+                            <MoreHorizontal className="w-4 h-4" />
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => window.open(image.image_url, "_blank")}
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => handleDelete(generation.id)}
+                            className="text-destructive"
                           >
-                            <Download className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDeleteImage(image.id)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
 
-            <TabsContent value="videos">
-              {isLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                </div>
-              ) : videos.length === 0 ? (
-                <Card className="border-dashed">
-                  <CardContent className="flex flex-col items-center justify-center py-12">
-                    <Video className="w-16 h-16 text-muted-foreground mb-4" />
-                    <h3 className="font-semibold text-xl mb-2">No videos yet</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Start creating amazing videos with AI
+                    {/* Type Badge */}
+                    <div className="absolute top-3 left-3">
+                      <Badge
+                        variant="secondary"
+                        className="bg-black/50 text-white border-0 backdrop-blur-sm"
+                      >
+                        {generation.type === "video" ? (
+                          <Video className="w-3 h-3 mr-1" />
+                        ) : (
+                          <ImageIcon className="w-3 h-3 mr-1" />
+                        )}
+                        {generation.type === "video"
+                          ? generation.duration
+                          : generation.aspect_ratio}
+                      </Badge>
+                    </div>
+
+                    {/* Status Badge */}
+                    <div className="absolute top-3 right-3">
+                      {getStatusBadge(generation.status)}
+                    </div>
+                  </div>
+
+                  <CardContent className="p-4">
+                    <p className="text-sm line-clamp-2 mb-3 text-foreground">
+                      {generation.prompt}
                     </p>
-                    <Button onClick={() => router.push("/video/generate")}>
-                      <Video className="w-4 h-4 mr-2" />
-                      Generate Video
-                    </Button>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {formatDistanceToNow(new Date(generation.created_at))}
+                        </span>
+                        <span>{generation.credits_used} credits</span>
+                      </div>
+                      <span className="font-medium text-primary">
+                        {generation.model}
+                      </span>
+                    </div>
                   </CardContent>
                 </Card>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {videos.map((video) => (
-                    <Card key={video.id} className="overflow-hidden group">
-                      <div className="relative aspect-video bg-muted">
-                        <video
-                          src={video.video_url}
-                          className="w-full h-full object-cover"
-                          controls
-                        />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {filteredGenerations.map((generation) => (
+                <Card
+                  key={generation.id}
+                  className="overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300"
+                >
+                  <div className="flex flex-col sm:flex-row">
+                    <div className="relative w-full sm:w-48 h-48 sm:h-auto flex-shrink-0 bg-muted">
+                      <img
+                        src={generation.url}
+                        alt={generation.prompt}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute top-2 left-2">
+                        <Badge
+                          variant="secondary"
+                          className="bg-black/50 text-white border-0 backdrop-blur-sm"
+                        >
+                          {generation.type === "video" ? (
+                            <Video className="w-3 h-3 mr-1" />
+                          ) : (
+                            <ImageIcon className="w-3 h-3 mr-1" />
+                          )}
+                          {generation.type === "video"
+                            ? generation.duration
+                            : generation.aspect_ratio}
+                        </Badge>
                       </div>
-                      <CardContent className="p-4">
-                        <div className="flex items-start gap-2 mb-3">
-                          <Sparkles className="w-4 h-4 text-primary mt-1 flex-shrink-0" />
-                          <p className="text-sm line-clamp-2 flex-1">{video.prompt}</p>
+                      <div className="absolute top-2 right-2">
+                        {getStatusBadge(generation.status)}
+                      </div>
+                    </div>
+                    <CardContent className="flex-1 p-4 sm:p-6 flex flex-col justify-between">
+                      <div>
+                        <p className="text-sm sm:text-base mb-3 text-foreground">
+                          {generation.prompt}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                            {formatDistanceToNow(new Date(generation.created_at))}
+                          </span>
+                          <span>{generation.credits_used} credits</span>
+                          <Badge variant="outline" className="font-medium text-primary">
+                            {generation.model}
+                          </Badge>
                         </div>
-                        
-                        <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
-                          <span className="font-medium">{video.model_name}</span>
-                          <span>{video.credits_used} credits</span>
-                        </div>
-
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground mb-4">
-                          <Calendar className="w-3 h-3" />
-                          <span>{formatDistanceToNow(new Date(video.created_at), { addSuffix: true })}</span>
-                        </div>
-
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="flex-1"
-                            onClick={() => handleCopyPrompt(video.prompt, video.id)}
-                          >
-                            {copiedId === video.id ? (
-                              <Check className="w-4 h-4 mr-1" />
-                            ) : (
-                              <Copy className="w-4 h-4 mr-1" />
-                            )}
-                            Prompt
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => window.open(video.video_url, "_blank")}
-                          >
-                            <Download className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDeleteVideo(video.id)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
-        </main>
-      </div>
+                      </div>
+                      <div className="flex items-center gap-2 mt-4 sm:mt-0 sm:justify-end">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDownload(generation.url, generation.type)}
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          Download
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-destructive hover:bg-destructive/10"
+                          onClick={() => handleDelete(generation.id)}
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </main>
     </>
   );
 }
+]]>
+
+[Tool result trimmed: kept first 100 chars and last 100 chars of 16888 chars.]
