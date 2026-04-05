@@ -80,7 +80,7 @@ export default function Home() {
                   <CardContent className="p-0 relative h-full">
                     <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-500/20" />
                     <img
-                      src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=600&h=400&fit=crop"
+                      src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&h=400&fit=crop"
                       alt="AI Generated Image"
                       className="w-full h-full object-cover"
                     />
@@ -134,7 +134,35 @@ export default function Home() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
-              {featuredTools.map((tool) => (
+              {/* Nano Banana 2 */}
+              <Link href="/images/generate">
+                <Card className="group overflow-hidden hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/10 cursor-pointer">
+                  <CardContent className="p-0 relative h-[280px]">
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-500/20" />
+                    <img
+                      src="https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=600&h=400&fit=crop"
+                      alt="Nano Banana 2"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-4 right-4">
+                      <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/90 text-black border border-amber-400">
+                        4-5 credits
+                      </span>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 to-transparent">
+                      <h3 className="text-2xl font-bold text-white mb-2">Nano Banana 2</h3>
+                      <p className="text-white/80 text-sm mb-3">Ultra HD image generation in 10 seconds</p>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="px-2 py-1 rounded-md text-xs bg-white/20 text-white backdrop-blur-sm">Ultra HD</span>
+                        <span className="px-2 py-1 rounded-md text-xs bg-white/20 text-white backdrop-blur-sm">10s Gen</span>
+                        <span className="px-2 py-1 rounded-md text-xs bg-white/20 text-white backdrop-blur-sm">Premium</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              {featuredTools.slice(1).map((tool) => (
                 <Link key={tool.name} href={tool.link}>
                   <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/50 bg-muted/30">
                     <div className="aspect-square relative overflow-hidden">
