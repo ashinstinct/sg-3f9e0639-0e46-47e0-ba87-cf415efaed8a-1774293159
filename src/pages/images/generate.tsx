@@ -781,7 +781,7 @@ export default function ImageGeneratePage() {
                     value={aspectRatio.id}
                     onValueChange={(id) => setAspectRatio(ASPECT_RATIOS.find((r) => r.id === id)!)}
                   >
-                    <SelectTrigger className="w-24 h-10 bg-muted/50">
+                    <SelectTrigger className="w-24 h-10 bg-muted/50 text-foreground">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -801,7 +801,7 @@ export default function ImageGeneratePage() {
                       if (res) setResolution(res);
                     }}
                   >
-                    <SelectTrigger className="w-32 h-10 bg-muted/50">
+                    <SelectTrigger className="w-32 h-10 bg-muted/50 text-foreground">
                       <SelectValue placeholder="Resolution" />
                     </SelectTrigger>
                     <SelectContent>
@@ -818,7 +818,7 @@ export default function ImageGeneratePage() {
                     value={batchCount.toString()}
                     onValueChange={(val) => setBatchCount(parseInt(val))}
                   >
-                    <SelectTrigger className="w-16 h-10 bg-muted/50">
+                    <SelectTrigger className="w-16 h-10 bg-muted/50 text-foreground">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
