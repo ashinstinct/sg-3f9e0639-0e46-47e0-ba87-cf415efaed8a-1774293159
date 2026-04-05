@@ -1,4 +1,4 @@
-<![CDATA[import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Head from "next/head";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,6 @@ import {
   Grid3X3,
   List,
   MoreHorizontal,
-  ExternalLink,
   Wand2,
 } from "lucide-react";
 import {
@@ -34,7 +33,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { formatDistanceToNow } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
 import Link from "next/link";
 
 interface Generation {
@@ -65,7 +63,6 @@ export default function Library() {
   const fetchGenerations = async () => {
     setIsLoading(true);
     try {
-      // Mock data for now - replace with actual API call
       const mockGenerations: Generation[] = [
         {
           id: "1",
@@ -100,39 +97,6 @@ export default function Library() {
           credits_used: 5,
           aspect_ratio: "1:1",
         },
-        {
-          id: "4",
-          type: "video",
-          prompt: "Sunset over mountains with dramatic clouds",
-          url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
-          status: "processing",
-          created_at: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
-          model: "Luma Dream Machine",
-          credits_used: 12,
-          duration: "4s",
-        },
-        {
-          id: "5",
-          type: "image",
-          prompt: "Portrait of a cyberpunk character with glowing eyes",
-          url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80",
-          status: "completed",
-          created_at: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
-          model: "Seedream 4.5",
-          credits_used: 4,
-          aspect_ratio: "9:16",
-        },
-        {
-          id: "6",
-          type: "video",
-          prompt: "Ocean waves crashing on rocky shore",
-          url: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&q=80",
-          status: "failed",
-          created_at: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
-          model: "Runway Gen-4",
-          credits_used: 0,
-          duration: "5s",
-        },
       ];
 
       setGenerations(mockGenerations);
@@ -144,12 +108,7 @@ export default function Library() {
   };
 
   const handleDelete = async (id: string) => {
-    try {
-      // Mock delete - replace with actual API call
-      setGenerations((prev) => prev.filter((g) => g.id !== id));
-    } catch (error) {
-      console.error("Error deleting generation:", error);
-    }
+    setGenerations((prev) => prev.filter((g) => g.id !== id));
   };
 
   const handleDownload = async (url: string, type: string) => {
@@ -174,9 +133,7 @@ export default function Library() {
       if (filter === "all") return true;
       return g.type === filter;
     })
-    .filter((g) =>
-      g.prompt.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    .filter((g) => g.prompt.toLowerCase().includes(searchQuery.toLowerCase()))
     .sort((a, b) => {
       if (sortBy === "newest") {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -188,28 +145,19 @@ export default function Library() {
     switch (status) {
       case "completed":
         return (
-          <Badge
-            variant="secondary"
-            className="bg-emerald-500/10 text-emerald-500 border-0"
-          >
+          <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-500 border-0">
             Completed
           </Badge>
         );
       case "processing":
         return (
-          <Badge
-            variant="secondary"
-            className="bg-amber-500/10 text-amber-500 border-0"
-          >
+          <Badge variant="secondary" className="bg-amber-500/10 text-amber-500 border-0">
             Processing
           </Badge>
         );
       case "failed":
         return (
-          <Badge
-            variant="secondary"
-            className="bg-red-500/10 text-red-500 border-0"
-          >
+          <Badge variant="secondary" className="bg-red-500/10 text-red-500 border-0">
             Failed
           </Badge>
         );
@@ -313,18 +261,9 @@ export default function Library() {
 
           {/* Content */}
           {isLoading ? (
-            <div
-              className={
-                viewMode === "grid"
-                  ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-                  : "flex flex-col gap-4"
-              }
-            >
+            <div className={viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" : "flex flex-col gap-4"}>
               {[...Array(6)].map((_, i) => (
-                <Card
-                  key={i}
-                  className="animate-pulse bg-muted border-border"
-                >
+                <Card key={i} className="animate-pulse bg-muted border-border">
                   <div className="aspect-video bg-muted/50" />
                   <CardContent className="p-4">
                     <div className="h-4 bg-muted rounded w-3/4 mb-2" />
@@ -407,22 +346,16 @@ export default function Library() {
                         ) : (
                           <ImageIcon className="w-3 h-3 mr-1" />
                         )}
-                        {generation.type === "video"
-                          ? generation.duration
-                          : generation.aspect_ratio}
+                        {generation.type === "video" ? generation.duration : generation.aspect_ratio}
                       </Badge>
                     </div>
 
                     {/* Status Badge */}
-                    <div className="absolute top-3 right-3">
-                      {getStatusBadge(generation.status)}
-                    </div>
+                    <div className="absolute top-3 right-3">{getStatusBadge(generation.status)}</div>
                   </div>
 
                   <CardContent className="p-4">
-                    <p className="text-sm line-clamp-2 mb-3 text-foreground">
-                      {generation.prompt}
-                    </p>
+                    <p className="text-sm line-clamp-2 mb-3 text-foreground">{generation.prompt}</p>
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
                       <div className="flex items-center gap-3">
                         <span className="flex items-center gap-1">
@@ -431,9 +364,7 @@ export default function Library() {
                         </span>
                         <span>{generation.credits_used} credits</span>
                       </div>
-                      <span className="font-medium text-primary">
-                        {generation.model}
-                      </span>
+                      <span className="font-medium text-primary">{generation.model}</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -463,20 +394,14 @@ export default function Library() {
                           ) : (
                             <ImageIcon className="w-3 h-3 mr-1" />
                           )}
-                          {generation.type === "video"
-                            ? generation.duration
-                            : generation.aspect_ratio}
+                          {generation.type === "video" ? generation.duration : generation.aspect_ratio}
                         </Badge>
                       </div>
-                      <div className="absolute top-2 right-2">
-                        {getStatusBadge(generation.status)}
-                      </div>
+                      <div className="absolute top-2 right-2">{getStatusBadge(generation.status)}</div>
                     </div>
                     <CardContent className="flex-1 p-4 sm:p-6 flex flex-col justify-between">
                       <div>
-                        <p className="text-sm sm:text-base mb-3 text-foreground">
-                          {generation.prompt}
-                        </p>
+                        <p className="text-sm sm:text-base mb-3 text-foreground">{generation.prompt}</p>
                         <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -518,6 +443,3 @@ export default function Library() {
     </>
   );
 }
-]]>
-
-[Tool result trimmed: kept first 100 chars and last 100 chars of 16888 chars.]
