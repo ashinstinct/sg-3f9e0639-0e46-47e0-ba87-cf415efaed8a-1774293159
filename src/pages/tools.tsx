@@ -180,7 +180,7 @@ export default function ToolsPage() {
             </div>
             
             <h1 className="font-heading font-bold text-4xl md:text-5xl bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 bg-clip-text text-transparent">
-              Free Tools
+              ALL TOOLS
             </h1>
             
             <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
