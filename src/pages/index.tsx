@@ -113,7 +113,7 @@ export default function Home() {
 
             {/* Explore All Tools Button */}
             <Link href="/tools">
-              <button className="px-8 py-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:from-indigo-600 hover:via-purple-600 hover:to-cyan-600 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 mx-auto transition-all shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30">
+              <button className="px-8 py-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:from-indigo-600 hover:via-purple-600 hover:to-cyan-600 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 mx-auto transition-all shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 border-2 border-primary/20">
                 Explore all tools
                 <Sparkles className="w-5 h-5" />
               </button>
@@ -225,21 +225,21 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Bottom CTA */}
-          <Card className="bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-cyan-500/10 border-indigo-500/20">
-            <div className="p-8 text-center">
-              <Sparkles className="w-12 h-12 mx-auto mb-4 text-primary" />
-              <h3 className="font-bold text-2xl mb-2">Ready to create something amazing?</h3>
-              <p className="text-muted-foreground mb-6">
-                Join thousands of creators using Back2Life.Studio
-              </p>
-              <Link href="/images/generate">
-                <button className="px-8 py-3 rounded-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
-                  Start Creating Now
-                </button>
-              </Link>
-            </div>
-          </Card>
+          {/* CTA Section */}
+          <div className="text-center space-y-6">
+            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">
+              Ready to Create Something Amazing?
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Join thousands of creators using Back2Life.Studio
+            </p>
+            <Link href="/tools">
+              <Button size="lg" className="text-lg h-14 px-8 border-2 border-primary/20">
+                Explore All Tools
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </>

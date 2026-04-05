@@ -170,6 +170,41 @@ export default function ImageGeneratePage() {
   const [resolution, setResolution] = useState(RESOLUTIONS[0]);
   const [batchCount, setBatchCount] = useState(1);
 
+  // Prompt enhancer states
+  const [isEnhancing, setIsEnhancing] = useState(false);
+  const [autoEnhance, setAutoEnhance] = useState(false);
+  const [originalPrompt, setOriginalPrompt] = useState("");
+  const [enhancedPrompt, setEnhancedPrompt] = useState("");
+
+  const handleEnhancePrompt = async () => {
+    if (!prompt.trim()) return;
+    
+    setIsEnhancing(true);
+    setOriginalPrompt(prompt);
+    
+    try {
+      const response = await fetch("/api/enhance-prompt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: prompt.trim() }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success && data.enhancedPrompt) {
+        setEnhancedPrompt(data.enhancedPrompt);
+        if (!autoEnhance) {
+          // Show enhancement immediately if not in auto mode
+          setPrompt(data.enhancedPrompt);
+        }
+      }
+    } catch (err) {
+      console.error("Prompt enhancement failed:", err);
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
+
   const handleModelChange = (modelId: string) => {
     const model = imageModels.find((m) => m.id === modelId);
     if (model) {
@@ -205,6 +240,31 @@ export default function ImageGeneratePage() {
     setGeneratedImage(null);
 
     try {
+      let finalPrompt = prompt.trim();
+      
+      // Auto-enhance if enabled
+      if (autoEnhance) {
+        setIsEnhancing(true);
+        try {
+          const enhanceResponse = await fetch("/api/enhance-prompt", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt: finalPrompt }),
+          });
+          
+          const enhanceData = await enhanceResponse.json();
+          
+          if (enhanceData.success && enhanceData.enhancedPrompt) {
+            finalPrompt = enhanceData.enhancedPrompt;
+            setEnhancedPrompt(finalPrompt);
+          }
+        } catch (err) {
+          console.error("Auto-enhancement failed, using original prompt:", err);
+        } finally {
+          setIsEnhancing(false);
+        }
+      }
+
       const response = await fetch("/api/fal/image-generate", {
         method: "POST",
         headers: {
@@ -212,7 +272,7 @@ export default function ImageGeneratePage() {
         },
         body: JSON.stringify({
           model: selectedVersion.id,
-          prompt: prompt.trim(),
+          prompt: finalPrompt,
           negativePrompt: negativePrompt.trim() || undefined,
           width,
           height,
@@ -232,6 +292,11 @@ export default function ImageGeneratePage() {
 
       if (data.success && data.images && data.images.length > 0) {
         setGeneratedImage(data.images[0].url);
+        
+        // Show enhanced prompt after generation if in auto mode
+        if (autoEnhance && enhancedPrompt) {
+          setPrompt(enhancedPrompt);
+        }
       } else {
         throw new Error("No image returned from API");
       }
@@ -291,29 +356,68 @@ export default function ImageGeneratePage() {
                   </div>
                 </div>
 
-                {/* Prompt */}
+                {/* Prompt Input */}
                 <div className="space-y-2">
-                  <Textarea
-                    placeholder="Describe your concept, scene, or idea"
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    className="min-h-[120px] resize-none text-base"
-                  />
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Switch
-                        id="enhance"
-                        checked={enhancePrompt}
-                        onCheckedChange={setEnhancePrompt}
-                      />
-                      <Label htmlFor="enhance" className="text-sm cursor-pointer">
-                        Enhance prompt with AI
-                      </Label>
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      {prompt.length}/2000
-                    </span>
+                    <Label className="flex items-center gap-2 text-muted-foreground text-sm">
+                      <Wand2 className="w-4 h-4" />
+                      Prompt
+                    </Label>
+                    <span className="text-xs text-muted-foreground">{prompt.length}/500</span>
                   </div>
+                  <Textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value.slice(0, 500))}
+                    placeholder="Describe the image you want to create..."
+                    className="min-h-[120px] resize-none"
+                  />
+                  
+                  {/* Prompt Enhancer Controls */}
+                  <div className="flex items-center gap-3 pt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleEnhancePrompt}
+                      disabled={isEnhancing || !prompt.trim()}
+                      className="gap-2"
+                    >
+                      {isEnhancing ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Enhancing...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4" />
+                          Enhance Prompt
+                        </>
+                      )}
+                    </Button>
+                    
+                    <div className="flex items-center gap-2 ml-auto">
+                      <Label htmlFor="auto-enhance" className="text-xs text-muted-foreground cursor-pointer">
+                        Auto-enhance
+                      </Label>
+                      <Switch
+                        id="auto-enhance"
+                        checked={autoEnhance}
+                        onCheckedChange={setAutoEnhance}
+                      />
+                    </div>
+                  </div>
+                  
+                  {enhancedPrompt && !autoEnhance && enhancedPrompt !== originalPrompt && (
+                    <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-sm">
+                      <div className="flex items-start gap-2">
+                        <Sparkles className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="font-medium text-primary mb-1">Enhanced Prompt:</p>
+                          <p className="text-muted-foreground">{enhancedPrompt}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Model Selector */}
