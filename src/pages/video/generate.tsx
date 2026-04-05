@@ -376,278 +376,99 @@ export default function VideoGenerate() {
                   </div>
                 )}
 
-                {/* Prompt Area */}
-                <div className="bg-[#121212] rounded-2xl border border-white/5 overflow-hidden">
-                  <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Label className="text-sm font-medium text-muted-foreground">Multi-shot</Label>
-                      <Info className="w-3.5 h-3.5 text-muted-foreground/70" />
-                    </div>
-                    <Switch checked={multiShot} onCheckedChange={setMultiShot} />
-                  </div>
-                  
+                {/* Prompt Box */}
+                <div className="space-y-3">
                   <Textarea
-                    placeholder='Describe your video, like "A woman walking through a neon-lit city". Add elements using @'
-                    className="min-h-[120px] resize-none border-0 focus-visible:ring-0 rounded-none bg-transparent p-4 text-base"
+                    placeholder={`Describe your video idea...\n\nExample: "A futuristic cityscape at sunset with flying cars"`}
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
+                    className="min-h-[120px] bg-muted/50 border-muted-foreground/20 resize-none"
                   />
-                  
-                  <div className="p-3 border-t border-white/5 flex items-center justify-between bg-black/20">
-                    <div className="flex gap-2">
-                      <Button
-                        variant={enhancePrompt ? "secondary" : "ghost"}
-                        size="sm"
-                        className="h-8 rounded-full text-xs bg-white/5 hover:bg-white/10 border-0"
-                        onClick={() => setEnhancePrompt(!enhancePrompt)}
-                      >
-                        <Wand2 className="w-3 h-3 mr-2 text-indigo-400" />
-                        Enhance {enhancePrompt && "On"}
-                      </Button>
-                      
-                      {selectedVersion.hasAudio && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 rounded-full text-xs bg-white/5 hover:bg-white/10 border-0"
-                          onClick={() => setAudioEnabled(!audioEnabled)}
-                        >
-                          <Volume2 className={cn("w-3 h-3 mr-2", audioEnabled ? "text-cyan-400" : "text-muted-foreground")} />
-                          {audioEnabled ? "On" : "Off"}
-                        </Button>
-                      )}
+
+                  {/* Multi-shot toggle */}
+                  {selectedVersion.id.startsWith("sora") && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Switch checked={multiShot} onCheckedChange={setMultiShot} />
+                      <span className="text-muted-foreground">Multi-shot mode</span>
                     </div>
-                  </div>
+                  )}
+                </div>
 
-                  {/* Higgsfield Model Selector (Inside the prompt box card) */}
-                  <div className="p-3 border-t border-white/5 bg-black/40">
-                    {/* Model Selector - Dropdown */}
-                    <div className="relative">
-                      <button
-                        onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
-                        className="w-full flex items-center justify-between px-4 py-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">{selectedModel.icon}</span>
-                          <div className="text-left">
-                            <div className="font-semibold">{selectedModel.name}</div>
-                            <div className="text-xs text-muted-foreground">{selectedVersion.name}</div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {selectedModel.badge && (
-                            <span className="px-2 py-1 rounded text-xs font-semibold bg-blue-500/10 text-blue-500 border border-blue-500/20">
-                              {selectedModel.badge}
-                            </span>
-                          )}
-                          <span className="text-muted-foreground">▼</span>
-                        </div>
-                      </button>
+                {/* Model Selector - Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
+                    className="w-full flex items-center justify-between px-4 py-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{selectedModel.icon}</span>
+                      <div className="text-left">
+                        <div className="font-semibold">{selectedModel.name}</div>
+                        <div className="text-xs text-muted-foreground">{selectedVersion.name}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {selectedModel.badge && (
+                        <span className="px-2 py-1 rounded text-xs font-semibold bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                          {selectedModel.badge}
+                        </span>
+                      )}
+                      <span className="text-muted-foreground">▼</span>
+                    </div>
+                  </button>
 
-                      {isModelDropdownOpen && (
-                        <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-lg shadow-2xl z-50 max-h-[60vh] overflow-y-auto">
-                          {/* Search */}
-                          <div className="p-3 border-b border-border sticky top-0 bg-background">
-                            <input
-                              type="text"
-                              placeholder="Search models..."
-                              value={searchQuery}
-                              onChange={(e) => setSearchQuery(e.target.value)}
-                              className="w-full px-3 py-2 bg-muted rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                            />
-                          </div>
+                  {isModelDropdownOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-lg shadow-2xl z-50 max-h-[60vh] overflow-y-auto">
+                      {/* Search */}
+                      <div className="p-3 border-b border-border sticky top-0 bg-background">
+                        <input
+                          type="text"
+                          placeholder="Search models..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="w-full px-3 py-2 bg-muted rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
 
-                          {/* Models List */}
-                          <div className="p-2">
-                            {filteredModels.map((model) => (
-                              <div key={model.id} className="mb-3">
-                                <div className="px-2 py-1 text-xs font-semibold text-muted-foreground flex items-center gap-2">
-                                  <span className="text-lg">{model.icon}</span>
-                                  {model.name}
-                                  {model.badge && (
-                                    <span className="px-2 py-0.5 rounded text-xs bg-blue-500/10 text-blue-500 border border-blue-500/20">
-                                      {model.badge}
+                      {/* Models List */}
+                      <div className="p-2">
+                        {filteredModels.map((model) => (
+                          <div key={model.id} className="mb-3">
+                            <div className="px-2 py-1 text-xs font-semibold text-muted-foreground flex items-center gap-2">
+                              <span className="text-lg">{model.icon}</span>
+                              {model.name}
+                              {model.badge && (
+                                <span className="px-2 py-0.5 rounded text-xs bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                                  {model.badge}
+                                </span>
+                              )}
+                            </div>
+                            {model.versions.map((version) => (
+                              <button
+                                key={version.id}
+                                onClick={() => handleModelVersionSelect(model, version)}
+                                className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                                  selectedVersion.id === version.id
+                                    ? "bg-primary/10 text-primary font-medium"
+                                    : "hover:bg-muted/50"
+                                }`}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <span className="text-sm">{version.name}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="px-2 py-0.5 rounded text-xs bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                                      {version.credits}c
                                     </span>
-                                  )}
+                                    <span className="text-xs text-muted-foreground">{version.duration}s max</span>
+                                  </div>
                                 </div>
-                                {model.versions.map((version) => (
-                                  <button
-                                    key={version.id}
-                                    onClick={() => handleModelVersionSelect(model, version)}
-                                    className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                                      selectedVersion.id === version.id
-                                        ? "bg-primary/10 text-primary font-medium"
-                                        : "hover:bg-muted/50"
-                                    }`}
-                                  >
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-sm">{version.name}</span>
-                                      <div className="flex items-center gap-2">
-                                        <span className="px-2 py-0.5 rounded text-xs bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                                          {version.credits}c
-                                        </span>
-                                        <span className="text-xs text-muted-foreground">{version.duration}s max</span>
-                                      </div>
-                                    </div>
-                                  </button>
-                                ))}
-                              </div>
+                              </button>
                             ))}
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Top Controls Row */}
-                <div className="flex flex-wrap gap-3">
-                  {/* Aspect Ratio */}
-                  <Select
-                    value={aspectRatio.id}
-                    onValueChange={(val) =>
-                      setAspectRatio(ASPECT_RATIOS.find((ar) => ar.id === val) || ASPECT_RATIOS[0])
-                    }
-                  >
-                    <SelectTrigger className="w-auto min-w-[140px] h-10 bg-muted/50">
-                      <div className="flex items-center gap-2">
-                        <Maximize2 className="w-4 h-4" />
-                        <span>{aspectRatio.label}</span>
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ASPECT_RATIOS.map((ar) => (
-                        <SelectItem key={ar.id} value={ar.id}>
-                          {ar.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  {/* Duration - Only for non-slider models */}
-                  {!(selectedVersion.id === "kling-3.0" || selectedVersion.id === "kling-omni") && (
-                    <Select
-                      value={duration.toString()}
-                      onValueChange={(val) => setDuration(parseInt(val))}
-                    >
-                      <SelectTrigger className="w-20 h-10 bg-muted/50">
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4" />
-                          <span>{duration}s</span>
-                        </div>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {getDurationOptions(selectedVersion).map((d) => (
-                          <SelectItem key={d} value={d.toString()}>
-                            {d}s
-                          </SelectItem>
                         ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-
-                  {/* Resolution */}
-                  <Select value={resolution} onValueChange={setResolution}>
-                    <SelectTrigger className="w-24 h-10 bg-muted/50">
-                      <div className="flex items-center gap-2">
-                        <Monitor className="w-4 h-4" />
-                        <span>{resolution}</span>
                       </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="720p">720p</SelectItem>
-                      <SelectItem value="1080p">1080p</SelectItem>
-                      <SelectItem value="4K">4K</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  {/* Batch Count */}
-                  <Select
-                    value={batchCount.toString()}
-                    onValueChange={(val) => setBatchCount(parseInt(val))}
-                  >
-                    <SelectTrigger className="w-20 h-10 bg-muted/50">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm">×{batchCount}</span>
-                      </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((count) => (
-                        <SelectItem key={count} value={count.toString()}>
-                          ×{count}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Bottom Row Controls */}
-                <div className="flex items-center gap-3">
-                  {/* Duration */}
-                  {(selectedVersion.id === "kling-3.0" || selectedVersion.id === "kling-omni") ? (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <Label className="text-xs text-muted-foreground">Duration</Label>
-                        <span className="text-sm font-medium">{duration}s</span>
-                      </div>
-                      <Slider
-                        value={[duration]}
-                        onValueChange={(vals) => setDuration(vals[0])}
-                        min={3}
-                        max={15}
-                        step={1}
-                        className="w-full"
-                      />
                     </div>
-                  ) : (
-                    <Select
-                      value={duration.toString()}
-                      onValueChange={(val) => setDuration(parseInt(val))}
-                    >
-                      <SelectTrigger className="w-20 h-10 bg-muted/50">
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4" />
-                          <span>{duration}s</span>
-                        </div>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {getDurationOptions(selectedVersion).map((d) => (
-                          <SelectItem key={d} value={d.toString()}>
-                            {d}s
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                   )}
-
-                  <Select value={aspectRatio.id} onValueChange={(val) => setAspectRatio(ASPECT_RATIOS.find(r => r.id === val) || ASPECT_RATIOS[1])}>
-                    <SelectTrigger className="flex-1 h-12 bg-[#121212] border-white/5 rounded-xl justify-center font-medium">
-                      <span className="mr-2 text-muted-foreground">{aspectRatio.icon}</span>
-                      {aspectRatio.label}
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ASPECT_RATIOS.map((ratio) => (
-                        <SelectItem key={ratio.id} value={ratio.id}>
-                          <div className="flex items-center gap-2">
-                            <span className="text-muted-foreground">{ratio.icon}</span>
-                            {ratio.label}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select value={resolution} onValueChange={setResolution}>
-                    <SelectTrigger className="flex-1 h-12 bg-[#121212] border-white/5 rounded-xl justify-center font-medium">
-                      <span className="mr-2 text-muted-foreground">❖</span>
-                      {resolution}
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="720p">720p</SelectItem>
-                      <SelectItem value="1080p">1080p</SelectItem>
-                      <SelectItem value="4k">4K Ultra HD</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
 
                 {/* Audio Toggle - Only show for models with audio support */}
@@ -664,15 +485,94 @@ export default function VideoGenerate() {
                   </div>
                 )}
 
-                {/* Duration Slider - Large and prominent for Kling 3.0/Omni */}
+                {/* Compact Controls */}
+                <div className="flex flex-wrap gap-3">
+                  {/* Aspect Ratio */}
+                  <Select
+                    value={aspectRatio.id}
+                    onValueChange={(val) =>
+                      setAspectRatio(ASPECT_RATIOS.find((ar) => ar.id === val) || ASPECT_RATIOS[0])
+                    }
+                  >
+                    <SelectTrigger className="w-auto min-w-[120px] h-9 bg-muted/50 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Maximize2 className="w-3.5 h-3.5" />
+                        <span>{aspectRatio.label}</span>
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ASPECT_RATIOS.map((ar) => (
+                        <SelectItem key={ar.id} value={ar.id}>
+                          {ar.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* Resolution */}
+                  <Select value={resolution} onValueChange={setResolution}>
+                    <SelectTrigger className="w-auto min-w-[100px] h-9 bg-muted/50 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Monitor className="w-3.5 h-3.5" />
+                        <span>{resolution}</span>
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="720p">720p</SelectItem>
+                      <SelectItem value="1080p">1080p</SelectItem>
+                      <SelectItem value="4K">4K</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {/* Batch Count */}
+                  <Select
+                    value={batchCount.toString()}
+                    onValueChange={(val) => setBatchCount(parseInt(val))}
+                  >
+                    <SelectTrigger className="w-16 h-9 bg-muted/50 text-sm">
+                      <span>×{batchCount}</span>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((count) => (
+                        <SelectItem key={count} value={count.toString()}>
+                          ×{count}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* Duration dropdown for non-slider models */}
+                  {!(selectedVersion.id === "kling-3.0" || selectedVersion.id === "kling-omni") && (
+                    <Select
+                      value={duration.toString()}
+                      onValueChange={(val) => setDuration(parseInt(val))}
+                    >
+                      <SelectTrigger className="w-20 h-9 bg-muted/50 text-sm">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>{duration}s</span>
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getDurationOptions(selectedVersion).map((d) => (
+                          <SelectItem key={d} value={d.toString()}>
+                            {d}s
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+
+                {/* Duration Slider - Compact for Kling 3.0/Omni */}
                 {(selectedVersion.id === "kling-3.0" || selectedVersion.id === "kling-omni") && (
-                  <div className="space-y-4 p-6 bg-muted/30 rounded-xl">
+                  <div className="space-y-3 p-4 bg-muted/30 rounded-xl">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Clock className="w-5 h-5 text-primary" />
-                        <Label className="text-base font-medium">Duration</Label>
+                        <Clock className="w-4 h-4 text-primary" />
+                        <Label className="text-sm font-medium">Duration</Label>
                       </div>
-                      <span className="text-2xl font-bold text-primary">{duration}s</span>
+                      <span className="text-xl font-bold text-primary">{duration}s</span>
                     </div>
                     <Slider
                       value={[duration]}
