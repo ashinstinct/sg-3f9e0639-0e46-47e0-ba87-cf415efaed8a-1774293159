@@ -9,7 +9,7 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import Link from "next/link";
-import { ArrowLeft, Video, Download, Loader2, Upload, X, Wand2, Volume2, AtSign } from "lucide-react";
+import { ArrowLeft, Video, Download, Loader2, Upload, X, Wand2, Volume2, AtSign, RotateCw, ZoomIn, ArrowUp, ArrowDown, ArrowRight } from "lucide-react";
 
 const KLING_MODELS = [
   { id: "kling-v1-6", name: "Kling 3.0", credits: 20, maxDuration: 10, hasAudio: true, hasElements: false },
@@ -45,6 +45,12 @@ export default function KlingVideoGenerator() {
   const startFrameRef = useRef<HTMLInputElement>(null);
   const endFrameRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Camera motion controls
+  const [horizontalPan, setHorizontalPan] = useState(0); // -10 to 10
+  const [verticalTilt, setVerticalTilt] = useState(0); // -10 to 10
+  const [zoom, setZoom] = useState(0); // -10 to 10
+  const [roll, setRoll] = useState(0); // -10 to 10
 
   useEffect(() => {
     const storedCredits = localStorage.getItem("userCredits");
@@ -93,6 +99,43 @@ export default function KlingVideoGenerator() {
       alert("Failed to generate video");
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const resetMotionControls = () => {
+    setHorizontalPan(0);
+    setVerticalTilt(0);
+    setZoom(0);
+    setRoll(0);
+  };
+
+  const applyPresetMotion = (preset: string) => {
+    resetMotionControls();
+    switch (preset) {
+      case "left":
+        setHorizontalPan(-10);
+        break;
+      case "right":
+        setHorizontalPan(10);
+        break;
+      case "up":
+        setVerticalTilt(10);
+        break;
+      case "down":
+        setVerticalTilt(-10);
+        break;
+      case "in":
+        setZoom(10);
+        break;
+      case "out":
+        setZoom(-10);
+        break;
+      case "clockwise":
+        setRoll(10);
+        break;
+      case "counter":
+        setRoll(-10);
+        break;
     }
   };
 

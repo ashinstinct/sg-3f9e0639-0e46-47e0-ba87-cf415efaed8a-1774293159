@@ -1,129 +1,125 @@
+import Link from "next/link";
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent } from "@/components/ui/card";
-import Link from "next/link";
-import { Wand2, Scissors, Sparkles, Layers, Eraser, ArrowRight } from "lucide-react";
+import {
+  Eraser,
+  Maximize2,
+  ImageIcon,
+  Sparkles,
+  Layers,
+  Wand2,
+  Scissors,
+  Palette,
+  ArrowRight,
+} from "lucide-react";
 
-export default function EditHub() {
-  const editTools = [
-    {
-      name: "Kling Motion Control",
-      type: "Video Edit",
-      description: "Advanced motion control for video editing. Precise control over movement and transitions.",
-      icon: Scissors,
-      credits: "8-12 credits",
-      link: "/edit/kling-motion",
-      features: ["Motion Control", "Frame-by-Frame", "Smooth Transitions"],
-    },
-    {
-      name: "GPT Image Editor",
-      type: "Image Edit",
-      description: "AI-powered image editing with natural language instructions. Edit anything with simple text prompts.",
-      icon: Wand2,
-      credits: "4-6 credits",
-      link: "/edit/gpt-image",
-      features: ["Text Instructions", "Smart Edits", "OpenAI"],
-    },
-    {
-      name: "Nana Banana Edit",
-      type: "Image Edit",
-      description: "Professional image editing with AI guidance. Enhance, modify, and transform images seamlessly.",
-      icon: Sparkles,
-      credits: "3-5 credits",
-      link: "/edit/nana-banana",
-      features: ["AI Enhancement", "Style Transfer", "Fast"],
-    },
-    {
-      name: "Grok Image Editor",
-      type: "Image Edit",
-      description: "xAI's creative image editor. Unique style modifications and artistic transformations.",
-      icon: Wand2,
-      credits: "5 credits",
-      link: "/edit/grok-image",
-      features: ["Creative Edits", "xAI", "Artistic"],
-    },
-    {
-      name: "AI Inpainting",
-      type: "Image Edit",
-      description: "Intelligently edit, remove, or replace parts of images with AI precision.",
-      icon: Eraser,
-      credits: "3 credits",
-      link: "/edit/inpainting",
-      features: ["Smart Fill", "Object Removal", "Restoration"],
-    },
-    {
-      name: "Image Upscaler",
-      type: "Image Edit",
-      description: "Enhance image resolution up to 4x with AI-powered detail recovery and sharpening.",
-      icon: Layers,
-      credits: "3 credits",
-      link: "/edit/upscaler",
-      features: ["4x Upscale", "Detail Recovery", "Sharp"],
-    },
-  ];
+const EDIT_TOOLS = [
+  {
+    id: "inpaint",
+    name: "Inpainting",
+    description: "Remove or replace objects in images with AI",
+    icon: Eraser,
+    href: "/edit/inpaint",
+    color: "from-red-500 to-orange-500",
+    credits: 3,
+  },
+  {
+    id: "outpaint",
+    name: "Outpainting",
+    description: "Extend images beyond their borders",
+    icon: Maximize2,
+    href: "/edit/outpaint",
+    color: "from-blue-500 to-cyan-500",
+    credits: 4,
+  },
+  {
+    id: "upscale",
+    name: "AI Upscaler",
+    description: "Enhance image resolution up to 4x",
+    icon: Sparkles,
+    href: "/edit/upscale",
+    color: "from-purple-500 to-pink-500",
+    credits: 2,
+  },
+  {
+    id: "background-remove",
+    name: "Background Removal",
+    description: "Remove backgrounds with precision",
+    icon: Scissors,
+    href: "/edit/background-remove",
+    color: "from-green-500 to-emerald-500",
+    credits: 1,
+  },
+  {
+    id: "relight",
+    name: "AI Relighting",
+    description: "Change lighting and atmosphere",
+    icon: Palette,
+    href: "/edit/relight",
+    color: "from-yellow-500 to-amber-500",
+    credits: 3,
+  },
+  {
+    id: "enhance",
+    name: "Smart Enhance",
+    description: "Auto-enhance quality and details",
+    icon: Wand2,
+    href: "/edit/enhance",
+    color: "from-indigo-500 to-purple-500",
+    credits: 2,
+  },
+];
 
+export default function EditIndexPage() {
   return (
     <>
       <SEO
-        title="AI Editing Tools - Back2Life.Studio"
-        description="Professional AI image and video editing tools. Motion control, image editing, and more."
+        title="AI Image Editing Tools - Back2Life.Studio"
+        description="Professional AI-powered image editing with inpainting, outpainting, upscaling, background removal, and more"
       />
-      
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
         <Navigation />
         
-        <div className="container mx-auto px-4 py-12 max-w-6xl">
-          {/* Hero Section - Matching Audio Page Style */}
-          <div className="text-center mb-16 space-y-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-cyan-500/10 border border-indigo-500/20 mb-4">
-              <Wand2 className="w-4 h-4 text-cyan-500" />
-              <span className="text-sm font-medium text-cyan-500">Professional Editing Tools</span>
-            </div>
-            
-            <h1 className="font-heading font-bold text-5xl md:text-7xl bg-gradient-to-r from-cyan-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent leading-tight">
-              AI Editing Tools
+        <main className="container mx-auto px-4 py-12">
+          {/* Hero Section */}
+          <div className="text-center mb-12">
+            <h1 className="font-heading font-bold text-5xl md:text-6xl mb-4 bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+              AI Image Editing
             </h1>
-            
-            <p className="text-muted-foreground text-lg md:text-xl max-w-3xl mx-auto">
-              Edit images and videos with precision using cutting-edge AI technology
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Professional image editing powered by cutting-edge AI models
             </p>
           </div>
 
           {/* Tools Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {editTools.map((tool) => {
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+            {EDIT_TOOLS.map((tool) => {
               const Icon = tool.icon;
               return (
-                <Link key={tool.name} href={tool.link}>
-                  <Card className="group h-full hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/10">
+                <Link key={tool.id} href={tool.href}>
+                  <Card className="group h-full hover:shadow-xl transition-all duration-300 border-border/50 bg-card/50 backdrop-blur-sm hover:border-primary/50 cursor-pointer">
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-4">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
-                          <Icon className="w-6 h-6 text-white" />
+                        <div className={`p-3 rounded-xl bg-gradient-to-br ${tool.color} text-white`}>
+                          <Icon className="w-6 h-6" />
                         </div>
-                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                          {tool.credits}
+                        <span className="text-xs font-semibold px-2 py-1 rounded-full bg-primary/10 text-primary">
+                          {tool.credits} credits
                         </span>
                       </div>
-
-                      <h3 className="font-heading font-bold text-xl mb-1">
+                      
+                      <h3 className="font-semibold text-xl mb-2 group-hover:text-primary transition-colors">
                         {tool.name}
                       </h3>
-                      
-                      <p className="text-xs text-muted-foreground mb-3 font-medium">
-                        {tool.type}
-                      </p>
                       
                       <p className="text-sm text-muted-foreground mb-4">
                         {tool.description}
                       </p>
-
-                      <div className="flex flex-wrap gap-2">
-                        {tool.features.map((feature) => (
-                          <span key={feature} className="px-2 py-1 rounded-md text-xs bg-muted text-muted-foreground">
-                            {feature}
-                          </span>
-                        ))}
+                      
+                      <div className="flex items-center text-sm font-medium text-primary group-hover:gap-2 transition-all">
+                        Try it now
+                        <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                       </div>
                     </CardContent>
                   </Card>
@@ -132,20 +128,41 @@ export default function EditHub() {
             })}
           </div>
 
-          {/* CTA */}
-          <Card className="bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-cyan-500/10 border-indigo-500/20">
-            <CardContent className="p-8 text-center">
-              <h3 className="font-semibold text-xl mb-2">Need creation tools instead?</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Generate images and videos from scratch with our AI creation tools
-              </p>
-              <Link href="/" className="inline-flex items-center gap-2 text-sm text-primary hover:underline font-medium">
-                Explore Creation Tools
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
+          {/* Features List */}
+          <div className="mt-16 max-w-3xl mx-auto">
+            <h2 className="text-2xl font-bold mb-6 text-center">Why Choose Our AI Editors?</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-start gap-3 p-4 rounded-lg bg-card/30">
+                <div className="w-2 h-2 rounded-full bg-primary mt-2" />
+                <div>
+                  <h3 className="font-semibold mb-1">State-of-the-Art Models</h3>
+                  <p className="text-sm text-muted-foreground">Powered by FAL.ai's latest AI technology</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-4 rounded-lg bg-card/30">
+                <div className="w-2 h-2 rounded-full bg-primary mt-2" />
+                <div>
+                  <h3 className="font-semibold mb-1">Lightning Fast</h3>
+                  <p className="text-sm text-muted-foreground">Process images in seconds</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-4 rounded-lg bg-card/30">
+                <div className="w-2 h-2 rounded-full bg-primary mt-2" />
+                <div>
+                  <h3 className="font-semibold mb-1">Professional Results</h3>
+                  <p className="text-sm text-muted-foreground">Studio-quality output every time</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-4 rounded-lg bg-card/30">
+                <div className="w-2 h-2 rounded-full bg-primary mt-2" />
+                <div>
+                  <h3 className="font-semibold mb-1">Easy to Use</h3>
+                  <p className="text-sm text-muted-foreground">Intuitive interface for all skill levels</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     </>
   );
