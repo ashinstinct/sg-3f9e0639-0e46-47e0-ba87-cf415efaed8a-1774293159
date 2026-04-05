@@ -147,6 +147,19 @@ export default function VideoHub() {
             </p>
           </div>
 
+          <div className="mb-12">
+            <h1 className="font-heading font-bold text-4xl md:text-5xl mb-3">Video Generation</h1>
+            <p className="text-muted-foreground text-lg mb-6">
+              Create professional videos with cutting-edge AI models
+            </p>
+            <Link href="/video/generate">
+              <Button variant="outline" className="gap-2">
+                <Video className="w-4 h-4" />
+                Generate Video
+              </Button>
+            </Link>
+          </div>
+
           {/* Tools Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             {videoTools.map((tool) => {

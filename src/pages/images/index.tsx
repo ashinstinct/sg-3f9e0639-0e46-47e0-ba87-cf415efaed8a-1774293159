@@ -155,6 +155,19 @@ export default function ImagesHub() {
             </p>
           </div>
 
+          <div className="mb-12">
+            <h1 className="font-heading font-bold text-4xl md:text-5xl mb-3">Image Generation</h1>
+            <p className="text-muted-foreground text-lg mb-6">
+              Create stunning images with state-of-the-art AI models
+            </p>
+            <Link href="/images/generate">
+              <Button variant="outline" className="gap-2">
+                <Sparkles className="w-4 h-4" />
+                Generate Images
+              </Button>
+            </Link>
+          </div>
+
           {/* Tools Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             {imageTools.map((tool) => {
