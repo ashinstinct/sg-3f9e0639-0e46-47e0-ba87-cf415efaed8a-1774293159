@@ -37,7 +37,6 @@ import {
   Link2,
   CheckCircle
 } from "lucide-react";
-import classnames from "classnames";
 import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
 
