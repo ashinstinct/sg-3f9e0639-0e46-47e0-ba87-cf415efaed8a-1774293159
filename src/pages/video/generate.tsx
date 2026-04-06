@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { SEO } from "@/components/SEO";
+import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
