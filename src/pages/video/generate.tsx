@@ -658,90 +658,28 @@ export default function VideoGeneratePage() {
                   </div>
                 )}
 
-                {/* Prompt Box */}
-                <div className="space-y-3">
-                  <div>
-                    <Label htmlFor="prompt" className="text-base font-semibold mb-2 block">
-                      Video Prompt
-                    </Label>
-                    <Textarea
-                      id="prompt"
-                      value={prompt}
-                      onChange={(e) => setPrompt(e.target.value)}
-                      placeholder="A cat playing piano in a concert hall..."
-                      className="min-h-[120px] resize-none bg-background/50"
-                    />
-                    <div className="flex items-center justify-between mt-2">
-                      <div className="flex items-center gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={handleEnhancePrompt}
-                          disabled={isEnhancing || !prompt.trim()}
-                          className="flex items-center gap-2 text-xs"
-                        >
-                          {isEnhancing ? (
-                            <>
-                              <Loader2 className="w-3 h-3 animate-spin" />
-                              Enhancing...
-                            </>
-                          ) : (
-                            <>
-                              <Wand2 className="w-3 h-3" />
-                              Enhance
-                            </>
-                          )}
-                        </Button>
-
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            navigator.clipboard.writeText(prompt);
-                            setCopied(true);
-                            setTimeout(() => setCopied(false), 2000);
-                          }}
-                          disabled={!prompt.trim()}
-                          className="text-xs"
-                        >
-                          {copied ? (
-                            <>
-                              <Check className="w-3 h-3 mr-1" />
-                              Copied!
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-3 h-3 mr-1" />
-                              Copy
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                      
-                      <div className="flex items-center gap-4">
-                        <span className="text-xs text-muted-foreground">{prompt.length} characters</span>
-                        <div className="flex items-center gap-2">
-                          <Label htmlFor="video-auto-enhance" className="text-xs text-muted-foreground cursor-pointer">
-                            Auto-enhance
-                          </Label>
-                          <Switch
-                            id="video-auto-enhance"
-                            checked={autoEnhance}
-                            onCheckedChange={setAutoEnhance}
-                          />
-                        </div>
-                      </div>
+                {/* Prompt Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Wand2 className="w-5 h-5 text-muted-foreground" />
+                      <Label className="text-base font-semibold">Prompt</Label>
                     </div>
+                    <span className="text-sm text-muted-foreground">{prompt.length}/500</span>
                   </div>
 
-                  {/* Prompt Enhancer Controls */}
-                  <div className="flex items-center gap-3 pt-1">
+                  <Textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="Describe the video you want to create..."
+                    className="min-h-[140px] resize-none bg-background/50 text-base"
+                    maxLength={500}
+                  />
+
+                  <div className="flex items-center justify-between">
                     <Button
                       type="button"
                       variant="outline"
-                      size="sm"
                       onClick={handleEnhancePrompt}
                       disabled={isEnhancing || !prompt.trim()}
                       className="flex items-center gap-2"
@@ -753,14 +691,14 @@ export default function VideoGeneratePage() {
                         </>
                       ) : (
                         <>
-                          <Wand2 className="w-4 h-4" />
+                          <Sparkles className="w-4 h-4" />
                           Enhance Prompt
                         </>
                       )}
                     </Button>
-                    
-                    <div className="flex items-center gap-2 ml-auto">
-                      <Label htmlFor="video-auto-enhance" className="text-xs text-muted-foreground cursor-pointer">
+
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="video-auto-enhance" className="text-sm cursor-pointer">
                         Auto-enhance
                       </Label>
                       <Switch
