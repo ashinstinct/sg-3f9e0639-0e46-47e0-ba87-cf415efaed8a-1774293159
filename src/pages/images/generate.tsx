@@ -541,7 +541,6 @@ export default function ImageGeneratePage() {
                       <Wand2 className="w-5 h-5 text-muted-foreground" />
                       <Label className="text-base font-semibold">Prompt</Label>
                     </div>
-                    <span className="text-sm text-muted-foreground">{prompt.length}/500</span>
                   </div>
 
                   <div className="relative">
