@@ -301,8 +301,8 @@ export function Navigation() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-background/95 backdrop-blur-xl border-b border-border">
-          <div className="px-4 py-4 space-y-2">
+        <div className="md:hidden border-t border-border/40 bg-background">
+          <div className="container mx-auto px-4 py-4 space-y-4">
             {toolsMenu.map((tool) => (
               <div key={tool.label}>
                 <Link
