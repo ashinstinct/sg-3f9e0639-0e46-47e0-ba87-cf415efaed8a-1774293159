@@ -681,13 +681,18 @@ export default function VideoGeneratePage() {
                       variant={autoEnhance ? "default" : "outline"}
                       onClick={() => setAutoEnhance(!autoEnhance)}
                       disabled={isEnhancing}
-                      className="absolute bottom-3 left-3 h-8 w-8 p-0"
+                      className="absolute bottom-3 left-3 h-8 px-3 flex items-center gap-1.5"
                       title={autoEnhance ? "Auto-enhance: ON" : "Auto-enhance: OFF"}
                     >
                       {isEnhancing ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
-                        <Sparkles className={cn("w-4 h-4", autoEnhance && "text-primary-foreground")} />
+                        <>
+                          <Sparkles className={cn("w-4 h-4", autoEnhance && "text-primary-foreground")} />
+                          <span className={cn("text-xs font-medium", autoEnhance && "text-primary-foreground")}>
+                            {autoEnhance ? "ON" : "OFF"}
+                          </span>
+                        </>
                       )}
                     </Button>
                   </div>
