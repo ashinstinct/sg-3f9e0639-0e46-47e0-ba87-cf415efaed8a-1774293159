@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -38,6 +37,7 @@ import {
   Link2,
   CheckCircle
 } from "lucide-react";
+import classnames from "classnames";
 import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
 

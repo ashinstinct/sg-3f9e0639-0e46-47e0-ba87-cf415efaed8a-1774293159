@@ -13,7 +13,8 @@ import { saveImageGeneration } from "@/services/libraryService";
 import { Sparkles, Upload, Loader2, Wand2, ImageIcon, Layers, Plus, Minus, Copy, Check, Settings, Download } from "lucide-react";
 import Link from "next/link";
 import { ArrowLeft, Search } from "lucide-react";
-import cn from "classnames";
+import { ChevronLeft } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type Version = {
   id: string;
