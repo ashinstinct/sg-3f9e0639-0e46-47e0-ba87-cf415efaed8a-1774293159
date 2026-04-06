@@ -13,6 +13,7 @@ import { saveImageGeneration } from "@/services/libraryService";
 import { Sparkles, Upload, Loader2, Wand2, ImageIcon, Layers, Plus, Minus, Copy, Check, Settings, Download } from "lucide-react";
 import Link from "next/link";
 import { ArrowLeft, Search } from "lucide-react";
+import cn from "classnames";
 
 type Version = {
   id: string;
@@ -532,61 +533,46 @@ export default function ImageGeneratePage() {
                   </div>
                 )}
 
-                {/* Prompt Input */}
-                <div className="space-y-2">
+                {/* Prompt Section */}
+                <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label className="flex items-center gap-2 text-muted-foreground text-sm">
-                      <Wand2 className="w-4 h-4" />
-                      Prompt
-                    </Label>
-                    <span className="text-xs text-muted-foreground">{prompt.length}/500</span>
+                    <div className="flex items-center gap-2">
+                      <Wand2 className="w-5 h-5 text-muted-foreground" />
+                      <Label className="text-base font-semibold">Prompt</Label>
+                    </div>
+                    <span className="text-sm text-muted-foreground">{prompt.length}/500</span>
                   </div>
-                  <Textarea
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value.slice(0, 500))}
-                    placeholder="Describe the image you want to create..."
-                    className="min-h-[120px] resize-none"
-                  />
-                  
-                  {/* Prompt Enhancer Controls */}
-                  <div className="flex items-center gap-3 pt-2">
+
+                  <div className="relative">
+                    <Textarea
+                      value={prompt}
+                      onChange={(e) => setPrompt(e.target.value)}
+                      placeholder="Describe the image you want to create..."
+                      className="min-h-[140px] resize-none bg-background/50 text-base pb-12"
+                      maxLength={500}
+                    />
                     <Button
                       type="button"
-                      variant="outline"
                       size="sm"
-                      onClick={handleEnhancePrompt}
-                      disabled={isEnhancing || !prompt.trim()}
-                      className="gap-2"
+                      variant={autoEnhance ? "default" : "outline"}
+                      onClick={() => setAutoEnhance(!autoEnhance)}
+                      disabled={isEnhancing}
+                      className="absolute bottom-3 left-3 h-8 w-8 p-0"
+                      title={autoEnhance ? "Auto-enhance: ON" : "Auto-enhance: OFF"}
                     >
                       {isEnhancing ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Enhancing...
-                        </>
+                        <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
-                        <>
-                          <Sparkles className="w-4 h-4" />
-                          Enhance Prompt
-                        </>
+                        <Sparkles className={cn("w-4 h-4", autoEnhance && "text-primary-foreground")} />
                       )}
                     </Button>
-                    
-                    <div className="flex items-center gap-2 ml-auto">
-                      <Label htmlFor="auto-enhance" className="text-xs text-muted-foreground cursor-pointer">
-                        Auto-enhance
-                      </Label>
-                      <Switch
-                        id="auto-enhance"
-                        checked={autoEnhance}
-                        onCheckedChange={setAutoEnhance}
-                      />
-                    </div>
                   </div>
-                  
-                  {enhancedPrompt && !autoEnhance && enhancedPrompt !== originalPrompt && (
+
+                  {/* Enhanced Prompt Display */}
+                  {enhancedPrompt && enhancedPrompt !== originalPrompt && (
                     <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-sm">
                       <div className="flex items-start gap-2">
-                        <Sparkles className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                        <Wand2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                         <div className="flex-1">
                           <p className="font-medium text-primary mb-1">Enhanced Prompt:</p>
                           <p className="text-muted-foreground">{enhancedPrompt}</p>

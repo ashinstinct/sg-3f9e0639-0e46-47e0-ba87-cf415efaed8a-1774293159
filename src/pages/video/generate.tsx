@@ -668,45 +668,29 @@ export default function VideoGeneratePage() {
                     <span className="text-sm text-muted-foreground">{prompt.length}/500</span>
                   </div>
 
-                  <Textarea
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Describe the video you want to create..."
-                    className="min-h-[140px] resize-none bg-background/50 text-base"
-                    maxLength={500}
-                  />
-
-                  <div className="flex items-center justify-between">
+                  <div className="relative">
+                    <Textarea
+                      value={prompt}
+                      onChange={(e) => setPrompt(e.target.value)}
+                      placeholder="Describe the video you want to create..."
+                      className="min-h-[140px] resize-none bg-background/50 text-base pb-12"
+                      maxLength={500}
+                    />
                     <Button
                       type="button"
-                      variant="outline"
-                      onClick={handleEnhancePrompt}
-                      disabled={isEnhancing || !prompt.trim()}
-                      className="flex items-center gap-2"
+                      size="sm"
+                      variant={autoEnhance ? "default" : "outline"}
+                      onClick={() => setAutoEnhance(!autoEnhance)}
+                      disabled={isEnhancing}
+                      className="absolute bottom-3 left-3 h-8 w-8 p-0"
+                      title={autoEnhance ? "Auto-enhance: ON" : "Auto-enhance: OFF"}
                     >
                       {isEnhancing ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Enhancing...
-                        </>
+                        <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
-                        <>
-                          <Sparkles className="w-4 h-4" />
-                          Enhance Prompt
-                        </>
+                        <Sparkles className={cn("w-4 h-4", autoEnhance && "text-primary-foreground")} />
                       )}
                     </Button>
-
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor="video-auto-enhance" className="text-sm cursor-pointer">
-                        Auto-enhance
-                      </Label>
-                      <Switch
-                        id="video-auto-enhance"
-                        checked={autoEnhance}
-                        onCheckedChange={setAutoEnhance}
-                      />
-                    </div>
                   </div>
 
                   {/* Enhanced Prompt Display */}
@@ -719,14 +703,6 @@ export default function VideoGeneratePage() {
                           <p className="text-muted-foreground">{enhancedPrompt}</p>
                         </div>
                       </div>
-                    </div>
-                  )}
-
-                  {/* Multi-shot toggle */}
-                  {selectedVersion.id.startsWith("sora") && (
-                    <div className="flex items-center gap-2 text-sm mt-4">
-                      <Switch checked={multiShot} onCheckedChange={setMultiShot} />
-                      <span className="text-muted-foreground">Multi-shot mode</span>
                     </div>
                   )}
                 </div>
