@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import { X, Check, Zap, Crown, Coins, ShoppingCart } from "lucide-react";
+import { useState } from "react";
+import { X, Check, Zap, Crown, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { getUserSubscription } from "@/services/creditsService";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface SubscriptionModalProps {
   isOpen: boolean;
@@ -10,196 +10,376 @@ interface SubscriptionModalProps {
 }
 
 export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
-  const [selectedTab, setSelectedTab] = useState<"monthly" | "credits">("monthly");
-  const [currentSubscription, setCurrentSubscription] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (isOpen) {
-      const fetchSubscription = async () => {
-        try {
-          setIsLoading(true);
-          const subscription = await getUserSubscription();
-          setCurrentSubscription(subscription?.plan_type || null);
-        } catch (error) {
-          console.error("Error fetching subscription:", error);
-          setCurrentSubscription(null);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
-      fetchSubscription();
-    }
-  }, [isOpen]);
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
 
   if (!isOpen) return null;
 
+  const monthlyPlans = [
+    {
+      id: "basic",
+      name: "Basic",
+      monthlyPrice: 10,
+      yearlyPrice: 8,
+      credits: 1000,
+      description: "Perfect for casual creators",
+      features: [
+        "1,000 credits/month",
+        "Access to all free tools",
+        "Standard AI models",
+        "Email support",
+        "720p video generation",
+      ],
+      icon: Zap,
+      color: "from-blue-500 to-cyan-500",
+      popular: false,
+    },
+    {
+      id: "creator",
+      name: "Creator",
+      monthlyPrice: 30,
+      yearlyPrice: 27,
+      credits: 3500,
+      description: "Best for active creators",
+      features: [
+        "3,500 credits/month",
+        "Priority processing",
+        "Premium AI models",
+        "Priority support",
+        "1080p video generation",
+        "Advanced editing tools",
+      ],
+      icon: Crown,
+      color: "from-purple-500 to-indigo-500",
+      popular: true,
+    },
+    {
+      id: "pro",
+      name: "Pro",
+      monthlyPrice: 50,
+      yearlyPrice: 52,
+      credits: 6000,
+      description: "For professional creators",
+      features: [
+        "6,000 credits/month",
+        "Fastest processing",
+        "All premium models",
+        "24/7 priority support",
+        "4K video generation",
+        "API access",
+        "Custom branding",
+      ],
+      icon: Crown,
+      color: "from-orange-500 to-red-500",
+      popular: false,
+    },
+    {
+      id: "business",
+      name: "Business",
+      monthlyPrice: 100,
+      yearlyPrice: 80,
+      credits: 15000,
+      description: "For teams and agencies",
+      features: [
+        "15,000 credits/month",
+        "Dedicated processing",
+        "Enterprise models",
+        "Dedicated support",
+        "4K video generation",
+        "Full API access",
+        "Team collaboration",
+        "White-label options",
+      ],
+      icon: Crown,
+      color: "from-pink-500 to-rose-500",
+      popular: false,
+    },
+  ];
+
   const creditPackages = [
-    { id: "trial", name: "Trial", credits: 300, price: 3 },
-    { id: "starter", name: "Starter", credits: 500, price: 5 },
-    { id: "basic", name: "Basic", credits: 1000, price: 10 },
-    { id: "creator", name: "Creator", credits: 5000, price: 45, popular: true },
-    { id: "pro", name: "Pro", credits: 10000, price: 100 },
-    { id: "business", name: "Business", credits: 20000, price: 200 },
-    { id: "enterprise", name: "Enterprise", credits: 30000, price: 300 },
+    {
+      id: "trial",
+      name: "Trial Pack",
+      credits: 300,
+      price: 3,
+      description: "Try our AI tools risk-free",
+      icon: Coins,
+      color: "from-slate-500 to-slate-600",
+      popular: false,
+    },
+    {
+      id: "starter",
+      name: "Starter Pack",
+      credits: 500,
+      price: 5,
+      description: "Perfect for getting started",
+      icon: Coins,
+      color: "from-emerald-500 to-teal-500",
+      popular: false,
+    },
+    {
+      id: "basic",
+      name: "Basic Pack",
+      credits: 1000,
+      price: 10,
+      description: "Great for occasional creators",
+      icon: Zap,
+      color: "from-blue-500 to-cyan-500",
+      popular: false,
+      monthlySavings: "Save $2 with monthly",
+    },
+    {
+      id: "creator",
+      name: "Creator Pack",
+      credits: 5000,
+      price: 45,
+      description: "Best value for serious creators",
+      icon: Crown,
+      color: "from-purple-500 to-indigo-500",
+      popular: true,
+      monthlySavings: "Save $9 with monthly",
+    },
+    {
+      id: "pro",
+      name: "Pro Pack",
+      credits: 10000,
+      price: 100,
+      description: "For professional creators",
+      icon: Crown,
+      color: "from-orange-500 to-red-500",
+      popular: false,
+    },
+    {
+      id: "business",
+      name: "Business Pack",
+      credits: 20000,
+      price: 200,
+      description: "For teams and agencies",
+      icon: Crown,
+      color: "from-pink-500 to-rose-500",
+      popular: false,
+    },
+    {
+      id: "enterprise",
+      name: "Enterprise Pack",
+      credits: 30000,
+      price: 300,
+      description: "For high-volume production",
+      icon: Crown,
+      color: "from-violet-500 to-purple-500",
+      popular: false,
+    },
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-end p-4 md:p-6">
-      {/* Backdrop - Click to close */}
-      <div
-        className="absolute inset-0 bg-background/80 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      {/* Compact Modal - Top Right Corner */}
-      <div className="relative w-full max-w-sm max-h-[85vh] overflow-y-auto bg-background border border-border rounded-xl shadow-2xl mt-16 mr-0 md:mr-2">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div className="relative w-full max-w-6xl max-h-[90vh] bg-background border border-border rounded-2xl shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-border bg-background">
-          <h2 className="text-lg font-bold">Pricing</h2>
+        <div className="sticky top-0 z-10 flex items-center justify-between p-6 border-b border-border bg-background/95 backdrop-blur-sm">
+          <div>
+            <h2 className="text-2xl font-bold">Choose Your Plan</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Flexible pricing for creators of all sizes
+            </p>
+          </div>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-muted rounded-lg transition-colors"
+            className="p-2 hover:bg-muted rounded-lg transition-colors"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex gap-1.5 p-3 pb-2">
-          <button
-            onClick={() => setSelectedTab("monthly")}
-            className={cn(
-              "flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition-all",
-              selectedTab === "monthly"
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
-            )}
-          >
-            Monthly
-          </button>
-          <button
-            onClick={() => setSelectedTab("credits")}
-            className={cn(
-              "flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition-all",
-              selectedTab === "credits"
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
-            )}
-          >
-            Credits
-          </button>
-        </div>
+        {/* Content - Scrollable */}
+        <div className="overflow-y-auto max-h-[calc(90vh-88px)] p-6">
+          {/* Tab Switcher */}
+          <div className="flex items-center justify-center gap-4 mb-8">
+            <button
+              onClick={() => setBillingCycle("monthly")}
+              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
+                billingCycle === "monthly"
+                  ? "bg-primary text-primary-foreground shadow-md"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              }`}
+            >
+              Monthly Plans
+            </button>
+            <button
+              onClick={() => setBillingCycle("yearly")}
+              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
+                billingCycle === "yearly"
+                  ? "bg-primary text-primary-foreground shadow-md"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              }`}
+            >
+              One-Time Credits
+            </button>
+          </div>
 
-        {/* Content */}
-        <div className="p-3 pt-1">
-          {selectedTab === "monthly" ? (
-            // Monthly Plans - Compact
-            <div className="space-y-3">
-              {/* Basic Plan */}
-              <div className="border border-emerald-500/30 rounded-lg p-3 bg-gradient-to-br from-emerald-950/10 to-teal-950/10">
-                <div className="flex items-center justify-between mb-2">
-                  <div>
-                    <h3 className="text-base font-bold">Basic</h3>
-                    <p className="text-xs text-muted-foreground">1,000 credits/mo</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-xl font-bold">$8</div>
-                    <div className="text-xs text-muted-foreground">/month</div>
-                  </div>
-                </div>
-                <Button
-                  size="sm"
-                  className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
-                  disabled={isLoading || currentSubscription === "basic"}
+          {billingCycle === "monthly" ? (
+            <>
+              {/* Monthly/Yearly Toggle */}
+              <div className="flex items-center justify-center gap-3 mb-8">
+                <span className={`text-sm font-medium ${billingCycle === "monthly" ? "text-foreground" : "text-muted-foreground"}`}>
+                  Monthly
+                </span>
+                <button
+                  onClick={() => setBillingCycle(billingCycle === "monthly" ? "yearly" : "monthly")}
+                  className={`relative w-14 h-7 rounded-full transition-colors ${
+                    billingCycle === "yearly" ? "bg-primary" : "bg-muted"
+                  }`}
                 >
-                  {currentSubscription === "basic" ? "Current Plan" : "Get Started"}
-                </Button>
+                  <div
+                    className={`absolute top-0.5 w-6 h-6 bg-background rounded-full shadow-md transition-transform ${
+                      billingCycle === "yearly" ? "translate-x-7" : "translate-x-0.5"
+                    }`}
+                  />
+                </button>
+                <div className="flex items-center gap-2">
+                  <span className={`text-sm font-medium ${billingCycle === "yearly" ? "text-foreground" : "text-muted-foreground"}`}>
+                    Yearly
+                  </span>
+                  <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">
+                    Save 20%
+                  </Badge>
+                </div>
               </div>
 
-              {/* Creator Plan */}
-              <div className="relative border-2 border-purple-500 rounded-lg p-3 bg-gradient-to-br from-purple-950/20 to-indigo-950/20">
-                <div className="absolute -top-2 left-1/2 -translate-x-1/2">
-                  <div className="px-2 py-0.5 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full text-white text-xs font-semibold flex items-center gap-1">
-                    <Crown className="w-3 h-3" />
-                    BEST VALUE
-                  </div>
-                </div>
-                <div className="flex items-center justify-between mb-2 mt-1">
-                  <div>
-                    <h3 className="text-base font-bold">Creator</h3>
-                    <p className="text-xs text-muted-foreground">5,000 credits/mo</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-xl font-bold">$36</div>
-                    <div className="text-xs text-muted-foreground">/month</div>
-                  </div>
-                </div>
-                <Button
-                  size="sm"
-                  className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white"
-                  disabled={isLoading || currentSubscription === "creator"}
-                >
-                  {currentSubscription === "creator" ? "Current Plan" : "Get Started"}
-                </Button>
-              </div>
+              {/* Monthly Plans Grid */}
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {monthlyPlans.map((plan) => {
+                  const Icon = plan.icon;
+                  const price = billingCycle === "yearly" ? plan.yearlyPrice : plan.monthlyPrice;
+                  const totalYearly = billingCycle === "yearly" ? price * 12 : null;
+                  
+                  return (
+                    <Card
+                      key={plan.id}
+                      className={`relative p-6 border-2 transition-all hover:shadow-lg ${
+                        plan.popular
+                          ? "border-primary shadow-md shadow-primary/20"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      {plan.popular && (
+                        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple-500 to-indigo-500 border-0">
+                          BEST VALUE
+                        </Badge>
+                      )}
 
-              <p className="text-center text-xs text-muted-foreground pt-2">
-                Cancel anytime. No hidden fees.
-              </p>
-            </div>
+                      <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${plan.color} mb-4`}>
+                        <Icon className="w-6 h-6 text-white" />
+                      </div>
+
+                      <h3 className="text-xl font-bold mb-1">{plan.name}</h3>
+                      <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
+
+                      <div className="mb-4">
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-3xl font-bold">${price}</span>
+                          <span className="text-muted-foreground">/month</span>
+                        </div>
+                        {billingCycle === "yearly" && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            ${totalYearly}/year • Save 20%
+                          </p>
+                        )}
+                      </div>
+
+                      <Button
+                        className={`w-full mb-4 ${
+                          plan.popular
+                            ? "bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+                            : ""
+                        }`}
+                        variant={plan.popular ? "default" : "outline"}
+                      >
+                        Get Started
+                      </Button>
+
+                      <div className="space-y-2">
+                        {plan.features.map((feature, idx) => (
+                          <div key={idx} className="flex items-start gap-2">
+                            <Check className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                            <span className="text-sm text-muted-foreground">{feature}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            </>
           ) : (
-            // Credit Packages - Compact
-            <div className="space-y-2">
-              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-2 mb-3">
-                <p className="text-xs text-muted-foreground">
-                  One-time purchases. Credits never expire.
+            <>
+              {/* One-Time Credit Packages */}
+              <div className="mb-6 text-center">
+                <p className="text-sm text-muted-foreground">
+                  Pay once, use anytime • No subscription required
                 </p>
               </div>
 
-              {creditPackages.map((pack) => (
-                <div
-                  key={pack.id}
-                  className={cn(
-                    "border rounded-lg p-2.5 bg-gradient-to-br from-background/50 to-muted/20",
-                    pack.popular && "border-blue-500"
-                  )}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <div className="flex items-center gap-1">
-                        <h3 className="text-sm font-bold">{pack.name}</h3>
-                        {pack.popular && (
-                          <span className="px-1.5 py-0.5 bg-blue-500 text-white text-[10px] font-semibold rounded">
-                            POPULAR
-                          </span>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {creditPackages.map((pack) => {
+                  const Icon = pack.icon;
+                  
+                  return (
+                    <Card
+                      key={pack.id}
+                      className={`relative p-6 border-2 transition-all hover:shadow-lg ${
+                        pack.popular
+                          ? "border-primary shadow-md shadow-primary/20"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      {pack.popular && (
+                        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple-500 to-indigo-500 border-0">
+                          POPULAR
+                        </Badge>
+                      )}
+
+                      <div className={`inline-flex p-2.5 rounded-lg bg-gradient-to-br ${pack.color} mb-3`}>
+                        <Icon className="w-5 h-5 text-white" />
+                      </div>
+
+                      <h3 className="font-bold mb-1">{pack.name}</h3>
+                      <p className="text-xs text-muted-foreground mb-3">{pack.description}</p>
+
+                      <div className="mb-3">
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-2xl font-bold">${pack.price}</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {pack.credits.toLocaleString()} credits
+                        </p>
+                        {pack.monthlySavings && (
+                          <p className="text-xs text-emerald-500 mt-1">{pack.monthlySavings}</p>
                         )}
                       </div>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <Coins className="w-3 h-3 text-primary" />
-                        <span className="text-xs font-semibold">{pack.credits.toLocaleString()}</span>
-                      </div>
-                    </div>
-                    <div className="text-lg font-bold">${pack.price}</div>
-                  </div>
-                  <Button
-                    size="sm"
-                    className={cn(
-                      "w-full",
-                      pack.popular && "bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white"
-                    )}
-                  >
-                    Buy Now
-                  </Button>
-                </div>
-              ))}
 
-              <p className="text-center text-xs text-muted-foreground pt-2">
-                All prices in USD. Instant delivery.
-              </p>
-            </div>
+                      <Button
+                        className={`w-full ${
+                          pack.popular
+                            ? "bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+                            : ""
+                        }`}
+                        variant={pack.popular ? "default" : "outline"}
+                        size="sm"
+                      >
+                        Purchase
+                      </Button>
+                    </Card>
+                  );
+                })}
+              </div>
+            </>
           )}
+
+          {/* Footer Note */}
+          <div className="mt-8 pt-6 border-t border-border/40">
+            <p className="text-center text-sm text-muted-foreground">
+              Cancel anytime. No hidden fees.
+            </p>
+          </div>
         </div>
       </div>
     </div>
