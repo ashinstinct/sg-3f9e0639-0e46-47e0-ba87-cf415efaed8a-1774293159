@@ -37,55 +37,75 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
 
   const creditPackages = [
     {
+      id: "trial",
+      name: "Trial Pack",
+      credits: 300,
+      price: 3,
+      description: "Try our AI tools risk-free",
+      icon: Coins,
+      color: "from-slate-500 to-slate-600",
+      popular: false,
+    },
+    {
       id: "starter",
       name: "Starter Pack",
       credits: 500,
-      price: 4.80,
-      description: "Perfect for trying out our tools",
+      price: 5,
+      description: "Perfect for getting started",
       icon: Coins,
-      color: "from-slate-500 to-slate-600",
+      color: "from-emerald-500 to-teal-500",
       popular: false,
     },
     {
       id: "basic",
       name: "Basic Pack",
       credits: 1000,
-      price: 9.60,
+      price: 10,
       description: "Great for occasional creators",
       icon: Zap,
-      color: "from-emerald-500 to-teal-500",
-      popular: false,
-      monthlySavings: "$1.60",
-    },
-    {
-      id: "pro",
-      name: "Pro Pack",
-      credits: 2500,
-      price: 24,
-      description: "For regular content creation",
-      icon: Zap,
       color: "from-blue-500 to-cyan-500",
-      popular: true,
+      popular: false,
+      monthlySavings: "Save $2 with monthly",
     },
     {
       id: "creator",
       name: "Creator Pack",
       credits: 5000,
-      price: 43.20,
+      price: 45,
       description: "Best value for serious creators",
       icon: Crown,
       color: "from-purple-500 to-indigo-500",
+      popular: true,
+      monthlySavings: "Save $9 with monthly",
+    },
+    {
+      id: "pro",
+      name: "Pro Pack",
+      credits: 10000,
+      price: 100,
+      description: "For professional creators",
+      icon: Crown,
+      color: "from-orange-500 to-red-500",
       popular: false,
-      monthlySavings: "$7.20",
+    },
+    {
+      id: "business",
+      name: "Business Pack",
+      credits: 20000,
+      price: 200,
+      description: "For teams and agencies",
+      icon: Crown,
+      color: "from-pink-500 to-rose-500",
+      popular: false,
     },
     {
       id: "enterprise",
       name: "Enterprise Pack",
-      credits: 10000,
-      price: 86.40,
+      credits: 30000,
+      price: 300,
       description: "For high-volume production",
       icon: Crown,
-      color: "from-orange-500 to-red-500",
+      color: "from-violet-500 to-purple-500",
       popular: false,
     },
   ];
@@ -269,7 +289,7 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
               </div>
 
               {/* Credit Packages Grid */}
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {creditPackages.map((pack) => {
                   const Icon = pack.icon;
                   return (
