@@ -284,3 +284,28 @@ export function subscribeToCreditsUpdates(callback: (balance: number) => void) {
     )
     .subscribe();
 }
+
+/**
+ * Get credit transaction history for a specific number of days
+ */
+export async function getCreditHistory(days: number = 30) {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - days);
+
+  const { data, error } = await supabase
+    .from("credit_transactions")
+    .select("*")
+    .eq("user_id", user.id)
+    .gte("created_at", startDate.toISOString())
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+
+  return data || [];
+}
