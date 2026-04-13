@@ -35,6 +35,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getUserCredits, subscribeToCreditsUpdates } from "@/services/creditsService";
 
 export function Navigation() {
   const router = useRouter();
@@ -42,13 +43,43 @@ export function Navigation() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [subscriptionModalOpen, setSubscriptionModalOpen] = useState(false);
+  const [credits, setCredits] = useState<number>(0);
+  const [isLoadingCredits, setIsLoadingCredits] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Fetch user credits
+  useEffect(() => {
+    const fetchCredits = async () => {
+      try {
+        setIsLoadingCredits(true);
+        const balance = await getUserCredits();
+        setCredits(balance);
+      } catch (error) {
+        console.error("Error fetching credits:", error);
+        setCredits(0);
+      } finally {
+        setIsLoadingCredits(false);
+      }
+    };
+
+    fetchCredits();
+
+    // Set up real-time credit updates
+    const channel = subscribeToCreditsUpdates((newBalance) => {
+      setCredits(newBalance);
+    });
+
+    return () => {
+      channel.unsubscribe();
+    };
   }, []);
 
   const toolsItems = [
@@ -104,9 +135,12 @@ export function Navigation() {
               <button
                 onClick={() => setSubscriptionModalOpen(true)}
                 className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full hover:bg-muted transition-colors"
+                disabled={isLoadingCredits}
               >
                 <Coins className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold">50</span>
+                <span className="text-sm font-semibold">
+                  {isLoadingCredits ? "..." : credits.toLocaleString()}
+                </span>
               </button>
 
               {/* User Menu Dropdown */}

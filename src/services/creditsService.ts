@@ -220,3 +220,49 @@ export async function getCreditPackages(): Promise<CreditPackage[]> {
     return [];
   }
 }
+
+/**
+ * Get total credits spent by the current user
+ */
+export async function getTotalCreditsSpent(): Promise<number> {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+
+  const { data, error } = await supabase
+    .from("credit_transactions")
+    .select("amount")
+    .eq("user_id", user.id)
+    .eq("type", "deduct");
+
+  if (error) throw error;
+
+  return data?.reduce((sum, transaction) => sum + Math.abs(transaction.amount), 0) || 0;
+}
+
+/**
+ * Get user's current subscription details
+ */
+export async function getUserSubscription() {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("subscriptions")
+    .select("*")
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .single();
+
+  if (error && error.code !== "PGRST116") {
+    console.error("Error fetching subscription:", error);
+    return null;
+  }
+
+  return data;
+}

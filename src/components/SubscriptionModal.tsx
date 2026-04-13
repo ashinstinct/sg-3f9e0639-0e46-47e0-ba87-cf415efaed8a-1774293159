@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Check, Zap, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getUserSubscription } from "@/services/creditsService";
 
 interface SubscriptionModalProps {
   isOpen: boolean;
@@ -10,6 +11,27 @@ interface SubscriptionModalProps {
 
 export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
   const [selectedTab, setSelectedTab] = useState<"monthly" | "individual" | "teams">("monthly");
+  const [currentSubscription, setCurrentSubscription] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (isOpen) {
+      const fetchSubscription = async () => {
+        try {
+          setIsLoading(true);
+          const subscription = await getUserSubscription();
+          setCurrentSubscription(subscription?.plan_type || null);
+        } catch (error) {
+          console.error("Error fetching subscription:", error);
+          setCurrentSubscription(null);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      fetchSubscription();
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -187,13 +209,10 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
 
                         {/* Get Started Button */}
                         <Button
-                          className={cn(
-                            "w-full mt-6 text-white font-semibold",
-                            plan.buttonColor
-                          )}
-                          size="lg"
+                          className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-semibold py-6 text-base"
+                          disabled={isLoading || currentSubscription === "creator"}
                         >
-                          Get Started →
+                          {currentSubscription === "creator" ? "Current Plan" : "Get Started →"}
                         </Button>
                       </div>
                     </div>
