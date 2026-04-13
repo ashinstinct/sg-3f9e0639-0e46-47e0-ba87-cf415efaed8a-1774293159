@@ -56,50 +56,62 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        router.push("/auth/login");
-        return;
-      }
-      
-      await fetchDashboardData();
-    };
+    // Temporarily disabled auth check for development
+    fetchDashboardData();
 
-    checkAuth();
+    // Real-time credit updates (disabled for now)
+    // const channel = subscribeToCreditsUpdates((newBalance) => {
+    //   setCredits(newBalance);
+    // });
 
-    // Real-time credit updates
-    const channel = subscribeToCreditsUpdates((newBalance) => {
-      setCredits(newBalance);
-    });
-
-    return () => {
-      channel.unsubscribe();
-    };
-  }, [router]);
+    // return () => {
+    //   channel.unsubscribe();
+    // };
+  }, []);
 
   const fetchDashboardData = async () => {
     try {
       setIsLoading(true);
       
-      // Fetch credit balance
-      const balance = await getCreditBalance();
-      setCredits(balance);
-
-      // Fetch total spent
-      const spent = await getTotalCreditsSpent();
-      setTotalSpent(spent);
-
-      // Fetch transaction history (last 30 days)
-      const history = await getCreditHistory(30);
-      setTransactions(history);
+      // Use mock data for development (no auth required)
+      setCredits(1000);
+      setTotalSpent(2500);
+      
+      // Mock transaction history
+      const mockTransactions = [
+        {
+          id: "1",
+          amount: -20,
+          type: "deduct" as const,
+          description: "Video generation - Kling AI",
+          created_at: new Date().toISOString(),
+          tool_type: "Video Generation"
+        },
+        {
+          id: "2",
+          amount: 500,
+          type: "add" as const,
+          description: "Credit purchase - Creator Pack",
+          created_at: new Date(Date.now() - 86400000).toISOString(),
+        },
+        {
+          id: "3",
+          amount: -5,
+          type: "deduct" as const,
+          description: "Image generation - Nano Banana",
+          created_at: new Date(Date.now() - 172800000).toISOString(),
+          tool_type: "Image Generation"
+        },
+      ];
+      
+      setTransactions(mockTransactions);
 
       // Calculate daily spending for chart
-      const daily = calculateDailySpending(history);
+      const daily = calculateDailySpending(mockTransactions);
       setDailySpending(daily);
 
       // Calculate tool breakdown
-      const breakdown = calculateToolBreakdown(history);
+      const breakdown = calculateToolBreakdown(mockTransactions);
       setToolBreakdown(breakdown);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
