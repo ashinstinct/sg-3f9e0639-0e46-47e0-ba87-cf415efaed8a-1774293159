@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
+import { SubscriptionModal } from "@/components/SubscriptionModal";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -40,6 +41,7 @@ export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [subscriptionModalOpen, setSubscriptionModalOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -98,11 +100,14 @@ export function Navigation() {
 
             {/* Right: Credits + User Menu */}
             <div className="flex items-center gap-3">
-              {/* Credits Display */}
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full">
+              {/* Credits Display - Clickable */}
+              <button
+                onClick={() => setSubscriptionModalOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full hover:bg-muted transition-colors"
+              >
                 <Coins className="w-4 h-4 text-primary" />
                 <span className="text-sm font-semibold">50</span>
-              </div>
+              </button>
 
               {/* User Menu Dropdown */}
               <DropdownMenu open={userMenuOpen} onOpenChange={setUserMenuOpen}>
@@ -291,6 +296,12 @@ export function Navigation() {
           onClick={() => setSidebarOpen(false)}
         />
       )}
+
+      {/* Subscription Modal */}
+      <SubscriptionModal
+        isOpen={subscriptionModalOpen}
+        onClose={() => setSubscriptionModalOpen(false)}
+      />
     </>
   );
 }
