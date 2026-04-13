@@ -24,13 +24,14 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Dummy interfaces for types if not imported correctly
+// Use the type from creditsService or define a compatible one
 interface CreditTransaction {
   id: string;
   amount: number;
-  type: "deduct" | "add";
+  type: "purchase" | "usage" | "bonus" | "refund" | "deduct" | "add";
   description: string;
   created_at: string;
+  tool_type?: string;
 }
 
 interface DailySpending {
