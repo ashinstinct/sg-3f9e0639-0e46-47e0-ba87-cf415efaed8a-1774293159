@@ -21,8 +21,8 @@ const ASPECT_RATIOS: Array<{ value: AspectRatio; label: string }> = [
 ];
 
 const NANA_MODELS = [
-  { id: "fal-ai/nana-banana-2", name: "Nana Banana 2.0", credits: 5, description: "Ultra HD, fastest generation" },
-  { id: "fal-ai/nana-banana-1.5-pro", name: "Nana Banana 1.5 Pro", credits: 4, description: "Artistic, creative styles" },
+  { id: "fal-ai/nano-banana-2", name: "Nano Banana 2.0", credits: 5, description: "Ultra HD, fastest generation" },
+  { id: "fal-ai/nano-banana-1.5-pro", name: "Nano Banana 1.5 Pro", credits: 4, description: "Artistic, creative styles" },
 ];
 
 export default function NanaBananaGenerator() {
@@ -72,8 +72,8 @@ export default function NanaBananaGenerator() {
   return (
     <>
       <SEO
-        title="Nana Banana Image Generator - Back2Life.Studio"
-        description="Generate stunning images with Nana Banana AI. Professional quality with exceptional speed."
+        title="Nano Banana Image Generator - Back2Life.Studio"
+        description="Generate stunning images with Nano Banana AI. Professional quality with exceptional speed."
       />
       
       <div className="min-h-screen bg-background">
@@ -90,7 +90,7 @@ export default function NanaBananaGenerator() {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <h1 className="font-heading font-bold text-3xl">Nana Banana</h1>
+                    <h1 className="font-heading font-bold text-3xl">Nano Banana</h1>
                     <p className="text-sm text-muted-foreground mt-1">by fal.ai</p>
                   </div>
                   <div className="text-right">

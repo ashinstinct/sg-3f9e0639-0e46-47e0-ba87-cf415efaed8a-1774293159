@@ -173,8 +173,8 @@ const imageModels: ImageModel[] = [
     maxImages: 1,
     resolutions: ["720p", "1080p", "2K", "4K (3840x2160)"],
     versions: [
-      { id: "nana-banana-2", name: "2.0", credits: 5, speed: "10s" },
-      { id: "nana-banana-1.5-pro", name: "1.5 Pro", credits: 4, speed: "8s" },
+      { id: "nano-banana-2", name: "2.0", credits: 5, speed: "10s" },
+      { id: "nano-banana-1.5-pro", name: "1.5 Pro", credits: 4, speed: "8s" },
     ],
   },
   {

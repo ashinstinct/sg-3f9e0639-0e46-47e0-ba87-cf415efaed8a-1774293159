@@ -18,7 +18,7 @@ export default function ImagesHub() {
       features: ["Multiple Versions", "Fast", "High Quality"],
     },
     {
-      name: "Nana Banana 2.0",
+      name: "Nano Banana 2.0",
       company: "fal.ai",
       description: "Premium image generation with exceptional quality and speed. Pro and standard versions available.",
       icon: ImageIcon,

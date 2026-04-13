@@ -51,8 +51,8 @@ export default async function handler(
       "flux-dev": "fal-ai/flux/dev",
       "flux-schnell": "fal-ai/flux/schnell",
       "flux-realism": "fal-ai/flux-realism",
-      "nana-banana-2": "fal-ai/nano-banana-2",
-      "nana-banana-1.5-pro": "fal-ai/nano-banana/v1.5-pro",
+      "nano-banana-2": "fal-ai/nano-banana-2",
+      "nano-banana-1.5-pro": "fal-ai/nano-banana/v1.5-pro",
       "sd-3.5-large": "fal-ai/stable-diffusion-v35-large",
       "sd-xl": "fal-ai/fast-sdxl",
       "grok-image": "fal-ai/grok/image",
@@ -74,8 +74,8 @@ export default async function handler(
 
     let result: any;
     switch (model) {
-      case "nana-banana-2":
-        result = await fal.subscribe("fal-ai/nana-banana/v2", {
+      case "nano-banana-2":
+        result = await fal.subscribe("fal-ai/nano-banana/v2", {
           input: {
             prompt,
             negative_prompt: negativePrompt,
@@ -92,8 +92,8 @@ export default async function handler(
         });
         break;
 
-      case "nana-banana-2-pro":
-        result = await fal.subscribe("fal-ai/nana-banana/v2/pro", {
+      case "nano-banana-2-pro":
+        result = await fal.subscribe("fal-ai/nano-banana/v2/pro", {
           input: {
             prompt,
             negative_prompt: negativePrompt,

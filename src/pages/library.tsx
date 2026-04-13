@@ -93,7 +93,7 @@ export default function Library() {
           url: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&q=80",
           status: "completed",
           created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-          model: "Nana Banana 2",
+          model: "Nano Banana 2",
           credits_used: 5,
           aspect_ratio: "1:1",
         },
