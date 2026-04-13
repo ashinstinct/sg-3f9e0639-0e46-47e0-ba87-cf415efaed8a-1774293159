@@ -28,7 +28,7 @@ export async function getCreditBalance(): Promise<number> {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
-      throw new Error("User not authenticated");
+      return 0; // Not authenticated - return 0 instead of error
     }
 
     const { data, error } = await supabase

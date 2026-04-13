@@ -36,6 +36,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getCreditBalance, subscribeToCreditsUpdates } from "@/services/creditsService";
+import { supabase } from "@/integrations/supabase/client";
 
 export function Navigation() {
   const router = useRouter();
@@ -45,6 +46,7 @@ export function Navigation() {
   const [subscriptionModalOpen, setSubscriptionModalOpen] = useState(false);
   const [credits, setCredits] = useState<number>(0);
   const [isLoadingCredits, setIsLoadingCredits] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -55,31 +57,40 @@ export function Navigation() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Fetch user credits
+  // Check authentication and fetch credits
   useEffect(() => {
-    const fetchCredits = async () => {
+    const checkAuthAndFetchCredits = async () => {
       try {
         setIsLoadingCredits(true);
-        const balance = await getCreditBalance();
-        setCredits(balance);
+        
+        // Check if user is authenticated
+        const { data: { user } } = await supabase.auth.getUser();
+        setIsAuthenticated(!!user);
+        
+        if (user) {
+          // Only fetch credits if authenticated
+          const balance = await getCreditBalance();
+          setCredits(balance);
+          
+          // Set up real-time credit updates
+          const channel = subscribeToCreditsUpdates((newBalance) => {
+            setCredits(newBalance);
+          });
+          
+          return () => {
+            channel.unsubscribe();
+          };
+        }
       } catch (error) {
-        console.error("Error fetching credits:", error);
+        console.error("Error checking auth/fetching credits:", error);
+        setIsAuthenticated(false);
         setCredits(0);
       } finally {
         setIsLoadingCredits(false);
       }
     };
 
-    fetchCredits();
-
-    // Set up real-time credit updates
-    const channel = subscribeToCreditsUpdates((newBalance) => {
-      setCredits(newBalance);
-    });
-
-    return () => {
-      channel.unsubscribe();
-    };
+    checkAuthAndFetchCredits();
   }, []);
 
   const toolsItems = [
@@ -129,57 +140,73 @@ export function Navigation() {
               </Link>
             </div>
 
-            {/* Right: Credits + User Menu */}
+            {/* Right: Credits + User Menu (only show when authenticated) */}
             <div className="flex items-center gap-3">
-              {/* Credits Display - Clickable */}
-              <button
-                onClick={() => setSubscriptionModalOpen(true)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full hover:bg-muted transition-colors"
-                disabled={isLoadingCredits}
-              >
-                <Coins className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold">
-                  {isLoadingCredits ? "..." : credits.toLocaleString()}
-                </span>
-              </button>
+              {isAuthenticated ? (
+                <>
+                  {/* Credits Display - Clickable */}
+                  <button
+                    onClick={() => setSubscriptionModalOpen(true)}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full hover:bg-muted transition-colors"
+                    disabled={isLoadingCredits}
+                  >
+                    <Coins className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-semibold">
+                      {isLoadingCredits ? "..." : credits.toLocaleString()}
+                    </span>
+                  </button>
 
-              {/* User Menu Dropdown */}
-              <DropdownMenu open={userMenuOpen} onOpenChange={setUserMenuOpen}>
-                <DropdownMenuTrigger asChild>
+                  {/* User Menu */}
+                  <DropdownMenu open={userMenuOpen} onOpenChange={setUserMenuOpen}>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="relative rounded-full w-9 h-9 bg-muted/50 hover:bg-muted"
+                      >
+                        <UserCircle className="w-5 h-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+                        <UserCircle className="w-4 h-4 mr-2" />
+                        My Account
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Users className="w-4 h-4 mr-2" />
+                        Teams
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setSubscriptionModalOpen(true)}>
+                        <CreditCard className="w-4 h-4 mr-2" />
+                        Subscription
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="text-red-600">
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Sign out
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
+              ) : (
+                /* Show Login/Signup buttons for non-authenticated users */
+                <div className="flex items-center gap-2">
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="p-2 rounded-full hover:bg-muted"
+                    onClick={() => router.push("/auth/login")}
                   >
-                    <User className="w-5 h-5" />
+                    Log in
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="flex items-center gap-2 cursor-pointer">
-                      <UserCircle className="w-4 h-4" />
-                      <span>My Account</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="flex items-center gap-2 cursor-pointer">
-                      <Users className="w-4 h-4" />
-                      <span>Teams</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="flex items-center gap-2 cursor-pointer">
-                      <CreditCard className="w-4 h-4" />
-                      <span>Subscription</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="flex items-center gap-2 cursor-pointer text-destructive">
-                    <LogOut className="w-4 h-4" />
-                    <span>Sign out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  <Button
+                    size="sm"
+                    className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+                    onClick={() => router.push("/auth/signup")}
+                  >
+                    Sign up
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
