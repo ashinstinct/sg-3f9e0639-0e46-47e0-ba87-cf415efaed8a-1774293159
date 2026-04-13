@@ -22,7 +22,9 @@ import {
   Coins,
   UserCircle,
   Briefcase,
-  Settings
+  Settings,
+  Gift,
+  Wrench
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
@@ -64,7 +66,7 @@ export function Navigation() {
   const toolsItems = [
     { name: "Generate", href: "/images/generate", icon: Wand2 },
     { name: "Avatar", href: "/images", icon: UserCircle },
-    { name: "Audio", href: "/audio", icon: Music },
+    { name: "Audio", href: "/audio", icon: Mic },
     { name: "Music", href: "/generate", icon: Music },
     { name: "Apps", href: "/tools", icon: Grid3x3 },
     { name: "Agents", href: "/dashboard", icon: Sparkles },
