@@ -267,8 +267,10 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
               </div>
 
               {/* Footer Note */}
-              <div className="text-center text-sm text-muted-foreground pt-4">
-                All plans include a 7-day free trial. Cancel anytime.
+              <div className="mt-6 pt-6 border-t border-border/40">
+                <p className="text-center text-sm text-muted-foreground">
+                  Cancel anytime. No hidden fees.
+                </p>
               </div>
             </div>
           ) : (

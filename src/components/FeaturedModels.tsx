@@ -4,13 +4,13 @@ import Link from "next/link";
 
 const FEATURED_MODELS = [
   {
-    id: "nana-banana",
-    name: "Nana Banana 2",
-    tagline: "Ultra-fast 4K image generation",
+    id: "nano-banana",
+    name: "Nano Banana 2",
+    tagline: "Ultra-realistic portraits and photography",
     logo: "🍌",
     credits: "4-5 credits",
     gradient: "from-yellow-400 via-orange-400 to-amber-500",
-    href: "/images/nana-banana",
+    href: "/images/nano-banana",
   },
   {
     id: "kling-motion",
