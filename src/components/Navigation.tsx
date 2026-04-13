@@ -300,7 +300,7 @@ export function Navigation() {
       </div>
 
       {/* Mobile Menu */}
-      {isMenuOpen && (
+      {mobileMenuOpen && (
         <div className="md:hidden absolute left-0 top-16 w-64 border-r border-b border-border/40 bg-background shadow-xl rounded-br-lg">
           <div className="px-4 py-4 space-y-4">
             {toolsMenu.map((tool) => (
