@@ -5,7 +5,7 @@ import { Sparkles, Image as ImageIcon, Video } from "lucide-react";
 
 export function Hero() {
   return (
-    <section className="text-center py-6 md:py-10 mb-2">
+    <section className="relative min-h-screen flex items-center justify-center px-4 pt-32 pb-12 overflow-hidden">
       <h1 className="font-heading font-bold text-4xl md:text-5xl lg:text-6xl mb-6 bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent leading-tight">
         Bring your imagination<br />Back2Life
       </h1>

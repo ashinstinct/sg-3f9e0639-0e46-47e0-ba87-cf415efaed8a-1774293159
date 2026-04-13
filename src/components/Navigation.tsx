@@ -300,9 +300,9 @@ export function Navigation() {
       </div>
 
       {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden border-t border-border/40 bg-background">
-          <div className="container mx-auto px-4 py-4 space-y-4">
+      {isMenuOpen && (
+        <div className="md:hidden absolute left-0 top-16 w-64 border-r border-b border-border/40 bg-background shadow-xl rounded-br-lg">
+          <div className="px-4 py-4 space-y-4">
             {toolsMenu.map((tool) => (
               <div key={tool.label}>
                 <Link
