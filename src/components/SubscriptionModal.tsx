@@ -36,327 +36,168 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
   if (!isOpen) return null;
 
   const creditPackages = [
-    {
-      id: "trial",
-      name: "Trial Pack",
-      credits: 300,
-      price: 3,
-      description: "Try our AI tools risk-free",
-      icon: Coins,
-      color: "from-slate-500 to-slate-600",
-      popular: false,
-    },
-    {
-      id: "starter",
-      name: "Starter Pack",
-      credits: 500,
-      price: 5,
-      description: "Perfect for getting started",
-      icon: Coins,
-      color: "from-emerald-500 to-teal-500",
-      popular: false,
-    },
-    {
-      id: "basic",
-      name: "Basic Pack",
-      credits: 1000,
-      price: 10,
-      description: "Great for occasional creators",
-      icon: Zap,
-      color: "from-blue-500 to-cyan-500",
-      popular: false,
-      monthlySavings: "Save $2 with monthly",
-    },
-    {
-      id: "creator",
-      name: "Creator Pack",
-      credits: 5000,
-      price: 45,
-      description: "Best value for serious creators",
-      icon: Crown,
-      color: "from-purple-500 to-indigo-500",
-      popular: true,
-      monthlySavings: "Save $9 with monthly",
-    },
-    {
-      id: "pro",
-      name: "Pro Pack",
-      credits: 10000,
-      price: 100,
-      description: "For professional creators",
-      icon: Crown,
-      color: "from-orange-500 to-red-500",
-      popular: false,
-    },
-    {
-      id: "business",
-      name: "Business Pack",
-      credits: 20000,
-      price: 200,
-      description: "For teams and agencies",
-      icon: Crown,
-      color: "from-pink-500 to-rose-500",
-      popular: false,
-    },
-    {
-      id: "enterprise",
-      name: "Enterprise Pack",
-      credits: 30000,
-      price: 300,
-      description: "For high-volume production",
-      icon: Crown,
-      color: "from-violet-500 to-purple-500",
-      popular: false,
-    },
+    { id: "trial", name: "Trial", credits: 300, price: 3 },
+    { id: "starter", name: "Starter", credits: 500, price: 5 },
+    { id: "basic", name: "Basic", credits: 1000, price: 10 },
+    { id: "creator", name: "Creator", credits: 5000, price: 45, popular: true },
+    { id: "pro", name: "Pro", credits: 10000, price: 100 },
+    { id: "business", name: "Business", credits: 20000, price: 200 },
+    { id: "enterprise", name: "Enterprise", credits: 30000, price: 300 },
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
+    <div className="fixed inset-0 z-50 flex items-start justify-end p-4 md:p-6">
+      {/* Backdrop - Click to close */}
       <div
         className="absolute inset-0 bg-background/80 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* Modal */}
-      <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-background border border-border rounded-lg shadow-2xl">
+      {/* Compact Modal - Top Right Corner */}
+      <div className="relative w-full max-w-sm max-h-[85vh] overflow-y-auto bg-background border border-border rounded-xl shadow-2xl mt-16 mr-0 md:mr-2">
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between p-6 border-b border-border bg-background">
-          <h2 className="text-2xl font-bold">Pricing & Credits</h2>
+        <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-border bg-background">
+          <h2 className="text-lg font-bold">Pricing</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-muted rounded-lg transition-colors"
+            className="p-1.5 hover:bg-muted rounded-lg transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex gap-2 p-6 pb-4">
+        <div className="flex gap-1.5 p-3 pb-2">
           <button
             onClick={() => setSelectedTab("monthly")}
             className={cn(
-              "flex-1 px-6 py-3 rounded-full font-semibold transition-all",
+              "flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition-all",
               selectedTab === "monthly"
-                ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white"
+                ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
             )}
           >
-            Monthly Plans
+            Monthly
           </button>
           <button
             onClick={() => setSelectedTab("credits")}
             className={cn(
-              "flex-1 px-6 py-3 rounded-full font-semibold transition-all",
+              "flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition-all",
               selectedTab === "credits"
-                ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white"
+                ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
             )}
           >
-            Buy Credits
+            Credits
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 pt-2">
+        <div className="p-3 pt-1">
           {selectedTab === "monthly" ? (
-            // Monthly Subscription Plans
-            <div className="space-y-6">
+            // Monthly Plans - Compact
+            <div className="space-y-3">
               {/* Basic Plan */}
-              <div className="border-2 border-emerald-500/30 rounded-xl p-6 bg-gradient-to-br from-emerald-950/20 to-teal-950/20">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
-                    <Zap className="w-6 h-6 text-white" />
+              <div className="border border-emerald-500/30 rounded-lg p-3 bg-gradient-to-br from-emerald-950/10 to-teal-950/10">
+                <div className="flex items-center justify-between mb-2">
+                  <div>
+                    <h3 className="text-base font-bold">Basic</h3>
+                    <p className="text-xs text-muted-foreground">1,000 credits/mo</p>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-2xl font-bold mb-1">Basic</h3>
-                    <p className="text-muted-foreground">Perfect for getting started with AI generation</p>
-                  </div>
-                </div>
-
-                <div className="mb-6 p-4 bg-background/50 rounded-lg border border-border/50">
-                  <div className="text-4xl font-bold mb-1">$8 <span className="text-base text-muted-foreground font-normal">/month</span></div>
-                  <div className="flex items-center gap-2 text-emerald-400">
-                    <Coins className="w-4 h-4" />
-                    <span className="font-semibold">1,000 credits/month</span>
+                  <div className="text-right">
+                    <div className="text-xl font-bold">$8</div>
+                    <div className="text-xs text-muted-foreground">/month</div>
                   </div>
                 </div>
-
-                <div className="space-y-3 mb-6">
-                  <div className="text-sm font-semibold text-muted-foreground mb-2">WHAT'S INCLUDED</div>
-                  {[
-                    "~50 videos per month",
-                    "~250 images per month",
-                    "3 custom AI voices",
-                    "All AI video & image models",
-                    "Text-to-speech & voice cloning",
-                    "Voice changer & audio tools",
-                    "Characters, scenes & objects",
-                    "Prompt enhancement",
-                    "Gallery & project folders",
-                  ].map((feature, idx) => (
-                    <div key={idx} className="flex items-start gap-2">
-                      <Check className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-                      <span className="text-sm">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-
                 <Button
-                  className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold py-6 text-base"
+                  size="sm"
+                  className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white"
                   disabled={isLoading || currentSubscription === "basic"}
                 >
-                  {currentSubscription === "basic" ? "Current Plan" : "Get Started →"}
+                  {currentSubscription === "basic" ? "Current Plan" : "Get Started"}
                 </Button>
               </div>
 
-              {/* Creator Plan - BEST VALUE */}
-              <div className="relative border-2 border-purple-500 rounded-xl p-6 bg-gradient-to-br from-purple-950/30 to-indigo-950/30">
-                {/* Best Value Badge */}
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <div className="px-4 py-1 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full text-white text-sm font-semibold flex items-center gap-2">
-                    <Crown className="w-4 h-4" />
+              {/* Creator Plan */}
+              <div className="relative border-2 border-purple-500 rounded-lg p-3 bg-gradient-to-br from-purple-950/20 to-indigo-950/20">
+                <div className="absolute -top-2 left-1/2 -translate-x-1/2">
+                  <div className="px-2 py-0.5 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full text-white text-xs font-semibold flex items-center gap-1">
+                    <Crown className="w-3 h-3" />
                     BEST VALUE
                   </div>
                 </div>
-
-                <div className="flex items-start gap-4 mb-4 mt-2">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center">
-                    <Crown className="w-6 h-6 text-white" />
+                <div className="flex items-center justify-between mb-2 mt-1">
+                  <div>
+                    <h3 className="text-base font-bold">Creator</h3>
+                    <p className="text-xs text-muted-foreground">5,000 credits/mo</p>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-2xl font-bold mb-1">Creator</h3>
-                    <p className="text-muted-foreground">Best value for serious creators</p>
-                  </div>
-                </div>
-
-                <div className="mb-6 p-4 bg-background/50 rounded-lg border border-border/50">
-                  <div className="text-4xl font-bold mb-1">$36 <span className="text-base text-muted-foreground font-normal">/month</span></div>
-                  <div className="flex items-center gap-2 text-purple-400">
-                    <Coins className="w-4 h-4" />
-                    <span className="font-semibold">5,000 credits/month</span>
+                  <div className="text-right">
+                    <div className="text-xl font-bold">$36</div>
+                    <div className="text-xs text-muted-foreground">/month</div>
                   </div>
                 </div>
-
-                <div className="space-y-3 mb-6">
-                  <div className="text-sm font-semibold text-muted-foreground mb-2">WHAT'S INCLUDED</div>
-                  {[
-                    "~250 videos per month",
-                    "~1,250 images per month",
-                    "5 custom AI voices",
-                    "All AI video & image models",
-                    "Text-to-speech & voice cloning",
-                    "Voice changer & audio tools",
-                    "Characters, scenes & objects",
-                    "Prompt enhancement",
-                    "Gallery & project folders",
-                  ].map((feature, idx) => (
-                    <div key={idx} className="flex items-start gap-2">
-                      <Check className="w-5 h-5 text-purple-400 shrink-0 mt-0.5" />
-                      <span className="text-sm">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-
                 <Button
-                  className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-semibold py-6 text-base"
+                  size="sm"
+                  className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white"
                   disabled={isLoading || currentSubscription === "creator"}
                 >
-                  {currentSubscription === "creator" ? "Current Plan" : "Get Started →"}
+                  {currentSubscription === "creator" ? "Current Plan" : "Get Started"}
                 </Button>
               </div>
 
-              {/* Footer Note */}
-              <div className="mt-6 pt-6 border-t border-border/40">
-                <p className="text-center text-sm text-muted-foreground">
-                  Cancel anytime. No hidden fees.
-                </p>
-              </div>
+              <p className="text-center text-xs text-muted-foreground pt-2">
+                Cancel anytime. No hidden fees.
+              </p>
             </div>
           ) : (
-            // One-Time Credit Purchases
-            <div className="space-y-6">
-              {/* Info Banner */}
-              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-                <div className="flex gap-3">
-                  <ShoppingCart className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
-                  <div>
-                    <h4 className="font-semibold text-blue-400 mb-1">Pay-As-You-Go Credits</h4>
-                    <p className="text-sm text-muted-foreground">
-                      One-time purchases for maximum flexibility. Credits never expire. 
-                      <span className="text-amber-400 font-medium"> Save 20% with monthly plans!</span>
-                    </p>
-                  </div>
-                </div>
+            // Credit Packages - Compact
+            <div className="space-y-2">
+              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-2 mb-3">
+                <p className="text-xs text-muted-foreground">
+                  One-time purchases. Credits never expire.
+                </p>
               </div>
 
-              {/* Credit Packages Grid */}
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {creditPackages.map((pack) => {
-                  const Icon = pack.icon;
-                  return (
-                    <div
-                      key={pack.id}
-                      className={cn(
-                        "relative border rounded-xl p-5 bg-gradient-to-br transition-all hover:scale-[1.02]",
-                        pack.popular
-                          ? "border-blue-500 from-blue-950/30 to-cyan-950/30"
-                          : "border-border/50 from-background/50 to-muted/20"
-                      )}
-                    >
-                      {pack.popular && (
-                        <div className="absolute -top-2 right-4">
-                          <span className="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-full">
+              {creditPackages.map((pack) => (
+                <div
+                  key={pack.id}
+                  className={cn(
+                    "border rounded-lg p-2.5 bg-gradient-to-br from-background/50 to-muted/20",
+                    pack.popular && "border-blue-500"
+                  )}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <div className="flex items-center gap-1">
+                        <h3 className="text-sm font-bold">{pack.name}</h3>
+                        {pack.popular && (
+                          <span className="px-1.5 py-0.5 bg-blue-500 text-white text-[10px] font-semibold rounded">
                             POPULAR
                           </span>
-                        </div>
-                      )}
-
-                      <div className="flex items-start gap-3 mb-4">
-                        <div className={cn("w-10 h-10 rounded-lg bg-gradient-to-br flex items-center justify-center", pack.color)}>
-                          <Icon className="w-5 h-5 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-bold text-lg">{pack.name}</h3>
-                          <p className="text-xs text-muted-foreground">{pack.description}</p>
-                        </div>
-                      </div>
-
-                      <div className="mb-4">
-                        <div className="text-3xl font-bold">
-                          ${pack.price.toFixed(2)}
-                        </div>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Coins className="w-4 h-4 text-primary" />
-                          <span className="text-sm font-semibold">{pack.credits.toLocaleString()} credits</span>
-                        </div>
-                        {pack.monthlySavings && (
-                          <div className="mt-2 text-xs text-amber-400">
-                            Save {pack.monthlySavings} with monthly plan
-                          </div>
                         )}
                       </div>
-
-                      <Button
-                        className={cn(
-                          "w-full font-semibold",
-                          pack.popular
-                            ? "bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white"
-                            : "bg-primary hover:bg-primary/90"
-                        )}
-                      >
-                        Buy Now
-                      </Button>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <Coins className="w-3 h-3 text-primary" />
+                        <span className="text-xs font-semibold">{pack.credits.toLocaleString()}</span>
+                      </div>
                     </div>
-                  );
-                })}
-              </div>
+                    <div className="text-lg font-bold">${pack.price}</div>
+                  </div>
+                  <Button
+                    size="sm"
+                    className={cn(
+                      "w-full",
+                      pack.popular && "bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white"
+                    )}
+                  >
+                    Buy Now
+                  </Button>
+                </div>
+              ))}
 
-              {/* Footer Note */}
-              <div className="text-center text-sm text-muted-foreground pt-4 space-y-1">
-                <p>Credits never expire and can be used for any AI generation tool.</p>
-                <p className="text-xs">All prices are in USD. Instant delivery after purchase.</p>
-              </div>
+              <p className="text-center text-xs text-muted-foreground pt-2">
+                All prices in USD. Instant delivery.
+              </p>
             </div>
           )}
         </div>

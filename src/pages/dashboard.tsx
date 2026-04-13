@@ -20,7 +20,9 @@ import {
   Music,
   Wand2,
   Activity,
-  DollarSign
+  DollarSign,
+  Loader2,
+  PieChart
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -233,117 +235,110 @@ export default function Dashboard() {
             </p>
           </div>
 
-          {/* Stats Overview */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
+          {/* Stats Grid */}
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
             {/* Current Balance */}
-            <Card className="p-6 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 border-purple-500/20">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-lg">
-                  <Coins className="w-6 h-6 text-white" />
+            <Card className="p-6">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg">
+                  <Coins className="w-5 h-5 text-white" />
                 </div>
-                <TrendingUp className="w-5 h-5 text-emerald-500" />
+                <h3 className="text-sm font-medium text-muted-foreground">Current Balance</h3>
               </div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-1">Current Balance</h3>
               <p className="text-3xl font-bold">{credits.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground mt-2">Available credits</p>
+              <p className="text-sm text-muted-foreground mt-1">credits available</p>
             </Card>
 
             {/* Total Spent */}
-            <Card className="p-6 bg-gradient-to-br from-orange-500/10 to-red-500/10 border-orange-500/20">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg">
-                  <TrendingDown className="w-6 h-6 text-white" />
+            <Card className="p-6">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-lg">
+                  <TrendingDown className="w-5 h-5 text-white" />
                 </div>
-                <Activity className="w-5 h-5 text-orange-500" />
+                <h3 className="text-sm font-medium text-muted-foreground">Total Spent</h3>
               </div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-1">Total Spent</h3>
               <p className="text-3xl font-bold">{totalSpent.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground mt-2">All-time usage</p>
-            </Card>
-
-            {/* Average Daily */}
-            <Card className="p-6 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-500/20">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg">
-                  <Calendar className="w-6 h-6 text-white" />
-                </div>
-                <DollarSign className="w-5 h-5 text-blue-500" />
-              </div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-1">7-Day Average</h3>
-              <p className="text-3xl font-bold">
-                {Math.round(dailySpending.reduce((sum, d) => sum + d.amount, 0) / 7).toLocaleString()}
-              </p>
-              <p className="text-xs text-muted-foreground mt-2">Credits per day</p>
+              <p className="text-sm text-muted-foreground mt-1">lifetime credits</p>
             </Card>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-8 mb-8">
             {/* Spending Chart */}
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
-                <Activity className="w-5 h-5 text-primary" />
-                7-Day Spending Trend
-              </h3>
-              <div className="space-y-4">
-                {dailySpending.map((day, index) => (
-                  <div key={day.date} className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        {formatDate(day.date)}
-                      </span>
-                      <span className="font-semibold">{day.amount} credits</span>
-                    </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full transition-all duration-500"
-                        style={{ width: `${(day.amount / maxSpending) * 100}%` }}
-                      />
-                    </div>
+            <Card className="p-6 col-span-2">
+              <h2 className="text-lg font-semibold mb-4">Credit Usage (Last 7 Days)</h2>
+              {isLoading ? (
+                <div className="h-64 flex items-center justify-center">
+                  <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : dailySpending.length > 0 ? (
+                <div className="h-64">
+                  <div className="flex items-end justify-between h-full gap-2">
+                    {dailySpending.map((day, idx) => {
+                      const maxSpending = Math.max(...dailySpending.map(d => Math.abs(d.amount)));
+                      const height = maxSpending > 0 ? (Math.abs(day.amount) / maxSpending) * 100 : 0;
+                      
+                      return (
+                        <div key={idx} className="flex-1 flex flex-col items-center gap-2">
+                          <div className="flex-1 flex items-end w-full">
+                            <div
+                              className="w-full bg-gradient-to-t from-purple-500 to-indigo-500 rounded-t-lg transition-all hover:opacity-80"
+                              style={{ height: `${height}%`, minHeight: day.amount !== 0 ? '4px' : '0' }}
+                              title={`${day.date}: ${Math.abs(day.amount)} credits`}
+                            />
+                          </div>
+                          <div className="text-xs text-muted-foreground text-center">
+                            {day.date}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
-              </div>
+                </div>
+              ) : (
+                <div className="h-64 flex items-center justify-center text-muted-foreground">
+                  <div className="text-center">
+                    <Activity className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>No spending data yet</p>
+                  </div>
+                </div>
+              )}
             </Card>
 
             {/* Tool Breakdown */}
             <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
-                <Wand2 className="w-5 h-5 text-primary" />
-                Spending by Tool
-              </h3>
-              {toolBreakdown.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground">
-                  <Activity className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>No tool usage yet</p>
+              <h2 className="text-lg font-semibold mb-4">Usage by Tool Type</h2>
+              {isLoading ? (
+                <div className="h-64 flex items-center justify-center">
+                  <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : toolBreakdown.length > 0 ? (
+                <div className="space-y-3">
+                  {toolBreakdown.map((tool, idx) => {
+                    const total = toolBreakdown.reduce((sum, t) => sum + t.amount, 0);
+                    const percentage = total > 0 ? ((tool.amount / total) * 100).toFixed(1) : 0;
+                    
+                    return (
+                      <div key={idx}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium">{tool.tool}</span>
+                          <span className="text-sm text-muted-foreground">{tool.amount} credits</span>
+                        </div>
+                        <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-purple-500 to-indigo-500"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {toolBreakdown.map((tool, index) => (
-                    <div key={tool.tool} className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2">
-                          <div className={cn(
-                            "p-1.5 rounded-md bg-gradient-to-br",
-                            getToolColor(index)
-                          )}>
-                            {getToolIcon(tool.tool)}
-                          </div>
-                          <span className="font-medium">{tool.tool}</span>
-                        </div>
-                        <span className="text-muted-foreground">
-                          {tool.amount} credits ({tool.count}x)
-                        </span>
-                      </div>
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className={cn(
-                            "h-full rounded-full transition-all duration-500 bg-gradient-to-r",
-                            getToolColor(index)
-                          )}
-                          style={{ width: `${tool.percentage}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                <div className="h-64 flex items-center justify-center text-muted-foreground">
+                  <div className="text-center">
+                    <PieChart className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>No tool usage data yet</p>
+                  </div>
                 </div>
               )}
             </Card>
