@@ -1,58 +1,85 @@
+import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import Link from "next/link";
-import { Sparkles, Image as ImageIcon, Video } from "lucide-react";
+import { ArrowRight, Sparkles, Check } from "lucide-react";
 
 export function Hero() {
+  const router = useRouter();
+
   return (
-    <section className="relative min-h-screen flex items-center justify-center px-4 pt-32 pb-12 overflow-hidden">
-      <h1 className="font-heading font-bold text-4xl md:text-5xl lg:text-6xl mb-6 bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent leading-tight">
-        Bring your imagination<br />Back2Life
-      </h1>
+    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-20 pb-16 px-4">
+      {/* Animated gradient background */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-background to-background" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f12_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f12_1px,transparent_1px)] bg-[size:14px_24px]" />
       
-      {/* Create Cards Grid - Mobile Optimized */}
-      <div className="grid grid-cols-2 gap-3 max-w-3xl mx-auto mb-6">
-        <Link href="/images/generate">
-          <Card className="group relative overflow-hidden border-2 border-border/50 hover:border-indigo-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/20 cursor-pointer aspect-[4/3] flex flex-col justify-end">
-            <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/10 via-indigo-500/5 to-indigo-500/30 group-hover:opacity-100 transition-opacity" />
-            <div className="absolute top-4 left-4 p-2 bg-indigo-500/20 rounded-xl backdrop-blur-sm">
-              <ImageIcon className="w-6 h-6 text-indigo-400" />
-            </div>
-            <CardContent className="relative z-10 p-4 text-left">
-              <h3 className="font-heading font-bold text-lg md:text-xl text-indigo-100">
-                Create Image
-              </h3>
-              <p className="text-xs md:text-sm text-indigo-200/70 mt-1">
-                Generate AI images
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
+      {/* Glowing orbs */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/30 rounded-full blur-[120px] animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-500/30 rounded-full blur-[120px] animate-pulse delay-700" />
 
-        <Link href="/video/generate">
-          <Card className="group relative overflow-hidden border-2 border-border/50 hover:border-purple-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/20 cursor-pointer aspect-[4/3] flex flex-col justify-end">
-            <div className="absolute inset-0 bg-gradient-to-b from-purple-500/10 via-purple-500/5 to-purple-500/30 group-hover:opacity-100 transition-opacity" />
-            <div className="absolute top-4 left-4 p-2 bg-purple-500/20 rounded-xl backdrop-blur-sm">
-              <Video className="w-6 h-6 text-purple-400" />
-            </div>
-            <CardContent className="relative z-10 p-4 text-left">
-              <h3 className="font-heading font-bold text-lg md:text-xl text-purple-100">
-                Create Video
-              </h3>
-              <p className="text-xs md:text-sm text-purple-200/70 mt-1">
-                Generate AI videos
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
+      <div className="relative z-10 container mx-auto max-w-6xl text-center space-y-8">
+        {/* Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-sm font-medium backdrop-blur-sm">
+          <Sparkles className="w-4 h-4" />
+          14 Free Tools + Premium AI Models
+        </div>
+
+        {/* Main Headline */}
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight">
+          Create Stunning AI
+          <br />
+          <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
+            Images & Videos
+          </span>
+        </h1>
+
+        {/* Subheadline */}
+        <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto">
+          Professional AI generation tools for creators, marketers, and developers.
+          Start creating in seconds.
+        </p>
+
+        {/* Social Proof Stats */}
+        <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground pt-4">
+          <div className="flex items-center gap-2">
+            <Check className="w-4 h-4 text-emerald-400" />
+            <span className="font-semibold text-foreground">240K+ creations</span>
+          </div>
+          <div className="w-1 h-1 rounded-full bg-border" />
+          <div className="flex items-center gap-2">
+            <Check className="w-4 h-4 text-emerald-400" />
+            <span className="font-semibold text-foreground">20+ AI models</span>
+          </div>
+          <div className="w-1 h-1 rounded-full bg-border" />
+          <div className="flex items-center gap-2">
+            <Check className="w-4 h-4 text-emerald-400" />
+            <span className="font-semibold text-foreground">Free to start</span>
+          </div>
+        </div>
+
+        {/* Primary CTA with hard shadow */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+          <Button
+            onClick={() => router.push("/generate")}
+            size="lg"
+            className="text-lg px-10 py-7 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 shadow-[0_10px_40px_-10px_rgba(168,85,247,0.8)] hover:shadow-[0_15px_50px_-10px_rgba(168,85,247,1)] transition-all hover:scale-105"
+          >
+            Generate for Free
+            <ArrowRight className="w-5 h-5 ml-2" />
+          </Button>
+          
+          {/* Secondary ghost link */}
+          <button
+            onClick={() => router.push("/tools")}
+            className="text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline"
+          >
+            Browse all tools
+          </button>
+        </div>
+
+        {/* Trust indicators */}
+        <div className="pt-8 text-xs text-muted-foreground">
+          No credit card required • Instant access • Cancel anytime
+        </div>
       </div>
-
-      <Link href="/tools">
-        <Button size="lg" className="w-full max-w-sm h-14 bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 hover:from-indigo-600 hover:via-purple-600 hover:to-cyan-600 text-white font-semibold text-lg shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all">
-          Explore all tools
-          <Sparkles className="w-5 h-5 ml-2" />
-        </Button>
-      </Link>
     </section>
   );
 }

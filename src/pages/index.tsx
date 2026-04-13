@@ -1,35 +1,171 @@
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { ArrowRight, Sparkles, Image as ImageIcon, Video, Music, Scissors, Wand2, Play } from "lucide-react";
 import { Hero } from "@/components/Hero";
+import { ToolsGrid } from "@/components/ToolsGrid";
 import { FeaturedModels } from "@/components/FeaturedModels";
+import { useRouter } from "next/router";
+import { ArrowRight, Sparkles, Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
+  const router = useRouter();
+
+  const models = [
+    "FLUX.1-Schnell",
+    "Nano Banana 2.0",
+    "Grok Image 1.5",
+    "Seedream 4.5",
+    "Kling Motion 3.0",
+    "Luma Dream",
+    "Runway Gen-3",
+    "MiniMax Video",
+    "Imagen 4",
+    "Recraft v3",
+    "Ideogram 2.0",
+    "Playground v3",
+    "AuraFlow",
+    "Stable Diffusion XL",
+  ];
+
   return (
     <>
       <SEO
-        title="Back2Life.Studio - Professional AI Creation Tools"
-        description="Create stunning images and videos with state-of-the-art AI models. Featuring Nano Banana 2, Grok, Kling 3.0, and Seedance."
+        title="Back2Life.Studio - Free AI Image & Video Generator"
+        description="Create stunning AI images and videos for free. 14 free tools + premium AI models. 240K+ creations made."
       />
+      <Navigation />
       
-      <div className="min-h-screen bg-background relative overflow-hidden">
-        {/* Animated gradient background */}
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
-          <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse delay-2000" />
+      {/* Custom cursor styles */}
+      <style jsx global>{`
+        @media (min-width: 768px) {
+          * {
+            cursor: none !important;
+          }
+          
+          body::before {
+            content: '';
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, rgb(168, 85, 247), rgb(99, 102, 241));
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+            opacity: 0.8;
+            mix-blend-mode: difference;
+          }
+          
+          a:hover ~ body::before,
+          button:hover ~ body::before {
+            transform: scale(2);
+            opacity: 0.6;
+          }
+        }
+      `}</style>
+
+      <main className="min-h-screen">
+        <Hero />
+
+        {/* Scrolling Model Ticker */}
+        <div className="py-4 bg-muted/30 border-y border-border/40 overflow-hidden">
+          <div className="flex gap-8 animate-scroll whitespace-nowrap">
+            {/* Duplicate for seamless loop */}
+            {[...models, ...models, ...models].map((model, idx) => (
+              <div
+                key={idx}
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-background/50 border border-border/50 text-sm font-medium"
+              >
+                <Sparkles className="w-4 h-4 text-primary" />
+                {model}
+              </div>
+            ))}
+          </div>
         </div>
 
-        <Navigation />
-        
-        <main className="container mx-auto px-4 py-4 max-w-7xl">
-          <Hero />
+        {/* Tools Grid */}
+        <div className="container mx-auto px-4 py-20">
+          <div className="mb-12 text-center">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              14 Free Tools + Premium AI
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Everything you need to create, edit, and transform content
+            </p>
+          </div>
+          
+          <ToolsGrid />
+        </div>
+
+        {/* Featured Models */}
+        <div className="container mx-auto px-4 py-12">
           <FeaturedModels />
-        </main>
-      </div>
+        </div>
+
+        {/* Dark CTA Section */}
+        <section className="py-24 bg-gradient-to-b from-background via-slate-950 to-black border-t border-border/40">
+          <div className="container mx-auto px-4 text-center">
+            <div className="max-w-3xl mx-auto space-y-8">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-sm font-medium mb-4">
+                <Zap className="w-4 h-4" />
+                Join 240,000+ creators
+              </div>
+              
+              <h2 className="text-5xl md:text-6xl font-bold mb-6">
+                Start Creating for Free
+              </h2>
+              
+              <p className="text-xl text-slate-400 max-w-2xl mx-auto mb-8">
+                No credit card required. Get instant access to 14 free tools and premium AI models.
+              </p>
+
+              <Button
+                onClick={() => router.push("/generate")}
+                size="lg"
+                className="text-lg px-8 py-6 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 shadow-[0_8px_30px_rgb(168,85,247,0.4)] hover:shadow-[0_8px_40px_rgb(168,85,247,0.6)] transition-all"
+              >
+                Generate Now
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-8 pt-16 max-w-2xl mx-auto">
+                <div>
+                  <div className="text-4xl font-bold text-white mb-2">240K+</div>
+                  <div className="text-sm text-slate-400">Creations Made</div>
+                </div>
+                <div>
+                  <div className="text-4xl font-bold text-white mb-2">20+</div>
+                  <div className="text-sm text-slate-400">AI Models</div>
+                </div>
+                <div>
+                  <div className="text-4xl font-bold text-white mb-2">14</div>
+                  <div className="text-sm text-slate-400">Free Tools</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <style jsx>{`
+        @keyframes scroll {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-33.333%);
+          }
+        }
+
+        .animate-scroll {
+          animation: scroll 30s linear infinite;
+        }
+
+        .animate-scroll:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
     </>
   );
 }
