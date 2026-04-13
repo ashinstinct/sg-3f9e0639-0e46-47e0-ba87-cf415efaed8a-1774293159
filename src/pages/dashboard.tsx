@@ -24,12 +24,12 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// Dummy interfaces for types if not imported correctly
 interface CreditTransaction {
   id: string;
   amount: number;
-  type: "add" | "deduct";
+  type: "deduct" | "add";
   description: string;
-  tool_type?: string;
   created_at: string;
 }
 
