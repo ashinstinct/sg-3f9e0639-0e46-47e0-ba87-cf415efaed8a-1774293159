@@ -253,7 +253,7 @@ export async function getUserSubscription() {
   }
 
   const { data, error } = await supabase
-    .from("subscriptions")
+    .from("subscriptions" as any)
     .select("*")
     .eq("user_id", user.id)
     .eq("status", "active")
@@ -264,5 +264,23 @@ export async function getUserSubscription() {
     return null;
   }
 
-  return data;
+  return data as any;
+}
+
+/**
+ * Subscribe to real-time credit updates
+ */
+export function subscribeToCreditsUpdates(callback: (balance: number) => void) {
+  return supabase
+    .channel('user_credits_updates')
+    .on(
+      'postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'user_credits' },
+      (payload: any) => {
+        if (payload.new && typeof payload.new.balance === 'number') {
+          callback(payload.new.balance);
+        }
+      }
+    )
+    .subscribe();
 }

@@ -175,6 +175,41 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          created_at: string | null
+          id: string
+          plan_type: string
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          plan_type: string
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          plan_type?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_credits: {
         Row: {
           balance: number

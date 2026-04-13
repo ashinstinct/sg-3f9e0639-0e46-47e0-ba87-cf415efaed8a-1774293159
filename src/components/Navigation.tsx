@@ -35,7 +35,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getUserCredits, subscribeToCreditsUpdates } from "@/services/creditsService";
+import { getCreditBalance, subscribeToCreditsUpdates } from "@/services/creditsService";
 
 export function Navigation() {
   const router = useRouter();
@@ -60,7 +60,7 @@ export function Navigation() {
     const fetchCredits = async () => {
       try {
         setIsLoadingCredits(true);
-        const balance = await getUserCredits();
+        const balance = await getCreditBalance();
         setCredits(balance);
       } catch (error) {
         console.error("Error fetching credits:", error);
