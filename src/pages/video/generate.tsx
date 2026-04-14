@@ -829,7 +829,7 @@ export default function VideoGenerate() {
                                 />
                                 <label htmlFor="start-frame-upload" className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
                                   {startFrame ? (
-                                    <img src={startFrame} alt="Start frame" className="w-full h-full object-cover rounded-xl" />
+                                    <img src={URL.createObjectURL(startFrame)} alt="Start frame" className="w-full h-full object-cover rounded-xl" />
                                   ) : (
                                     <Upload className="w-6 h-6 text-white/40 group-hover:text-cyan-400 transition-colors" />
                                   )}
@@ -905,7 +905,7 @@ export default function VideoGenerate() {
                                     />
                                     <label htmlFor={`element-${idx}-upload`} className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
                                       {element ? (
-                                        <img src={element} alt={`Element ${idx + 1}`} className="w-full h-full object-cover rounded-xl" />
+                                        <img src={URL.createObjectURL(element)} alt={`Element ${idx + 1}`} className="w-full h-full object-cover rounded-xl" />
                                       ) : (
                                         <Plus className="w-6 h-6 text-white/40 group-hover:text-cyan-400 transition-colors" />
                                       )}
