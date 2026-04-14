@@ -865,7 +865,7 @@ export default function VideoGenerate() {
                                 />
                                 <label htmlFor="end-frame-upload" className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
                                   {endFrame ? (
-                                    <img src={URL.createObjectURL(endFrame)} alt="End frame" className="w-full h-full object-cover rounded-xl" />
+                                    <img src={endFrame} alt="End frame" className="w-full h-full object-cover rounded-xl" />
                                   ) : (
                                     <Upload className="w-6 h-6 text-white/40 group-hover:text-cyan-400 transition-colors" />
                                   )}
