@@ -20,9 +20,9 @@ export default function VideoGenerate() {
   const [error, setError] = useState<string | null>(null);
   
   // Media uploads
-  const [startFrame, setStartFrame] = useState<string | null>(null);
-  const [endFrame, setEndFrame] = useState<string | null>(null);
-  const [elementImages, setElementImages] = useState<string[]>([]);
+  const [startFrame, setStartFrame] = useState<File | null>(null);
+  const [endFrame, setEndFrame] = useState<File | null>(null);
+  const [elementImages, setElementImages] = useState<File[]>([]);
   const [uploadedVideo, setUploadedVideo] = useState<File | null>(null);
   
   // Audio toggle (for models that generate audio)
@@ -704,7 +704,7 @@ export default function VideoGenerate() {
                 <div className="text-center">
                   <Loader2 className="w-12 h-12 animate-spin text-cyan-500 mx-auto mb-4" />
                   <p className="text-xl font-light text-gray-400 mb-2">Generating video...</p>
-                  <p className="text-sm text-gray-600 mt-2">This may take 30-60 seconds</p>
+                  <p className="text-sm text-gray-500 mt-2">This may take 30-60 seconds</p>
                 </div>
               ) : generatedVideo ? (
                 <video 
@@ -865,7 +865,7 @@ export default function VideoGenerate() {
                                 />
                                 <label htmlFor="end-frame-upload" className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
                                   {endFrame ? (
-                                    <img src={endFrame} alt="End frame" className="w-full h-full object-cover rounded-xl" />
+                                    <img src={URL.createObjectURL(endFrame)} alt="End frame" className="w-full h-full object-cover rounded-xl" />
                                   ) : (
                                     <Upload className="w-6 h-6 text-white/40 group-hover:text-cyan-400 transition-colors" />
                                   )}
