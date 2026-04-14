@@ -1,27 +1,139 @@
 import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
-import { Image as ImageIcon, Video as VideoIcon, Grid3x3, Sparkles, Upload, Mic, Eraser, Coins, ChevronDown, Loader2, Download, X } from "lucide-react";
+import { Image as ImageIcon, Video, Grid3x3, Sparkles, Upload, X, Loader2, Download, Maximize2, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-export default function GeneratePage() {
+export default function ImageGenerate() {
   const [mode, setMode] = useState<"image" | "video">("image");
   const [selectedModel, setSelectedModel] = useState("flux-pro");
-  const [aspectRatio, setAspectRatio] = useState("16:9");
-  const [quality, setQuality] = useState("720p");
-  const [duration, setDuration] = useState("6s");
-  const [speed, setSpeed] = useState("Fast");
-  const [plan, setPlan] = useState("Pro");
-  const [batchSize, setBatchSize] = useState(1);
+  const [aspectRatio, setAspectRatio] = useState("landscape_16_9");
+  const [numImages, setNumImages] = useState(1);
   
   // Generation state
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
+  
+  // UI state
+  const [expandedPrompt, setExpandedPrompt] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
 
-  const creditCost = batchSize * 5;
+  // Model configurations with exact fal.ai specs
+  const imageModels = [
+    {
+      id: "flux-pro",
+      name: "FLUX.1 Pro",
+      logo: "/logos/flux.svg",
+      maxImages: 1,
+      aspectRatios: ["square", "square_hd", "portrait_4_3", "portrait_16_9", "landscape_4_3", "landscape_16_9"],
+      credits: 5,
+      maxBatch: 4
+    },
+    {
+      id: "flux-dev",
+      name: "FLUX.1 Dev",
+      logo: "/logos/flux.svg",
+      maxImages: 1,
+      aspectRatios: ["square", "square_hd", "portrait_4_3", "portrait_16_9", "landscape_4_3", "landscape_16_9"],
+      credits: 3,
+      maxBatch: 4
+    },
+    {
+      id: "flux-schnell",
+      name: "FLUX.1 Schnell",
+      logo: "/logos/flux.svg",
+      maxImages: 1,
+      aspectRatios: ["square", "square_hd", "portrait_4_3", "portrait_16_9", "landscape_4_3", "landscape_16_9"],
+      credits: 1,
+      maxBatch: 4
+    },
+    {
+      id: "flux-pro-1.1-ultra",
+      name: "FLUX.1.1 Pro Ultra",
+      logo: "/logos/flux.svg",
+      maxImages: 1,
+      aspectRatios: ["21:9", "16:9", "4:3", "1:1", "3:4", "9:16", "9:21"],
+      credits: 8,
+      maxBatch: 1
+    },
+    {
+      id: "recraft-v3",
+      name: "Recraft V3",
+      logo: "/logos/recraft.svg",
+      maxImages: 0,
+      aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3"],
+      credits: 4,
+      maxBatch: 4
+    },
+    {
+      id: "stable-diffusion-3-5-large",
+      name: "Stable Diffusion 3.5 Large",
+      logo: "/logos/stability.svg",
+      maxImages: 1,
+      aspectRatios: ["21:9", "16:9", "4:3", "1:1", "3:4", "9:16", "9:21"],
+      credits: 4,
+      maxBatch: 4
+    },
+    {
+      id: "auraflow",
+      name: "AuraFlow",
+      logo: "/logos/auraflow.svg",
+      maxImages: 0,
+      aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
+      credits: 2,
+      maxBatch: 4
+    },
+    {
+      id: "ideogram-v2",
+      name: "Ideogram V2",
+      logo: "/logos/ideogram.svg",
+      maxImages: 0,
+      aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3", "16:10", "10:16"],
+      credits: 3,
+      maxBatch: 4
+    }
+  ];
+
+  const currentModel = imageModels.find(m => m.id === selectedModel) || imageModels[0];
+  const creditCost = currentModel.credits * numImages;
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const remainingSlots = currentModel.maxImages - uploadedImages.length;
+    const newImages = files.slice(0, remainingSlots);
+    setUploadedImages([...uploadedImages, ...newImages]);
+  };
+
+  const removeImage = (index: number) => {
+    setUploadedImages(uploadedImages.filter((_, i) => i !== index));
+  };
+
+  const handleEnhancePrompt = async () => {
+    if (!prompt.trim()) return;
+    
+    try {
+      setIsEnhancing(true);
+      const response = await fetch("/api/enhance-prompt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: prompt.trim() })
+      });
+
+      const data = await response.json();
+      if (data.enhancedPrompt) {
+        setPrompt(data.enhancedPrompt);
+      }
+    } catch (err) {
+      console.error("Failed to enhance prompt:", err);
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -34,282 +146,342 @@ export default function GeneratePage() {
       setError(null);
       setGeneratedImages([]);
 
-      const response = await fetch(mode === "image" ? "/api/fal/image-generate" : "/api/fal/video-generate", {
+      const formData = new FormData();
+      formData.append("model", selectedModel);
+      formData.append("prompt", prompt.trim());
+      formData.append("image_size", aspectRatio);
+      formData.append("num_images", numImages.toString());
+      
+      uploadedImages.forEach((img, idx) => {
+        formData.append(`image_${idx}`, img);
+      });
+
+      const response = await fetch("/api/fal/image-generate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: selectedModel,
-          prompt: prompt.trim(),
-          image_size: aspectRatio === "1:1" ? "square_hd" : 
-                      aspectRatio === "16:9" ? "landscape_16_9" :
-                      aspectRatio === "9:16" ? "portrait_16_9" : "landscape_4_3",
-          num_images: mode === "image" ? batchSize : 1,
-          aspectRatio: mode === "video" ? aspectRatio : undefined,
-          duration: mode === "video" ? parseInt(duration) : undefined,
-        }),
+        body: formData,
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || `Failed to generate ${mode}`);
+        throw new Error(data.error || "Failed to generate image");
       }
 
-      if (mode === "image" && data.images && data.images.length > 0) {
+      if (data.images && data.images.length > 0) {
         setGeneratedImages(data.images.map((img: any) => img.url));
-      } else if (mode === "video" && data.video) {
-        setGeneratedImages([data.video.url]);
       }
     } catch (err: any) {
       console.error("Generation error:", err);
-      setError(err.message || `Failed to generate ${mode}`);
+      setError(err.message || "Failed to generate image");
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const imageModels = [
-    { id: "flux-pro", name: "FLUX Pro", icon: "⚡" },
-    { id: "flux-dev", name: "FLUX Dev", icon: "⚡" },
-    { id: "nano-banana-2", name: "Nano Banana", icon: "🍌" },
-    { id: "stable-diffusion-3", name: "SD 3.5", icon: "🎨" },
-  ];
-
-  const videoModels = [
-    { id: "kling-3.0", name: "Kling 3.0", icon: "🎬" },
-    { id: "seedance-2", name: "Seedance 2.0", icon: "🌱" },
-    { id: "luma-1.6", name: "Luma Dream", icon: "⚡" },
-    { id: "runway-gen3", name: "Runway Gen-3", icon: "🎥" },
-  ];
-
-  const models = mode === "image" ? imageModels : videoModels;
-  const currentModel = models.find(m => m.id === selectedModel) || models[0];
+  const aspectRatioLabels: Record<string, string> = {
+    "square": "1:1",
+    "square_hd": "1:1 HD",
+    "portrait_4_3": "3:4",
+    "portrait_16_9": "9:16",
+    "landscape_4_3": "4:3",
+    "landscape_16_9": "16:9",
+    "21:9": "21:9",
+    "16:9": "16:9",
+    "4:3": "4:3",
+    "1:1": "1:1",
+    "3:4": "3:4",
+    "9:16": "9:16",
+    "9:21": "9:21",
+    "3:2": "3:2",
+    "2:3": "2:3",
+    "16:10": "16:10",
+    "10:16": "10:16"
+  };
 
   return (
     <>
-      <SEO title="Generate - Back2Life.Studio" description="Create AI images and videos" />
+      <SEO 
+        title="AI Image & Video Generator - Back2Life.Studio"
+        description="Generate stunning images and videos with AI using FLUX, Stable Diffusion, Recraft, and more"
+      />
       
-      <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col">
+      <div className="min-h-screen bg-background flex">
         <Navigation />
         
-        {/* Main Container - Fixed Height */}
-        <div className="flex-1 flex flex-col pt-16 max-w-4xl mx-auto w-full">
-          
-          {/* Top Toggle */}
-          <div className="flex items-center justify-center py-3 px-4">
-            <div className="flex items-center bg-[#1a1a1c] p-1 rounded-full border border-white/5 shadow-xl">
-              <button 
-                onClick={() => {
-                  setMode("image");
-                  setSelectedModel(imageModels[0].id);
-                }}
-                className={`flex items-center gap-1.5 px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-medium transition-all ${
-                  mode === "image" 
-                    ? "bg-white/10 text-white" 
-                    : "text-white/50 hover:text-white/80"
-                }`}
-              >
-                <ImageIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden xs:inline">Image</span>
-              </button>
-              <button 
-                onClick={() => {
-                  setMode("video");
-                  setSelectedModel(videoModels[0].id);
-                }}
-                className={`flex items-center gap-1.5 px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-medium transition-all ${
-                  mode === "video" 
-                    ? "bg-white/10 text-white" 
-                    : "text-white/50 hover:text-white/80"
-                }`}
-              >
-                <VideoIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden xs:inline">Vid</span>
-              </button>
-              <div className="w-px h-6 bg-white/10 mx-1" />
-              <button className="p-2 rounded-full hover:bg-white/5">
-                <Grid3x3 className="w-4 h-4 text-white/70" />
-              </button>
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col h-screen overflow-hidden">
+          {/* Top Floating Toggle */}
+          <div className="absolute top-20 left-1/2 -translate-x-1/2 z-10 flex items-center bg-[#1a1a1c] p-1.5 rounded-full border border-white/5 shadow-xl">
+            <button 
+              onClick={() => window.location.href = '/images/generate'}
+              className="flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all bg-white/10 text-white shadow-sm"
+            >
+              <ImageIcon className="w-4 h-4" />
+              Image
+            </button>
+            <button 
+              onClick={() => window.location.href = '/video/generate'}
+              className="flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all text-white/50 hover:text-white/80"
+            >
+              <Video className="w-4 h-4" />
+              Vid
+            </button>
+            <button className="ml-1 p-2 rounded-full text-white/50 hover:text-white/80 hover:bg-white/5">
+              <Grid3x3 className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Canvas Area */}
+          <div className="flex-1 bg-[#0a0a0a] relative mt-16">
+            <div className="absolute inset-0 flex items-center justify-center p-4 overflow-auto">
+              {isGenerating ? (
+                <div className="text-center">
+                  <Loader2 className="w-12 h-12 animate-spin text-[#c5f04a] mx-auto mb-4" />
+                  <p className="text-xl font-light text-gray-400">Generating images...</p>
+                  <p className="text-sm text-gray-600 mt-2">This may take 10-30 seconds</p>
+                </div>
+              ) : generatedImages.length > 0 ? (
+                <div className="w-full h-full max-w-6xl">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
+                    {generatedImages.map((imageUrl, idx) => (
+                      <div key={idx} className="relative group rounded-lg overflow-hidden bg-black/20">
+                        <img 
+                          src={imageUrl} 
+                          alt={`Generated ${idx + 1}`}
+                          className="w-full h-full object-contain"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                          <Button
+                            onClick={() => {
+                              const a = document.createElement('a');
+                              a.href = imageUrl;
+                              a.download = `generated-${Date.now()}.png`;
+                              a.click();
+                            }}
+                            className="bg-[#c5f04a] text-black hover:bg-[#b5e03a]"
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Download
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : error ? (
+                <div className="text-center">
+                  <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+                    <span className="text-3xl">⚠️</span>
+                  </div>
+                  <p className="text-xl font-light text-red-400 mb-2">Generation Failed</p>
+                  <p className="text-sm text-gray-500">{error}</p>
+                </div>
+              ) : (
+                <div className="text-center text-gray-500">
+                  <p className="text-2xl font-light mb-2">No content yet</p>
+                  <p className="text-sm">Use the prompt builder below to create your first image</p>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Canvas Area - Flexible Height */}
-          <div className="flex-1 flex items-center justify-center p-4 overflow-auto min-h-0">
-            {isGenerating ? (
-              <div className="text-center">
-                <Loader2 className="w-10 h-10 sm:w-12 sm:h-12 animate-spin text-[#c5f04a] mx-auto mb-3" />
-                <p className="text-lg sm:text-xl font-light text-gray-400">Generating {mode}...</p>
-                <p className="text-xs sm:text-sm text-gray-600 mt-2">10-30 seconds</p>
-              </div>
-            ) : generatedImages.length > 0 ? (
-              <div className="w-full h-full flex flex-col gap-3">
-                <div className={`grid gap-3 flex-1 ${generatedImages.length > 1 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
-                  {generatedImages.map((url, idx) => (
-                    <div key={idx} className="relative group rounded-lg overflow-hidden bg-black/20">
-                      {mode === "image" ? (
-                        <img src={url} alt={`Generated ${idx + 1}`} className="w-full h-full object-contain" />
+          {/* Bottom Prompt Builder Panel */}
+          <div className="bg-[#0a0a0a] border-t border-white/5 p-3 md:p-4">
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-[#161618] rounded-2xl p-3 md:p-4 border border-white/5">
+                
+                {/* Model Selector */}
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <select
+                    value={selectedModel}
+                    onChange={(e) => {
+                      setSelectedModel(e.target.value);
+                      setUploadedImages([]);
+                      const newModel = imageModels.find(m => m.id === e.target.value);
+                      if (newModel && !newModel.aspectRatios.includes(aspectRatio)) {
+                        setAspectRatio(newModel.aspectRatios[0]);
+                      }
+                    }}
+                    className="flex-1 bg-black/40 text-white border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-[#c5f04a]/50 focus:ring-[#c5f04a]/20 outline-none"
+                  >
+                    {imageModels.map(model => (
+                      <option key={model.id} value={model.id}>
+                        {model.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Prompt with Expand Button */}
+                <div className="mb-3 relative">
+                  <Textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="Describe the image you want to create..."
+                    className="w-full bg-black/40 border-white/10 text-white placeholder:text-gray-600 min-h-[70px] resize-none focus:border-[#c5f04a]/50 focus:ring-[#c5f04a]/20 pr-20"
+                  />
+                  <div className="absolute right-2 top-2 flex gap-1">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={handleEnhancePrompt}
+                      disabled={isEnhancing || !prompt.trim()}
+                      className="h-8 w-8 p-0 text-[#c5f04a] hover:text-[#b5e03a] hover:bg-white/5"
+                      title="Enhance prompt with AI"
+                    >
+                      {isEnhancing ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
-                        <video src={url} controls className="w-full h-full object-contain" autoPlay loop />
+                        <Wand2 className="w-4 h-4" />
                       )}
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <Button
-                          onClick={() => {
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = `generated-${Date.now()}.${mode === 'image' ? 'png' : 'mp4'}`;
-                            a.click();
-                          }}
-                          className="bg-[#c5f04a] text-black hover:bg-[#b5e03a]"
-                          size="sm"
-                        >
-                          <Download className="w-4 h-4 mr-2" />
-                          Download
-                        </Button>
-                      </div>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setExpandedPrompt(true)}
+                      className="h-8 w-8 p-0 text-white/50 hover:text-white hover:bg-white/5"
+                      title="Expand prompt window"
+                    >
+                      <Maximize2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Image Upload Boxes (only if model supports it) */}
+                {currentModel.maxImages > 0 && (
+                  <div className="mb-3">
+                    <div className="flex gap-2 overflow-x-auto pb-2">
+                      {uploadedImages.map((img, idx) => (
+                        <div key={idx} className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-white/10">
+                          <img src={URL.createObjectURL(img)} alt="" className="w-full h-full object-cover" />
+                          <button
+                            onClick={() => removeImage(idx)}
+                            className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center hover:bg-red-500/70"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                      {uploadedImages.length < currentModel.maxImages && (
+                        <label className="flex-shrink-0 w-20 h-20 border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#c5f04a]/50 hover:bg-white/5 transition-all">
+                          <Upload className="w-5 h-5 text-white/40" />
+                          <span className="text-[10px] text-white/40 mt-1">IMAGE</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handleImageUpload}
+                            className="hidden"
+                          />
+                        </label>
+                      )}
                     </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {uploadedImages.length}/{currentModel.maxImages} images uploaded
+                    </p>
+                  </div>
+                )}
+
+                {/* Settings Pills (Aspect Ratio) */}
+                <div className="flex gap-2 overflow-x-auto pb-2 mb-3 scrollbar-hide">
+                  {currentModel.aspectRatios.map(ratio => (
+                    <button
+                      key={ratio}
+                      onClick={() => setAspectRatio(ratio)}
+                      className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        aspectRatio === ratio
+                          ? "bg-white/10 text-white border border-white/20"
+                          : "bg-black/20 text-white/50 border border-white/5 hover:bg-white/5"
+                      }`}
+                    >
+                      {aspectRatioLabels[ratio] || ratio}
+                    </button>
                   ))}
                 </div>
-              </div>
-            ) : error ? (
-              <div className="text-center">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-3">
-                  <span className="text-2xl sm:text-3xl">⚠️</span>
-                </div>
-                <p className="text-lg sm:text-xl font-light text-red-400 mb-2">Failed</p>
-                <p className="text-xs sm:text-sm text-gray-500">{error}</p>
-              </div>
-            ) : (
-              <div className="text-center text-gray-500">
-                <p className="text-xl sm:text-2xl font-light mb-2">No content yet</p>
-                <p className="text-xs sm:text-sm">Use the prompt builder below to create your first {mode}</p>
-              </div>
-            )}
-          </div>
 
-          {/* Bottom Controls - Fixed Height, Compact */}
-          <div className="p-3 sm:p-4">
-            <div className="bg-[#161618] rounded-2xl p-3 sm:p-4 border border-white/5 space-y-3">
-              
-              {/* Model Selector + Tabs */}
-              <div className="flex items-center gap-2 sm:gap-3">
-                <button className="flex items-center gap-2 bg-black/40 px-3 py-2 rounded-lg border border-white/10 hover:bg-black/60 transition-colors flex-1 max-w-[180px]">
-                  <span className="text-lg">{currentModel.icon}</span>
-                  <span className="text-xs sm:text-sm font-medium truncate">{currentModel.name}</span>
-                  <ChevronDown className="w-3 h-3 ml-auto flex-shrink-0" />
-                </button>
-                <div className="flex gap-2 ml-auto">
-                  <button className="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium text-gray-400 hover:bg-white/5">
-                    Frames
-                  </button>
-                  <button className="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium bg-[#c5f04a] text-black">
-                    Elements
-                  </button>
-                </div>
-              </div>
+                {/* Bottom Controls */}
+                <div className="flex items-center gap-2">
+                  {/* Batch Counter */}
+                  <div className="flex items-center gap-2 bg-black/40 rounded-lg px-2 py-1.5 border border-white/10">
+                    <button
+                      onClick={() => setNumImages(Math.max(1, numImages - 1))}
+                      disabled={numImages <= 1}
+                      className="w-6 h-6 rounded text-white/70 hover:text-white hover:bg-white/10 disabled:opacity-30"
+                    >
+                      -
+                    </button>
+                    <span className="text-sm font-medium text-white min-w-[30px] text-center">
+                      {numImages}/{currentModel.maxBatch}
+                    </span>
+                    <button
+                      onClick={() => setNumImages(Math.min(currentModel.maxBatch, numImages + 1))}
+                      disabled={numImages >= currentModel.maxBatch}
+                      className="w-6 h-6 rounded text-white/70 hover:text-white hover:bg-white/10 disabled:opacity-30"
+                    >
+                      +
+                    </button>
+                  </div>
 
-              {/* Compact Prompt */}
-              <Textarea
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder={`Describe the ${mode} you want to create...`}
-                className="w-full bg-black/40 border-white/10 text-white placeholder:text-gray-600 resize-none focus:border-[#c5f04a]/50 focus:ring-[#c5f04a]/20 text-xs sm:text-sm h-[60px] sm:h-[80px]"
-              />
-
-              {/* Media Upload Boxes */}
-              <div className="grid grid-cols-5 gap-2">
-                {[
-                  { icon: ImageIcon, label: "IMAGE" },
-                  { icon: VideoIcon, label: "VIDEO" },
-                  { icon: Mic, label: "AUDIO" },
-                  { icon: Eraser, label: "ERASE" },
-                  { icon: Upload, label: "" },
-                ].map((item, idx) => (
-                  <button
-                    key={idx}
-                    className="aspect-square rounded-lg border-2 border-dashed border-white/10 hover:border-white/20 bg-black/20 hover:bg-black/40 transition-all flex flex-col items-center justify-center gap-1"
+                  {/* Generate Button */}
+                  <button 
+                    onClick={handleGenerate}
+                    disabled={isGenerating || !prompt.trim()}
+                    className="flex-1 flex items-center justify-center gap-2 bg-[#c5f04a] hover:bg-[#bcf135] disabled:bg-[#c5f04a]/50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] text-black font-bold text-sm h-[48px] rounded-xl transition-all shadow-[0_0_20px_rgba(197,240,74,0.15)]"
                   >
-                    <item.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white/50" />
-                    {item.label && <span className="text-[8px] sm:text-[10px] text-white/30 uppercase font-medium hidden sm:block">{item.label}</span>}
-                  </button>
-                ))}
-              </div>
-
-              {/* Settings Pills - Horizontal Scroll */}
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                {["1:1", "16:9", "9:16", "720p", "1080p", "6s", "10s", "Fast", "Pro"].map((setting) => (
-                  <button
-                    key={setting}
-                    onClick={() => {
-                      if (["1:1", "16:9", "9:16"].includes(setting)) setAspectRatio(setting);
-                      else if (["720p", "1080p"].includes(setting)) setQuality(setting);
-                      else if (["6s", "10s"].includes(setting)) setDuration(setting);
-                      else if (setting === "Fast") setSpeed(setting);
-                      else if (setting === "Pro") setPlan(setting);
-                    }}
-                    className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap flex-shrink-0 transition-all ${
-                      (aspectRatio === setting || quality === setting || duration === setting || speed === setting || plan === setting)
-                        ? "bg-white/10 text-white border border-white/20"
-                        : "bg-black/40 text-white/50 border border-white/5 hover:bg-black/60"
-                    }`}
-                  >
-                    {setting}
-                  </button>
-                ))}
-              </div>
-
-              {/* Generate Button + Batch */}
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="flex items-center gap-2 bg-black/40 px-3 py-2 rounded-lg border border-white/10">
-                  <button
-                    onClick={() => setBatchSize(Math.max(1, batchSize - 1))}
-                    className="w-6 h-6 rounded bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/70"
-                  >
-                    −
-                  </button>
-                  <span className="text-xs sm:text-sm font-medium min-w-[30px] text-center">{batchSize}/4</span>
-                  <button
-                    onClick={() => setBatchSize(Math.min(4, batchSize + 1))}
-                    className="w-6 h-6 rounded bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/70"
-                  >
-                    +
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        GENERATING...
+                      </>
+                    ) : (
+                      <>
+                        GENERATE <Sparkles className="w-4 h-4" /> 
+                        <span className="opacity-70 font-medium tracking-wide">🪙 {creditCost}</span>
+                      </>
+                    )}
                   </button>
                 </div>
-
-                <button 
-                  onClick={handleGenerate}
-                  disabled={isGenerating || !prompt.trim()}
-                  className="flex-1 bg-[#c5f04a] hover:bg-[#bcf135] disabled:bg-[#c5f04a]/50 disabled:cursor-not-allowed text-black font-bold text-sm sm:text-base py-3 sm:py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(197,240,74,0.15)] flex items-center justify-center gap-2"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
-                      <span className="hidden xs:inline">GENERATING...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>GENERATE</span>
-                      <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="flex items-center gap-1 opacity-70">
-                        <Coins className="w-3 h-3 sm:w-4 sm:h-4" />
-                        {creditCost}
-                      </span>
-                    </>
-                  )}
-                </button>
               </div>
             </div>
           </div>
         </div>
 
-        <style jsx>{`
+        {/* Expanded Prompt Modal */}
+        <Dialog open={expandedPrompt} onOpenChange={setExpandedPrompt}>
+          <DialogContent className="max-w-3xl bg-[#161618] border-white/10">
+            <DialogHeader>
+              <DialogTitle className="text-white flex items-center justify-between">
+                <span>Prompt Editor</span>
+                <Button
+                  size="sm"
+                  onClick={handleEnhancePrompt}
+                  disabled={isEnhancing || !prompt.trim()}
+                  className="bg-[#c5f04a] text-black hover:bg-[#b5e03a]"
+                >
+                  {isEnhancing ? (
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Enhancing...</>
+                  ) : (
+                    <><Wand2 className="w-4 h-4 mr-2" />Enhance with AI</>
+                  )}
+                </Button>
+              </DialogTitle>
+            </DialogHeader>
+            <Textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Describe your image in detail..."
+              className="min-h-[300px] bg-black/40 border-white/10 text-white placeholder:text-gray-600 resize-none focus:border-[#c5f04a]/50 focus:ring-[#c5f04a]/20"
+            />
+          </DialogContent>
+        </Dialog>
+
+        <style jsx global>{`
+          .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+          }
           .scrollbar-hide {
             -ms-overflow-style: none;
             scrollbar-width: none;
-          }
-          .scrollbar-hide::-webkit-scrollbar {
-            display: none;
           }
         `}</style>
       </div>
