@@ -1128,15 +1128,11 @@ export default function VideoGeneratePage() {
                             <MessageCircle className="w-4 h-4 text-[#25D366]" />
                           </button>
                           <button
-                            onClick={handleCopyLink}
-                            className="flex items-center justify-center p-3 bg-primary/10 hover:bg-primary/20 rounded-lg transition-colors group relative"
-                            title="Copy Link"
+                            onClick={() => window.location.href = '/images/generate'}
+                            className="flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all text-white/50 hover:text-white/80"
                           >
-                            {copySuccess ? (
-                              <CheckCircle className="w-4 h-4 text-green-500" />
-                            ) : (
-                              <Link2 className="w-4 h-4 text-primary" />
-                            )}
+                            <ImageIcon className="w-4 h-4" />
+                            Image
                           </button>
                         </div>
                       </div>
