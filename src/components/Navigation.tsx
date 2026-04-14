@@ -276,17 +276,26 @@ export function Navigation() {
                   <span>Library</span>
                 </Link>
                 <Link
-                  href="/gallery"
-                  onClick={() => setSidebarOpen(false)}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium",
-                    router.pathname === "/gallery"
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-muted text-foreground"
-                  )}
+                  href="/images"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                    router.pathname.startsWith("/images")
+                      ? "bg-cyan-500/20 text-cyan-400"
+                      : "text-white/60 hover:text-white hover:bg-white/5"
+                  }`}
                 >
-                  <ImageIcon className="w-5 h-5" />
-                  <span>Gallery</span>
+                  <ImageIcon className="w-4 h-4" />
+                  <span>Images</span>
+                </Link>
+                <Link
+                  href="/avatar"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                    router.pathname === "/avatar"
+                      ? "bg-cyan-500/20 text-cyan-400"
+                      : "text-white/60 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <User className="w-4 h-4" />
+                  <span>Avatar</span>
                 </Link>
                 <Link
                   href="/dashboard"
