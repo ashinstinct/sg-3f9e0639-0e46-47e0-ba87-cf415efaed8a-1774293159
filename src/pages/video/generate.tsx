@@ -627,328 +627,358 @@ export default function VideoGenerate() {
             )}
           </div>
 
-          {/* Main 2-Column Layout */}
+          {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* LEFT COLUMN: Media Uploads */}
-            <div className="bg-[#0d0d0d]/40 border border-white/5 rounded-3xl p-6">
-              <div className="space-y-6">
-                {/* Upload Row */}
-                <div className="flex gap-4 justify-center">
-                  {/* START Frame */}
-                  {currentModel?.supportsStartFrame && (selectedModel !== "kling-omni-3.0" || klingOmniMode === "frames") && (
-                    <div className="relative flex-1 max-w-[200px]">
-                      <label className="block text-xs text-white/60 mb-2 text-center uppercase tracking-wider">Start</label>
-                      <div className="aspect-square bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-2xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group overflow-hidden">
-                        {startFrame ? (
-                          <div className="relative w-full h-full">
-                            <img
-                              src={URL.createObjectURL(startFrame)}
-                              alt="Start frame"
-                              className="w-full h-full object-cover"
-                            />
-                            <button
-                              onClick={() => setStartFrame(null)}
-                              className="absolute top-2 right-2 p-1.5 bg-black/80 rounded-full hover:bg-red-500/80 transition-all"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ) : (
-                          <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer">
-                            <Plus className="w-8 h-8 text-white/40 group-hover:text-cyan-500 transition-colors" />
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) setStartFrame(file);
-                              }}
-                            />
-                          </label>
-                        )}
+            {/* Left: Upload Boxes */}
+            <div className="space-y-6">
+              {/* START Frame */}
+              {currentModel?.supportsStartFrame && (selectedModel !== "kling-omni-3.0" || klingOmniMode === "frames") && (
+                <div className="relative">
+                  <label className="block text-xs text-white/60 mb-2 text-center">START</label>
+                  <div className="aspect-square bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-2xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group overflow-hidden">
+                    {startFrame ? (
+                      <div className="relative w-full h-full">
+                        <img
+                          src={URL.createObjectURL(startFrame)}
+                          alt="Start frame"
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          onClick={() => setStartFrame(null)}
+                          className="absolute top-2 right-2 p-1.5 bg-black/80 rounded-full hover:bg-red-500/80 transition-all"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer">
+                        <Plus className="w-8 h-8 text-white/40 group-hover:text-cyan-500 transition-colors" />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) setStartFrame(file);
+                          }}
+                        />
+                      </label>
+                    )}
+                  </div>
+                </div>
+              )}
 
-                  {/* END Frame */}
-                  {currentModel?.supportsEndFrame && (selectedModel !== "kling-omni-3.0" || klingOmniMode === "frames") && (
-                    <div className="relative flex-1 max-w-[200px]">
-                      <label className="block text-xs text-white/60 mb-2 text-center uppercase tracking-wider">End</label>
-                      <div className="aspect-square bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-2xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group overflow-hidden">
-                        {endFrame ? (
-                          <div className="relative w-full h-full">
-                            <img
-                              src={URL.createObjectURL(endFrame)}
-                              alt="End frame"
-                              className="w-full h-full object-cover"
-                            />
-                            <button
-                              onClick={() => setEndFrame(null)}
-                              className="absolute top-2 right-2 p-1.5 bg-black/80 rounded-full hover:bg-red-500/80 transition-all"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ) : (
-                          <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer">
-                            <Plus className="w-8 h-8 text-white/40 group-hover:text-cyan-500 transition-colors" />
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) setEndFrame(file);
-                              }}
-                            />
-                          </label>
-                        )}
+              {/* END Frame */}
+              {currentModel?.supportsEndFrame && (selectedModel !== "kling-omni-3.0" || klingOmniMode === "frames") && (
+                <div className="relative w-32">
+                  <label className="block text-xs text-white/60 mb-2 text-center">END</label>
+                  <div className="aspect-square bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-2xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
+                    {endFrame ? (
+                      <div className="relative w-full h-full">
+                        <img
+                          src={URL.createObjectURL(endFrame)}
+                          alt="End frame"
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          onClick={() => setEndFrame(null)}
+                          className="absolute top-2 right-2 p-1.5 bg-black/80 rounded-full hover:bg-red-500/80 transition-all"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer">
+                        <Plus className="w-8 h-8 text-white/40 group-hover:text-cyan-500 transition-colors" />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) setEndFrame(file);
+                          }}
+                        />
+                      </label>
+                    )}
+                  </div>
+                </div>
+              )}
 
-                  {/* ELEMENTS (Kling Omni only) */}
-                  {selectedModel === "kling-omni-3.0" && klingOmniMode === "elements" && (
-                    <div className="grid grid-cols-3 gap-2 flex-1">
-                      {[...Array(5)].map((_, idx) => (
-                        <div key={idx} className="relative">
-                          {idx === 0 && <label className="block text-xs text-white/60 mb-2 text-center uppercase tracking-wider">Elements</label>}
-                          <div className="aspect-square bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group overflow-hidden">
-                            {elementImages[idx] ? (
-                              <div className="relative w-full h-full">
-                                <img
-                                  src={URL.createObjectURL(elementImages[idx])}
-                                  alt={`Element ${idx + 1}`}
-                                  className="w-full h-full object-cover"
-                                />
-                                <button
-                                  onClick={() => {
+              {/* Elements Mode - Multiple Images */}
+              {selectedModel === "kling-omni-3.0" && klingOmniMode === "elements" && (
+                <>
+                  {[...Array(5)].map((_, idx) => {
+                    const element = elementImages[idx];
+                    return (
+                      <div key={idx} className="relative w-32">
+                        <label className="block text-xs text-white/60 mb-2 text-center">ELEMENT {idx + 1}</label>
+                        <div className="aspect-square bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-2xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
+                          {element ? (
+                            <div className="relative w-full h-full">
+                              <img
+                                src={URL.createObjectURL(element)}
+                                alt={`Element ${idx + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                              <button
+                                onClick={() => {
+                                  const newElements = [...elementImages];
+                                  newElements.splice(idx, 1);
+                                  setElementImages(newElements);
+                                }}
+                                className="absolute top-1 right-1 p-1 bg-black/80 rounded-full hover:bg-red-500/80 transition-all"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ) : (
+                            <label className="w-full h-full flex items-center justify-center cursor-pointer">
+                              <Plus className="w-5 h-5 text-white/40 group-hover:text-cyan-500 transition-colors" />
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
                                     const newElements = [...elementImages];
-                                    newElements.splice(idx, 1);
+                                    newElements[idx] = file;
                                     setElementImages(newElements);
-                                  }}
-                                  className="absolute top-1 right-1 p-1 bg-black/80 rounded-full hover:bg-red-500/80 transition-all"
-                                >
-                                  <X className="w-3 h-3" />
-                                </button>
-                              </div>
-                            ) : (
-                              <label className="w-full h-full flex items-center justify-center cursor-pointer">
-                                <Plus className="w-5 h-5 text-white/40 group-hover:text-cyan-500 transition-colors" />
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  className="hidden"
-                                  onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) {
-                                      const newElements = [...elementImages];
-                                      newElements[idx] = file;
-                                      setElementImages(newElements);
-                                    }
-                                  }}
-                                />
-                              </label>
-                            )}
-                          </div>
+                                  }
+                                }}
+                              />
+                            </label>
+                          )}
                         </div>
+                      </div>
+                    );
+                  })}
+                </>
+              )}
+            </div>
+
+            {/* Main Content - Single Column */}
+            <div className="space-y-4">
+              {/* Compact Pill Buttons Row */}
+              <div className="flex flex-wrap items-center gap-3 justify-center">
+                {/* Aspect Ratio Button */}
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      setShowRatioDropdown(!showRatioDropdown);
+                      setShowDurationDropdown(false);
+                      setShowQualityDropdown(false);
+                    }}
+                    className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1c] border border-white/10 rounded-full hover:border-cyan-500/50 transition-all"
+                  >
+                    <Monitor className="w-4 h-4 text-white/60" />
+                    <span className="text-sm font-medium">{aspectRatio}</span>
+                  </button>
+
+                  {showRatioDropdown && (
+                    <div className="absolute top-full mt-2 left-0 bg-[#1a1a1c] border border-white/10 rounded-2xl p-2 shadow-2xl z-20 min-w-[160px]">
+                      {currentModel?.aspectRatios.map(ratio => (
+                        <button
+                          key={ratio}
+                          onClick={() => {
+                            setAspectRatio(ratio);
+                            setShowRatioDropdown(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 rounded-xl text-sm transition-all ${
+                            aspectRatio === ratio
+                              ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white"
+                              : "text-white/60 hover:text-white hover:bg-white/5"
+                          } flex items-center justify-between`}
+                        >
+                          {ratio}
+                          {aspectRatio === ratio && <Check className="w-4 h-4 text-cyan-500" />}
+                        </button>
                       ))}
                     </div>
                   )}
                 </div>
 
-                {/* Compact Pill Buttons Row */}
-                <div className="flex flex-wrap items-center gap-3 justify-center">
-                  {/* Aspect Ratio Button */}
-                  <div className="relative">
-                    <button
-                      onClick={() => {
-                        setShowRatioDropdown(!showRatioDropdown);
-                        setShowDurationDropdown(false);
-                        setShowQualityDropdown(false);
-                      }}
-                      className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1c] border border-white/10 rounded-full hover:border-cyan-500/50 transition-all"
-                    >
-                      <Monitor className="w-4 h-4 text-white/60" />
-                      <span className="text-sm font-medium">{aspectRatio}</span>
-                    </button>
+                {/* Quality Button */}
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      setShowQualityDropdown(!showQualityDropdown);
+                      setShowRatioDropdown(false);
+                      setShowDurationDropdown(false);
+                    }}
+                    className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1c] border border-white/10 rounded-full hover:border-cyan-500/50 transition-all"
+                  >
+                    <Gauge className="w-4 h-4 text-white/60" />
+                    <span className="text-sm font-medium">{quality}</span>
+                  </button>
 
-                    {showRatioDropdown && (
-                      <div className="absolute top-full mt-2 left-0 bg-[#1a1a1c] border border-white/10 rounded-2xl p-2 shadow-2xl z-20 min-w-[160px]">
-                        {currentModel?.aspectRatios.map(ratio => (
-                          <button
-                            key={ratio}
-                            onClick={() => {
-                              setAspectRatio(ratio);
-                              setShowRatioDropdown(false);
-                            }}
-                            className={`w-full text-left px-4 py-2 rounded-xl text-sm transition-all ${
-                              aspectRatio === ratio
-                                ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white"
-                                : "text-white/60 hover:text-white hover:bg-white/5"
-                            } flex items-center justify-between`}
-                          >
-                            {ratio}
-                            {aspectRatio === ratio && <Check className="w-4 h-4 text-cyan-500" />}
-                          </button>
-                        ))}
+                  {showQualityDropdown && (
+                    <div className="absolute top-full mt-2 left-0 bg-[#1a1a1c] border border-white/10 rounded-2xl p-2 shadow-2xl z-20 min-w-[140px]">
+                      {qualityOptions.map(q => (
+                        <button
+                          key={q}
+                          onClick={() => {
+                            setQuality(q);
+                            setShowQualityDropdown(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 rounded-xl text-sm transition-all ${
+                            quality === q
+                              ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white"
+                              : "text-white/60 hover:text-white hover:bg-white/5"
+                          } flex items-center justify-between`}
+                        >
+                          {q}
+                          {quality === q && <Check className="w-4 h-4 text-cyan-500" />}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Duration Button */}
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      setShowDurationDropdown(!showDurationDropdown);
+                      setShowRatioDropdown(false);
+                      setShowQualityDropdown(false);
+                    }}
+                    className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1c] border border-white/10 rounded-full hover:border-cyan-500/50 transition-all"
+                  >
+                    <Clock className="w-4 h-4 text-white/60" />
+                    <span className="text-sm font-medium">{duration}s</span>
+                  </button>
+
+                  {showDurationDropdown && (
+                    <div className="absolute top-full mt-2 left-0 bg-[#1a1a1c] border border-white/10 rounded-2xl p-2 shadow-2xl z-20 min-w-[140px]">
+                      {currentModel?.durations.map(d => (
+                        <button
+                          key={d}
+                          onClick={() => {
+                            setDuration(d);
+                            setShowDurationDropdown(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 rounded-xl text-sm transition-all ${
+                            duration === d
+                              ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white"
+                              : "text-white/60 hover:text-white hover:bg-white/5"
+                          } flex items-center justify-between`}
+                        >
+                          {d}s
+                          {duration === d && <Check className="w-4 h-4 text-cyan-500" />}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Video Upload for LTX-2 */}
+              {currentModel?.supportsVideo && (
+                <div className="space-y-2">
+                  <label className="block text-sm text-white/80">Upload Video (LTX-2 Multimodal)</label>
+                  <div className="bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl p-6 flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
+                    {uploadedVideo ? (
+                      <div className="relative w-full h-full">
+                        <img
+                          src={URL.createObjectURL(uploadedVideo)}
+                          alt="Uploaded Video"
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          onClick={() => setUploadedVideo(null)}
+                          className="absolute top-2 right-2 p-1.5 bg-black/80 rounded-full hover:bg-red-500/80 transition-all"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
                       </div>
-                    )}
-                  </div>
-
-                  {/* Quality Button */}
-                  <div className="relative">
-                    <button
-                      onClick={() => {
-                        setShowQualityDropdown(!showQualityDropdown);
-                        setShowRatioDropdown(false);
-                        setShowDurationDropdown(false);
-                      }}
-                      className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1c] border border-white/10 rounded-full hover:border-cyan-500/50 transition-all"
-                    >
-                      <Gauge className="w-4 h-4 text-white/60" />
-                      <span className="text-sm font-medium">{quality}</span>
-                    </button>
-
-                    {showQualityDropdown && (
-                      <div className="absolute top-full mt-2 left-0 bg-[#1a1a1c] border border-white/10 rounded-2xl p-2 shadow-2xl z-20 min-w-[140px]">
-                        {qualityOptions.map(q => (
-                          <button
-                            key={q}
-                            onClick={() => {
-                              setQuality(q);
-                              setShowQualityDropdown(false);
-                            }}
-                            className={`w-full text-left px-4 py-2 rounded-xl text-sm transition-all ${
-                              quality === q
-                                ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white"
-                                : "text-white/60 hover:text-white hover:bg-white/5"
-                            } flex items-center justify-between`}
-                          >
-                            {q}
-                            {quality === q && <Check className="w-4 h-4 text-cyan-500" />}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Duration Button */}
-                  <div className="relative">
-                    <button
-                      onClick={() => {
-                        setShowDurationDropdown(!showDurationDropdown);
-                        setShowRatioDropdown(false);
-                        setShowQualityDropdown(false);
-                      }}
-                      className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1c] border border-white/10 rounded-full hover:border-cyan-500/50 transition-all"
-                    >
-                      <Clock className="w-4 h-4 text-white/60" />
-                      <span className="text-sm font-medium">{duration}s</span>
-                    </button>
-
-                    {showDurationDropdown && (
-                      <div className="absolute top-full mt-2 left-0 bg-[#1a1a1c] border border-white/10 rounded-2xl p-2 shadow-2xl z-20 min-w-[140px]">
-                        {currentModel?.durations.map(d => (
-                          <button
-                            key={d}
-                            onClick={() => {
-                              setDuration(d);
-                              setShowDurationDropdown(false);
-                            }}
-                            className={`w-full text-left px-4 py-2 rounded-xl text-sm transition-all ${
-                              duration === d
-                                ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white"
-                                : "text-white/60 hover:text-white hover:bg-white/5"
-                            } flex items-center justify-between`}
-                          >
-                            {d}s
-                            {duration === d && <Check className="w-4 h-4 text-cyan-500" />}
-                          </button>
-                        ))}
-                      </div>
+                    ) : (
+                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer">
+                        <Plus className="w-8 h-8 text-white/40 group-hover:text-cyan-500 transition-colors" />
+                        <input
+                          type="file"
+                          accept="video/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) setUploadedVideo(file);
+                          }}
+                        />
+                      </label>
                     )}
                   </div>
                 </div>
+              )}
 
-                {/* Audio/Video Uploads */}
-                {currentModel?.supportsAudio && (
-                  <div className="text-center">
-                    <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1c] border border-white/10 rounded-full cursor-pointer hover:border-cyan-500/50 transition-all">
-                      <Upload className="w-4 h-4 text-white/60" />
-                      <span className="text-sm font-medium">{uploadedAudio ? uploadedAudio.name : "Upload Audio"}</span>
-                      <input
-                        type="file"
-                        accept="audio/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) setUploadedAudio(file);
-                        }}
-                      />
-                    </label>
+              {/* Audio Upload */}
+              {currentModel?.supportsAudio && (
+                <div className="space-y-2">
+                  <label className="block text-sm text-white/80">Upload Audio (Sora/Veo)</label>
+                  <div className="bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl p-6 flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
+                    {uploadedAudio ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-white">{uploadedAudio.name}</span>
+                        <button
+                          onClick={() => setUploadedAudio(null)}
+                          className="p-1 hover:bg-white/10 rounded transition-all"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer">
+                        <Upload className="w-8 h-8 text-white/40 group-hover:text-cyan-500 transition-all mb-2" />
+                        <span className="text-sm text-white/40 group-hover:text-cyan-500 transition-all">Choose audio file</span>
+                        <input
+                          type="file"
+                          accept="audio/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) setUploadedAudio(file);
+                          }}
+                        />
+                      </label>
+                    )}
                   </div>
-                )}
-
-                {currentModel?.supportsVideo && (
-                  <div className="text-center">
-                    <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1c] border border-white/10 rounded-full cursor-pointer hover:border-cyan-500/50 transition-all">
-                      <Video className="w-4 h-4 text-white/60" />
-                      <span className="text-sm font-medium">{uploadedVideo ? uploadedVideo.name : "Upload Video"}</span>
-                      <input
-                        type="file"
-                        accept="video/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) setUploadedVideo(file);
-                        }}
-                      />
-                    </label>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* RIGHT COLUMN: Prompt & Generate */}
-            <div className="space-y-6">
-              {/* Prompt Input */}
-              <div className="bg-[#0d0d0d]/40 border border-white/5 rounded-3xl p-6">
-                <label className="block text-sm text-white/60 mb-3">Prompt</label>
-                <textarea
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Describe your video..."
-                  className="w-full h-32 bg-[#1a1a1c] border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-white/30 focus:border-cyan-500/50 focus:ring-cyan-500/20 outline-none resize-none"
-                />
-
-                {error && (
-                  <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm">
-                    {error}
-                  </div>
-                )}
-
-                <button
-                  onClick={handleGenerate}
-                  disabled={isGenerating || !prompt.trim()}
-                  className="w-full mt-6 px-8 py-4 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-2xl text-white font-semibold text-lg hover:shadow-2xl hover:shadow-cyan-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isGenerating ? "Generating..." : `GENERATE 🪙 ${currentModel?.credits || 0}`}
-                </button>
-              </div>
-
-              {/* Generated Video */}
-              {generatedVideo && (
-                <div className="bg-[#0d0d0d]/40 border border-white/5 rounded-3xl p-6">
-                  <video
-                    src={generatedVideo}
-                    controls
-                    className="w-full rounded-2xl"
-                  />
                 </div>
               )}
             </div>
+          </div>
+
+          {/* RIGHT COLUMN: Prompt & Generate */}
+          <div className="space-y-6">
+            {/* Prompt Input */}
+            <div className="space-y-2 mt-6">
+              <label className="block text-sm text-white/80">Prompt</label>
+              <textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="Describe your video..."
+                className="w-full h-32 bg-[#1a1a1c] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:border-cyan-500/50 focus:ring-cyan-500/20 outline-none resize-none"
+              />
+            </div>
+
+            {/* Generate Button */}
+            <button
+              onClick={handleGenerate}
+              disabled={!prompt || isGenerating}
+              className="w-full py-4 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 mt-4"
+            >
+              {isGenerating ? "Generating..." : `GENERATE 🪙 ${currentModel?.credits || 0}`}
+            </button>
+
+            {/* Generated Video */}
+            {generatedVideo && (
+              <div className="bg-[#0d0d0d]/40 border border-white/5 rounded-3xl p-6">
+                <video
+                  src={generatedVideo}
+                  controls
+                  className="w-full rounded-2xl"
+                />
+              </div>
+            )}
           </div>
         </div>
 
