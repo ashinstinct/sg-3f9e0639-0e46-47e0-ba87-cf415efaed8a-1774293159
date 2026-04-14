@@ -215,3 +215,89 @@ export async function deleteVideoGeneration(id: string) {
     return { success: false, error: "Failed to delete video" };
   }
 }
+
+/**
+ * Generic library functions for Avatar
+ */
+export async function saveToLibrary(data: {
+  url: string;
+  type: string;
+  metadata: any;
+}) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return { success: false, error: "User not authenticated" };
+    }
+
+    // Save as video generation since we don't have a generic library table
+    const { data: generation, error } = await supabase
+      .from("video_generations")
+      .insert({
+        user_id: user.id,
+        video_url: data.url,
+        thumbnail_url: data.url, // Video URL works as fallback
+        prompt: data.metadata?.script || "Audio Lip Sync",
+        model_id: "fal-ai/hedra",
+        model_name: "Hedra Avatar",
+        aspect_ratio: data.metadata?.aspect_ratio || "16:9",
+        credits_used: 15,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error saving to library:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data: generation };
+  } catch (err) {
+    console.error("Save error:", err);
+    return { success: false, error: "Failed to save" };
+  }
+}
+
+export async function getLibraryItems(type: string, limit = 50) {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from("video_generations")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("model_id", "fal-ai/hedra")
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error("Error fetching library items:", error);
+      return [];
+    }
+
+    // Format to match expected interface
+    return (data || []).map(item => ({
+      id: item.id,
+      url: item.video_url,
+      type: "avatar",
+      created_at: item.created_at,
+      metadata: {
+        avatar: item.model_name,
+        script: item.prompt,
+        aspect_ratio: item.aspect_ratio
+      }
+    }));
+  } catch (err) {
+    console.error("Get items error:", err);
+    return [];
+  }
+}
+
+export async function deleteLibraryItem(id: string) {
+  return deleteVideoGeneration(id);
+}
