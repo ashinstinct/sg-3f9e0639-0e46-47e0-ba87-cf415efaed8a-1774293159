@@ -512,37 +512,30 @@ export default function AvatarPage() {
                         <button
                           onClick={() => setSelectedVoice(voice)}
                           className={cn(
-                            "w-full text-left px-4 py-3 rounded-lg border-2 transition-all",
+                            "w-full text-left px-4 py-3 rounded-lg border-2 transition-all h-full",
                             selectedVoice.id === voice.id
                               ? "border-cyan-400 bg-cyan-400/10"
                               : "border-white/10 hover:border-white/30 bg-white/5"
                           )}
                         >
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
+                          <div className="flex flex-col h-full">
+                            <div className="flex items-center justify-between mb-1">
                               <p className="text-sm font-semibold text-white">{voice.name}</p>
-                              <p className="text-xs text-white/60">{voice.description}</p>
+                              {selectedVoice.id === voice.id && (
+                                <div className="w-2 h-2 rounded-full bg-cyan-400" />
+                              )}
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                previewVoice(voice);
-                              }}
-                              className={cn(
-                                "h-8 w-8 p-0 ml-2",
-                                previewingVoice === voice.id
-                                  ? "text-cyan-400"
-                                  : "text-white/60 hover:text-white"
-                              )}
-                            >
-                              {previewingVoice === voice.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <Play className="w-4 h-4" />
-                              )}
-                            </Button>
+                            <p className="text-xs text-cyan-400/80 mb-1">
+                              {voice.accent} • {voice.gender}
+                            </p>
+                            <p className="text-xs text-white/60 mb-2">
+                              {voice.tone}
+                            </p>
+                            <div className="mt-auto pt-2 border-t border-white/5">
+                              <p className="text-[10px] text-white/40 leading-tight">
+                                Best for: {voice.bestFor}
+                              </p>
+                            </div>
                           </div>
                         </button>
                       </div>
