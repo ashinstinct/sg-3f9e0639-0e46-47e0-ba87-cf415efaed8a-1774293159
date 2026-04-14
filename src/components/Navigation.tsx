@@ -67,7 +67,7 @@ export function Navigation() {
 
   const toolsItems = [
     { name: "Generate", href: "/images/generate", icon: Wand2 },
-    { name: "Avatar", href: "/images", icon: UserCircle },
+    { name: "Avatar", href: "/avatar", icon: UserCircle },
     { name: "Audio", href: "/audio", icon: Mic },
     { name: "Music", href: "/generate", icon: Music },
     { name: "Apps", href: "/tools", icon: Grid3x3 },
