@@ -356,7 +356,6 @@ export default function ImageGenerate() {
           {/* Top Floating Toggle */}
           <div className="absolute top-20 left-1/2 -translate-x-1/2 z-10 flex items-center bg-[#1a1a1c] p-1.5 rounded-full border border-white/5 shadow-xl">
             <button 
-              onClick={() => window.location.href = '/images/generate'}
               className="flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all bg-white/10 text-white shadow-sm"
             >
               <ImageIcon className="w-4 h-4" />
