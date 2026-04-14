@@ -8,12 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Camera, Upload, Download, Loader2, AlertCircle, Image as ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/router";
 
 type ExtractionMode = "start" | "pick" | "end";
 
 export default function FrameExtractor() {
+  const router = useRouter();
   const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [videoUrl, setVideoUrl] = useState("");
+  const [videoUrl, setVideoUrl] = useState<string>("");
   const [sliderValue, setSliderValue] = useState(0);
   const [extractedFrame, setExtractedFrame] = useState<string>("");
   const [isExtracting, setIsExtracting] = useState(false);
@@ -27,6 +29,22 @@ export default function FrameExtractor() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const seekTimeoutRef = useRef<NodeJS.Timeout>();
   const { toast } = useToast();
+
+  // Load video from URL query parameter
+  useEffect(() => {
+    if (router.query.video && typeof router.query.video === "string") {
+      const decodedUrl = decodeURIComponent(router.query.video);
+      setVideoUrl(decodedUrl);
+      
+      // Auto-load the video
+      const video = document.createElement("video");
+      video.src = decodedUrl;
+      video.crossOrigin = "anonymous";
+      video.onloadeddata = () => {
+        setVideoUrl(decodedUrl);
+      };
+    }
+  }, [router.query.video]);
 
   // Smooth video seek with debounce
   useEffect(() => {

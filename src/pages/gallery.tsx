@@ -253,18 +253,28 @@ export default function Gallery() {
                       <span>🪙 {video.credits_used}</span>
                     </div>
 
-                    {/* Actions */}
-                    <div className="flex items-center gap-2">
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-2 mt-4">
+                      <button
+                        onClick={() => router.push(`/extract?video=${encodeURIComponent(video.video_url)}`)}
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 rounded-lg text-white text-xs hover:border-cyan-500/50 transition-all"
+                        title="Extract frames from this video"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Extract
+                      </button>
                       <button
                         onClick={() => handleDownload(video.video_url, `video-${video.id}.mp4`)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-all"
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-[#1a1a1c] border border-white/10 rounded-lg text-white text-xs hover:border-cyan-500/50 transition-all"
                       >
                         <Download className="w-4 h-4" />
                         Download
                       </button>
                       <button
                         onClick={() => handleDelete(video.id)}
-                        className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-all"
+                        className="px-3 py-2 bg-[#1a1a1c] border border-white/10 rounded-lg text-red-400 hover:border-red-500/50 transition-all"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
