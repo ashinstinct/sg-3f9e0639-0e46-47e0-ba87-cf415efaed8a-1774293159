@@ -30,15 +30,17 @@ export default async function handler(
     const {
       model,
       prompt,
-      negativePrompt,
-      duration = 5,
-      aspectRatio = "16:9",
-      fps = 24,
-      seed,
-      imageUrls = [],
+      aspectRatio,
+      duration,
+      startFrameUrl,
+      endFrameUrl,
+      elementUrls = [],
+      klingMode = "frames",
       videoUrl,
       audioUrl,
-    } = req.body as VideoGenerateRequest;
+      negativePrompt,
+      seed,
+    } = req.body;
 
     if (!model || !prompt) {
       return res.status(400).json({ error: "Model and prompt are required" });
@@ -102,6 +104,56 @@ export default async function handler(
     }
 
     console.log(`Generating video with ${endpoint}...`);
+
+    // Build request payload based on model
+    const payload: any = {
+      prompt: prompt,
+      aspect_ratio: aspectRatio,
+      duration: duration,
+    };
+
+    // Add negative prompt if provided
+    if (negativePrompt) {
+      payload.negative_prompt = negativePrompt;
+    }
+
+    // Add seed if provided
+    if (seed) {
+      payload.seed = seed;
+    }
+
+    // Handle Kling Omni specific modes
+    if (model === "kling-omni-3.0") {
+      if (klingMode === "elements" && elementUrls.length > 0) {
+        payload.element_images = elementUrls;
+      } else if (klingMode === "frames") {
+        if (startFrameUrl) payload.start_image_url = startFrameUrl;
+        if (endFrameUrl) payload.end_image_url = endFrameUrl;
+      }
+    }
+    // Handle models with start/end frame support
+    else if (model.includes("kling") || model.includes("runway") || model.includes("luma") || model.includes("wan")) {
+      if (startFrameUrl) {
+        payload.start_image_url = startFrameUrl;
+      }
+      if (endFrameUrl && (model === "kling-3.0" || model === "kling-2.6" || model.includes("runway") || model.includes("luma") || model.includes("wan"))) {
+        payload.end_image_url = endFrameUrl;
+      }
+    }
+    // Handle models with single image support (Sora, Veo, etc.)
+    else if (startFrameUrl) {
+      payload.image_url = startFrameUrl;
+    }
+
+    // Add video for LTX-2
+    if (videoUrl && model === "ltx-2-19b") {
+      payload.video_url = videoUrl;
+    }
+
+    // Add audio for Sora/Veo/LTX models
+    if (audioUrl && (model.includes("sora") || model.includes("veo") || model === "ltx-2-19b")) {
+      payload.audio_url = audioUrl;
+    }
 
     let result: any;
 
