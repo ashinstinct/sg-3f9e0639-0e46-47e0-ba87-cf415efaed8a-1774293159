@@ -725,7 +725,7 @@ export default function VideoGenerate() {
             <div className="max-w-4xl mx-auto">
               <div className="bg-[#161618] rounded-2xl p-3 md:p-4 border border-white/5">
                 {/* Main Container */}
-                <div className="max-w-2xl mx-auto px-4 pt-24 pb-8">
+                <div className="max-w-2xl mx-auto px-4 pt-16 pb-8">
                   {/* Model Dropdown */}
                   <div className="mb-3">
                     <select
@@ -920,7 +920,7 @@ export default function VideoGenerate() {
 
                       {/* Aspect Ratio Dropdown Menu - POPS UP */}
                       {showRatioDropdown && (
-                        <div className="absolute bottom-full mb-2 left-0 right-0 bg-[#0d0d0d] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 max-h-[200px] overflow-y-auto">
+                        <div className="absolute bottom-full mb-2 left-0 right-0 bg-black border border-white/10 rounded-lg shadow-2xl overflow-hidden z-50 max-h-[180px] overflow-y-auto">
                           {currentModel?.aspectRatios?.map(ratio => (
                             <button
                               key={ratio}
@@ -928,14 +928,14 @@ export default function VideoGenerate() {
                                 setAspectRatio(ratio);
                                 setShowRatioDropdown(false);
                               }}
-                              className={`w-full px-3 py-2 text-left text-xs transition-all flex items-center justify-between ${
+                              className={`w-full px-2 py-1.5 text-left text-[10px] transition-all flex items-center justify-between ${
                                 aspectRatio === ratio
                                   ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white"
                                   : "text-white/70 hover:bg-white/5"
                               }`}
                             >
                               {ratio}
-                              {aspectRatio === ratio && <Check className="w-3 h-3 text-cyan-400" />}
+                              {aspectRatio === ratio && <Check className="w-2.5 h-2.5 text-cyan-400" />}
                             </button>
                           ))}
                         </div>
@@ -962,7 +962,7 @@ export default function VideoGenerate() {
 
                       {/* Quality Dropdown Menu - POPS UP */}
                       {showQualityDropdown && (
-                        <div className="absolute bottom-full mb-2 left-0 right-0 bg-[#0d0d0d] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50">
+                        <div className="absolute bottom-full mb-2 left-0 right-0 bg-black border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 max-h-[200px] overflow-y-auto">
                           {["360p", "480p", "720p", "1080p"].map(q => (
                             <button
                               key={q}
@@ -1004,7 +1004,7 @@ export default function VideoGenerate() {
 
                       {/* Duration Dropdown Menu */}
                       {showDurationDropdown && (
-                        <div className="absolute bottom-full mb-2 left-0 right-0 bg-[#0d0d0d] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 max-h-[200px] overflow-y-auto">
+                        <div className="absolute bottom-full mb-2 left-0 right-0 bg-black border border-white/10 rounded-lg shadow-2xl overflow-hidden z-50 max-h-[180px] overflow-y-auto">
                           {currentModel?.durations?.map(dur => (
                             <button
                               key={dur}
@@ -1012,14 +1012,14 @@ export default function VideoGenerate() {
                                 setDuration(dur);
                                 setShowDurationDropdown(false);
                               }}
-                              className={`w-full px-3 py-2 text-left text-xs transition-all flex items-center justify-between ${
+                              className={`w-full px-2 py-1.5 text-left text-[10px] transition-all flex items-center justify-between ${
                                 duration === dur
                                   ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white"
                                   : "text-white/70 hover:bg-white/5"
                               }`}
                             >
                               {dur}s
-                              {duration === dur && <Check className="w-3 h-3 text-cyan-400" />}
+                              {duration === dur && <Check className="w-2.5 h-2.5 text-cyan-400" />}
                             </button>
                           ))}
                         </div>
@@ -1062,7 +1062,9 @@ export default function VideoGenerate() {
 
                   {/* Upload Frames Section */}
                   <div className="mb-4">
-                    <p className="text-xs text-white/40 mb-2">Upload start/end frames</p>
+                    <div className="flex items-center gap-3 justify-center">
+                      <p className="text-xs text-white/40 mb-2">Upload start/end frames</p>
+                    </div>
                   </div>
                 </div>
               </div>
