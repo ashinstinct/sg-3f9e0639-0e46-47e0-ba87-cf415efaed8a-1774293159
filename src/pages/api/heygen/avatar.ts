@@ -48,10 +48,12 @@ export default async function handler(
 
     console.log("Hedra generation complete:", result);
 
+    const falResult = result as any;
+
     return res.status(200).json({
       success: true,
-      video_url: result.video?.url || result.data?.video?.url,
-      data: result
+      video_url: falResult.video?.url || falResult.data?.video?.url,
+      data: falResult
     });
 
   } catch (error: unknown) {
