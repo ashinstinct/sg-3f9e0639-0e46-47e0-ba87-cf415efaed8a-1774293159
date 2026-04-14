@@ -734,7 +734,7 @@ export default function VideoGenerate() {
             <div className="max-w-4xl mx-auto">
               <div className="bg-[#161618] rounded-2xl p-3 md:p-4 border border-white/5">
                 {/* Main Container */}
-                <div className="max-w-2xl mx-auto px-4 pt-16 pb-8">
+                <div className="max-w-2xl mx-auto px-4 pt-8 pb-8">
                   {/* Model Dropdown */}
                   <div className="mb-3">
                     <select
@@ -990,7 +990,7 @@ export default function VideoGenerate() {
                       {/* Quality Dropdown Menu - POPS UP */}
                       {showQualityDropdown && (
                         <div className="absolute bottom-full mb-2 left-0 right-0 bg-black border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 max-h-[200px] overflow-y-auto">
-                          {["360p", "480p", "720p", "1080p"].map(q => (
+                          {["720p", "1080p"].map(q => (
                             <button
                               key={q}
                               onClick={() => {
