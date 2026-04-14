@@ -920,7 +920,7 @@ export default function VideoGenerate() {
                     </div>
                     {currentModel?.supportsStartFrame && (
                       <p className="text-xs text-gray-500 mt-1">
-                        {startFrame || endFrame || elementImages.length > 0 ? "Images uploaded" : "Upload start/end frames"}
+                        {startFrame || endFrame || elementImages.length > 0 ? "Images uploaded" : ""}
                       </p>
                     )}
                   </div>
