@@ -3,11 +3,16 @@ import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { 
   Image as ImageIcon, 
-  Video as VideoIcon, 
-  Music, 
-  Eraser, 
-  ChevronDown, 
+  Video, 
+  Grid3x3, 
   Sparkles, 
+  Upload, 
+  Mic, 
+  Eraser, 
+  Coins, 
+  ChevronDown, 
+  Loader2, 
+  Download, 
   Plus, 
   Minus, 
   Maximize, 
@@ -15,13 +20,80 @@ import {
   Clock,
   Wand2
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function Generate() {
-  const [activeMode, setActiveMode] = useState<"image" | "vid">("vid");
+  const [mode, setMode] = useState<"image" | "video">("image");
+  const [selectedModel, setSelectedModel] = useState("flux-pro");
+  const [aspectRatio, setAspectRatio] = useState("16:9");
+  const [quality, setQuality] = useState("720p");
+  const [duration, setDuration] = useState("6s");
+  const [speed, setSpeed] = useState("Fast");
+  const [plan, setPlan] = useState("Pro");
   const [batchSize, setBatchSize] = useState(1);
+  
+  const imageModels = [
+    { id: "flux-pro", name: "FLUX Pro", icon: "⚡" },
+    { id: "flux-dev", name: "FLUX Dev", icon: "⚡" },
+    { id: "flux-schnell", name: "FLUX Schnell", icon: "⚡" },
+    { id: "nano-banana-2", name: "Nano Banana 2", icon: "🍌" },
+    { id: "stable-diffusion-3", name: "Stable Diffusion 3", icon: "🎨" },
+  ];
+  
+  // Generation state
+  const [prompt, setPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   const handleDecreaseBatch = () => setBatchSize(prev => Math.max(1, prev - 1));
   const handleIncreaseBatch = () => setBatchSize(prev => Math.min(4, prev + 1));
+
+  const creditCost = batchSize * 125;
+
+  const handleGenerate = async () => {
+    if (!prompt.trim()) {
+      setError("Please enter a prompt");
+      return;
+    }
+
+    try {
+      setIsGenerating(true);
+      setError(null);
+      setGeneratedImages([]);
+
+      const response = await fetch("/api/fal/image-generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: selectedModel,
+          prompt: prompt.trim(),
+          image_size: aspectRatio === "1:1" ? "square_hd" : 
+                      aspectRatio === "16:9" ? "landscape_16_9" :
+                      aspectRatio === "9:16" ? "portrait_16_9" : "landscape_4_3",
+          num_images: batchSize,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to generate image");
+      }
+
+      if (data.images && data.images.length > 0) {
+        setGeneratedImages(data.images.map((img: any) => img.url));
+      }
+    } catch (err: any) {
+      console.error("Generation error:", err);
+      setError(err.message || "Failed to generate image");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col font-sans selection:bg-[#c5f04a]/30">
@@ -56,7 +128,7 @@ export default function Generate() {
                 : "text-white/50 hover:text-white/80"
             }`}
           >
-            <VideoIcon className="w-4 h-4" />
+            <Video className="w-4 h-4" />
             Vid
           </button>
           
@@ -71,12 +143,56 @@ export default function Generate() {
           </div>
         </div>
 
-        {/* Empty State / Canvas */}
-        <div className="flex-1 flex flex-col items-center justify-center p-6 mt-16 mb-auto text-center">
-          <h2 className="text-xl font-medium text-white/50 mb-2">No content yet</h2>
-          <p className="text-sm text-white/30 max-w-xs mx-auto">
-            Use the prompt builder below to create your first {activeMode === "image" ? "image" : "video"}
-          </p>
+        {/* Canvas Area */}
+        <div className="absolute inset-0 flex items-center justify-center p-4 overflow-auto">
+          {isGenerating ? (
+            <div className="text-center">
+              <Loader2 className="w-12 h-12 animate-spin text-[#c5f04a] mx-auto mb-4" />
+              <p className="text-xl font-light text-gray-400">Generating {mode === "image" ? "image" : "video"}...</p>
+              <p className="text-sm text-gray-600 mt-2">This may take 10-30 seconds</p>
+            </div>
+          ) : generatedImages.length > 0 ? (
+            <div className="w-full h-full flex flex-col gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
+                {generatedImages.map((imageUrl, idx) => (
+                  <div key={idx} className="relative group rounded-lg overflow-hidden bg-black/20">
+                    <img 
+                      src={imageUrl} 
+                      alt={`Generated ${idx + 1}`}
+                      className="w-full h-full object-contain"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                      <Button
+                        onClick={() => {
+                          const a = document.createElement('a');
+                          a.href = imageUrl;
+                          a.download = `generated-${Date.now()}.png`;
+                          a.click();
+                        }}
+                        className="bg-[#c5f04a] text-black hover:bg-[#b5e03a]"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Download
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : error ? (
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">⚠️</span>
+              </div>
+              <p className="text-xl font-light text-red-400 mb-2">Generation Failed</p>
+              <p className="text-sm text-gray-500">{error}</p>
+            </div>
+          ) : (
+            <div className="text-center text-gray-500">
+              <p className="text-2xl font-light mb-2">No content yet</p>
+              <p className="text-sm">Use the prompt builder below to create your first {mode === "image" ? "image" : "video"}</p>
+            </div>
+          )}
         </div>
 
         {/* Prompt Builder Bottom Panel */}
@@ -110,15 +226,35 @@ export default function Generate() {
                   <span className="text-[9px] sm:text-[10px] font-semibold text-white/40 group-hover:text-[#c5f04a] tracking-wider">IMAGE</span>
                 </button>
                 <button className="group flex flex-col items-center justify-center gap-2 p-3 sm:p-4 rounded-xl border border-dashed border-white/15 hover:border-[#c5f04a]/50 hover:bg-[#c5f04a]/5 transition-all aspect-square">
-                  <VideoIcon className="w-5 h-5 text-white/40 group-hover:text-[#c5f04a] transition-colors" />
+                  <Video className="w-5 h-5 text-white/40 group-hover:text-[#c5f04a] transition-colors" />
                   <span className="text-[9px] sm:text-[10px] font-semibold text-white/40 group-hover:text-[#c5f04a] tracking-wider">VIDEO</span>
                 </button>
                 <button className="group flex flex-col items-center justify-center gap-2 p-3 sm:p-4 rounded-xl border border-dashed border-white/15 hover:border-[#c5f04a]/50 hover:bg-[#c5f04a]/5 transition-all aspect-square">
-                  <Music className="w-5 h-5 text-white/40 group-hover:text-[#c5f04a] transition-colors" />
+                  <Mic className="w-5 h-5 text-white/40 group-hover:text-[#c5f04a] transition-colors" />
                   <span className="text-[9px] sm:text-[10px] font-semibold text-white/40 group-hover:text-[#c5f04a] tracking-wider">AUDIO</span>
                 </button>
                 <button className="flex flex-col items-center justify-center gap-2 p-3 sm:p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition-colors aspect-square text-white/40 hover:text-white/80">
                   <Eraser className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Prompt Input */}
+              <div className="mb-4">
+                <Textarea
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder={mode === "image" ? "Describe the image you want to create..." : "Describe the video you want to create..."}
+                  className="w-full bg-black/40 border-white/10 text-white placeholder:text-gray-600 min-h-[100px] resize-none focus:border-[#c5f04a]/50 focus:ring-[#c5f04a]/20"
+                />
+              </div>
+
+              {/* Tabs */}
+              <div className="flex gap-2 mb-4">
+                <button className="px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:bg-white/5">
+                  Frames
+                </button>
+                <button className="px-4 py-2 rounded-lg text-sm font-medium bg-[#c5f04a] text-black">
+                  Elements
                 </button>
               </div>
 
@@ -159,9 +295,26 @@ export default function Generate() {
                   </button>
                 </div>
 
-                <button className="flex-1 flex items-center justify-center gap-2 bg-[#c5f04a] hover:bg-[#bcf135] hover:scale-[1.02] active:scale-[0.98] text-black font-bold text-sm h-[48px] rounded-xl transition-all shadow-[0_0_20px_rgba(197,240,74,0.15)]">
-                  GENERATE <Sparkles className="w-4 h-4" /> 
-                  <span className="opacity-70 font-medium ml-1 tracking-wide">🪙 {125 * batchSize}</span>
+                <button 
+                  onClick={handleGenerate}
+                  disabled={isGenerating || !prompt.trim()}
+                  className="flex-1 bg-[#c5f04a] text-black rounded-xl py-4 font-bold text-lg flex items-center justify-center gap-3 hover:bg-[#b5e03a] transition-all shadow-lg shadow-[#c5f04a]/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>GENERATING...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>GENERATE</span>
+                      <Sparkles className="w-5 h-5" />
+                      <div className="flex items-center gap-1">
+                        <Coins className="w-4 h-4" />
+                        <span className="text-sm">{creditCost}</span>
+                      </div>
+                    </>
+                  )}
                 </button>
               </div>
               
