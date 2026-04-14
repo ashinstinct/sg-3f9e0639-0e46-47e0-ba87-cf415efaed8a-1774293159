@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { SEO } from "@/components/SEO";
-import { ImageIcon, Video, Grid3x3, Clock, Monitor, Gauge, Plus, Upload, X, Check } from "lucide-react";
+import { ImageIcon, Video, Grid3x3, Clock, Monitor, Gauge, Plus, Upload, X, Check, Loader2, Wand2, Maximize2, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -505,6 +505,17 @@ export default function VideoGenerate() {
   const currentModel = videoModels.find(m => m.id === selectedModel);
   const creditCost = currentModel?.credits || 0;
 
+  const uploadToFal = async (file: File) => {
+    // Basic file to base64 conversion for API submission
+    // Real implementation should use a proper storage bucket or Fal's upload API
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const handleStartFrameUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) setStartFrame(file);
@@ -609,7 +620,8 @@ export default function VideoGenerate() {
             user_id: session.user.id,
             video_url: data.video.url,
             prompt,
-            model: selectedModel,
+            model_id: selectedModel,
+            model_name: currentModel?.name || selectedModel,
             aspect_ratio: aspectRatio,
             duration,
             credits_used: currentModel?.credits || 0,

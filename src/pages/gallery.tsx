@@ -9,7 +9,8 @@ interface VideoGeneration {
   id: string;
   video_url: string;
   prompt: string;
-  model: string;
+  model_id: string;
+  model_name: string;
   aspect_ratio: string;
   duration: number;
   credits_used: number;
@@ -96,13 +97,13 @@ export default function Gallery() {
   // Filter videos
   const filteredVideos = videos.filter(video => {
     const matchesSearch = video.prompt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         video.model.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesModel = selectedModel === "all" || video.model === selectedModel;
+                         video.model_name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesModel = selectedModel === "all" || video.model_id === selectedModel;
     return matchesSearch && matchesModel;
   });
 
   // Get unique models for filter
-  const uniqueModels = Array.from(new Set(videos.map(v => v.model)));
+  const uniqueModels = Array.from(new Set(videos.map(v => JSON.stringify({ id: v.model_id, name: v.model_name })))).map(s => JSON.parse(s));
 
   return (
     <>
@@ -141,8 +142,8 @@ export default function Gallery() {
               className="px-4 py-2 bg-[#1a1a1c] border border-white/10 rounded-lg text-white text-sm focus:border-cyan-500/50 outline-none"
             >
               <option value="all">All Models</option>
-              {uniqueModels.map(model => (
-                <option key={model} value={model}>{model}</option>
+              {uniqueModels.map((model: any) => (
+                <option key={model.id} value={model.id}>{model.name}</option>
               ))}
             </select>
 
@@ -253,7 +254,7 @@ export default function Gallery() {
 
                     {/* Metadata */}
                     <div className="flex items-center gap-2 mb-3 text-xs text-white/60">
-                      <span className="px-2 py-1 bg-white/5 rounded">{video.model}</span>
+                      <span className="px-2 py-1 bg-white/5 rounded">{video.model_name}</span>
                       <span className="px-2 py-1 bg-white/5 rounded">{video.aspect_ratio}</span>
                       <span className="px-2 py-1 bg-white/5 rounded">{video.duration}s</span>
                     </div>
