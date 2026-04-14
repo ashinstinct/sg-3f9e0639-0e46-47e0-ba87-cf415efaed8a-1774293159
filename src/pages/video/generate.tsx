@@ -33,6 +33,23 @@ export default function VideoGenerate() {
   // UI state
   const [expandedPrompt, setExpandedPrompt] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
+  const [showRatioDropdown, setShowRatioDropdown] = useState(false);
+  const [showDurationDropdown, setShowDurationDropdown] = useState(false);
+  const [showQualityDropdown, setShowQualityDropdown] = useState(false);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowRatioDropdown(false);
+      setShowDurationDropdown(false);
+      setShowQualityDropdown(false);
+    };
+    
+    if (showRatioDropdown || showDurationDropdown || showQualityDropdown) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [showRatioDropdown, showDurationDropdown, showQualityDropdown]);
 
   // Video models with correct configurations
   const videoModelGroups = [
@@ -769,95 +786,102 @@ export default function VideoGenerate() {
                   <div className="flex gap-2 overflow-x-auto pb-2">
                     {/* START Frame */}
                     {currentModel?.supportsStartFrame && (selectedModel !== "kling-omni-3.0" || klingOmniMode === "frames") && (
-                      <div className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-white/10">
-                        {startFrame ? (
-                          <>
-                            <img src={URL.createObjectURL(startFrame)} alt="START" className="w-full h-full object-cover" />
-                            <button
-                              onClick={() => setStartFrame(null)}
-                              className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center hover:bg-red-500/70"
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
-                            <span className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-[10px] text-center py-0.5">START</span>
-                          </>
-                        ) : (
-                          <label className="w-full h-full border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-cyan-500/50 hover:bg-white/5 transition-all">
-                            <Upload className="w-5 h-5 text-white/40" />
-                            <span className="text-[10px] text-white/40 mt-1">START</span>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleStartFrameUpload}
-                              className="hidden"
-                            />
-                          </label>
-                        )}
+                      <div className="w-20 h-20">
+                        <label className="block text-xs text-white/60 mb-1 text-center">START</label>
+                        <div className="w-full h-full bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
+                          {startFrame ? (
+                            <>
+                              <img src={URL.createObjectURL(startFrame)} alt="START" className="w-full h-full object-cover" />
+                              <button
+                                onClick={() => setStartFrame(null)}
+                                className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center hover:bg-red-500/70"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </>
+                          ) : (
+                            <label className="w-full h-full border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-cyan-500/50 hover:bg-white/5 transition-all">
+                              <Upload className="w-5 h-5 text-white/40" />
+                              <span className="text-[10px] text-white/40 mt-1">START</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleStartFrameUpload}
+                                className="hidden"
+                              />
+                            </label>
+                          )}
+                        </div>
                       </div>
                     )}
 
                     {/* END Frame */}
                     {currentModel?.supportsEndFrame && (selectedModel !== "kling-omni-3.0" || klingOmniMode === "frames") && (
-                      <div className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-white/10">
-                        {endFrame ? (
-                          <>
-                            <img src={URL.createObjectURL(endFrame)} alt="END" className="w-full h-full object-cover" />
-                            <button
-                              onClick={() => setEndFrame(null)}
-                              className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center hover:bg-red-500/70"
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
-                            <span className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-[10px] text-center py-0.5">END</span>
-                          </>
-                        ) : (
-                          <label className="w-full h-full border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-cyan-500/50 hover:bg-white/5 transition-all">
-                            <Upload className="w-5 h-5 text-white/40" />
-                            <span className="text-[10px] text-white/40 mt-1">END</span>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleEndFrameUpload}
-                              className="hidden"
-                            />
-                          </label>
-                        )}
+                      <div className="w-20 h-20">
+                        <label className="block text-xs text-white/60 mb-1 text-center">END</label>
+                        <div className="w-full h-full bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
+                          {endFrame ? (
+                            <>
+                              <img src={URL.createObjectURL(endFrame)} alt="END" className="w-full h-full object-cover" />
+                              <button
+                                onClick={() => setEndFrame(null)}
+                                className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center hover:bg-red-500/70"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </>
+                          ) : (
+                            <label className="w-full h-full border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-cyan-500/50 hover:bg-white/5 transition-all">
+                              <Upload className="w-5 h-5 text-white/40" />
+                              <span className="text-[10px] text-white/40 mt-1">END</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleEndFrameUpload}
+                                className="hidden"
+                              />
+                            </label>
+                          )}
+                        </div>
                       </div>
                     )}
 
                     {/* Elements Mode */}
-                    {selectedModel === "kling-omni-3.0" && klingOmniMode === "elements" && (
+                    {selectedModel === "kling-omni-3.0" && klingOmniMode === "elements" && 
                       [...Array(5)].map((_, idx) => {
                         const element = elementImages[idx];
                         return (
-                          <div key={idx} className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-white/10">
-                            {element ? (
-                              <>
-                                <img src={URL.createObjectURL(element)} alt={`Element ${idx + 1}`} className="w-full h-full object-cover" />
-                                <button
-                                  onClick={() => removeElement(idx)}
-                                  className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center hover:bg-red-500/70"
-                                >
-                                  <X className="w-3 h-3" />
-                                </button>
-                                <span className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-[10px] text-center py-0.5">EL {idx + 1}</span>
-                              </>
-                            ) : (
-                              <label className="w-full h-full border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-cyan-500/50 hover:bg-white/5 transition-all">
-                                <Upload className="w-5 h-5 text-white/40" />
-                                <span className="text-[10px] text-white/40 mt-1">EL {idx + 1}</span>
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(e) => handleElementUpload(e, idx)}
-                                  className="hidden"
-                                />
-                              </label>
-                            )}
+                          <div key={idx} className="w-20 h-20">
+                            <label className="block text-xs text-white/60 mb-1 text-center">EL {idx + 1}</label>
+                            <div className="w-full h-full bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
+                              {element ? (
+                                <>
+                                  <img src={URL.createObjectURL(element)} alt={`Element ${idx + 1}`} className="w-full h-full object-cover" />
+                                  <button
+                                    onClick={() => removeElement(idx)}
+                                    className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center hover:bg-red-500/70"
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                  <span className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-[10px] text-center py-0.5">EL {idx + 1}</span>
+                                </>
+                              ) : (
+                                <label className="w-full h-full border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-cyan-500/50 hover:bg-white/5 transition-all">
+                                  <Upload className="w-5 h-5 text-white/40" />
+                                  <span className="text-[10px] text-white/40 mt-1">EL {idx + 1}</span>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => handleElementUpload(e, idx)}
+                                    className="hidden"
+                                  />
+                                </label>
+                              )}
+                            </div>
                           </div>
                         );
                       })
-                    )}
+                    }
                   </div>
                   {currentModel?.supportsStartFrame && (
                     <p className="text-xs text-gray-500 mt-1">
@@ -869,7 +893,7 @@ export default function VideoGenerate() {
                 {/* Settings Buttons (Square with Rounded Corners) */}
                 <div className="flex gap-2 overflow-x-auto pb-2 mb-3 scrollbar-hide">
                   {/* Aspect Ratio */}
-                  {currentModel?.aspectRatios.map(ratio => (
+                  {currentModel?.aspectRatios?.map(ratio => (
                     <button
                       key={ratio}
                       onClick={() => setAspectRatio(ratio)}
@@ -902,18 +926,18 @@ export default function VideoGenerate() {
                 </div>
 
                 {/* Duration Buttons */}
-                <div className="flex gap-2 overflow-x-auto pb-2 mb-3 scrollbar-hide">
-                  {currentModel?.durations.map(d => (
+                <div className="flex flex-wrap items-center justify-center gap-2 mb-3">
+                  {currentModel?.durations?.map(dur => (
                     <button
-                      key={d}
-                      onClick={() => setDuration(d)}
+                      key={dur}
+                      onClick={() => setDuration(dur)}
                       className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                        duration === d
+                        duration === dur
                           ? "bg-white/10 text-white border border-white/20"
                           : "bg-black/20 text-white/50 border border-white/5 hover:bg-white/5"
                       }`}
                     >
-                      {d}s
+                      {dur}s
                     </button>
                   ))}
 
