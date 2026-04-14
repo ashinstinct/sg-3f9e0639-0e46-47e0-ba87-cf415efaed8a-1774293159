@@ -572,13 +572,8 @@ export default function VideoGenerate() {
                 setEndFrame(null);
                 setElementImages([]);
                 setUploadedVideo(null);
-                const newModel = videoModels.find(m => m.id === e.target.value);
-                if (newModel) {
-                  setAspectRatio(newModel.aspectRatios[0]);
-                  setDuration(newModel.durations[0]);
-                }
               }}
-              className="model-select bg-[#0d0d0d] text-white border border-white/10 rounded-xl px-4 py-3 text-xs font-medium focus:border-cyan-500/50 focus:ring-cyan-500/20 outline-none min-w-[200px]"
+              className="model-select w-full bg-[#0d0d0d] text-white border border-white/10 rounded-lg px-3 py-2.5 text-xs focus:border-cyan-500/50 focus:ring-cyan-500/20 outline-none mb-4"
             >
               {videoModelGroups.map(group => (
                 <optgroup key={group.company} label={group.company} className="optgroup-label">
@@ -632,9 +627,9 @@ export default function VideoGenerate() {
             <div className="space-y-6">
               {/* START Frame */}
               {currentModel?.supportsStartFrame && (selectedModel !== "kling-omni-3.0" || klingOmniMode === "frames") && (
-                <div className="relative">
-                  <label className="block text-xs text-white/60 mb-2 text-center">START</label>
-                  <div className="aspect-square bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-2xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group overflow-hidden">
+                <div className="relative w-28">
+                  <label className="block text-xs text-white/60 mb-1.5 text-center">START</label>
+                  <div className="aspect-square bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group overflow-hidden">
                     {startFrame ? (
                       <div className="relative w-full h-full">
                         <img
@@ -669,9 +664,9 @@ export default function VideoGenerate() {
 
               {/* END Frame */}
               {currentModel?.supportsEndFrame && (selectedModel !== "kling-omni-3.0" || klingOmniMode === "frames") && (
-                <div className="relative w-32">
-                  <label className="block text-xs text-white/60 mb-2 text-center">END</label>
-                  <div className="aspect-square bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-2xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
+                <div className="relative w-28">
+                  <label className="block text-xs text-white/60 mb-1.5 text-center">END</label>
+                  <div className="aspect-square bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
                     {endFrame ? (
                       <div className="relative w-full h-full">
                         <img
@@ -710,9 +705,9 @@ export default function VideoGenerate() {
                   {[...Array(5)].map((_, idx) => {
                     const element = elementImages[idx];
                     return (
-                      <div key={idx} className="relative w-32">
-                        <label className="block text-xs text-white/60 mb-2 text-center">ELEMENT {idx + 1}</label>
-                        <div className="aspect-square bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-2xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
+                      <div key={idx} className="relative w-28">
+                        <label className="block text-xs text-white/60 mb-1.5 text-center">EL {idx + 1}</label>
+                        <div className="aspect-square bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
                           {element ? (
                             <div className="relative w-full h-full">
                               <img
@@ -758,9 +753,9 @@ export default function VideoGenerate() {
             </div>
 
             {/* Main Content - Single Column */}
-            <div className="space-y-4">
-              {/* Compact Pill Buttons Row */}
-              <div className="flex flex-wrap items-center gap-3 justify-center">
+            <div className="space-y-3">
+              {/* Upload Boxes Row */}
+              <div className="flex gap-2.5 justify-center flex-wrap">
                 {/* Aspect Ratio Button */}
                 <div className="relative">
                   <button
@@ -902,13 +897,13 @@ export default function VideoGenerate() {
           {/* RIGHT COLUMN: Prompt & Generate */}
           <div className="space-y-6">
             {/* Prompt Input */}
-            <div className="space-y-2 mt-6">
+            <div className="space-y-2 mt-4">
               <label className="block text-sm text-white/80">Prompt</label>
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="Describe your video..."
-                className="w-full h-32 bg-[#1a1a1c] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:border-cyan-500/50 focus:ring-cyan-500/20 outline-none resize-none"
+                className="w-full h-28 bg-[#1a1a1c] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/40 focus:border-cyan-500/50 focus:ring-cyan-500/20 outline-none resize-none"
               />
             </div>
 
@@ -916,7 +911,7 @@ export default function VideoGenerate() {
             <button
               onClick={handleGenerate}
               disabled={!prompt || isGenerating}
-              className="w-full py-4 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 mt-4"
+              className="w-full py-3.5 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 mt-3"
             >
               {isGenerating ? "Generating..." : `GENERATE 🪙 ${currentModel?.credits || 0}`}
             </button>
@@ -943,6 +938,7 @@ export default function VideoGenerate() {
             scrollbar-width: none;
           }
           
+          /* Dark mode select dropdown styling */
           .model-select {
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
@@ -952,25 +948,26 @@ export default function VideoGenerate() {
           }
           
           .model-select option {
-            background-color: #0d0d0d;
-            color: #ffffff;
-            font-size: 12px;
-            padding: 8px 12px;
+            background-color: #0d0d0d !important;
+            color: #ffffff !important;
+            font-size: 11px !important;
+            padding: 6px 10px !important;
           }
           
           .model-select optgroup {
-            background-color: #1a1a1c;
-            color: #06b6d4;
+            background-color: #1a1a1c !important;
+            color: #06b6d4 !important;
             font-weight: 600;
-            font-size: 11px;
+            font-size: 10px !important;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            padding: 8px 12px;
+            padding: 6px 10px !important;
           }
           
+          /* Mobile-specific: Compact dropdown */
           @media (max-width: 768px) {
             .model-select {
-              max-height: 40vh;
+              font-size: 11px;
             }
           }
         `}</style>
