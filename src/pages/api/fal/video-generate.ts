@@ -13,7 +13,7 @@ type VideoGenerateRequest = {
   aspectRatio?: string;
   fps?: number;
   seed?: number;
-  imageUrl?: string;
+  imageUrls?: string[];
   videoUrl?: string;
   audioUrl?: string;
 };
@@ -35,7 +35,7 @@ export default async function handler(
       aspectRatio = "16:9",
       fps = 24,
       seed,
-      imageUrl,
+      imageUrls = [],
       videoUrl,
       audioUrl,
     } = req.body as VideoGenerateRequest;
@@ -47,29 +47,25 @@ export default async function handler(
     // Map model IDs to Fal.ai endpoints
     const modelEndpoints: Record<string, string> = {
       // Kling models
-      "kling-3.0-pro": "fal-ai/kling-video/v3/pro",
-      "kling-3.0-standard": "fal-ai/kling-video/v3/standard",
-      "kling-1.6-pro": "fal-ai/kling-video/v1.6/pro",
-      "kling-1.5-pro": "fal-ai/kling-video/v1.5/pro",
-      "kling-1.0-pro": "fal-ai/kling-video/v1/pro",
-      "kling-1.0-standard": "fal-ai/kling-video/v1/standard",
+      "kling-3.0": "fal-ai/kling-video/v3/pro",
+      "kling-2.6": "fal-ai/kling-video/v2.6/pro",
 
       // Luma models
       "luma-1.6": "fal-ai/luma-dream-machine/v1.6",
-      "luma-1.5": "fal-ai/luma-dream-machine/v1.5",
 
       // Runway models
       "runway-gen3-turbo": "fal-ai/runway-gen3/turbo",
       "runway-gen3-alpha": "fal-ai/runway-gen3/alpha",
 
-      // MiniMax
-      "minimax-video": "fal-ai/minimax-video",
+      // MiniMax models
+      "minimax-02": "fal-ai/minimax-video/02",
+      "minimax-02-fast": "fal-ai/minimax-video/02/fast",
 
       // Hunyuan
-      "hunyuan-video": "fal-ai/hunyuan-video",
+      "hunyuan-1.0": "fal-ai/hunyuan-video",
 
       // Grok
-      "grok-video": "fal-ai/grok/video",
+      "grok-1.0": "fal-ai/grok/video",
 
       // Seedance
       "seedance-1.5-pro": "fal-ai/seedance/v1.5-pro",
@@ -77,18 +73,12 @@ export default async function handler(
       // Sora models
       "sora-2-pro-max": "fal-ai/sora/v2-pro-max",
       "sora-2-max": "fal-ai/sora/v2-max",
-      "sora-2-pro": "fal-ai/sora/v2-pro",
-      "sora-2": "fal-ai/sora/v2",
 
       // Veo models
       "veo-3.1": "fal-ai/veo/v3.1",
-      "veo-3.0": "fal-ai/veo/v3.0",
 
-      // LTX-2
+      // LTX-2 (multimodal)
       "ltx-2-19b": "fal-ai/ltx-video",
-
-      // Seedream
-      "seedream-2.0": "fal-ai/seedream/v2",
 
       // Wan
       "wan-2.2": "fal-ai/wan/v2.2",
@@ -101,32 +91,167 @@ export default async function handler(
 
     console.log(`Generating video with ${endpoint}...`);
 
-    // Build input based on model capabilities
-    const input: any = {
-      prompt,
-      negative_prompt: negativePrompt,
-      duration,
-      aspect_ratio: aspectRatio,
-      fps,
-      ...(seed && { seed }),
-    };
+    let result: any;
 
-    // LTX-2 multimodal inputs
-    if (model === "ltx-2-19b") {
-      if (imageUrl) input.image_url = imageUrl;
-      if (videoUrl) input.video_url = videoUrl;
-      if (audioUrl) input.audio_url = audioUrl;
+    // Kling models - support 2 images
+    if (model.startsWith("kling-")) {
+      result = await fal.subscribe(endpoint, {
+        input: {
+          prompt,
+          negative_prompt: negativePrompt,
+          duration,
+          aspect_ratio: aspectRatio,
+          ...(seed && { seed }),
+          ...(imageUrls.length > 0 && { image_url: imageUrls[0] }),
+          ...(imageUrls.length > 1 && { image_url_end: imageUrls[1] }),
+        },
+        logs: true,
+      });
     }
-
-    const result = await fal.subscribe(endpoint, {
-      input,
-      logs: true,
-      onQueueUpdate: (update) => {
-        if (update.status === "IN_PROGRESS") {
-          console.log("Generation in progress...");
-        }
-      },
-    }) as any;
+    // Luma Dream Machine - supports 2 images (start + end frame)
+    else if (model.startsWith("luma-")) {
+      result = await fal.subscribe(endpoint, {
+        input: {
+          prompt,
+          aspect_ratio: aspectRatio,
+          ...(imageUrls.length > 0 && { image_url: imageUrls[0] }),
+          ...(imageUrls.length > 1 && { image_url_end: imageUrls[1] }),
+        },
+        logs: true,
+      });
+    }
+    // Runway Gen-3 - supports 2 images
+    else if (model.startsWith("runway-")) {
+      result = await fal.subscribe(endpoint, {
+        input: {
+          prompt,
+          duration,
+          aspect_ratio: aspectRatio,
+          ...(seed && { seed }),
+          ...(imageUrls.length > 0 && { image_url: imageUrls[0] }),
+        },
+        logs: true,
+      });
+    }
+    // MiniMax - supports 1 image
+    else if (model.startsWith("minimax-")) {
+      result = await fal.subscribe(endpoint, {
+        input: {
+          prompt,
+          negative_prompt: negativePrompt,
+          ...(imageUrls.length > 0 && { image_url: imageUrls[0] }),
+        },
+        logs: true,
+      });
+    }
+    // Hunyuan - supports 1 image
+    else if (model === "hunyuan-1.0") {
+      result = await fal.subscribe(endpoint, {
+        input: {
+          prompt,
+          duration,
+          aspect_ratio: aspectRatio,
+          ...(seed && { seed }),
+          ...(imageUrls.length > 0 && { image_url: imageUrls[0] }),
+        },
+        logs: true,
+      });
+    }
+    // Grok - supports 1 image
+    else if (model === "grok-1.0") {
+      result = await fal.subscribe(endpoint, {
+        input: {
+          prompt,
+          duration,
+          aspect_ratio: aspectRatio,
+          ...(imageUrls.length > 0 && { image_url: imageUrls[0] }),
+        },
+        logs: true,
+      });
+    }
+    // Seedance - supports 1 image
+    else if (model.startsWith("seedance-")) {
+      result = await fal.subscribe(endpoint, {
+        input: {
+          prompt,
+          negative_prompt: negativePrompt,
+          duration,
+          aspect_ratio: aspectRatio,
+          ...(seed && { seed }),
+          ...(imageUrls.length > 0 && { image_url: imageUrls[0] }),
+        },
+        logs: true,
+      });
+    }
+    // Sora models - support 1 image + 1 audio
+    else if (model.startsWith("sora-")) {
+      result = await fal.subscribe(endpoint, {
+        input: {
+          prompt,
+          duration,
+          aspect_ratio: aspectRatio,
+          ...(imageUrls.length > 0 && { image_url: imageUrls[0] }),
+          ...(audioUrl && { audio_url: audioUrl }),
+          ...(seed && { seed }),
+        },
+        logs: true,
+      });
+    }
+    // Veo 3.1 - supports 1 image + 1 audio
+    else if (model === "veo-3.1") {
+      result = await fal.subscribe(endpoint, {
+        input: {
+          prompt,
+          duration,
+          aspect_ratio: aspectRatio,
+          ...(imageUrls.length > 0 && { image_url: imageUrls[0] }),
+          ...(audioUrl && { audio_url: audioUrl }),
+        },
+        logs: true,
+      });
+    }
+    // LTX-2 - Multimodal (1 image + 1 video + 1 audio)
+    else if (model === "ltx-2-19b") {
+      result = await fal.subscribe(endpoint, {
+        input: {
+          prompt,
+          duration,
+          aspect_ratio: aspectRatio,
+          ...(imageUrls.length > 0 && { image_url: imageUrls[0] }),
+          ...(videoUrl && { video_url: videoUrl }),
+          ...(audioUrl && { audio_url: audioUrl }),
+          ...(seed && { seed }),
+        },
+        logs: true,
+      });
+    }
+    // Wan - supports 2 images
+    else if (model === "wan-2.2") {
+      result = await fal.subscribe(endpoint, {
+        input: {
+          prompt,
+          duration,
+          aspect_ratio: aspectRatio,
+          ...(imageUrls.length > 0 && { image_url: imageUrls[0] }),
+          ...(imageUrls.length > 1 && { image_url_end: imageUrls[1] }),
+        },
+        logs: true,
+      });
+    }
+    // Fallback for any other models
+    else {
+      result = await fal.subscribe(endpoint, {
+        input: {
+          prompt,
+          negative_prompt: negativePrompt,
+          duration,
+          aspect_ratio: aspectRatio,
+          fps,
+          ...(seed && { seed }),
+        },
+        logs: true,
+      });
+    }
 
     console.log("Video generation complete:", result);
 
