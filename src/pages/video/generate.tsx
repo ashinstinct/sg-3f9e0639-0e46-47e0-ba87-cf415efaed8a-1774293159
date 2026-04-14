@@ -805,79 +805,72 @@ export default function VideoGenerate() {
                     <div className="flex gap-2 overflow-x-auto pb-2">
                       {/* START Frame */}
                       {currentModel?.supportsStartFrame && (selectedModel !== "kling-omni-3.0" || klingOmniMode === "frames") && (
-                        <div className="flex flex-col items-center gap-1">
-                          <span className="text-[10px] text-white/60 uppercase">START</span>
-                          <div className="w-20 h-20">
-                            <label className="block text-xs text-white/60 mb-1 text-center">START</label>
-                            <div className="w-full h-full bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
-                              {startFrame ? (
-                                <>
-                                  <img src={URL.createObjectURL(startFrame)} alt="START" className="w-full h-full object-cover" />
-                                  <button
-                                    onClick={() => setStartFrame(null)}
-                                    className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center hover:bg-red-500/70"
-                                  >
-                                    <X className="w-3 h-3" />
-                                  </button>
-                                </>
-                              ) : (
-                                <label className="w-full h-full border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-cyan-500/50 hover:bg-white/5 transition-all">
-                                  <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleStartFrameUpload}
-                                    className="hidden"
-                                    id="start-frame-upload"
-                                  />
-                                  <label htmlFor="start-frame-upload" className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
-                                    {startFrame ? (
-                                      <img src={URL.createObjectURL(startFrame)} alt="Start frame" className="w-full h-full object-cover rounded-xl" />
-                                    ) : (
-                                      <Upload className="w-6 h-6 text-white/40 group-hover:text-cyan-400 transition-colors" />
-                                    )}
-                                  </label>
+                        <div className="w-20 h-20">
+                          <div className="w-full h-full bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group relative">
+                            {startFrame ? (
+                              <>
+                                <img src={URL.createObjectURL(startFrame)} alt="Start frame" className="w-full h-full object-cover rounded-xl" />
+                                <button
+                                  onClick={() => setStartFrame(null)}
+                                  className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center hover:bg-red-500/70"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleStartFrameUpload}
+                                  className="hidden"
+                                  id="start-frame-upload"
+                                />
+                                <label htmlFor="start-frame-upload" className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
+                                  <Upload className="w-5 h-5 text-white/40 group-hover:text-cyan-400 transition-colors mb-1" />
+                                  <span className="text-[9px] text-white/60 uppercase">START</span>
                                 </label>
-                              )}
-                            </div>
+                              </>
+                            )}
                           </div>
                         </div>
                       )}
 
                       {/* END Frame */}
                       {currentModel?.supportsEndFrame && (selectedModel !== "kling-omni-3.0" || klingOmniMode === "frames") && (
-                        <div className="flex flex-col items-center gap-1">
-                          <span className="text-[10px] text-white/60 uppercase">END</span>
-                          <div className="w-20 h-20">
-                            <div className="w-full h-full bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
-                              {endFrame ? (
-                                <>
-                                  <img src={URL.createObjectURL(endFrame)} alt="END" className="w-full h-full object-cover" />
-                                  <button
-                                    onClick={() => setEndFrame(null)}
-                                    className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center hover:bg-red-500/70"
-                                  >
-                                    <X className="w-3 h-3" />
-                                  </button>
-                                </>
-                              ) : (
-                                <label className="w-full h-full border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-cyan-500/50 hover:bg-white/5 transition-all">
-                                  <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleEndFrameUpload}
-                                    className="hidden"
-                                    id="end-frame-upload"
-                                  />
-                                  <label htmlFor="end-frame-upload" className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
-                                    {endFrame ? (
-                                      <img src={URL.createObjectURL(endFrame)} alt="End frame" className="w-full h-full object-cover rounded-xl" />
-                                    ) : (
-                                      <Upload className="w-6 h-6 text-white/40 group-hover:text-cyan-400 transition-colors" />
-                                    )}
-                                  </label>
+                        <div className="w-20 h-20">
+                          <div className="w-full h-full bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group relative">
+                            {endFrame ? (
+                              <>
+                                <img src={URL.createObjectURL(endFrame)} alt="End frame" className="w-full h-full object-cover rounded-xl" />
+                                <button
+                                  onClick={() => setEndFrame(null)}
+                                  className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center hover:bg-red-500/70"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleEndFrameUpload}
+                                  className="hidden"
+                                  id="end-frame-upload"
+                                />
+                                <label htmlFor="end-frame-upload" className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
+                                  {endFrame ? (
+                                    <img src={URL.createObjectURL(endFrame)} alt="End frame" className="w-full h-full object-cover rounded-xl" />
+                                  ) : (
+                                    <>
+                                      <Upload className="w-5 h-5 text-white/40 group-hover:text-cyan-400 transition-colors mb-1" />
+                                      <span className="text-[9px] text-white/60 uppercase">END</span>
+                                    </>
+                                  )}
                                 </label>
-                              )}
-                            </div>
+                              </>
+                            )}
                           </div>
                         </div>
                       )}
