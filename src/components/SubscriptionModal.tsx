@@ -10,6 +10,7 @@ interface SubscriptionModalProps {
 }
 
 export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
+  const [view, setView] = useState<"plans" | "credits">("plans");
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
 
   if (!isOpen) return null;
@@ -172,9 +173,9 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="relative w-full max-w-6xl max-h-[90vh] bg-background border border-border rounded-2xl shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-6xl max-h-[90vh] bg-background border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between p-6 border-b border-border bg-background/95 backdrop-blur-sm">
+        <div className="flex-none flex items-center justify-between p-6 border-b border-border bg-background/95 backdrop-blur-sm z-10">
           <div>
             <h2 className="text-2xl font-bold">Choose Your Plan</h2>
             <p className="text-sm text-muted-foreground mt-1">
@@ -190,13 +191,13 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
         </div>
 
         {/* Content - Scrollable */}
-        <div className="overflow-y-auto max-h-[calc(90vh-88px)] p-6">
+        <div className="flex-1 overflow-y-auto p-6">
           {/* Tab Switcher */}
           <div className="flex items-center justify-center gap-4 mb-8">
             <button
-              onClick={() => setBillingCycle("monthly")}
+              onClick={() => setView("plans")}
               className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
-                billingCycle === "monthly"
+                view === "plans"
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "bg-muted text-muted-foreground hover:bg-muted/80"
               }`}
@@ -204,9 +205,9 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
               Monthly Plans
             </button>
             <button
-              onClick={() => setBillingCycle("yearly")}
+              onClick={() => setView("credits")}
               className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
-                billingCycle === "yearly"
+                view === "credits"
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "bg-muted text-muted-foreground hover:bg-muted/80"
               }`}
@@ -215,7 +216,7 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
             </button>
           </div>
 
-          {billingCycle === "monthly" ? (
+          {view === "plans" ? (
             <>
               {/* Monthly/Yearly Toggle */}
               <div className="flex items-center justify-center gap-3 mb-8">
@@ -239,7 +240,7 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
                     Yearly
                   </span>
                   <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">
-                    Save 20%
+                    Save ~20%
                   </Badge>
                 </div>
               </div>
@@ -261,7 +262,7 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
                       }`}
                     >
                       {plan.popular && (
-                        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple-500 to-indigo-500 border-0">
+                        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple-500 to-indigo-500 border-0 text-white">
                           BEST VALUE
                         </Badge>
                       )}
@@ -280,7 +281,7 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
                         </div>
                         {billingCycle === "yearly" && (
                           <p className="text-xs text-muted-foreground mt-1">
-                            ${totalYearly}/year • Save 20%
+                            ${totalYearly}/year billed annually
                           </p>
                         )}
                       </div>
@@ -288,7 +289,7 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
                       <Button
                         className={`w-full mb-4 ${
                           plan.popular
-                            ? "bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+                            ? "bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white"
                             : ""
                         }`}
                         variant={plan.popular ? "default" : "outline"}
@@ -332,7 +333,7 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
                       }`}
                     >
                       {pack.popular && (
-                        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple-500 to-indigo-500 border-0">
+                        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-purple-500 to-indigo-500 border-0 text-white">
                           POPULAR
                         </Badge>
                       )}
@@ -359,7 +360,7 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
                       <Button
                         className={`w-full ${
                           pack.popular
-                            ? "bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+                            ? "bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white"
                             : ""
                         }`}
                         variant={pack.popular ? "default" : "outline"}

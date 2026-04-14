@@ -1,330 +1,175 @@
 import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
 import { 
-  Loader2, 
-  Download, 
-  Wand2, 
   Image as ImageIcon, 
-  Video,
-  Sparkles,
-  Grid3x3,
-  Settings
+  Video as VideoIcon, 
+  Music, 
+  Eraser, 
+  ChevronDown, 
+  Sparkles, 
+  Plus, 
+  Minus, 
+  Maximize, 
+  MonitorPlay, 
+  Clock,
+  Wand2
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
-
-type GenerateMode = "image" | "video";
 
 export default function Generate() {
-  const [mode, setMode] = useState<GenerateMode>("image");
-  const [prompt, setPrompt] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedContent, setGeneratedContent] = useState<string | null>(null);
-  
-  // Image settings
-  const [imageModel, setImageModel] = useState("flux");
-  const [aspectRatio, setAspectRatio] = useState("1:1");
-  const [imageSteps, setImageSteps] = useState([28]);
-  
-  // Video settings
-  const [videoModel, setVideoModel] = useState("kling");
-  const [videoDuration, setVideoDuration] = useState("6s");
-  const [videoQuality, setVideoQuality] = useState("720p");
+  const [activeMode, setActiveMode] = useState<"image" | "vid">("vid");
+  const [batchSize, setBatchSize] = useState(1);
 
-  const handleGenerate = async () => {
-    if (!prompt.trim()) return;
-    
-    setIsGenerating(true);
-    // Simulate API call
-    setTimeout(() => {
-      if (mode === "image") {
-        setGeneratedContent("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800");
-      } else {
-        setGeneratedContent("https://videos.pexels.com/video-files/3129957/3129957-uhd_2560_1440_30fps.mp4");
-      }
-      setIsGenerating(false);
-    }, 3000);
-  };
-
-  const imageModels = [
-    { value: "flux", label: "FLUX.1 Schnell", credits: 5 },
-    { value: "nano-banana", label: "Nano Banana 2", credits: 8 },
-    { value: "grok", label: "Grok 2", credits: 10 },
-    { value: "stable-diffusion", label: "Stable Diffusion XL", credits: 6 },
-    { value: "playground", label: "Playground v3", credits: 7 },
-  ];
-
-  const videoModels = [
-    { value: "kling", label: "Kling 1.5", credits: 125 },
-    { value: "luma", label: "Luma Dream Machine", credits: 100 },
-    { value: "runway", label: "Runway Gen-3", credits: 150 },
-    { value: "minimax", label: "MiniMax Video-01", credits: 90 },
-  ];
-
-  const aspectRatios = ["1:1", "16:9", "9:16", "4:3", "3:4"];
+  const handleDecreaseBatch = () => setBatchSize(prev => Math.max(1, prev - 1));
+  const handleIncreaseBatch = () => setBatchSize(prev => Math.min(4, prev + 1));
 
   return (
-    <>
-      <SEO title="Generate - AI Image & Video Creator" />
-      <Navigation />
+    <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col font-sans selection:bg-[#c5f04a]/30">
+      <SEO title="Generate - Create Image & Video" />
       
-      <main className="min-h-screen pt-20 pb-16 px-4">
-        <div className="container mx-auto max-w-7xl">
-          {/* Mode Toggle */}
-          <div className="mb-8 flex justify-center">
-            <div className="inline-flex items-center gap-2 p-1.5 bg-muted/50 rounded-lg">
-              <button
-                onClick={() => setMode("image")}
-                className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-md transition-all",
-                  mode === "image"
-                    ? "bg-background shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <ImageIcon className="w-4 h-4" />
-                <span className="font-medium">Image</span>
-              </button>
-              <button
-                onClick={() => setMode("video")}
-                className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-md transition-all",
-                  mode === "video"
-                    ? "bg-background shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <Video className="w-4 h-4" />
-                <span className="font-medium">Video</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="grid lg:grid-cols-[1fr_400px] gap-8">
-            {/* Left: Preview */}
-            <div>
-              <Card className="p-6 sticky top-24">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold">Preview</h2>
-                  {generatedContent && (
-                    <Button variant="outline" size="sm">
-                      <Download className="w-4 h-4 mr-2" />
-                      Download
-                    </Button>
-                  )}
-                </div>
-                
-                {generatedContent ? (
-                  <div className="relative aspect-square bg-muted rounded-lg overflow-hidden">
-                    {mode === "image" ? (
-                      <img
-                        src={generatedContent}
-                        alt="Generated"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <video
-                        src={generatedContent}
-                        controls
-                        className="w-full h-full object-cover"
-                      />
-                    )}
-                  </div>
-                ) : (
-                  <div className="aspect-square bg-muted rounded-lg flex items-center justify-center">
-                    <div className="text-center text-muted-foreground">
-                      {mode === "image" ? (
-                        <>
-                          <ImageIcon className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                          <p className="text-lg font-medium">No content yet</p>
-                          <p className="text-sm mt-2">Use the prompt builder to create your first image</p>
-                        </>
-                      ) : (
-                        <>
-                          <Video className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                          <p className="text-lg font-medium">No content yet</p>
-                          <p className="text-sm mt-2">Use the prompt builder to create your first video</p>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </Card>
-            </div>
-
-            {/* Right: Controls */}
-            <div className="space-y-6">
-              {/* Model Selection */}
-              <Card className="p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Sparkles className="w-5 h-5 text-primary" />
-                  <h3 className="font-semibold">Model</h3>
-                </div>
-                
-                <Select 
-                  value={mode === "image" ? imageModel : videoModel}
-                  onValueChange={mode === "image" ? setImageModel : setVideoModel}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(mode === "image" ? imageModels : videoModels).map((model) => (
-                      <SelectItem key={model.value} value={model.value}>
-                        <div className="flex items-center justify-between w-full">
-                          <span>{model.label}</span>
-                          <span className="text-xs text-muted-foreground ml-4">
-                            {model.credits} credits
-                          </span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Card>
-
-              {/* Prompt */}
-              <Card className="p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Wand2 className="w-5 h-5 text-primary" />
-                  <h3 className="font-semibold">Prompt</h3>
-                </div>
-                
-                <Textarea
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder={
-                    mode === "image"
-                      ? "A professional portrait of a woman in a studio setting..."
-                      : "A cinematic shot of a person walking through a futuristic city..."
-                  }
-                  className="min-h-32 mb-4"
-                />
-
-                <Button
-                  onClick={handleGenerate}
-                  disabled={isGenerating || !prompt.trim()}
-                  className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
-                  size="lg"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Wand2 className="w-4 h-4 mr-2" />
-                      Generate {mode === "image" ? "Image" : "Video"}
-                    </>
-                  )}
-                </Button>
-              </Card>
-
-              {/* Settings */}
-              <Card className="p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Settings className="w-5 h-5 text-primary" />
-                  <h3 className="font-semibold">Settings</h3>
-                </div>
-                
-                {mode === "image" ? (
-                  <div className="space-y-6">
-                    {/* Aspect Ratio */}
-                    <div>
-                      <label className="text-sm font-medium mb-3 block">Aspect Ratio</label>
-                      <div className="flex gap-2">
-                        {aspectRatios.map((ratio) => (
-                          <button
-                            key={ratio}
-                            onClick={() => setAspectRatio(ratio)}
-                            className={cn(
-                              "flex-1 px-3 py-2 rounded-lg border text-sm font-medium transition-colors",
-                              aspectRatio === ratio
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "bg-background hover:bg-muted border-border"
-                            )}
-                          >
-                            {ratio}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Steps */}
-                    <div>
-                      <label className="text-sm font-medium mb-3 block">
-                        Quality Steps: {imageSteps[0]}
-                      </label>
-                      <Slider
-                        value={imageSteps}
-                        onValueChange={setImageSteps}
-                        min={4}
-                        max={50}
-                        step={1}
-                        className="w-full"
-                      />
-                      <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                        <span>Fast</span>
-                        <span>High Quality</span>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    {/* Duration */}
-                    <div>
-                      <label className="text-sm font-medium mb-3 block">Duration</label>
-                      <div className="flex gap-2">
-                        {["3s", "6s", "10s"].map((duration) => (
-                          <button
-                            key={duration}
-                            onClick={() => setVideoDuration(duration)}
-                            className={cn(
-                              "flex-1 px-3 py-2 rounded-lg border text-sm font-medium transition-colors",
-                              videoDuration === duration
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "bg-background hover:bg-muted border-border"
-                            )}
-                          >
-                            {duration}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Quality */}
-                    <div>
-                      <label className="text-sm font-medium mb-3 block">Quality</label>
-                      <Select value={videoQuality} onValueChange={setVideoQuality}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="480p">480p (Fast)</SelectItem>
-                          <SelectItem value="720p">720p (Standard)</SelectItem>
-                          <SelectItem value="1080p">1080p (High)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                )}
-              </Card>
+      {/* Navigation overlay */}
+      <div className="relative z-50">
+        <Navigation />
+      </div>
+      
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col relative pt-24 sm:pt-28">
+        
+        {/* Top Floating Toggle */}
+        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-10 flex items-center bg-[#1a1a1c] p-1.5 rounded-full border border-white/5 shadow-xl">
+          <button 
+            onClick={() => setActiveMode("image")}
+            className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all ${
+              activeMode === "image" 
+                ? "bg-white/10 text-white shadow-sm" 
+                : "text-white/50 hover:text-white/80"
+            }`}
+          >
+            <ImageIcon className="w-4 h-4" />
+            Image
+          </button>
+          <button 
+            onClick={() => setActiveMode("vid")}
+            className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all ${
+              activeMode === "vid" 
+                ? "bg-white/10 text-white shadow-sm" 
+                : "text-white/50 hover:text-white/80"
+            }`}
+          >
+            <VideoIcon className="w-4 h-4" />
+            Vid
+          </button>
+          
+          {/* Circular slider dot - decorative element from the screenshot */}
+          <div className="w-8 h-8 rounded-full bg-[#c5f04a] ml-3 flex items-center justify-center shadow-[0_0_15px_rgba(197,240,74,0.3)] cursor-pointer hover:scale-105 transition-transform">
+            <div className="grid grid-cols-2 gap-0.5">
+              <div className="w-1.5 h-1.5 rounded-sm bg-black/80"></div>
+              <div className="w-1.5 h-1.5 rounded-sm bg-black/80"></div>
+              <div className="w-1.5 h-1.5 rounded-sm bg-black/80"></div>
+              <div className="w-1.5 h-1.5 rounded-sm bg-black/80"></div>
             </div>
           </div>
         </div>
-      </main>
-    </>
+
+        {/* Empty State / Canvas */}
+        <div className="flex-1 flex flex-col items-center justify-center p-6 mt-16 mb-auto text-center">
+          <h2 className="text-xl font-medium text-white/50 mb-2">No content yet</h2>
+          <p className="text-sm text-white/30 max-w-xs mx-auto">
+            Use the prompt builder below to create your first {activeMode === "image" ? "image" : "video"}
+          </p>
+        </div>
+
+        {/* Prompt Builder Bottom Panel */}
+        <div className="w-full max-w-2xl mx-auto mt-auto pb-0 sm:pb-6 px-0 sm:px-4">
+          <div className="bg-[#161618] border-t sm:border border-white/10 rounded-t-3xl sm:rounded-3xl p-4 sm:p-5 flex flex-col gap-5 shadow-2xl relative overflow-hidden">
+            
+            {/* Header: Model & Tabs */}
+            <div className="flex items-center justify-between">
+              <button className="flex items-center gap-2 text-sm font-medium text-white hover:text-white bg-white/5 hover:bg-white/10 transition-colors px-3 py-1.5 rounded-lg border border-white/5">
+                <Wand2 className="w-4 h-4 text-[#8a8a93]" />
+                Seedance 2.0
+                <ChevronDown className="w-4 h-4 text-white/40 ml-1" />
+              </button>
+
+              <div className="flex bg-[#0a0a0a] rounded-full p-1 border border-white/5">
+                <button className="px-4 py-1.5 text-xs font-medium text-white/50 hover:text-white/80 transition-colors rounded-full">
+                  Frames
+                </button>
+                <button className="px-4 py-1.5 text-xs font-medium bg-[#c5f04a] text-black rounded-full shadow-sm">
+                  Elements
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-[#1a1a1c] rounded-2xl p-4 border border-white/5">
+              
+              {/* Media Inputs Row */}
+              <div className="grid grid-cols-4 gap-2.5 mb-5">
+                <button className="group flex flex-col items-center justify-center gap-2 p-3 sm:p-4 rounded-xl border border-dashed border-white/15 hover:border-[#c5f04a]/50 hover:bg-[#c5f04a]/5 transition-all aspect-square">
+                  <ImageIcon className="w-5 h-5 text-white/40 group-hover:text-[#c5f04a] transition-colors" />
+                  <span className="text-[9px] sm:text-[10px] font-semibold text-white/40 group-hover:text-[#c5f04a] tracking-wider">IMAGE</span>
+                </button>
+                <button className="group flex flex-col items-center justify-center gap-2 p-3 sm:p-4 rounded-xl border border-dashed border-white/15 hover:border-[#c5f04a]/50 hover:bg-[#c5f04a]/5 transition-all aspect-square">
+                  <VideoIcon className="w-5 h-5 text-white/40 group-hover:text-[#c5f04a] transition-colors" />
+                  <span className="text-[9px] sm:text-[10px] font-semibold text-white/40 group-hover:text-[#c5f04a] tracking-wider">VIDEO</span>
+                </button>
+                <button className="group flex flex-col items-center justify-center gap-2 p-3 sm:p-4 rounded-xl border border-dashed border-white/15 hover:border-[#c5f04a]/50 hover:bg-[#c5f04a]/5 transition-all aspect-square">
+                  <Music className="w-5 h-5 text-white/40 group-hover:text-[#c5f04a] transition-colors" />
+                  <span className="text-[9px] sm:text-[10px] font-semibold text-white/40 group-hover:text-[#c5f04a] tracking-wider">AUDIO</span>
+                </button>
+                <button className="flex flex-col items-center justify-center gap-2 p-3 sm:p-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition-colors aspect-square text-white/40 hover:text-white/80">
+                  <Eraser className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Settings Pills Row */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none mb-4 -mx-1 px-1">
+                <button className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-xs font-medium text-white/70 whitespace-nowrap">
+                  <Maximize className="w-3.5 h-3.5 opacity-60" /> 16:9
+                </button>
+                <button className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-xs font-medium text-white/70 whitespace-nowrap">
+                  <MonitorPlay className="w-3.5 h-3.5 opacity-60" /> 720p
+                </button>
+                <button className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-xs font-medium text-white/70 whitespace-nowrap">
+                  <Clock className="w-3.5 h-3.5 opacity-60" /> 6s
+                </button>
+                <button className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-xs font-medium text-white/70 whitespace-nowrap">
+                  Fast
+                </button>
+                <button className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-xs font-medium text-white/70 whitespace-nowrap">
+                  Pro
+                </button>
+              </div>
+
+              {/* Bottom Controls Row */}
+              <div className="flex items-center justify-between gap-3 mt-1">
+                <div className="flex items-center bg-white/5 rounded-xl border border-white/5 h-[48px]">
+                  <button 
+                    onClick={handleDecreaseBatch}
+                    className="h-full px-3.5 flex items-center text-white/40 hover:text-white hover:bg-white/5 rounded-l-xl transition-colors"
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <span className="text-sm font-medium w-8 text-center text-white/80">{batchSize}/4</span>
+                  <button 
+                    onClick={handleIncreaseBatch}
+                    className="h-full px-3.5 flex items-center text-white/40 hover:text-white hover:bg-white/5 rounded-r-xl transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <button className="flex-1 flex items-center justify-center gap-2 bg-[#c5f04a] hover:bg-[#bcf135] hover:scale-[1.02] active:scale-[0.98] text-black font-bold text-sm h-[48px] rounded-xl transition-all shadow-[0_0_20px_rgba(197,240,74,0.15)]">
+                  GENERATE <Sparkles className="w-4 h-4" /> 
+                  <span className="opacity-70 font-medium ml-1 tracking-wide">🪙 {125 * batchSize}</span>
+                </button>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
   );
 }
