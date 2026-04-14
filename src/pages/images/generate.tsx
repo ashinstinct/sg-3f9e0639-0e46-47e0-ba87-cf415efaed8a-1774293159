@@ -441,10 +441,10 @@ export default function ImageGenerate() {
                       setSelectedModel(e.target.value);
                       setUploadedImages([]);
                     }}
-                    className="flex-1 bg-black/40 text-white border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-[#c5f04a]/50 focus:ring-[#c5f04a]/20 outline-none"
+                    className="model-select flex-1 bg-[#0d0d0d] text-white border border-white/10 rounded-lg px-3 py-2 text-xs focus:border-[#c5f04a]/50 focus:ring-[#c5f04a]/20 outline-none"
                   >
                     {imageModelGroups.map(group => (
-                      <optgroup key={group.company} label={group.company}>
+                      <optgroup key={group.company} label={group.company} className="optgroup-label">
                         {group.models.map(model => (
                           <option key={model.id} value={model.id}>
                             {model.name} - 🪙{model.credits}
@@ -625,6 +625,39 @@ export default function ImageGenerate() {
           .scrollbar-hide {
             -ms-overflow-style: none;
             scrollbar-width: none;
+          }
+          
+          /* Dark mode select dropdown styling */
+          .model-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            padding-right: 2.5rem;
+          }
+          
+          .model-select option {
+            background-color: #0d0d0d;
+            color: #ffffff;
+            font-size: 12px;
+            padding: 8px 12px;
+          }
+          
+          .model-select optgroup {
+            background-color: #1a1a1c;
+            color: #c5f04a;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px 12px;
+          }
+          
+          /* Mobile-specific: Limit dropdown height to 40vh max */
+          @media (max-width: 768px) {
+            .model-select {
+              max-height: 40vh;
+            }
           }
         `}</style>
       </div>
