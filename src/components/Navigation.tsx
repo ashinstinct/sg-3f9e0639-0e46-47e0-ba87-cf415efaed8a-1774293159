@@ -24,7 +24,9 @@ import {
   Briefcase,
   Settings,
   Gift,
-  Wrench
+  Wrench,
+  LayoutDashboard,
+  FolderOpen
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
