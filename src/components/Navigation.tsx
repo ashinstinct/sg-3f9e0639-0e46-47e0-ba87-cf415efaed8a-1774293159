@@ -79,6 +79,16 @@ export function Navigation() {
     { name: "Objects", href: "/elements/objects", icon: Box },
   ];
 
+  const menuItems = [
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Free Tools", href: "/free-tools", icon: Wrench },
+    { name: "Images", href: "/images", icon: ImageIcon },
+    { name: "Video", href: "/video", icon: Video },
+    { name: "Avatar", href: "/avatar", icon: UserCircle },
+    { name: "Library", href: "/library", icon: FolderOpen },
+    { name: "Gallery", href: "/gallery", icon: Grid3x3 },
+  ];
+
   return (
     <>
       {/* Top Navigation Bar */}
