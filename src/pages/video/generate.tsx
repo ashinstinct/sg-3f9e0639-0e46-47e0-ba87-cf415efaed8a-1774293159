@@ -591,7 +591,7 @@ export default function VideoGenerate() {
               <div className="flex items-center gap-2 bg-[#1a1a1c] p-1.5 rounded-full border border-white/5">
                 <button
                   onClick={() => setKlingOmniMode("elements")}
-                  className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+                  className={`flex-1 px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
                     klingOmniMode === "elements"
                       ? "bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-lg"
                       : "text-white/50 hover:text-white/80"
@@ -601,7 +601,7 @@ export default function VideoGenerate() {
                 </button>
                 <button
                   onClick={() => setKlingOmniMode("frames")}
-                  className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+                  className={`flex-1 px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
                     klingOmniMode === "frames"
                       ? "bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-lg"
                       : "text-white/50 hover:text-white/80"
@@ -613,8 +613,8 @@ export default function VideoGenerate() {
             )}
 
             {selectedModel === "kling-motion-3.0" && (
-              <div className="bg-[#1a1a1c] p-1.5 rounded-full border border-white/5">
-                <button className="px-6 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-lg">
+              <div className="flex items-center gap-2 bg-[#1a1a1c] p-1.5 rounded-full border border-white/5">
+                <button className="flex-1 px-6 py-2.5 rounded-full text-sm font-medium bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-lg">
                   Motion Control
                 </button>
               </div>
@@ -664,8 +664,8 @@ export default function VideoGenerate() {
 
               {/* END Frame */}
               {currentModel?.supportsEndFrame && (selectedModel !== "kling-omni-3.0" || klingOmniMode === "frames") && (
-                <div className="relative w-28">
-                  <label className="block text-xs text-white/60 mb-1.5 text-center">END</label>
+                <div className="flex-1 max-w-[140px]">
+                  <label className="block text-xs text-white/60 mb-1 text-center">END</label>
                   <div className="aspect-square bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
                     {endFrame ? (
                       <div className="relative w-full h-full">
@@ -699,56 +699,54 @@ export default function VideoGenerate() {
                 </div>
               )}
 
-              {/* Elements Mode - Multiple Images */}
+              {/* Elements Mode */}
               {selectedModel === "kling-omni-3.0" && klingOmniMode === "elements" && (
-                <>
-                  {[...Array(5)].map((_, idx) => {
-                    const element = elementImages[idx];
-                    return (
-                      <div key={idx} className="relative w-28">
-                        <label className="block text-xs text-white/60 mb-1.5 text-center">EL {idx + 1}</label>
-                        <div className="aspect-square bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
-                          {element ? (
-                            <div className="relative w-full h-full">
-                              <img
-                                src={URL.createObjectURL(element)}
-                                alt={`Element ${idx + 1}`}
-                                className="w-full h-full object-cover"
-                              />
-                              <button
-                                onClick={() => {
+                [...Array(5)].map((_, idx) => {
+                  const element = elementImages[idx];
+                  return (
+                    <div key={idx} className="flex-1 max-w-[140px]">
+                      <label className="block text-xs text-white/60 mb-1 text-center">EL {idx + 1}</label>
+                      <div className="aspect-square bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
+                        {element ? (
+                          <div className="relative w-full h-full">
+                            <img
+                              src={URL.createObjectURL(element)}
+                              alt={`Element ${idx + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                            <button
+                              onClick={() => {
+                                const newElements = [...elementImages];
+                                newElements.splice(idx, 1);
+                                setElementImages(newElements);
+                              }}
+                              className="absolute top-1 right-1 p-1 bg-black/80 rounded-full hover:bg-red-500/80 transition-all"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <label className="w-full h-full flex items-center justify-center cursor-pointer">
+                            <Plus className="w-5 h-5 text-white/40 group-hover:text-cyan-500 transition-colors" />
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
                                   const newElements = [...elementImages];
-                                  newElements.splice(idx, 1);
+                                  newElements[idx] = file;
                                   setElementImages(newElements);
-                                }}
-                                className="absolute top-1 right-1 p-1 bg-black/80 rounded-full hover:bg-red-500/80 transition-all"
-                              >
-                                <X className="w-3 h-3" />
-                              </button>
-                            </div>
-                          ) : (
-                            <label className="w-full h-full flex items-center justify-center cursor-pointer">
-                              <Plus className="w-5 h-5 text-white/40 group-hover:text-cyan-500 transition-colors" />
-                              <input
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) {
-                                    const newElements = [...elementImages];
-                                    newElements[idx] = file;
-                                    setElementImages(newElements);
-                                  }
-                                }}
-                              />
-                            </label>
-                          )}
-                        </div>
+                                }
+                              }}
+                            />
+                          </label>
+                        )}
                       </div>
-                    );
-                  })}
-                </>
+                    </div>
+                  );
+                })
               )}
             </div>
 
@@ -867,11 +865,11 @@ export default function VideoGenerate() {
                   )}
                 </div>
 
-                {/* Audio Toggle Button - Only for models that support it */}
+                {/* Audio Toggle */}
                 {currentModel?.supportsAudioToggle && (
                   <button
                     onClick={() => setAudioEnabled(!audioEnabled)}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all ${
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium transition-all ${
                       audioEnabled
                         ? "bg-white text-black"
                         : "bg-[#1a1a1c] border border-white/10 text-white hover:border-cyan-500/50"
@@ -907,25 +905,166 @@ export default function VideoGenerate() {
               />
             </div>
 
-            {/* Generate Button */}
-            <button
-              onClick={handleGenerate}
-              disabled={!prompt || isGenerating}
-              className="w-full py-3.5 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 mt-3"
-            >
-              {isGenerating ? "Generating..." : `GENERATE 🪙 ${currentModel?.credits || 0}`}
-            </button>
+            {/* Control Buttons Row */}
+            <div className="flex flex-wrap items-center justify-center gap-2.5">
+              {/* Control Buttons - Ratio, Quality, Duration, Audio */}
+              <div className="flex items-center justify-center gap-2 mb-3">
+                {/* Aspect Ratio Button */}
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      setShowRatioDropdown(!showRatioDropdown);
+                      setShowDurationDropdown(false);
+                      setShowQualityDropdown(false);
+                    }}
+                    className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1c] border border-white/10 rounded-full hover:border-cyan-500/50 transition-all"
+                  >
+                    <Monitor className="w-4 h-4 text-white/60" />
+                    <span className="text-sm font-medium">{aspectRatio}</span>
+                  </button>
 
-            {/* Generated Video */}
-            {generatedVideo && (
-              <div className="bg-[#0d0d0d]/40 border border-white/5 rounded-3xl p-6">
-                <video
-                  src={generatedVideo}
-                  controls
-                  className="w-full rounded-2xl"
-                />
+                  {showRatioDropdown && (
+                    <div className="absolute top-full mt-2 left-0 bg-[#1a1a1c] border border-white/10 rounded-2xl p-2 shadow-2xl z-20 min-w-[160px]">
+                      {currentModel?.aspectRatios.map(ratio => (
+                        <button
+                          key={ratio}
+                          onClick={() => {
+                            setAspectRatio(ratio);
+                            setShowRatioDropdown(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 rounded-xl text-sm transition-all ${
+                            aspectRatio === ratio
+                              ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white"
+                              : "text-white/60 hover:text-white hover:bg-white/5"
+                          } flex items-center justify-between`}
+                        >
+                          {ratio}
+                          {aspectRatio === ratio && <Check className="w-4 h-4 text-cyan-500" />}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Quality Button */}
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      setShowQualityDropdown(!showQualityDropdown);
+                      setShowRatioDropdown(false);
+                      setShowDurationDropdown(false);
+                    }}
+                    className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1c] border border-white/10 rounded-full hover:border-cyan-500/50 transition-all"
+                  >
+                    <Gauge className="w-4 h-4 text-white/60" />
+                    <span className="text-sm font-medium">{quality}</span>
+                  </button>
+
+                  {showQualityDropdown && (
+                    <div className="absolute top-full mt-2 left-0 bg-[#1a1a1c] border border-white/10 rounded-2xl p-2 shadow-2xl z-20 min-w-[140px]">
+                      {qualityOptions.map(q => (
+                        <button
+                          key={q}
+                          onClick={() => {
+                            setQuality(q);
+                            setShowQualityDropdown(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 rounded-xl text-sm transition-all ${
+                            quality === q
+                              ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white"
+                              : "text-white/60 hover:text-white hover:bg-white/5"
+                          } flex items-center justify-between`}
+                        >
+                          {q}
+                          {quality === q && <Check className="w-4 h-4 text-cyan-500" />}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Duration Button */}
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      setShowDurationDropdown(!showDurationDropdown);
+                      setShowRatioDropdown(false);
+                      setShowQualityDropdown(false);
+                    }}
+                    className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1c] border border-white/10 rounded-full hover:border-cyan-500/50 transition-all"
+                  >
+                    <Clock className="w-4 h-4 text-white/60" />
+                    <span className="text-sm font-medium">{duration}s</span>
+                  </button>
+
+                  {showDurationDropdown && (
+                    <div className="absolute top-full mt-2 left-0 bg-[#1a1a1c] border border-white/10 rounded-2xl p-2 shadow-2xl z-20 min-w-[140px]">
+                      {currentModel?.durations.map(d => (
+                        <button
+                          key={d}
+                          onClick={() => {
+                            setDuration(d);
+                            setShowDurationDropdown(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 rounded-xl text-sm transition-all ${
+                            duration === d
+                              ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white"
+                              : "text-white/60 hover:text-white hover:bg-white/5"
+                          } flex items-center justify-between`}
+                        >
+                          {d}s
+                          {duration === d && <Check className="w-4 h-4 text-cyan-500" />}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Audio Toggle */}
+                {currentModel?.supportsAudioToggle && (
+                  <button
+                    onClick={() => setAudioEnabled(!audioEnabled)}
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium transition-all ${
+                      audioEnabled
+                        ? "bg-white text-black"
+                        : "bg-[#1a1a1c] border border-white/10 text-white hover:border-cyan-500/50"
+                    }`}
+                  >
+                    🔊 {audioEnabled ? "On" : "Off"}
+                  </button>
+                )}
               </div>
-            )}
+
+              {/* Video Upload for LTX-2 */}
+              {currentModel?.supportsVideo && (
+                <div className="flex justify-center">
+                  <button className="flex items-center gap-2 px-6 py-3 bg-[#1a1a1c] border border-white/10 rounded-full text-sm text-white/80 hover:border-cyan-500/50 transition-all">
+                    <Upload className="w-4 h-4" />
+                    {uploadedVideo ? uploadedVideo.name : "Upload Video"}
+                  </button>
+                </div>
+              )}
+
+              {/* Generate Button */}
+              <button
+                onClick={handleGenerate}
+                disabled={!prompt || isGenerating}
+                className="w-full py-3 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+              >
+                {isGenerating ? "Generating..." : `GENERATE 🪙 ${currentModel?.credits || 0}`}
+              </button>
+
+              {/* Generated Video */}
+              {generatedVideo && (
+                <div className="bg-[#0d0d0d]/40 border border-white/5 rounded-3xl p-6">
+                  <video
+                    src={generatedVideo}
+                    controls
+                    className="w-full rounded-2xl"
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -938,7 +1077,7 @@ export default function VideoGenerate() {
             scrollbar-width: none;
           }
           
-          /* Dark mode select dropdown styling */
+          /* Dark mode select dropdown styling - COMPACT */
           .model-select {
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
@@ -950,24 +1089,26 @@ export default function VideoGenerate() {
           .model-select option {
             background-color: #0d0d0d !important;
             color: #ffffff !important;
-            font-size: 11px !important;
-            padding: 6px 10px !important;
+            font-size: 12px !important;
+            padding: 8px 12px !important;
           }
           
           .model-select optgroup {
             background-color: #1a1a1c !important;
             color: #06b6d4 !important;
             font-weight: 600;
-            font-size: 10px !important;
+            font-size: 11px !important;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            padding: 6px 10px !important;
+            padding: 8px 12px !important;
           }
           
           /* Mobile-specific: Compact dropdown */
           @media (max-width: 768px) {
             .model-select {
               font-size: 11px;
+              max-height: 40vh;
+              overflow-y: auto;
             }
           }
         `}</style>
