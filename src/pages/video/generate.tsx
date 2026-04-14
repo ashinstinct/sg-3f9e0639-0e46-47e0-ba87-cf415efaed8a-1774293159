@@ -760,11 +760,6 @@ export default function VideoGenerate() {
                     </select>
                   </div>
 
-                  {/* Credits Display */}
-                  <div className="mb-3 text-xs text-white/60 text-right">
-                    Cost: 🪙 {currentModel?.credits || 0} credits
-                  </div>
-
                   {/* Prompt with Expand Button */}
                   <div className="mb-3 relative">
                     <Textarea
