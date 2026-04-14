@@ -110,9 +110,9 @@ export default function Generate() {
         {/* Top Floating Toggle */}
         <div className="absolute top-24 left-1/2 -translate-x-1/2 z-10 flex items-center bg-[#1a1a1c] p-1.5 rounded-full border border-white/5 shadow-xl">
           <button 
-            onClick={() => setActiveMode("image")}
+            onClick={() => setMode("image")}
             className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all ${
-              activeMode === "image" 
+              mode === "image" 
                 ? "bg-white/10 text-white shadow-sm" 
                 : "text-white/50 hover:text-white/80"
             }`}
@@ -121,9 +121,9 @@ export default function Generate() {
             Image
           </button>
           <button 
-            onClick={() => setActiveMode("vid")}
+            onClick={() => setMode("video")}
             className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all ${
-              activeMode === "vid" 
+              mode === "video" 
                 ? "bg-white/10 text-white shadow-sm" 
                 : "text-white/50 hover:text-white/80"
             }`}
@@ -298,21 +298,17 @@ export default function Generate() {
                 <button 
                   onClick={handleGenerate}
                   disabled={isGenerating || !prompt.trim()}
-                  className="flex-1 bg-[#c5f04a] text-black rounded-xl py-4 font-bold text-lg flex items-center justify-center gap-3 hover:bg-[#b5e03a] transition-all shadow-lg shadow-[#c5f04a]/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 flex items-center justify-center gap-2 bg-[#c5f04a] hover:bg-[#bcf135] disabled:bg-[#c5f04a]/50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] text-black font-bold text-sm h-[48px] rounded-xl transition-all shadow-[0_0_20px_rgba(197,240,74,0.15)]"
                 >
                   {isGenerating ? (
                     <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>GENERATING...</span>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      GENERATING...
                     </>
                   ) : (
                     <>
-                      <span>GENERATE</span>
-                      <Sparkles className="w-5 h-5" />
-                      <div className="flex items-center gap-1">
-                        <Coins className="w-4 h-4" />
-                        <span className="text-sm">{creditCost}</span>
-                      </div>
+                      GENERATE <Sparkles className="w-4 h-4" /> 
+                      <span className="opacity-70 font-medium ml-1 tracking-wide">🪙 {creditCost}</span>
                     </>
                   )}
                 </button>
