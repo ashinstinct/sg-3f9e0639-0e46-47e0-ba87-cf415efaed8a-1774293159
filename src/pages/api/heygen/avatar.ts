@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import * as fal from "@fal-ai/serverless-client";
 
+// Configure fal.ai
 fal.config({
   credentials: process.env.FAL_KEY,
 });
@@ -15,56 +16,48 @@ export default async function handler(
 
   try {
     const { 
-      avatarId,
-      voiceId,
+      avatarImage,
+      audioSource,
       text,
-      aspectRatio = "16:9",
-      test = false
+      voice
     } = req.body;
 
-    if (!avatarId || !text || !voiceId) {
+    if (!avatarImage || (!audioSource && !text)) {
       return res.status(400).json({ 
-        error: "Missing required fields: avatarId, voiceId, and text are required" 
+        error: "Missing required fields: avatarImage and either audioSource or text" 
       });
     }
 
-    console.log("Generating Heygen avatar video via fal.ai...");
+    console.log("Generating avatar video with Hedra...");
 
-    // Use fal.ai's Heygen endpoint
-    const result = await fal.subscribe("fal-ai/heygen/avatar-video", {
+    // Generate talking avatar video using fal.ai Hedra
+    const result = await fal.subscribe("fal-ai/hedra", {
       input: {
-        avatar_id: avatarId,
-        voice_id: voiceId,
-        text: text,
-        aspect_ratio: aspectRatio,
-        test: test
+        avatar_image: avatarImage,
+        audio_source: audioSource || undefined,
+        text: text || undefined,
+        voice_id: voice || "ash" // Default voice
       },
       logs: true,
-      onQueueUpdate(update) {
-        console.log("Queue update:", update);
+      onQueueUpdate: (update) => {
+        if (update.status === "IN_PROGRESS") {
+          console.log("Hedra progress:", update.logs);
+        }
       },
-    }) as any;
-
-    console.log("Avatar video generation complete:", result);
-
-    if (!result.video?.url) {
-      return res.status(500).json({ 
-        error: "Failed to generate video - no URL returned" 
-      });
-    }
-
-    return res.status(200).json({
-      video_url: result.video.url,
-      thumbnail_url: result.thumbnail?.url,
-      duration: result.duration,
-      seed: result.seed
     });
 
-  } catch (error: any) {
-    console.error("Fal.ai Heygen error:", error);
-    
+    console.log("Hedra generation complete:", result);
+
+    return res.status(200).json({
+      success: true,
+      video_url: result.video?.url || result.data?.video?.url,
+      data: result
+    });
+
+  } catch (error: unknown) {
+    console.error("Hedra API error:", error);
     return res.status(500).json({
-      error: error.message || "Failed to generate avatar video"
+      error: error instanceof Error ? error.message : "Failed to generate avatar video"
     });
   }
 }
