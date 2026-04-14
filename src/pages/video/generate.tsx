@@ -6,393 +6,24 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Image as ImageIcon, Video, Grid3x3, Sparkles, Upload, X, Loader2, Download, Maximize2, Wand2, Mic } from "lucide-react";
 
-// Video models organized by company with all variants
-const videoModelGroups = [
-  {
-    company: "Kling",
-    models: [
-      {
-        id: "kling-3.0",
-        name: "Kling 3.0",
-        logo: "/logos/kling.svg",
-        maxImages: 2,
-        maxVideo: 0,
-        maxAudio: 0,
-        aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
-        durations: [5, 10, 15],
-        credits: 20,
-        maxBatch: 1
-      },
-      {
-        id: "kling-omni-3.0",
-        name: "Kling Omni 3.0",
-        logo: "/logos/kling.svg",
-        maxImages: 2,
-        maxVideo: 0,
-        maxAudio: 0,
-        aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
-        durations: [5, 10],
-        credits: 25,
-        maxBatch: 1
-      },
-      {
-        id: "kling-motion-3.0",
-        name: "Kling Motion Control 3.0",
-        logo: "/logos/kling.svg",
-        maxImages: 2,
-        maxVideo: 0,
-        maxAudio: 0,
-        aspectRatios: ["16:9", "9:16", "1:1"],
-        durations: [5, 10],
-        credits: 25,
-        maxBatch: 1
-      },
-      {
-        id: "kling-2.6",
-        name: "Kling 2.6",
-        logo: "/logos/kling.svg",
-        maxImages: 2,
-        maxVideo: 0,
-        maxAudio: 0,
-        aspectRatios: ["16:9", "9:16", "1:1"],
-        durations: [5, 10],
-        credits: 18,
-        maxBatch: 1
-      },
-      {
-        id: "kling-2.5",
-        name: "Kling 2.5",
-        logo: "/logos/kling.svg",
-        maxImages: 2,
-        maxVideo: 0,
-        maxAudio: 0,
-        aspectRatios: ["16:9", "9:16", "1:1"],
-        durations: [5, 10],
-        credits: 16,
-        maxBatch: 1
-      },
-      {
-        id: "kling-2.1",
-        name: "Kling 2.1",
-        logo: "/logos/kling.svg",
-        maxImages: 2,
-        maxVideo: 0,
-        maxAudio: 0,
-        aspectRatios: ["16:9", "9:16", "1:1"],
-        durations: [5],
-        credits: 12,
-        maxBatch: 1
-      }
-    ]
-  },
-  {
-    company: "Sora",
-    models: [
-      {
-        id: "sora-2-pro-max",
-        name: "Sora 2 Pro Max",
-        logo: "/logos/sora.svg",
-        maxImages: 1,
-        maxVideo: 0,
-        maxAudio: 1,
-        aspectRatios: ["16:9", "9:16", "1:1", "21:9", "9:21", "4:3", "3:4"],
-        durations: [5, 10, 15, 20],
-        credits: 35,
-        maxBatch: 1
-      },
-      {
-        id: "sora-2-pro",
-        name: "Sora 2 Pro",
-        logo: "/logos/sora.svg",
-        maxImages: 1,
-        maxVideo: 0,
-        maxAudio: 1,
-        aspectRatios: ["16:9", "9:16", "1:1", "21:9", "9:21", "4:3", "3:4"],
-        durations: [5, 10, 15, 20],
-        credits: 32,
-        maxBatch: 1
-      },
-      {
-        id: "sora-2-max",
-        name: "Sora 2 Max",
-        logo: "/logos/sora.svg",
-        maxImages: 1,
-        maxVideo: 0,
-        maxAudio: 1,
-        aspectRatios: ["16:9", "9:16", "1:1", "21:9", "9:21"],
-        durations: [5, 10, 15, 20],
-        credits: 30,
-        maxBatch: 1
-      },
-      {
-        id: "sora-2-fast",
-        name: "Sora 2 Fast",
-        logo: "/logos/sora.svg",
-        maxImages: 1,
-        maxVideo: 0,
-        maxAudio: 1,
-        aspectRatios: ["16:9", "9:16", "1:1", "21:9", "9:21"],
-        durations: [5, 10, 15],
-        credits: 20,
-        maxBatch: 1
-      },
-      {
-        id: "sora-1-pro",
-        name: "Sora 1 Pro",
-        logo: "/logos/sora.svg",
-        maxImages: 1,
-        maxVideo: 0,
-        maxAudio: 0,
-        aspectRatios: ["16:9", "9:16", "1:1"],
-        durations: [5, 10, 15],
-        credits: 22,
-        maxBatch: 1
-      },
-      {
-        id: "sora-1-turbo",
-        name: "Sora 1 Turbo",
-        logo: "/logos/sora.svg",
-        maxImages: 1,
-        maxVideo: 0,
-        maxAudio: 0,
-        aspectRatios: ["16:9", "9:16", "1:1"],
-        durations: [5, 10],
-        credits: 18,
-        maxBatch: 1
-      }
-    ]
-  },
-  {
-    company: "Veo",
-    models: [
-      {
-        id: "veo-3.1-pro-max",
-        name: "Veo 3.1 Pro Max",
-        logo: "/logos/veo.svg",
-        maxImages: 1,
-        maxVideo: 0,
-        maxAudio: 1,
-        aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4", "21:9", "9:21"],
-        durations: [5, 10, 15, 20],
-        credits: 28,
-        maxBatch: 1
-      },
-      {
-        id: "veo-3.1-pro",
-        name: "Veo 3.1 Pro",
-        logo: "/logos/veo.svg",
-        maxImages: 1,
-        maxVideo: 0,
-        maxAudio: 1,
-        aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
-        durations: [5, 10, 15],
-        credits: 25,
-        maxBatch: 1
-      },
-      {
-        id: "veo-3.1-fast",
-        name: "Veo 3.1 Fast",
-        logo: "/logos/veo.svg",
-        maxImages: 1,
-        maxVideo: 0,
-        maxAudio: 1,
-        aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
-        durations: [5, 10],
-        credits: 20,
-        maxBatch: 1
-      },
-      {
-        id: "veo-3.0-pro",
-        name: "Veo 3.0 Pro",
-        logo: "/logos/veo.svg",
-        maxImages: 1,
-        maxVideo: 0,
-        maxAudio: 1,
-        aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
-        durations: [5, 10, 15],
-        credits: 22,
-        maxBatch: 1
-      },
-      {
-        id: "veo-3.0-fast",
-        name: "Veo 3.0 Fast",
-        logo: "/logos/veo.svg",
-        maxImages: 1,
-        maxVideo: 0,
-        maxAudio: 1,
-        aspectRatios: ["16:9", "9:16", "1:1"],
-        durations: [5, 10],
-        credits: 18,
-        maxBatch: 1
-      }
-    ]
-  },
-  {
-    company: "Runway",
-    models: [
-      {
-        id: "runway-gen3-alpha",
-        name: "Runway Gen-3 Alpha",
-        logo: "/logos/runway.svg",
-        maxImages: 2,
-        maxVideo: 0,
-        maxAudio: 0,
-        aspectRatios: ["16:9", "9:16", "1:1"],
-        durations: [5, 10],
-        credits: 18,
-        maxBatch: 1
-      },
-      {
-        id: "runway-gen3-turbo",
-        name: "Runway Gen-3 Turbo",
-        logo: "/logos/runway.svg",
-        maxImages: 2,
-        maxVideo: 0,
-        maxAudio: 0,
-        aspectRatios: ["16:9", "9:16", "1:1"],
-        durations: [5, 10],
-        credits: 16,
-        maxBatch: 1
-      }
-    ]
-  },
-  {
-    company: "Luma",
-    models: [
-      {
-        id: "luma-1.6",
-        name: "Luma Dream Machine 1.6",
-        logo: "/logos/luma.svg",
-        maxImages: 2,
-        maxVideo: 0,
-        maxAudio: 0,
-        aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
-        durations: [5],
-        credits: 15,
-        maxBatch: 1
-      }
-    ]
-  },
-  {
-    company: "MiniMax",
-    models: [
-      {
-        id: "minimax-02",
-        name: "MiniMax 02",
-        logo: "/logos/minimax.svg",
-        maxImages: 1,
-        maxVideo: 0,
-        maxAudio: 0,
-        aspectRatios: ["16:9", "9:16", "1:1"],
-        durations: [6],
-        credits: 14,
-        maxBatch: 1
-      },
-      {
-        id: "minimax-02-fast",
-        name: "MiniMax 02 Fast",
-        logo: "/logos/minimax.svg",
-        maxImages: 1,
-        maxVideo: 0,
-        maxAudio: 0,
-        aspectRatios: ["16:9", "9:16", "1:1"],
-        durations: [6],
-        credits: 12,
-        maxBatch: 1
-      }
-    ]
-  },
-  {
-    company: "Hunyuan",
-    models: [
-      {
-        id: "hunyuan-1.0",
-        name: "Hunyuan Video",
-        logo: "/logos/hunyuan.svg",
-        maxImages: 1,
-        maxVideo: 0,
-        maxAudio: 0,
-        aspectRatios: ["16:9", "9:16", "1:1"],
-        durations: [5, 8],
-        credits: 16,
-        maxBatch: 1
-      }
-    ]
-  },
-  {
-    company: "Grok",
-    models: [
-      {
-        id: "grok-1.0",
-        name: "Grok Imagine Video",
-        logo: "/logos/grok.svg",
-        maxImages: 1,
-        maxVideo: 0,
-        maxAudio: 0,
-        aspectRatios: ["16:9", "9:16", "1:1"],
-        durations: [5, 10, 15],
-        credits: 22,
-        maxBatch: 1
-      }
-    ]
-  },
-  {
-    company: "Seedance",
-    models: [
-      {
-        id: "seedance-1.5-pro",
-        name: "Seedance 1.5 Pro",
-        logo: "/logos/seedance.svg",
-        maxImages: 1,
-        maxVideo: 0,
-        maxAudio: 0,
-        aspectRatios: ["16:9", "9:16", "1:1"],
-        durations: [5, 10, 12],
-        credits: 20,
-        maxBatch: 1
-      }
-    ]
-  },
-  {
-    company: "LTX",
-    models: [
-      {
-        id: "ltx-2-19b",
-        name: "LTX-2-19B",
-        logo: "/logos/ltx.svg",
-        maxImages: 1,
-        maxVideo: 1,
-        maxAudio: 1,
-        aspectRatios: ["16:9", "9:16", "1:1"],
-        durations: [5, 10],
-        credits: 16,
-        maxBatch: 1
-      }
-    ]
-  },
-  {
-    company: "Wan",
-    models: [
-      {
-        id: "wan-2.2",
-        name: "Wan 2.2",
-        logo: "/logos/wan.svg",
-        maxImages: 2,
-        maxVideo: 0,
-        maxAudio: 0,
-        aspectRatios: ["16:9", "9:16", "1:1"],
-        durations: [5, 10],
-        credits: 16,
-        maxBatch: 1
-      }
-    ]
-  }
-];
-
-// Flatten for easy lookup
-const videoModelsFlat = videoModelGroups.flatMap(group => group.models);
+type VideoModel = {
+  id: string;
+  name: string;
+  logo: string;
+  supportsStartFrame: boolean;
+  supportsEndFrame: boolean;
+  supportsElements: boolean;
+  supportsVideo: boolean;
+  supportsAudio: boolean;
+  maxElements?: number;
+  aspectRatios: string[];
+  durations: number[];
+  credits: number;
+  maxBatch: number;
+};
 
 export default function VideoGeneratePage() {
+  const [mode, setMode] = useState<"image" | "video">("video");
   const [selectedModel, setSelectedModel] = useState("kling-3.0");
   const [aspectRatio, setAspectRatio] = useState("16:9");
   const [duration, setDuration] = useState(5);
@@ -404,15 +35,460 @@ export default function VideoGeneratePage() {
   const [error, setError] = useState<string | null>(null);
   
   // Media uploads
-  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
+  const [startFrame, setStartFrame] = useState<File | null>(null);
+  const [endFrame, setEndFrame] = useState<File | null>(null);
+  const [elementImages, setElementImages] = useState<File[]>([]);
   const [uploadedVideo, setUploadedVideo] = useState<File | null>(null);
   const [uploadedAudio, setUploadedAudio] = useState<File | null>(null);
+  
+  // Kling Omni specific mode
+  const [klingOmniMode, setKlingOmniMode] = useState<"frames" | "elements">("frames");
   
   // UI state
   const [expandedPrompt, setExpandedPrompt] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
 
-  const currentModel = videoModelsFlat.find(m => m.id === selectedModel) || videoModelsFlat[0];
+  // Video models organized by company with correct frame support flags
+  const videoModelGroups = [
+    {
+      company: "Kling",
+      models: [
+        {
+          id: "kling-3.0",
+          name: "Kling 3.0",
+          logo: "/logos/kling.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: true,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: false,
+          aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
+          durations: [5, 10, 15],
+          credits: 20,
+          maxBatch: 1
+        },
+        {
+          id: "kling-omni-3.0",
+          name: "Kling Omni 3.0",
+          logo: "/logos/kling.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: true,
+          supportsElements: true,
+          supportsVideo: false,
+          supportsAudio: false,
+          maxElements: 5,
+          aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
+          durations: [5, 10, 15],
+          credits: 25,
+          maxBatch: 1
+        },
+        {
+          id: "kling-motion-3.0",
+          name: "Kling Motion Control 3.0",
+          logo: "/logos/kling.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: false,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: false,
+          aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
+          durations: [5, 10, 15],
+          credits: 25,
+          maxBatch: 1
+        },
+        {
+          id: "kling-2.6",
+          name: "Kling 2.6",
+          logo: "/logos/kling.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: true,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: false,
+          aspectRatios: ["16:9", "9:16", "1:1"],
+          durations: [5, 10],
+          credits: 18,
+          maxBatch: 1
+        },
+        {
+          id: "kling-2.5",
+          name: "Kling 2.5",
+          logo: "/logos/kling.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: false,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: false,
+          aspectRatios: ["16:9", "9:16", "1:1"],
+          durations: [5, 10],
+          credits: 16,
+          maxBatch: 1
+        },
+        {
+          id: "kling-2.1",
+          name: "Kling 2.1",
+          logo: "/logos/kling.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: false,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: false,
+          aspectRatios: ["16:9", "9:16", "1:1"],
+          durations: [5],
+          credits: 12,
+          maxBatch: 1
+        }
+      ]
+    },
+    {
+      company: "Sora",
+      models: [
+        {
+          id: "sora-2-pro-max",
+          name: "Sora 2 Pro Max",
+          logo: "/logos/sora.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: false,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: true,
+          aspectRatios: ["16:9", "9:16", "1:1", "21:9", "9:21", "4:3", "3:4"],
+          durations: [5, 10, 15, 20],
+          credits: 35,
+          maxBatch: 1
+        },
+        {
+          id: "sora-2-pro",
+          name: "Sora 2 Pro",
+          logo: "/logos/sora.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: false,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: true,
+          aspectRatios: ["16:9", "9:16", "1:1", "21:9", "9:21", "4:3", "3:4"],
+          durations: [5, 10, 15, 20],
+          credits: 32,
+          maxBatch: 1
+        },
+        {
+          id: "sora-2-max",
+          name: "Sora 2 Max",
+          logo: "/logos/sora.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: false,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: true,
+          aspectRatios: ["16:9", "9:16", "1:1", "21:9", "9:21"],
+          durations: [5, 10, 15, 20],
+          credits: 30,
+          maxBatch: 1
+        },
+        {
+          id: "sora-2-fast",
+          name: "Sora 2 Fast",
+          logo: "/logos/sora.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: false,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: true,
+          aspectRatios: ["16:9", "9:16", "1:1", "21:9", "9:21"],
+          durations: [5, 10, 15],
+          credits: 25,
+          maxBatch: 1
+        },
+        {
+          id: "sora-1-turbo",
+          name: "Sora 1 Turbo",
+          logo: "/logos/sora.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: false,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: false,
+          aspectRatios: ["16:9", "9:16", "1:1"],
+          durations: [5, 10],
+          credits: 20,
+          maxBatch: 1
+        },
+        {
+          id: "sora-1-pro",
+          name: "Sora 1 Pro",
+          logo: "/logos/sora.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: false,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: false,
+          aspectRatios: ["16:9", "9:16", "1:1"],
+          durations: [5, 10, 15],
+          credits: 22,
+          maxBatch: 1
+        }
+      ]
+    },
+    {
+      company: "Veo",
+      models: [
+        {
+          id: "veo-3.1-pro-max",
+          name: "Veo 3.1 Pro Max",
+          logo: "/logos/veo.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: false,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: true,
+          aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4", "21:9", "9:21"],
+          durations: [5, 10, 15, 20],
+          credits: 28,
+          maxBatch: 1
+        },
+        {
+          id: "veo-3.1-pro",
+          name: "Veo 3.1 Pro",
+          logo: "/logos/veo.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: false,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: true,
+          aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
+          durations: [5, 10, 15],
+          credits: 25,
+          maxBatch: 1
+        },
+        {
+          id: "veo-3.1-fast",
+          name: "Veo 3.1 Fast",
+          logo: "/logos/veo.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: false,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: true,
+          aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
+          durations: [5, 10],
+          credits: 20,
+          maxBatch: 1
+        },
+        {
+          id: "veo-3.0-pro",
+          name: "Veo 3.0 Pro",
+          logo: "/logos/veo.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: false,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: true,
+          aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
+          durations: [5, 10, 15],
+          credits: 22,
+          maxBatch: 1
+        },
+        {
+          id: "veo-3.0-fast",
+          name: "Veo 3.0 Fast",
+          logo: "/logos/veo.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: false,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: true,
+          aspectRatios: ["16:9", "9:16", "1:1"],
+          durations: [5, 10],
+          credits: 18,
+          maxBatch: 1
+        }
+      ]
+    },
+    {
+      company: "Runway",
+      models: [
+        {
+          id: "runway-gen3-alpha",
+          name: "Runway Gen-3 Alpha",
+          logo: "/logos/runway.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: true,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: false,
+          aspectRatios: ["16:9", "9:16", "1:1"],
+          durations: [5, 10],
+          credits: 18,
+          maxBatch: 1
+        },
+        {
+          id: "runway-gen3-turbo",
+          name: "Runway Gen-3 Turbo",
+          logo: "/logos/runway.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: true,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: false,
+          aspectRatios: ["16:9", "9:16", "1:1"],
+          durations: [5, 10],
+          credits: 16,
+          maxBatch: 1
+        }
+      ]
+    },
+    {
+      company: "Luma",
+      models: [
+        {
+          id: "luma-1.6",
+          name: "Luma Dream Machine 1.6",
+          logo: "/logos/luma.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: true,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: false,
+          aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
+          durations: [5],
+          credits: 15,
+          maxBatch: 1
+        }
+      ]
+    },
+    {
+      company: "MiniMax",
+      models: [
+        {
+          id: "minimax-02",
+          name: "MiniMax 02",
+          logo: "/logos/minimax.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: false,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: false,
+          aspectRatios: ["16:9", "9:16", "1:1"],
+          durations: [6],
+          credits: 14,
+          maxBatch: 1
+        },
+        {
+          id: "minimax-02-fast",
+          name: "MiniMax 02 Fast",
+          logo: "/logos/minimax.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: false,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: false,
+          aspectRatios: ["16:9", "9:16", "1:1"],
+          durations: [6],
+          credits: 12,
+          maxBatch: 1
+        }
+      ]
+    },
+    {
+      company: "Hunyuan",
+      models: [
+        {
+          id: "hunyuan-1.0",
+          name: "Hunyuan Video",
+          logo: "/logos/hunyuan.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: false,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: false,
+          aspectRatios: ["16:9", "9:16", "1:1"],
+          durations: [5, 8],
+          credits: 16,
+          maxBatch: 1
+        }
+      ]
+    },
+    {
+      company: "Grok",
+      models: [
+        {
+          id: "grok-1.0",
+          name: "Grok Imagine Video",
+          logo: "/logos/grok.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: false,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: false,
+          aspectRatios: ["16:9", "9:16", "1:1"],
+          durations: [5, 10, 15],
+          credits: 22,
+          maxBatch: 1
+        }
+      ]
+    },
+    {
+      company: "Seedance",
+      models: [
+        {
+          id: "seedance-1.5-pro",
+          name: "Seedance 1.5 Pro",
+          logo: "/logos/seedance.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: false,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: false,
+          aspectRatios: ["16:9", "9:16", "1:1"],
+          durations: [5, 10, 12],
+          credits: 20,
+          maxBatch: 1
+        }
+      ]
+    },
+    {
+      company: "LTX",
+      models: [
+        {
+          id: "ltx-2-19b",
+          name: "LTX-2-19B",
+          logo: "/logos/ltx.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: false,
+          supportsElements: false,
+          supportsVideo: true,
+          supportsAudio: true,
+          aspectRatios: ["16:9", "9:16", "1:1"],
+          durations: [5, 10],
+          credits: 16,
+          maxBatch: 1
+        }
+      ]
+    },
+    {
+      company: "Wan",
+      models: [
+        {
+          id: "wan-2.2",
+          name: "Wan 2.2",
+          logo: "/logos/wan.svg",
+          supportsStartFrame: true,
+          supportsEndFrame: true,
+          supportsElements: false,
+          supportsVideo: false,
+          supportsAudio: false,
+          aspectRatios: ["16:9", "9:16", "1:1"],
+          durations: [5, 10],
+          credits: 16,
+          maxBatch: 1
+        }
+      ]
+    }
+  ];
+
+  // Flatten for easy lookup
+  const videoModels = videoModelGroups.flatMap(group => group.models);
+  const currentModel = videoModels.find(m => m.id === selectedModel) || videoModels[0];
   const creditCost = currentModel.credits;
 
   // Auto-adjust duration if current is not available in new model
@@ -422,11 +498,32 @@ export default function VideoGeneratePage() {
     }
   }, [selectedModel, currentModel, duration]);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Reset uploads when changing models
+  useEffect(() => {
+    setStartFrame(null);
+    setEndFrame(null);
+    setElementImages([]);
+    setUploadedVideo(null);
+    setUploadedAudio(null);
+    setKlingOmniMode("frames");
+  }, [selectedModel]);
+
+  const handleStartFrameUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setStartFrame(file);
+  };
+
+  const handleEndFrameUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setEndFrame(file);
+  };
+
+  const handleElementUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const remainingSlots = currentModel.maxImages - uploadedImages.length;
-    const newImages = files.slice(0, remainingSlots);
-    setUploadedImages([...uploadedImages, ...newImages]);
+    const maxElements = currentModel.maxElements || 5;
+    const remainingSlots = maxElements - elementImages.length;
+    const newElements = files.slice(0, remainingSlots);
+    setElementImages([...elementImages, ...newElements]);
   };
 
   const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -439,8 +536,8 @@ export default function VideoGeneratePage() {
     if (file) setUploadedAudio(file);
   };
 
-  const removeImage = (index: number) => {
-    setUploadedImages(uploadedImages.filter((_, i) => i !== index));
+  const removeElement = (index: number) => {
+    setElementImages(elementImages.filter((_, i) => i !== index));
   };
 
   const handleEnhancePrompt = async () => {
@@ -482,9 +579,21 @@ export default function VideoGeneratePage() {
       formData.append("aspect_ratio", aspectRatio);
       formData.append("duration", duration.toString());
       
-      uploadedImages.forEach((img, idx) => {
-        formData.append(`image_${idx}`, img);
-      });
+      // Kling Omni mode
+      if (selectedModel === "kling-omni-3.0") {
+        formData.append("mode", klingOmniMode);
+        if (klingOmniMode === "elements") {
+          elementImages.forEach((img, idx) => {
+            formData.append(`element_${idx}`, img);
+          });
+        } else {
+          if (startFrame) formData.append("start_frame", startFrame);
+          if (endFrame) formData.append("end_frame", endFrame);
+        }
+      } else {
+        if (startFrame) formData.append("start_frame", startFrame);
+        if (endFrame) formData.append("end_frame", endFrame);
+      }
       
       if (uploadedVideo) formData.append("video", uploadedVideo);
       if (uploadedAudio) formData.append("audio", uploadedAudio);
@@ -530,7 +639,6 @@ export default function VideoGeneratePage() {
               Image
             </button>
             <button 
-              onClick={() => window.location.href = '/video/generate'}
               className="flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all bg-white/10 text-white shadow-sm"
             >
               <Video className="w-4 h-4" />
@@ -548,11 +656,11 @@ export default function VideoGeneratePage() {
                 <div className="text-center">
                   <Loader2 className="w-12 h-12 animate-spin text-[#c5f04a] mx-auto mb-4" />
                   <p className="text-xl font-light text-gray-400">Generating video...</p>
-                  <p className="text-sm text-gray-600 mt-2">This may take 30-90 seconds</p>
+                  <p className="text-sm text-gray-500 mt-2">This may take 30-90 seconds</p>
                 </div>
               ) : generatedVideo ? (
-                <div className="w-full h-full max-w-4xl flex items-center justify-center">
-                  <div className="relative group rounded-lg overflow-hidden bg-black/20 h-[80%] aspect-video">
+                <div className="w-full h-full max-w-4xl">
+                  <div className="relative group rounded-lg overflow-hidden bg-black/20 h-full">
                     <video 
                       src={generatedVideo} 
                       controls 
@@ -560,7 +668,7 @@ export default function VideoGeneratePage() {
                       loop
                       className="w-full h-full object-contain"
                     />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
                       <Button
                         onClick={() => {
                           const a = document.createElement('a');
@@ -568,7 +676,7 @@ export default function VideoGeneratePage() {
                           a.download = `generated-video-${Date.now()}.mp4`;
                           a.click();
                         }}
-                        className="bg-[#c5f04a] text-black hover:bg-[#b5e03a] pointer-events-auto"
+                        className="bg-[#c5f04a] text-black hover:bg-[#b5e03a]"
                       >
                         <Download className="w-4 h-4 mr-2" />
                         Download
@@ -602,12 +710,7 @@ export default function VideoGeneratePage() {
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <select
                     value={selectedModel}
-                    onChange={(e) => {
-                      setSelectedModel(e.target.value);
-                      setUploadedImages([]);
-                      setUploadedVideo(null);
-                      setUploadedAudio(null);
-                    }}
+                    onChange={(e) => setSelectedModel(e.target.value)}
                     className="model-select flex-1 bg-[#0d0d0d] text-white border border-white/10 rounded-lg px-3 py-2 text-xs focus:border-[#c5f04a]/50 focus:ring-[#c5f04a]/20 outline-none"
                   >
                     {videoModelGroups.map(group => (
@@ -621,6 +724,32 @@ export default function VideoGeneratePage() {
                     ))}
                   </select>
                 </div>
+
+                {/* Kling Omni Mode Switcher */}
+                {selectedModel === "kling-omni-3.0" && (
+                  <div className="flex gap-2 mb-3">
+                    <button
+                      onClick={() => setKlingOmniMode("frames")}
+                      className={`flex-1 px-4 py-2 rounded-lg text-xs font-medium transition-all ${
+                        klingOmniMode === "frames"
+                          ? "bg-[#c5f04a] text-black"
+                          : "bg-black/40 text-white/50 hover:text-white border border-white/10"
+                      }`}
+                    >
+                      Frames Mode
+                    </button>
+                    <button
+                      onClick={() => setKlingOmniMode("elements")}
+                      className={`flex-1 px-4 py-2 rounded-lg text-xs font-medium transition-all ${
+                        klingOmniMode === "elements"
+                          ? "bg-[#c5f04a] text-black"
+                          : "bg-black/40 text-white/50 hover:text-white border border-white/10"
+                      }`}
+                    >
+                      Elements Mode
+                    </button>
+                  </div>
+                )}
 
                 {/* Prompt with Expand Button */}
                 <div className="mb-3 relative">
@@ -657,38 +786,104 @@ export default function VideoGeneratePage() {
                   </div>
                 </div>
 
-                {/* Media Upload Boxes (dynamic based on model) */}
+                {/* Media Upload Boxes (dynamic based on model and mode) */}
                 <div className="mb-3">
                   <div className="flex gap-2 overflow-x-auto pb-2">
-                    {/* Image uploads */}
-                    {currentModel.maxImages > 0 && uploadedImages.map((img, idx) => (
-                      <div key={`img-${idx}`} className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-white/10">
-                        <img src={URL.createObjectURL(img)} alt="" className="w-full h-full object-cover" />
-                        <button
-                          onClick={() => removeImage(idx)}
-                          className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center hover:bg-red-500/70"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ))}
-                    
-                    {currentModel.maxImages > 0 && uploadedImages.length < currentModel.maxImages && (
-                      <label className="flex-shrink-0 w-20 h-20 border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#c5f04a]/50 hover:bg-white/5 transition-all">
-                        <Upload className="w-5 h-5 text-white/40" />
-                        <span className="text-[10px] text-white/40 mt-1">IMAGE</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={handleImageUpload}
-                          className="hidden"
-                        />
-                      </label>
+                    {/* Kling Omni Elements Mode */}
+                    {selectedModel === "kling-omni-3.0" && klingOmniMode === "elements" && (
+                      <>
+                        {elementImages.map((img, idx) => (
+                          <div key={`elem-${idx}`} className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-white/10">
+                            <img src={URL.createObjectURL(img)} alt="" className="w-full h-full object-cover" />
+                            <button
+                              onClick={() => removeElement(idx)}
+                              className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center hover:bg-red-500/70"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                        {elementImages.length < (currentModel.maxElements || 5) && (
+                          <label className="flex-shrink-0 w-20 h-20 border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#c5f04a]/50 hover:bg-white/5 transition-all">
+                            <Upload className="w-5 h-5 text-white/40" />
+                            <span className="text-[10px] text-white/40 mt-1">ELEMENT</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              onChange={handleElementUpload}
+                              className="hidden"
+                            />
+                          </label>
+                        )}
+                      </>
                     )}
 
-                    {/* Video upload */}
-                    {currentModel.maxVideo > 0 && (
+                    {/* Standard Frame Mode (for all models that support frames) */}
+                    {(selectedModel !== "kling-omni-3.0" || klingOmniMode === "frames") && (
+                      <>
+                        {/* Start Frame */}
+                        {currentModel.supportsStartFrame && (
+                          startFrame ? (
+                            <div className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-white/10">
+                              <img src={URL.createObjectURL(startFrame)} alt="" className="w-full h-full object-cover" />
+                              <button
+                                onClick={() => setStartFrame(null)}
+                                className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center hover:bg-red-500/70"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                              <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-[8px] text-white/80 text-center py-0.5">
+                                START
+                              </div>
+                            </div>
+                          ) : (
+                            <label className="flex-shrink-0 w-20 h-20 border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#c5f04a]/50 hover:bg-white/5 transition-all">
+                              <Upload className="w-5 h-5 text-white/40" />
+                              <span className="text-[10px] text-white/40 mt-1">START</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleStartFrameUpload}
+                                className="hidden"
+                              />
+                            </label>
+                          )
+                        )}
+
+                        {/* End Frame (only if model supports it) */}
+                        {currentModel.supportsEndFrame && (
+                          endFrame ? (
+                            <div className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-white/10">
+                              <img src={URL.createObjectURL(endFrame)} alt="" className="w-full h-full object-cover" />
+                              <button
+                                onClick={() => setEndFrame(null)}
+                                className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center hover:bg-red-500/70"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                              <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-[8px] text-white/80 text-center py-0.5">
+                                END
+                              </div>
+                            </div>
+                          ) : (
+                            <label className="flex-shrink-0 w-20 h-20 border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#c5f04a]/50 hover:bg-white/5 transition-all">
+                              <Upload className="w-5 h-5 text-white/40" />
+                              <span className="text-[10px] text-white/40 mt-1">END</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleEndFrameUpload}
+                                className="hidden"
+                              />
+                            </label>
+                          )
+                        )}
+                      </>
+                    )}
+
+                    {/* Video upload (LTX-2 only) */}
+                    {currentModel.supportsVideo && (
                       uploadedVideo ? (
                         <div className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-white/10">
                           <video src={URL.createObjectURL(uploadedVideo)} className="w-full h-full object-cover" />
@@ -713,8 +908,8 @@ export default function VideoGeneratePage() {
                       )
                     )}
 
-                    {/* Audio upload */}
-                    {currentModel.maxAudio > 0 && (
+                    {/* Audio upload (Sora, Veo, LTX-2) */}
+                    {currentModel.supportsAudio && (
                       uploadedAudio ? (
                         <div className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-white/10 bg-black/40 flex flex-col items-center justify-center">
                           <Mic className="w-6 h-6 text-[#c5f04a]" />
@@ -774,7 +969,6 @@ export default function VideoGeneratePage() {
 
                 {/* Bottom Controls */}
                 <div className="flex items-center gap-2">
-                  {/* Generate Button */}
                   <button 
                     onClick={handleGenerate}
                     disabled={isGenerating || !prompt.trim()}
