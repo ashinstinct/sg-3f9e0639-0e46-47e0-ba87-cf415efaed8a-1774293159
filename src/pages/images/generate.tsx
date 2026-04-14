@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 
 export default function ImageGenerate() {
   const [mode, setMode] = useState<"image" | "video">("image");
-  const [selectedModel, setSelectedModel] = useState("flux-pro");
+  const [selectedModel, setSelectedModel] = useState("nano-banana-2");
   const [aspectRatio, setAspectRatio] = useState("landscape_16_9");
   const [numImages, setNumImages] = useState(1);
   
@@ -32,7 +32,7 @@ export default function ImageGenerate() {
           id: "flux-pro-1.1",
           name: "FLUX Pro 1.1",
           logo: "/logos/flux.svg",
-          maxImages: 1,
+          maxImages: 3,
           aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9"],
           credits: 10,
           maxBatch: 4
@@ -41,7 +41,7 @@ export default function ImageGenerate() {
           id: "flux-pro",
           name: "FLUX Pro",
           logo: "/logos/flux.svg",
-          maxImages: 1,
+          maxImages: 3,
           aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9"],
           credits: 8,
           maxBatch: 4
@@ -50,7 +50,7 @@ export default function ImageGenerate() {
           id: "flux-dev",
           name: "FLUX Dev",
           logo: "/logos/flux.svg",
-          maxImages: 1,
+          maxImages: 3,
           aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9"],
           credits: 5,
           maxBatch: 4
@@ -59,7 +59,7 @@ export default function ImageGenerate() {
           id: "flux-schnell",
           name: "FLUX Schnell",
           logo: "/logos/flux.svg",
-          maxImages: 1,
+          maxImages: 3,
           aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9"],
           credits: 3,
           maxBatch: 4
@@ -68,7 +68,7 @@ export default function ImageGenerate() {
           id: "flux-realism",
           name: "FLUX Realism",
           logo: "/logos/flux.svg",
-          maxImages: 1,
+          maxImages: 3,
           aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
           credits: 8,
           maxBatch: 4
@@ -82,7 +82,7 @@ export default function ImageGenerate() {
           id: "nano-banana-2",
           name: "Nano Banana 2",
           logo: "/logos/nano-banana.svg",
-          maxImages: 1,
+          maxImages: 14,
           aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9"],
           credits: 6,
           maxBatch: 4
@@ -91,7 +91,7 @@ export default function ImageGenerate() {
           id: "nano-banana-1.5-pro",
           name: "Nano Banana 1.5 Pro",
           logo: "/logos/nano-banana.svg",
-          maxImages: 1,
+          maxImages: 8,
           aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
           credits: 5,
           maxBatch: 4
@@ -105,7 +105,7 @@ export default function ImageGenerate() {
           id: "sd-3.5-large",
           name: "SD 3.5 Large",
           logo: "/logos/stability.svg",
-          maxImages: 1,
+          maxImages: 3,
           aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9", "9:21"],
           credits: 5,
           maxBatch: 4
@@ -114,7 +114,7 @@ export default function ImageGenerate() {
           id: "sd-xl",
           name: "SDXL",
           logo: "/logos/stability.svg",
-          maxImages: 1,
+          maxImages: 3,
           aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
           credits: 3,
           maxBatch: 4
@@ -142,7 +142,7 @@ export default function ImageGenerate() {
           id: "grok-1.5-image",
           name: "Grok 1.5 Image",
           logo: "/logos/grok.svg",
-          maxImages: 1,
+          maxImages: 2,
           aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
           credits: 10,
           maxBatch: 4
@@ -156,7 +156,7 @@ export default function ImageGenerate() {
           id: "seedream-4.5",
           name: "Seedream 4.5",
           logo: "/logos/seedream.svg",
-          maxImages: 1,
+          maxImages: 3,
           aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
           credits: 7,
           maxBatch: 4
@@ -165,7 +165,7 @@ export default function ImageGenerate() {
           id: "seedream-4.5-turbo",
           name: "Seedream 4.5 Turbo",
           logo: "/logos/seedream.svg",
-          maxImages: 1,
+          maxImages: 3,
           aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
           credits: 5,
           maxBatch: 4
