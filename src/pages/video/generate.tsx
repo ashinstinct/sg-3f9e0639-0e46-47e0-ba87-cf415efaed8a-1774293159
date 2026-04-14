@@ -816,9 +816,17 @@ export default function VideoGenerate() {
                                 <input
                                   type="file"
                                   accept="image/*"
-                                  onChange={handleStartFrameUpload}
+                                  onChange={(e) => handleFrameUpload(e, "start")}
                                   className="hidden"
+                                  id="start-frame-upload"
                                 />
+                                <label htmlFor="start-frame-upload" className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
+                                  {startFrame ? (
+                                    <img src={startFrame} alt="Start frame" className="w-full h-full object-cover rounded-xl" />
+                                  ) : (
+                                    <Upload className="w-6 h-6 text-white/40 group-hover:text-cyan-400 transition-colors" />
+                                  )}
+                                </label>
                               </label>
                             )}
                           </div>
@@ -846,9 +854,17 @@ export default function VideoGenerate() {
                                 <input
                                   type="file"
                                   accept="image/*"
-                                  onChange={handleEndFrameUpload}
+                                  onChange={(e) => handleFrameUpload(e, "end")}
                                   className="hidden"
+                                  id="end-frame-upload"
                                 />
+                                <label htmlFor="end-frame-upload" className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
+                                  {endFrame ? (
+                                    <img src={endFrame} alt="End frame" className="w-full h-full object-cover rounded-xl" />
+                                  ) : (
+                                    <Upload className="w-6 h-6 text-white/40 group-hover:text-cyan-400 transition-colors" />
+                                  )}
+                                </label>
                               </label>
                             )}
                           </div>
@@ -875,14 +891,20 @@ export default function VideoGenerate() {
                                   </>
                                 ) : (
                                   <label className="w-full h-full border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-cyan-500/50 hover:bg-white/5 transition-all">
-                                    <Upload className="w-5 h-5 text-white/40" />
-                                    <span className="text-[10px] text-white/40 mt-1">EL {idx + 1}</span>
                                     <input
                                       type="file"
                                       accept="image/*"
                                       onChange={(e) => handleElementUpload(e, idx)}
                                       className="hidden"
+                                      id={`element-${idx}-upload`}
                                     />
+                                    <label htmlFor={`element-${idx}-upload`} className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
+                                      {element ? (
+                                        <img src={element} alt={`Element ${idx + 1}`} className="w-full h-full object-cover rounded-xl" />
+                                      ) : (
+                                        <Plus className="w-6 h-6 text-white/40 group-hover:text-cyan-400 transition-colors" />
+                                      )}
+                                    </label>
                                   </label>
                                 )}
                               </div>
@@ -1061,10 +1083,8 @@ export default function VideoGenerate() {
                   </button>
 
                   {/* Upload Frames Section */}
-                  <div className="mb-4">
-                    <div className="flex items-center gap-3 justify-center">
-                      <p className="text-xs text-white/40 mb-2">Upload start/end frames</p>
-                    </div>
+                  <div className="flex items-center gap-3 justify-center mb-4">
+                    <p className="text-xs text-white/40 mb-2">Upload start/end frames</p>
                   </div>
                 </div>
               </div>
