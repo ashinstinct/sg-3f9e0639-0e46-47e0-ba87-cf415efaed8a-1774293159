@@ -1082,6 +1082,9 @@ export default function VideoGenerate() {
                       <>
                         <Sparkles className="w-4 h-4" />
                         GENERATE
+                        <span className="text-white/40 mx-1">|</span>
+                        <span className="text-yellow-400">🪙</span>
+                        <span>{currentModel?.credits || 0}</span>
                       </>
                     )}
                   </button>
