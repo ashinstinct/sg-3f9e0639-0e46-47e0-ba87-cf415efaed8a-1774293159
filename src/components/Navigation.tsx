@@ -287,28 +287,41 @@ export function Navigation() {
                   <Briefcase className="w-5 h-5" />
                   <span>Library</span>
                 </Link>
-                <Link
-                  href="/images"
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                    router.pathname.startsWith("/images")
-                      ? "bg-cyan-500/20 text-cyan-400"
-                      : "text-white/60 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  <ImageIcon className="w-4 h-4" />
-                  <span>Images</span>
-                </Link>
-                <Link
-                  href="/avatar"
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                    router.pathname === "/avatar"
-                      ? "bg-cyan-500/20 text-cyan-400"
-                      : "text-white/60 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  <User className="w-4 h-4" />
-                  <span>Avatar</span>
-                </Link>
+                <div className="flex items-center gap-6">
+                  <Link
+                    href="/images"
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                      router.pathname.startsWith("/images")
+                        ? "bg-cyan-500/20 text-cyan-400"
+                        : "text-white/60 hover:text-white hover:bg-white/5"
+                    }`}
+                  >
+                    <ImageIcon className="w-4 h-4" />
+                    <span>Images</span>
+                  </Link>
+                  <Link
+                    href="/video"
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                      router.pathname.startsWith("/video")
+                        ? "bg-cyan-500/20 text-cyan-400"
+                        : "text-white/60 hover:text-white hover:bg-white/5"
+                    }`}
+                  >
+                    <Video className="w-4 h-4" />
+                    <span>Video</span>
+                  </Link>
+                  <Link
+                    href="/avatar"
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                      router.pathname === "/avatar"
+                        ? "bg-cyan-500/20 text-cyan-400"
+                        : "text-white/60 hover:text-white hover:bg-white/5"
+                    }`}
+                  >
+                    <UserCircle className="w-4 h-4" />
+                    <span>Avatar</span>
+                  </Link>
+                </div>
                 <Link
                   href="/dashboard"
                   onClick={() => setSidebarOpen(false)}
