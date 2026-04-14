@@ -691,7 +691,7 @@ export default function VideoGenerate() {
               {isGenerating ? (
                 <div className="text-center">
                   <Loader2 className="w-12 h-12 animate-spin text-cyan-500 mx-auto mb-4" />
-                  <p className="text-xl font-light text-gray-400">Generating video...</p>
+                  <p className="text-xl font-light text-gray-400 mb-2">Generating video...</p>
                   <p className="text-sm text-gray-600 mt-2">This may take 30-60 seconds</p>
                 </div>
               ) : generatedVideo ? (
@@ -893,89 +893,170 @@ export default function VideoGenerate() {
                 {/* Settings Buttons (Square with Rounded Corners) */}
                 <div className="flex gap-2 overflow-x-auto pb-2 mb-3 scrollbar-hide">
                   {/* Aspect Ratio */}
-                  {currentModel?.aspectRatios?.map(ratio => (
+                  {/* Aspect Ratio Dropdown */}
+                  <div className="relative mb-3">
                     <button
-                      key={ratio}
-                      onClick={() => setAspectRatio(ratio)}
-                      className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                        aspectRatio === ratio
-                          ? "bg-white/10 text-white border border-white/20"
-                          : "bg-black/20 text-white/50 border border-white/5 hover:bg-white/5"
-                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowRatioDropdown(!showRatioDropdown);
+                        setShowDurationDropdown(false);
+                        setShowQualityDropdown(false);
+                      }}
+                      className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1c] border border-white/10 rounded-lg text-white text-sm hover:border-cyan-500/50 transition-all"
                     >
-                      {ratio}
+                      <Monitor className="w-4 h-4" />
+                      {aspectRatio}
+                      <svg className="w-3 h-3 ml-auto" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
                     </button>
-                  ))}
-                </div>
 
-                {/* Quality Buttons */}
-                <div className="flex gap-2 overflow-x-auto pb-2 mb-3 scrollbar-hide">
-                  {currentModel?.qualities?.map(q => (
-                    <button
-                      key={q}
-                      onClick={() => setQuality(q)}
-                      className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                        quality === q
-                          ? "bg-white/10 text-white border border-white/20"
-                          : "bg-black/20 text-white/50 border border-white/5 hover:bg-white/5"
-                      }`}
-                    >
-                      {q}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Duration Buttons */}
-                <div className="flex flex-wrap items-center justify-center gap-2 mb-3">
-                  {currentModel?.durations?.map(dur => (
-                    <button
-                      key={dur}
-                      onClick={() => setDuration(dur)}
-                      className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                        duration === dur
-                          ? "bg-white/10 text-white border border-white/20"
-                          : "bg-black/20 text-white/50 border border-white/5 hover:bg-white/5"
-                      }`}
-                    >
-                      {dur}s
-                    </button>
-                  ))}
-
-                  {/* Audio Toggle - Only for models that support it */}
-                  {currentModel?.supportsAudioToggle && (
-                    <button
-                      onClick={() => setAudioEnabled(!audioEnabled)}
-                      className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                        audioEnabled
-                          ? "bg-white text-black border border-white/20"
-                          : "bg-black/20 text-white/50 border border-white/5 hover:bg-white/5"
-                      }`}
-                    >
-                      🔊 {audioEnabled ? "On" : "Off"}
-                    </button>
-                  )}
-                </div>
-
-                {/* Bottom Controls */}
-                <div className="flex items-center gap-2">
-                  {/* Generate Button */}
-                  <button 
-                    onClick={handleGenerate}
-                    disabled={isGenerating || !prompt.trim()}
-                    className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 disabled:from-cyan-500/50 disabled:to-purple-500/50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] text-white font-bold text-sm h-[48px] rounded-xl transition-all shadow-[0_0_20px_rgba(6,182,212,0.15)]"
-                  >
-                    {isGenerating ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        GENERATING...
-                      </>
-                    ) : (
-                      <>
-                        GENERATE <Sparkles className="w-4 h-4" /> 
-                        <span className="opacity-70 font-medium tracking-wide">🪙 {creditCost}</span>
-                      </>
+                    {/* Aspect Ratio Dropdown Menu */}
+                    {showRatioDropdown && (
+                      <div className="absolute top-full mt-2 left-0 right-0 bg-[#0d0d0d] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 max-h-[300px] overflow-y-auto">
+                        {currentModel?.aspectRatios?.map(ratio => (
+                          <button
+                            key={ratio}
+                            onClick={() => {
+                              setAspectRatio(ratio);
+                              setShowRatioDropdown(false);
+                            }}
+                            className={`w-full px-4 py-3 text-left text-sm transition-all flex items-center justify-between ${
+                              aspectRatio === ratio
+                                ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white"
+                                : "text-white/70 hover:bg-white/5"
+                            }`}
+                          >
+                            {ratio}
+                            {aspectRatio === ratio && <Check className="w-4 h-4 text-cyan-400" />}
+                          </button>
+                        ))}
+                      </div>
                     )}
-                  </button>
+                  </div>
+
+                  {/* Quality Dropdown */}
+                  <div className="relative mb-3">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowQualityDropdown(!showQualityDropdown);
+                        setShowRatioDropdown(false);
+                        setShowDurationDropdown(false);
+                      }}
+                      className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1c] border border-white/10 rounded-lg text-white text-sm hover:border-cyan-500/50 transition-all"
+                    >
+                      <Gauge className="w-4 h-4" />
+                      {quality}
+                      <svg className="w-3 h-3 ml-auto" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+
+                    {/* Quality Dropdown Menu */}
+                    {showQualityDropdown && (
+                      <div className="absolute top-full mt-2 left-0 right-0 bg-[#0d0d0d] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50">
+                        {["360p", "480p", "720p", "1080p"].map(q => (
+                          <button
+                            key={q}
+                            onClick={() => {
+                              setQuality(q);
+                              setShowQualityDropdown(false);
+                            }}
+                            className={`w-full px-4 py-3 text-left text-sm transition-all flex items-center justify-between ${
+                              quality === q
+                                ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white"
+                                : "text-white/70 hover:bg-white/5"
+                            }`}
+                          >
+                            {q}
+                            {quality === q && <Check className="w-4 h-4 text-cyan-400" />}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Duration Dropdown and Audio Toggle Row */}
+                  <div className="flex items-center gap-3 mb-3">
+                    {/* Duration Dropdown */}
+                    <div className="relative flex-1">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowDurationDropdown(!showDurationDropdown);
+                          setShowRatioDropdown(false);
+                          setShowQualityDropdown(false);
+                        }}
+                        className="w-full flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1c] border border-white/10 rounded-lg text-white text-sm hover:border-cyan-500/50 transition-all"
+                      >
+                        <Clock className="w-4 h-4" />
+                        {duration}s
+                        <svg className="w-3 h-3 ml-auto" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </button>
+
+                      {/* Duration Dropdown Menu */}
+                      {showDurationDropdown && (
+                        <div className="absolute top-full mt-2 left-0 right-0 bg-[#0d0d0d] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 max-h-[300px] overflow-y-auto">
+                          {currentModel?.durations?.map(dur => (
+                            <button
+                              key={dur}
+                              onClick={() => {
+                                setDuration(dur);
+                                setShowDurationDropdown(false);
+                              }}
+                              className={`w-full px-4 py-3 text-left text-sm transition-all flex items-center justify-between ${
+                                duration === dur
+                                  ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white"
+                                  : "text-white/70 hover:bg-white/5"
+                              }`}
+                            >
+                              {dur}s
+                              {duration === dur && <Check className="w-4 h-4 text-cyan-400" />}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Audio Toggle */}
+                    {currentModel?.supportsAudioToggle && (
+                      <button
+                        onClick={() => setAudioEnabled(!audioEnabled)}
+                        className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                          audioEnabled
+                            ? "bg-white text-black"
+                            : "bg-[#1a1a1c] border border-white/10 text-white hover:border-cyan-500/50"
+                        }`}
+                      >
+                        🔊 {audioEnabled ? "On" : "Off"}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Bottom Controls */}
+                  <div className="flex items-center gap-2">
+                    {/* Generate Button */}
+                    <button 
+                      onClick={handleGenerate}
+                      disabled={isGenerating || !prompt.trim()}
+                      className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 disabled:from-cyan-500/50 disabled:to-purple-500/50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] text-white font-bold text-sm h-[48px] rounded-xl transition-all shadow-[0_0_20px_rgba(6,182,212,0.15)]"
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          GENERATING...
+                        </>
+                      ) : (
+                        <>
+                          GENERATE <Sparkles className="w-4 h-4" /> 
+                          <span className="opacity-70 font-medium tracking-wide">🪙 {creditCost}</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
