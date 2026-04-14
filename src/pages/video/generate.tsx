@@ -1,6 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { SEO } from "@/components/SEO";
-import { ImageIcon, Video, Grid3x3, Clock, Monitor, Gauge, Plus, Upload, X, Check } from "lucide-react";
+import { ImageIcon, Video, Grid3x3, Sparkles, Upload, X, Loader2, Wand2, Maximize2, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function VideoGenerate() {
   const [selectedModel, setSelectedModel] = useState("kling-3.0");
@@ -26,12 +29,11 @@ export default function VideoGenerate() {
   // Kling Omni specific mode
   const [klingOmniMode, setKlingOmniMode] = useState<"frames" | "elements">("frames");
   
-  // Dropdown states
-  const [showRatioDropdown, setShowRatioDropdown] = useState(false);
-  const [showDurationDropdown, setShowDurationDropdown] = useState(false);
-  const [showQualityDropdown, setShowQualityDropdown] = useState(false);
+  // UI state
+  const [expandedPrompt, setExpandedPrompt] = useState(false);
+  const [isEnhancing, setIsEnhancing] = useState(false);
 
-  // Video models organized by company with all variants
+  // Video models with correct configurations
   const videoModelGroups = [
     {
       company: "Kling",
@@ -49,6 +51,7 @@ export default function VideoGenerate() {
           durationRange: [3, 15],
           aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
           durations: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+          qualities: ["360p", "480p", "720p", "1080p"],
           credits: 20,
           maxBatch: 1
         },
@@ -60,10 +63,11 @@ export default function VideoGenerate() {
           supportsEndFrame: true,
           supportsElements: true,
           supportsVideo: false,
-          supportsAudio: false,
+          supportsAudioToggle: false,
           maxElements: 5,
           aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
           durations: [5, 10, 15],
+          qualities: ["360p", "480p", "720p", "1080p"],
           credits: 25,
           maxBatch: 1
         },
@@ -75,9 +79,10 @@ export default function VideoGenerate() {
           supportsEndFrame: false,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: false,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
           durations: [5, 10, 15],
+          qualities: ["360p", "480p", "720p", "1080p"],
           credits: 25,
           maxBatch: 1
         },
@@ -92,6 +97,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: true,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10],
+          qualities: ["360p", "480p", "720p", "1080p"],
           credits: 18,
           maxBatch: 1
         },
@@ -103,9 +109,10 @@ export default function VideoGenerate() {
           supportsEndFrame: false,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: false,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10],
+          qualities: ["360p", "480p", "720p"],
           credits: 16,
           maxBatch: 1
         },
@@ -117,9 +124,10 @@ export default function VideoGenerate() {
           supportsEndFrame: false,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: false,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5],
+          qualities: ["360p", "480p", "720p"],
           credits: 12,
           maxBatch: 1
         }
@@ -139,6 +147,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "21:9", "9:21", "4:3", "3:4"],
           durations: [5, 10, 15, 20],
+          qualities: ["480p", "720p", "1080p"],
           credits: 35,
           maxBatch: 1
         },
@@ -153,6 +162,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "21:9", "9:21", "4:3", "3:4"],
           durations: [5, 10, 15, 20],
+          qualities: ["480p", "720p", "1080p"],
           credits: 32,
           maxBatch: 1
         },
@@ -167,6 +177,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "21:9", "9:21"],
           durations: [5, 10, 15, 20],
+          qualities: ["480p", "720p", "1080p"],
           credits: 30,
           maxBatch: 1
         },
@@ -181,6 +192,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "21:9", "9:21"],
           durations: [5, 10, 15],
+          qualities: ["480p", "720p", "1080p"],
           credits: 25,
           maxBatch: 1
         },
@@ -195,6 +207,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10],
+          qualities: ["480p", "720p"],
           credits: 20,
           maxBatch: 1
         },
@@ -209,6 +222,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10, 15],
+          qualities: ["480p", "720p", "1080p"],
           credits: 22,
           maxBatch: 1
         }
@@ -228,6 +242,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4", "21:9", "9:21"],
           durations: [5, 10, 15, 20],
+          qualities: ["480p", "720p", "1080p"],
           credits: 28,
           maxBatch: 1
         },
@@ -242,6 +257,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
           durations: [5, 10, 15],
+          qualities: ["480p", "720p", "1080p"],
           credits: 25,
           maxBatch: 1
         },
@@ -256,6 +272,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
           durations: [5, 10],
+          qualities: ["480p", "720p"],
           credits: 20,
           maxBatch: 1
         },
@@ -270,6 +287,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
           durations: [5, 10, 15],
+          qualities: ["480p", "720p", "1080p"],
           credits: 22,
           maxBatch: 1
         },
@@ -284,6 +302,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10],
+          qualities: ["480p", "720p"],
           credits: 18,
           maxBatch: 1
         }
@@ -300,9 +319,10 @@ export default function VideoGenerate() {
           supportsEndFrame: true,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: false,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10],
+          qualities: ["480p", "720p"],
           credits: 18,
           maxBatch: 1
         },
@@ -314,9 +334,10 @@ export default function VideoGenerate() {
           supportsEndFrame: true,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: false,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10],
+          qualities: ["480p", "720p"],
           credits: 16,
           maxBatch: 1
         }
@@ -333,9 +354,10 @@ export default function VideoGenerate() {
           supportsEndFrame: true,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: false,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
           durations: [5],
+          qualities: ["480p", "720p"],
           credits: 15,
           maxBatch: 1
         }
@@ -352,9 +374,10 @@ export default function VideoGenerate() {
           supportsEndFrame: false,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: false,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [6],
+          qualities: ["480p", "720p"],
           credits: 14,
           maxBatch: 1
         },
@@ -366,9 +389,10 @@ export default function VideoGenerate() {
           supportsEndFrame: false,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: false,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [6],
+          qualities: ["480p", "720p"],
           credits: 12,
           maxBatch: 1
         }
@@ -385,9 +409,10 @@ export default function VideoGenerate() {
           supportsEndFrame: false,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: false,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 8],
+          qualities: ["480p", "720p"],
           credits: 16,
           maxBatch: 1
         }
@@ -404,9 +429,10 @@ export default function VideoGenerate() {
           supportsEndFrame: false,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: false,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10, 15],
+          qualities: ["480p", "720p", "1080p"],
           credits: 22,
           maxBatch: 1
         }
@@ -426,6 +452,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: true,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10, 12],
+          qualities: ["480p", "720p"],
           credits: 20,
           maxBatch: 1
         }
@@ -445,6 +472,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: true,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10],
+          qualities: ["480p", "720p"],
           credits: 16,
           maxBatch: 1
         }
@@ -461,9 +489,10 @@ export default function VideoGenerate() {
           supportsEndFrame: true,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: false,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10],
+          qualities: ["480p", "720p"],
           credits: 16,
           maxBatch: 1
         }
@@ -471,12 +500,56 @@ export default function VideoGenerate() {
     }
   ];
 
-  // Flatten for easy lookup
   const videoModels = videoModelGroups.flatMap(group => group.models);
   const currentModel = videoModels.find(m => m.id === selectedModel);
+  const creditCost = currentModel?.credits || 0;
 
-  // Quality options
-  const qualityOptions = ["360p", "480p", "720p", "1080p"];
+  const handleStartFrameUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setStartFrame(file);
+  };
+
+  const handleEndFrameUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setEndFrame(file);
+  };
+
+  const handleElementUpload = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const newElements = [...elementImages];
+      newElements[idx] = file;
+      setElementImages(newElements);
+    }
+  };
+
+  const removeElement = (idx: number) => {
+    const newElements = [...elementImages];
+    newElements.splice(idx, 1);
+    setElementImages(newElements);
+  };
+
+  const handleEnhancePrompt = async () => {
+    if (!prompt.trim()) return;
+    
+    try {
+      setIsEnhancing(true);
+      const response = await fetch("/api/enhance-prompt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: prompt.trim() })
+      });
+
+      const data = await response.json();
+      if (data.enhancedPrompt) {
+        setPrompt(data.enhancedPrompt);
+      }
+    } catch (err) {
+      console.error("Failed to enhance prompt:", err);
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -484,47 +557,15 @@ export default function VideoGenerate() {
       return;
     }
 
-    setIsGenerating(true);
-    setError(null);
-
     try {
-      const formData = new FormData();
-      formData.append("model", selectedModel);
-      formData.append("prompt", prompt);
-      formData.append("aspectRatio", aspectRatio);
-      formData.append("duration", duration.toString());
+      setIsGenerating(true);
+      setError(null);
+      setGeneratedVideo(null);
+
+      // TODO: Implement video generation API call
       
-      if (startFrame) {
-        formData.append("startFrame", startFrame);
-      }
-      
-      if (endFrame && currentModel?.supportsEndFrame) {
-        formData.append("endFrame", endFrame);
-      }
-
-      if (selectedModel === "kling-omni-3.0" && klingOmniMode === "elements") {
-        elementImages.forEach((img, index) => {
-          formData.append(`element${index}`, img);
-        });
-      }
-
-      if (uploadedVideo && currentModel?.supportsVideo) {
-        formData.append("video", uploadedVideo);
-      }
-
-      const response = await fetch("/api/fal/video-generate", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Generation failed");
-      }
-
-      setGeneratedVideo(data.video.url);
     } catch (err: any) {
+      console.error("Generation error:", err);
       setError(err.message || "Failed to generate video");
     } finally {
       setIsGenerating(false);
@@ -533,14 +574,12 @@ export default function VideoGenerate() {
 
   return (
     <>
-      <SEO
-        title="Video Generation | Back2Life.Studio"
-        description="Generate AI videos with Kling, Sora, Veo, and more top models"
+      <SEO 
+        title="AI Video Generator - Back2Life.Studio"
+        description="Generate stunning videos with AI using Kling, Sora, Veo, and more"
       />
-      <div className="min-h-screen bg-black text-white relative overflow-hidden">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-950/20 via-purple-950/10 to-cyan-950/20 pointer-events-none" />
-        
+      
+      <div className="min-h-screen bg-background flex">
         {/* Top Floating Toggle */}
         <div className="absolute top-20 left-1/2 -translate-x-1/2 z-10 flex items-center bg-[#1a1a1c] p-1.5 rounded-full border border-white/5 shadow-xl">
           <button 
@@ -560,513 +599,327 @@ export default function VideoGenerate() {
             <Grid3x3 className="w-4 h-4" />
           </button>
         </div>
-        
-        <div className="relative z-10 container mx-auto px-4 pt-32 pb-8 max-w-7xl">
-          {/* Top: Model Selector & Mode Tabs */}
-          <div className="flex items-center justify-between mb-8">
-            <select
-              value={selectedModel}
-              onChange={(e) => {
-                setSelectedModel(e.target.value);
-                setStartFrame(null);
-                setEndFrame(null);
-                setElementImages([]);
-                setUploadedVideo(null);
-              }}
-              className="model-select w-full bg-[#0d0d0d] text-white border border-white/10 rounded-lg px-3 py-2.5 text-xs focus:border-cyan-500/50 focus:ring-cyan-500/20 outline-none mb-4"
-            >
-              {videoModelGroups.map(group => (
-                <optgroup key={group.company} label={group.company} className="optgroup-label">
-                  {group.models.map(model => (
-                    <option key={model.id} value={model.id}>
-                      {model.name} - 🪙{model.credits}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
 
-            {/* Mode Tabs - Kling Omni & Motion Control */}
-            {selectedModel === "kling-omni-3.0" && (
-              <div className="flex items-center gap-2 bg-[#1a1a1c] p-1.5 rounded-full border border-white/5">
-                <button
-                  onClick={() => setKlingOmniMode("elements")}
-                  className={`flex-1 px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
-                    klingOmniMode === "elements"
-                      ? "bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-lg"
-                      : "text-white/50 hover:text-white/80"
-                  }`}
-                >
-                  Elements
-                </button>
-                <button
-                  onClick={() => setKlingOmniMode("frames")}
-                  className={`flex-1 px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
-                    klingOmniMode === "frames"
-                      ? "bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-lg"
-                      : "text-white/50 hover:text-white/80"
-                  }`}
-                >
-                  Frames
-                </button>
-              </div>
-            )}
-
-            {selectedModel === "kling-motion-3.0" && (
-              <div className="flex items-center gap-2 bg-[#1a1a1c] p-1.5 rounded-full border border-white/5">
-                <button className="flex-1 px-6 py-2.5 rounded-full text-sm font-medium bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-lg">
-                  Motion Control
-                </button>
-              </div>
-            )}
+        {/* Main Content - EXACT COPY of Image Page Structure */}
+        <div className="flex-1 flex flex-col h-screen overflow-hidden">
+          {/* Canvas Area - Empty state or generated video */}
+          <div className="flex-1 bg-[#0a0a0a] relative mt-16">
+            <div className="absolute inset-0 flex items-center justify-center p-4 overflow-auto">
+              {isGenerating ? (
+                <div className="text-center">
+                  <Loader2 className="w-12 h-12 animate-spin text-cyan-500 mx-auto mb-4" />
+                  <p className="text-xl font-light text-gray-400">Generating video...</p>
+                  <p className="text-sm text-gray-600 mt-2">This may take 30-60 seconds</p>
+                </div>
+              ) : generatedVideo ? (
+                <video 
+                  src={generatedVideo} 
+                  controls 
+                  className="max-w-full max-h-full rounded-lg shadow-2xl"
+                />
+              ) : error ? (
+                <div className="text-center">
+                  <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+                    <span className="text-3xl">⚠️</span>
+                  </div>
+                  <p className="text-xl font-light text-red-400 mb-2">Generation Failed</p>
+                  <p className="text-sm text-gray-500">{error}</p>
+                </div>
+              ) : (
+                <div className="text-center text-gray-500">
+                  <p className="text-2xl font-light mb-2">No content yet</p>
+                  <p className="text-sm">Use the prompt builder below to create your first video</p>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Left: Upload Boxes */}
-            <div className="space-y-6">
-              {/* START Frame */}
-              {currentModel?.supportsStartFrame && (selectedModel !== "kling-omni-3.0" || klingOmniMode === "frames") && (
-                <div className="relative w-28">
-                  <label className="block text-xs text-white/60 mb-1.5 text-center">START</label>
-                  <div className="aspect-square bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group overflow-hidden">
-                    {startFrame ? (
-                      <div className="relative w-full h-full">
-                        <img
-                          src={URL.createObjectURL(startFrame)}
-                          alt="Start frame"
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          onClick={() => setStartFrame(null)}
-                          className="absolute top-2 right-2 p-1.5 bg-black/80 rounded-full hover:bg-red-500/80 transition-all"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ) : (
-                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer">
-                        <Plus className="w-8 h-8 text-white/40 group-hover:text-cyan-500 transition-colors" />
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) setStartFrame(file);
-                          }}
-                        />
-                      </label>
-                    )}
+          {/* Bottom Prompt Builder Panel - EXACT COPY */}
+          <div className="bg-[#0a0a0a] border-t border-white/5 p-3 md:p-4">
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-[#161618] rounded-2xl p-3 md:p-4 border border-white/5">
+                
+                {/* Model Selector */}
+                <div className="mb-3">
+                  <select
+                    value={selectedModel}
+                    onChange={(e) => {
+                      setSelectedModel(e.target.value);
+                      setStartFrame(null);
+                      setEndFrame(null);
+                      setElementImages([]);
+                    }}
+                    className="model-select w-full bg-[#0d0d0d] text-white border border-white/10 rounded-lg px-3 py-2 text-xs focus:border-cyan-500/50 focus:ring-cyan-500/20 outline-none"
+                  >
+                    {videoModelGroups.map(group => (
+                      <optgroup key={group.company} label={group.company}>
+                        {group.models.map(model => (
+                          <option key={model.id} value={model.id}>
+                            {model.name} - 🪙{model.credits}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Prompt with Expand Button */}
+                <div className="mb-3 relative">
+                  <Textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="Describe the video you want to create..."
+                    className="w-full bg-black/40 border-white/10 text-white placeholder:text-gray-600 min-h-[70px] resize-none focus:border-cyan-500/50 focus:ring-cyan-500/20 pr-20"
+                  />
+                  <div className="absolute right-2 top-2 flex gap-1">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={handleEnhancePrompt}
+                      disabled={isEnhancing || !prompt.trim()}
+                      className="h-8 w-8 p-0 text-cyan-500 hover:text-cyan-400 hover:bg-white/5"
+                      title="Enhance prompt with AI"
+                    >
+                      {isEnhancing ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Wand2 className="w-4 h-4" />
+                      )}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setExpandedPrompt(true)}
+                      className="h-8 w-8 p-0 text-white/50 hover:text-white hover:bg-white/5"
+                      title="Expand prompt window"
+                    >
+                      <Maximize2 className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
-              )}
 
-              {/* END Frame */}
-              {currentModel?.supportsEndFrame && (selectedModel !== "kling-omni-3.0" || klingOmniMode === "frames") && (
-                <div className="flex-1 max-w-[140px]">
-                  <label className="block text-xs text-white/60 mb-1 text-center">END</label>
-                  <div className="aspect-square bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
-                    {endFrame ? (
-                      <div className="relative w-full h-full">
-                        <img
-                          src={URL.createObjectURL(endFrame)}
-                          alt="End frame"
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          onClick={() => setEndFrame(null)}
-                          className="absolute top-2 right-2 p-1.5 bg-black/80 rounded-full hover:bg-red-500/80 transition-all"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ) : (
-                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer">
-                        <Plus className="w-8 h-8 text-white/40 group-hover:text-cyan-500 transition-colors" />
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) setEndFrame(file);
-                          }}
-                        />
-                      </label>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Elements Mode */}
-              {selectedModel === "kling-omni-3.0" && klingOmniMode === "elements" && (
-                [...Array(5)].map((_, idx) => {
-                  const element = elementImages[idx];
-                  return (
-                    <div key={idx} className="flex-1 max-w-[140px]">
-                      <label className="block text-xs text-white/60 mb-1 text-center">EL {idx + 1}</label>
-                      <div className="aspect-square bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
-                        {element ? (
-                          <div className="relative w-full h-full">
-                            <img
-                              src={URL.createObjectURL(element)}
-                              alt={`Element ${idx + 1}`}
-                              className="w-full h-full object-cover"
-                            />
+                {/* Frame Upload Boxes - Horizontal Scroll Row */}
+                <div className="mb-3">
+                  <div className="flex gap-2 overflow-x-auto pb-2">
+                    {/* START Frame */}
+                    {currentModel?.supportsStartFrame && (selectedModel !== "kling-omni-3.0" || klingOmniMode === "frames") && (
+                      <div className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-white/10">
+                        {startFrame ? (
+                          <>
+                            <img src={URL.createObjectURL(startFrame)} alt="START" className="w-full h-full object-cover" />
                             <button
-                              onClick={() => {
-                                const newElements = [...elementImages];
-                                newElements.splice(idx, 1);
-                                setElementImages(newElements);
-                              }}
-                              className="absolute top-1 right-1 p-1 bg-black/80 rounded-full hover:bg-red-500/80 transition-all"
+                              onClick={() => setStartFrame(null)}
+                              className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center hover:bg-red-500/70"
                             >
                               <X className="w-3 h-3" />
                             </button>
-                          </div>
+                            <span className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-[10px] text-center py-0.5">START</span>
+                          </>
                         ) : (
-                          <label className="w-full h-full flex items-center justify-center cursor-pointer">
-                            <Plus className="w-5 h-5 text-white/40 group-hover:text-cyan-500 transition-colors" />
+                          <label className="w-full h-full border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-cyan-500/50 hover:bg-white/5 transition-all">
+                            <Upload className="w-5 h-5 text-white/40" />
+                            <span className="text-[10px] text-white/40 mt-1">START</span>
                             <input
                               type="file"
                               accept="image/*"
+                              onChange={handleStartFrameUpload}
                               className="hidden"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  const newElements = [...elementImages];
-                                  newElements[idx] = file;
-                                  setElementImages(newElements);
-                                }
-                              }}
                             />
                           </label>
                         )}
                       </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
+                    )}
 
-            {/* Main Content - Single Column */}
-            <div className="space-y-3">
-              {/* Upload Boxes Row */}
-              <div className="flex gap-2.5 justify-center flex-wrap">
-                {/* Aspect Ratio Button */}
-                <div className="relative">
-                  <button
-                    onClick={() => {
-                      setShowRatioDropdown(!showRatioDropdown);
-                      setShowDurationDropdown(false);
-                      setShowQualityDropdown(false);
-                    }}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1c] border border-white/10 rounded-full hover:border-cyan-500/50 transition-all"
-                  >
-                    <Monitor className="w-4 h-4 text-white/60" />
-                    <span className="text-sm font-medium">{aspectRatio}</span>
-                  </button>
+                    {/* END Frame */}
+                    {currentModel?.supportsEndFrame && (selectedModel !== "kling-omni-3.0" || klingOmniMode === "frames") && (
+                      <div className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-white/10">
+                        {endFrame ? (
+                          <>
+                            <img src={URL.createObjectURL(endFrame)} alt="END" className="w-full h-full object-cover" />
+                            <button
+                              onClick={() => setEndFrame(null)}
+                              className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center hover:bg-red-500/70"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                            <span className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-[10px] text-center py-0.5">END</span>
+                          </>
+                        ) : (
+                          <label className="w-full h-full border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-cyan-500/50 hover:bg-white/5 transition-all">
+                            <Upload className="w-5 h-5 text-white/40" />
+                            <span className="text-[10px] text-white/40 mt-1">END</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleEndFrameUpload}
+                              className="hidden"
+                            />
+                          </label>
+                        )}
+                      </div>
+                    )}
 
-                  {showRatioDropdown && (
-                    <div className="absolute top-full mt-2 left-0 bg-[#1a1a1c] border border-white/10 rounded-2xl p-2 shadow-2xl z-20 min-w-[160px]">
-                      {currentModel?.aspectRatios.map(ratio => (
-                        <button
-                          key={ratio}
-                          onClick={() => {
-                            setAspectRatio(ratio);
-                            setShowRatioDropdown(false);
-                          }}
-                          className={`w-full text-left px-4 py-2 rounded-xl text-sm transition-all ${
-                            aspectRatio === ratio
-                              ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white"
-                              : "text-white/60 hover:text-white hover:bg-white/5"
-                          } flex items-center justify-between`}
-                        >
-                          {ratio}
-                          {aspectRatio === ratio && <Check className="w-4 h-4 text-cyan-500" />}
-                        </button>
-                      ))}
-                    </div>
+                    {/* Elements Mode */}
+                    {selectedModel === "kling-omni-3.0" && klingOmniMode === "elements" && (
+                      [...Array(5)].map((_, idx) => {
+                        const element = elementImages[idx];
+                        return (
+                          <div key={idx} className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-white/10">
+                            {element ? (
+                              <>
+                                <img src={URL.createObjectURL(element)} alt={`Element ${idx + 1}`} className="w-full h-full object-cover" />
+                                <button
+                                  onClick={() => removeElement(idx)}
+                                  className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center hover:bg-red-500/70"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                                <span className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-[10px] text-center py-0.5">EL {idx + 1}</span>
+                              </>
+                            ) : (
+                              <label className="w-full h-full border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-cyan-500/50 hover:bg-white/5 transition-all">
+                                <Upload className="w-5 h-5 text-white/40" />
+                                <span className="text-[10px] text-white/40 mt-1">EL {idx + 1}</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => handleElementUpload(e, idx)}
+                                  className="hidden"
+                                />
+                              </label>
+                            )}
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                  {currentModel?.supportsStartFrame && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {startFrame || endFrame || elementImages.length > 0 ? "Images uploaded" : "Upload start/end frames"}
+                    </p>
                   )}
                 </div>
 
-                {/* Quality Button */}
-                <div className="relative">
-                  <button
-                    onClick={() => {
-                      setShowQualityDropdown(!showQualityDropdown);
-                      setShowRatioDropdown(false);
-                      setShowDurationDropdown(false);
-                    }}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1c] border border-white/10 rounded-full hover:border-cyan-500/50 transition-all"
-                  >
-                    <Gauge className="w-4 h-4 text-white/60" />
-                    <span className="text-sm font-medium">{quality}</span>
-                  </button>
+                {/* Settings Buttons (Square with Rounded Corners) */}
+                <div className="flex gap-2 overflow-x-auto pb-2 mb-3 scrollbar-hide">
+                  {/* Aspect Ratio */}
+                  {currentModel?.aspectRatios.map(ratio => (
+                    <button
+                      key={ratio}
+                      onClick={() => setAspectRatio(ratio)}
+                      className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        aspectRatio === ratio
+                          ? "bg-white/10 text-white border border-white/20"
+                          : "bg-black/20 text-white/50 border border-white/5 hover:bg-white/5"
+                      }`}
+                    >
+                      {ratio}
+                    </button>
+                  ))}
+                </div>
 
-                  {showQualityDropdown && (
-                    <div className="absolute top-full mt-2 left-0 bg-[#1a1a1c] border border-white/10 rounded-2xl p-2 shadow-2xl z-20 min-w-[140px]">
-                      {qualityOptions.map(q => (
-                        <button
-                          key={q}
-                          onClick={() => {
-                            setQuality(q);
-                            setShowQualityDropdown(false);
-                          }}
-                          className={`w-full text-left px-4 py-2 rounded-xl text-sm transition-all ${
-                            quality === q
-                              ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white"
-                              : "text-white/60 hover:text-white hover:bg-white/5"
-                          } flex items-center justify-between`}
-                        >
-                          {q}
-                          {quality === q && <Check className="w-4 h-4 text-cyan-500" />}
-                        </button>
-                      ))}
-                    </div>
+                {/* Quality Buttons */}
+                <div className="flex gap-2 overflow-x-auto pb-2 mb-3 scrollbar-hide">
+                  {currentModel?.qualities?.map(q => (
+                    <button
+                      key={q}
+                      onClick={() => setQuality(q)}
+                      className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        quality === q
+                          ? "bg-white/10 text-white border border-white/20"
+                          : "bg-black/20 text-white/50 border border-white/5 hover:bg-white/5"
+                      }`}
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Duration Buttons */}
+                <div className="flex gap-2 overflow-x-auto pb-2 mb-3 scrollbar-hide">
+                  {currentModel?.durations.map(d => (
+                    <button
+                      key={d}
+                      onClick={() => setDuration(d)}
+                      className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        duration === d
+                          ? "bg-white/10 text-white border border-white/20"
+                          : "bg-black/20 text-white/50 border border-white/5 hover:bg-white/5"
+                      }`}
+                    >
+                      {d}s
+                    </button>
+                  ))}
+
+                  {/* Audio Toggle - Only for models that support it */}
+                  {currentModel?.supportsAudioToggle && (
+                    <button
+                      onClick={() => setAudioEnabled(!audioEnabled)}
+                      className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        audioEnabled
+                          ? "bg-white text-black border border-white/20"
+                          : "bg-black/20 text-white/50 border border-white/5 hover:bg-white/5"
+                      }`}
+                    >
+                      🔊 {audioEnabled ? "On" : "Off"}
+                    </button>
                   )}
                 </div>
 
-                {/* Duration Button */}
-                <div className="relative">
-                  <button
-                    onClick={() => {
-                      setShowDurationDropdown(!showDurationDropdown);
-                      setShowRatioDropdown(false);
-                      setShowQualityDropdown(false);
-                    }}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1c] border border-white/10 rounded-full hover:border-cyan-500/50 transition-all"
+                {/* Bottom Controls */}
+                <div className="flex items-center gap-2">
+                  {/* Generate Button */}
+                  <button 
+                    onClick={handleGenerate}
+                    disabled={isGenerating || !prompt.trim()}
+                    className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 disabled:from-cyan-500/50 disabled:to-purple-500/50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] text-white font-bold text-sm h-[48px] rounded-xl transition-all shadow-[0_0_20px_rgba(6,182,212,0.15)]"
                   >
-                    <Clock className="w-4 h-4 text-white/60" />
-                    <span className="text-sm font-medium">{duration}s</span>
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        GENERATING...
+                      </>
+                    ) : (
+                      <>
+                        GENERATE <Sparkles className="w-4 h-4" /> 
+                        <span className="opacity-70 font-medium tracking-wide">🪙 {creditCost}</span>
+                      </>
+                    )}
                   </button>
-
-                  {showDurationDropdown && (
-                    <div className="absolute top-full mt-2 left-0 bg-[#1a1a1c] border border-white/10 rounded-2xl p-2 shadow-2xl z-20 min-w-[140px]">
-                      {currentModel?.durations.map(d => (
-                        <button
-                          key={d}
-                          onClick={() => {
-                            setDuration(d);
-                            setShowDurationDropdown(false);
-                          }}
-                          className={`w-full text-left px-4 py-2 rounded-xl text-sm transition-all ${
-                            duration === d
-                              ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white"
-                              : "text-white/60 hover:text-white hover:bg-white/5"
-                          } flex items-center justify-between`}
-                        >
-                          {d}s
-                          {duration === d && <Check className="w-4 h-4 text-cyan-500" />}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
-
-                {/* Audio Toggle */}
-                {currentModel?.supportsAudioToggle && (
-                  <button
-                    onClick={() => setAudioEnabled(!audioEnabled)}
-                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium transition-all ${
-                      audioEnabled
-                        ? "bg-white text-black"
-                        : "bg-[#1a1a1c] border border-white/10 text-white hover:border-cyan-500/50"
-                    }`}
-                  >
-                    🔊 {audioEnabled ? "On" : "Off"}
-                  </button>
-                )}
               </div>
-
-              {/* Video Upload for LTX-2 */}
-              {currentModel?.supportsVideo && (
-                <div className="flex justify-center">
-                  <button className="flex items-center gap-2 px-6 py-3 bg-[#1a1a1c] border border-white/10 rounded-full text-sm text-white/80 hover:border-cyan-500/50 transition-all">
-                    <Upload className="w-4 h-4" />
-                    {uploadedVideo ? uploadedVideo.name : "Upload Video"}
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* RIGHT COLUMN: Prompt & Generate */}
-          <div className="space-y-6">
-            {/* Prompt Input */}
-            <div className="space-y-2 mt-4">
-              <label className="block text-sm text-white/80">Prompt</label>
-              <textarea
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Describe your video..."
-                className="w-full h-28 bg-[#1a1a1c] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/40 focus:border-cyan-500/50 focus:ring-cyan-500/20 outline-none resize-none"
-              />
-            </div>
-
-            {/* Control Buttons Row */}
-            <div className="flex flex-wrap items-center justify-center gap-2.5">
-              {/* Control Buttons - Ratio, Quality, Duration, Audio */}
-              <div className="flex items-center justify-center gap-2 mb-3">
-                {/* Aspect Ratio Button */}
-                <div className="relative">
-                  <button
-                    onClick={() => {
-                      setShowRatioDropdown(!showRatioDropdown);
-                      setShowDurationDropdown(false);
-                      setShowQualityDropdown(false);
-                    }}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1c] border border-white/10 rounded-full hover:border-cyan-500/50 transition-all"
-                  >
-                    <Monitor className="w-4 h-4 text-white/60" />
-                    <span className="text-sm font-medium">{aspectRatio}</span>
-                  </button>
-
-                  {showRatioDropdown && (
-                    <div className="absolute top-full mt-2 left-0 bg-[#1a1a1c] border border-white/10 rounded-2xl p-2 shadow-2xl z-20 min-w-[160px]">
-                      {currentModel?.aspectRatios.map(ratio => (
-                        <button
-                          key={ratio}
-                          onClick={() => {
-                            setAspectRatio(ratio);
-                            setShowRatioDropdown(false);
-                          }}
-                          className={`w-full text-left px-4 py-2 rounded-xl text-sm transition-all ${
-                            aspectRatio === ratio
-                              ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white"
-                              : "text-white/60 hover:text-white hover:bg-white/5"
-                          } flex items-center justify-between`}
-                        >
-                          {ratio}
-                          {aspectRatio === ratio && <Check className="w-4 h-4 text-cyan-500" />}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Quality Button */}
-                <div className="relative">
-                  <button
-                    onClick={() => {
-                      setShowQualityDropdown(!showQualityDropdown);
-                      setShowRatioDropdown(false);
-                      setShowDurationDropdown(false);
-                    }}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1c] border border-white/10 rounded-full hover:border-cyan-500/50 transition-all"
-                  >
-                    <Gauge className="w-4 h-4 text-white/60" />
-                    <span className="text-sm font-medium">{quality}</span>
-                  </button>
-
-                  {showQualityDropdown && (
-                    <div className="absolute top-full mt-2 left-0 bg-[#1a1a1c] border border-white/10 rounded-2xl p-2 shadow-2xl z-20 min-w-[140px]">
-                      {qualityOptions.map(q => (
-                        <button
-                          key={q}
-                          onClick={() => {
-                            setQuality(q);
-                            setShowQualityDropdown(false);
-                          }}
-                          className={`w-full text-left px-4 py-2 rounded-xl text-sm transition-all ${
-                            quality === q
-                              ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white"
-                              : "text-white/60 hover:text-white hover:bg-white/5"
-                          } flex items-center justify-between`}
-                        >
-                          {q}
-                          {quality === q && <Check className="w-4 h-4 text-cyan-500" />}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Duration Button */}
-                <div className="relative">
-                  <button
-                    onClick={() => {
-                      setShowDurationDropdown(!showDurationDropdown);
-                      setShowRatioDropdown(false);
-                      setShowQualityDropdown(false);
-                    }}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-[#1a1a1c] border border-white/10 rounded-full hover:border-cyan-500/50 transition-all"
-                  >
-                    <Clock className="w-4 h-4 text-white/60" />
-                    <span className="text-sm font-medium">{duration}s</span>
-                  </button>
-
-                  {showDurationDropdown && (
-                    <div className="absolute top-full mt-2 left-0 bg-[#1a1a1c] border border-white/10 rounded-2xl p-2 shadow-2xl z-20 min-w-[140px]">
-                      {currentModel?.durations.map(d => (
-                        <button
-                          key={d}
-                          onClick={() => {
-                            setDuration(d);
-                            setShowDurationDropdown(false);
-                          }}
-                          className={`w-full text-left px-4 py-2 rounded-xl text-sm transition-all ${
-                            duration === d
-                              ? "bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-white"
-                              : "text-white/60 hover:text-white hover:bg-white/5"
-                          } flex items-center justify-between`}
-                        >
-                          {d}s
-                          {duration === d && <Check className="w-4 h-4 text-cyan-500" />}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Audio Toggle */}
-                {currentModel?.supportsAudioToggle && (
-                  <button
-                    onClick={() => setAudioEnabled(!audioEnabled)}
-                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium transition-all ${
-                      audioEnabled
-                        ? "bg-white text-black"
-                        : "bg-[#1a1a1c] border border-white/10 text-white hover:border-cyan-500/50"
-                    }`}
-                  >
-                    🔊 {audioEnabled ? "On" : "Off"}
-                  </button>
-                )}
-              </div>
-
-              {/* Video Upload for LTX-2 */}
-              {currentModel?.supportsVideo && (
-                <div className="flex justify-center">
-                  <button className="flex items-center gap-2 px-6 py-3 bg-[#1a1a1c] border border-white/10 rounded-full text-sm text-white/80 hover:border-cyan-500/50 transition-all">
-                    <Upload className="w-4 h-4" />
-                    {uploadedVideo ? uploadedVideo.name : "Upload Video"}
-                  </button>
-                </div>
-              )}
-
-              {/* Generate Button */}
-              <button
-                onClick={handleGenerate}
-                disabled={!prompt || isGenerating}
-                className="w-full py-3 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
-              >
-                {isGenerating ? "Generating..." : `GENERATE 🪙 ${currentModel?.credits || 0}`}
-              </button>
-
-              {/* Generated Video */}
-              {generatedVideo && (
-                <div className="bg-[#0d0d0d]/40 border border-white/5 rounded-3xl p-6">
-                  <video
-                    src={generatedVideo}
-                    controls
-                    className="w-full rounded-2xl"
-                  />
-                </div>
-              )}
             </div>
           </div>
         </div>
+
+        {/* Expanded Prompt Modal */}
+        <Dialog open={expandedPrompt} onOpenChange={setExpandedPrompt}>
+          <DialogContent className="max-w-3xl bg-[#161618] border-white/10">
+            <DialogHeader>
+              <DialogTitle className="text-white flex items-center justify-between">
+                <span>Prompt Editor</span>
+                <Button
+                  size="sm"
+                  onClick={handleEnhancePrompt}
+                  disabled={isEnhancing || !prompt.trim()}
+                  className="bg-cyan-500 text-white hover:bg-cyan-600"
+                >
+                  {isEnhancing ? (
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Enhancing...</>
+                  ) : (
+                    <><Wand2 className="w-4 h-4 mr-2" />Enhance with AI</>
+                  )}
+                </Button>
+              </DialogTitle>
+            </DialogHeader>
+            <Textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Describe your video in detail..."
+              className="min-h-[300px] bg-black/40 border-white/10 text-white placeholder:text-gray-600 resize-none focus:border-cyan-500/50 focus:ring-cyan-500/20"
+            />
+          </DialogContent>
+        </Dialog>
 
         <style jsx global>{`
           .scrollbar-hide::-webkit-scrollbar {
@@ -1077,7 +930,7 @@ export default function VideoGenerate() {
             scrollbar-width: none;
           }
           
-          /* Dark mode select dropdown styling - COMPACT */
+          /* Dark mode select dropdown styling - COMPACT 40% */
           .model-select {
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
@@ -1103,12 +956,11 @@ export default function VideoGenerate() {
             padding: 8px 12px !important;
           }
           
-          /* Mobile-specific: Compact dropdown */
+          /* Mobile-specific: Limit dropdown to 40vh */
           @media (max-width: 768px) {
             .model-select {
-              font-size: 11px;
+              font-size: 12px;
               max-height: 40vh;
-              overflow-y: auto;
             }
           }
         `}</style>
