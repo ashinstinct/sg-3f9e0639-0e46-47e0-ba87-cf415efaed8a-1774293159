@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SEO } from "@/components/SEO";
-import { ImageIcon, Video, Grid3x3, Sparkles, Upload, X, Loader2, Wand2, Maximize2, Check } from "lucide-react";
+import { ImageIcon, Video, Grid3x3, Clock, Monitor, Gauge, Plus, Upload, X, Check } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -552,20 +553,73 @@ export default function VideoGenerate() {
   };
 
   const handleGenerate = async () => {
-    if (!prompt.trim()) {
-      setError("Please enter a prompt");
-      return;
-    }
+    if (!prompt.trim()) return;
 
     try {
       setIsGenerating(true);
       setError(null);
-      setGeneratedVideo(null);
 
-      // TODO: Implement video generation API call
-      
+      // Upload images to get URLs
+      let startFrameUrl = null;
+      let endFrameUrl = null;
+      const elementUrls: string[] = [];
+
+      if (startFrame) {
+        startFrameUrl = await uploadToFal(startFrame);
+      }
+
+      if (endFrame) {
+        endFrameUrl = await uploadToFal(endFrame);
+      }
+
+      if (elementImages.length > 0) {
+        for (const img of elementImages) {
+          const url = await uploadToFal(img);
+          elementUrls.push(url);
+        }
+      }
+
+      // Call API
+      const response = await fetch("/api/fal/video-generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: selectedModel,
+          prompt,
+          aspectRatio,
+          duration,
+          startFrameUrl,
+          endFrameUrl,
+          elementUrls,
+          klingMode: selectedModel === "kling-omni-3.0" ? klingOmniMode : undefined,
+          audioEnabled: currentModel?.supportsAudioToggle ? audioEnabled : undefined,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Generation failed");
+
+      setGeneratedVideo(data.video.url);
+
+      // Save to database
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          await supabase.from("video_generations").insert({
+            user_id: session.user.id,
+            video_url: data.video.url,
+            prompt,
+            model: selectedModel,
+            aspect_ratio: aspectRatio,
+            duration,
+            credits_used: currentModel?.credits || 0,
+          });
+        }
+      } catch (dbError) {
+        console.error("Error saving to gallery:", dbError);
+        // Don't fail the whole generation if saving fails
+      }
     } catch (err: any) {
-      console.error("Generation error:", err);
       setError(err.message || "Failed to generate video");
     } finally {
       setIsGenerating(false);

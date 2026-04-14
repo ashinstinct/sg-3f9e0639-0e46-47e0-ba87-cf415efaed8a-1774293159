@@ -276,6 +276,19 @@ export function Navigation() {
                   <span>Library</span>
                 </Link>
                 <Link
+                  href="/gallery"
+                  onClick={() => setSidebarOpen(false)}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium",
+                    router.pathname === "/gallery"
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-muted text-foreground"
+                  )}
+                >
+                  <ImageIcon className="w-5 h-5" />
+                  <span>Gallery</span>
+                </Link>
+                <Link
                   href="/dashboard"
                   onClick={() => setSidebarOpen(false)}
                   className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium hover:bg-muted text-foreground"
