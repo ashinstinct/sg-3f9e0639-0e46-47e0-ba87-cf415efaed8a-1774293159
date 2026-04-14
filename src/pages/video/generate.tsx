@@ -70,7 +70,7 @@ export default function VideoGenerate() {
           durationRange: [3, 15],
           aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
           durations: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-          qualities: ["360p", "480p", "720p", "1080p"],
+          qualities: ["720p", "1080p"],
           credits: 20,
           maxBatch: 1
         },
@@ -86,7 +86,7 @@ export default function VideoGenerate() {
           maxElements: 5,
           aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
           durations: [5, 10, 15],
-          qualities: ["360p", "480p", "720p", "1080p"],
+          qualities: ["720p", "1080p"],
           credits: 25,
           maxBatch: 1
         },
@@ -101,7 +101,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
           durations: [5, 10, 15],
-          qualities: ["360p", "480p", "720p", "1080p"],
+          qualities: ["720p", "1080p"],
           credits: 25,
           maxBatch: 1
         },
@@ -116,7 +116,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: true,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10],
-          qualities: ["360p", "480p", "720p", "1080p"],
+          qualities: ["720p", "1080p"],
           credits: 18,
           maxBatch: 1
         },
@@ -131,7 +131,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10],
-          qualities: ["360p", "480p", "720p"],
+          qualities: ["720p"],
           credits: 16,
           maxBatch: 1
         },
@@ -146,7 +146,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5],
-          qualities: ["360p", "480p", "720p"],
+          qualities: ["720p"],
           credits: 12,
           maxBatch: 1
         }
@@ -166,7 +166,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "21:9", "9:21", "4:3", "3:4"],
           durations: [5, 10, 15, 20],
-          qualities: ["480p", "720p", "1080p"],
+          qualities: ["720p", "1080p"],
           credits: 35,
           maxBatch: 1
         },
@@ -181,7 +181,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "21:9", "9:21", "4:3", "3:4"],
           durations: [5, 10, 15, 20],
-          qualities: ["480p", "720p", "1080p"],
+          qualities: ["720p", "1080p"],
           credits: 32,
           maxBatch: 1
         },
@@ -196,7 +196,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "21:9", "9:21"],
           durations: [5, 10, 15, 20],
-          qualities: ["480p", "720p", "1080p"],
+          qualities: ["720p", "1080p"],
           credits: 30,
           maxBatch: 1
         },
@@ -211,7 +211,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "21:9", "9:21"],
           durations: [5, 10, 15],
-          qualities: ["480p", "720p", "1080p"],
+          qualities: ["720p", "1080p"],
           credits: 25,
           maxBatch: 1
         },
@@ -226,7 +226,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10],
-          qualities: ["480p", "720p"],
+          qualities: ["720p", "1080p"],
           credits: 20,
           maxBatch: 1
         },
@@ -241,7 +241,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10, 15],
-          qualities: ["480p", "720p", "1080p"],
+          qualities: ["720p", "1080p"],
           credits: 22,
           maxBatch: 1
         }
@@ -261,7 +261,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "21:9", "9:21", "4:3", "3:4"],
           durations: [5, 10, 15, 20],
-          qualities: ["480p", "720p", "1080p"],
+          qualities: ["720p", "1080p"],
           credits: 28,
           maxBatch: 1
         },
@@ -276,7 +276,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
           durations: [5, 10, 15],
-          qualities: ["480p", "720p", "1080p"],
+          qualities: ["720p", "1080p"],
           credits: 25,
           maxBatch: 1
         },
@@ -291,7 +291,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
           durations: [5, 10],
-          qualities: ["480p", "720p"],
+          qualities: ["720p", "1080p"],
           credits: 20,
           maxBatch: 1
         },
@@ -306,7 +306,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
           durations: [5, 10, 15],
-          qualities: ["480p", "720p", "1080p"],
+          qualities: ["720p", "1080p"],
           credits: 22,
           maxBatch: 1
         },
@@ -321,7 +321,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10],
-          qualities: ["480p", "720p"],
+          qualities: ["720p", "1080p"],
           credits: 18,
           maxBatch: 1
         }
@@ -341,7 +341,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10],
-          qualities: ["480p", "720p"],
+          qualities: ["720p", "1080p"],
           credits: 18,
           maxBatch: 1
         },
@@ -356,7 +356,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10],
-          qualities: ["480p", "720p"],
+          qualities: ["720p", "1080p"],
           credits: 16,
           maxBatch: 1
         }
@@ -376,7 +376,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
           durations: [5],
-          qualities: ["480p", "720p"],
+          qualities: ["720p", "1080p"],
           credits: 15,
           maxBatch: 1
         }
@@ -396,7 +396,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [6],
-          qualities: ["480p", "720p"],
+          qualities: ["720p", "1080p"],
           credits: 14,
           maxBatch: 1
         },
@@ -411,7 +411,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [6],
-          qualities: ["480p", "720p"],
+          qualities: ["720p", "1080p"],
           credits: 12,
           maxBatch: 1
         }
@@ -431,7 +431,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 8],
-          qualities: ["480p", "720p"],
+          qualities: ["720p", "1080p"],
           credits: 16,
           maxBatch: 1
         }
@@ -451,7 +451,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10, 15],
-          qualities: ["480p", "720p", "1080p"],
+          qualities: ["720p", "1080p", "1080p"],
           credits: 22,
           maxBatch: 1
         }
@@ -471,7 +471,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: true,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10, 12],
-          qualities: ["480p", "720p"],
+          qualities: ["720p", "1080p"],
           credits: 20,
           maxBatch: 1
         }
@@ -491,7 +491,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: true,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10],
-          qualities: ["480p", "720p"],
+          qualities: ["720p", "1080p"],
           credits: 16,
           maxBatch: 1
         }
@@ -511,7 +511,7 @@ export default function VideoGenerate() {
           supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10],
-          qualities: ["480p", "720p"],
+          qualities: ["720p", "1080p"],
           credits: 16,
           maxBatch: 1
         }
