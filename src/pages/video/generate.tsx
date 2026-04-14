@@ -806,7 +806,7 @@ export default function VideoGenerate() {
                       {/* START Frame */}
                       {currentModel?.supportsStartFrame && (selectedModel !== "kling-omni-3.0" || klingOmniMode === "frames") && (
                         <div className="w-20 h-20">
-                          <div className="w-full h-full bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group relative">
+                          <div className="w-full h-full bg-[#1a1a1c] border border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group relative">
                             {startFrame ? (
                               <>
                                 <img src={URL.createObjectURL(startFrame)} alt="Start frame" className="w-full h-full object-cover rounded-xl" />
@@ -839,7 +839,7 @@ export default function VideoGenerate() {
                       {/* END Frame */}
                       {currentModel?.supportsEndFrame && (selectedModel !== "kling-omni-3.0" || klingOmniMode === "frames") && (
                         <div className="w-20 h-20">
-                          <div className="w-full h-full bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group relative">
+                          <div className="w-full h-full bg-[#1a1a1c] border border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group relative">
                             {endFrame ? (
                               <>
                                 <img src={URL.createObjectURL(endFrame)} alt="End frame" className="w-full h-full object-cover rounded-xl" />
@@ -881,7 +881,7 @@ export default function VideoGenerate() {
                           const element = elementImages[idx];
                           return (
                             <div key={idx} className="w-20 h-20">
-                              <div className="w-full h-full bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
+                              <div className="w-full h-full bg-[#1a1a1c] border border-dashed border-white/10 rounded-xl flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
                                 {element ? (
                                   <>
                                     <img src={URL.createObjectURL(element)} alt={`Element ${idx + 1}`} className="w-full h-full object-cover" />
@@ -1094,6 +1094,11 @@ export default function VideoGenerate() {
                     <p className="text-xs text-white/40 mb-2">Upload start/end frames</p>
                   </div>
                 </div>
+              </div>
+              
+              {/* Cost Display */}
+              <div className="mt-2 text-right">
+                <span className="text-sm text-white/60">Cost: <span className="text-yellow-500">🪙 {currentModel?.credits || 0} credits</span></span>
               </div>
             </div>
           </div>
