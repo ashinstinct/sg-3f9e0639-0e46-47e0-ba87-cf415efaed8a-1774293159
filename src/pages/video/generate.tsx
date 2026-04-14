@@ -442,7 +442,7 @@ export default function VideoGenerate() {
           supportsEndFrame: false,
           supportsElements: false,
           supportsVideo: true,
-          supportsAudio: true,
+          supportsAudioToggle: true,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10],
           credits: 16,
@@ -871,6 +871,20 @@ export default function VideoGenerate() {
                     </div>
                   )}
                 </div>
+
+                {/* Audio Toggle Button - Only for models that support it */}
+                {currentModel?.supportsAudioToggle && (
+                  <button
+                    onClick={() => setAudioEnabled(!audioEnabled)}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all ${
+                      audioEnabled
+                        ? "bg-white text-black"
+                        : "bg-[#1a1a1c] border border-white/10 text-white hover:border-cyan-500/50"
+                    }`}
+                  >
+                    🔊 {audioEnabled ? "On" : "Off"}
+                  </button>
+                )}
               </div>
 
               {/* Video Upload for LTX-2 */}
