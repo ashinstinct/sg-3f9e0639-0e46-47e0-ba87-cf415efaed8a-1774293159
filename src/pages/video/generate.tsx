@@ -19,7 +19,9 @@ export default function VideoGenerate() {
   const [endFrame, setEndFrame] = useState<File | null>(null);
   const [elementImages, setElementImages] = useState<File[]>([]);
   const [uploadedVideo, setUploadedVideo] = useState<File | null>(null);
-  const [uploadedAudio, setUploadedAudio] = useState<File | null>(null);
+  
+  // Audio toggle (for models that generate audio)
+  const [audioEnabled, setAudioEnabled] = useState(true);
   
   // Kling Omni specific mode
   const [klingOmniMode, setKlingOmniMode] = useState<"frames" | "elements">("frames");
@@ -42,9 +44,11 @@ export default function VideoGenerate() {
           supportsEndFrame: true,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: false,
+          supportsAudioToggle: true,
+          useDurationSlider: true,
+          durationRange: [3, 15],
           aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
-          durations: [5, 10, 15],
+          durations: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
           credits: 20,
           maxBatch: 1
         },
@@ -85,7 +89,7 @@ export default function VideoGenerate() {
           supportsEndFrame: true,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: false,
+          supportsAudioToggle: true,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10],
           credits: 18,
@@ -132,7 +136,7 @@ export default function VideoGenerate() {
           supportsEndFrame: false,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: true,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "21:9", "9:21", "4:3", "3:4"],
           durations: [5, 10, 15, 20],
           credits: 35,
@@ -146,7 +150,7 @@ export default function VideoGenerate() {
           supportsEndFrame: false,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: true,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "21:9", "9:21", "4:3", "3:4"],
           durations: [5, 10, 15, 20],
           credits: 32,
@@ -160,7 +164,7 @@ export default function VideoGenerate() {
           supportsEndFrame: false,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: true,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "21:9", "9:21"],
           durations: [5, 10, 15, 20],
           credits: 30,
@@ -174,7 +178,7 @@ export default function VideoGenerate() {
           supportsEndFrame: false,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: true,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "21:9", "9:21"],
           durations: [5, 10, 15],
           credits: 25,
@@ -188,7 +192,7 @@ export default function VideoGenerate() {
           supportsEndFrame: false,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: false,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10],
           credits: 20,
@@ -202,7 +206,7 @@ export default function VideoGenerate() {
           supportsEndFrame: false,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: false,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10, 15],
           credits: 22,
@@ -221,7 +225,7 @@ export default function VideoGenerate() {
           supportsEndFrame: false,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: true,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4", "21:9", "9:21"],
           durations: [5, 10, 15, 20],
           credits: 28,
@@ -235,7 +239,7 @@ export default function VideoGenerate() {
           supportsEndFrame: false,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: true,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
           durations: [5, 10, 15],
           credits: 25,
@@ -249,7 +253,7 @@ export default function VideoGenerate() {
           supportsEndFrame: false,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: true,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
           durations: [5, 10],
           credits: 20,
@@ -263,7 +267,7 @@ export default function VideoGenerate() {
           supportsEndFrame: false,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: true,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
           durations: [5, 10, 15],
           credits: 22,
@@ -277,7 +281,7 @@ export default function VideoGenerate() {
           supportsEndFrame: false,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: true,
+          supportsAudioToggle: false,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10],
           credits: 18,
@@ -419,7 +423,7 @@ export default function VideoGenerate() {
           supportsEndFrame: false,
           supportsElements: false,
           supportsVideo: false,
-          supportsAudio: false,
+          supportsAudioToggle: true,
           aspectRatios: ["16:9", "9:16", "1:1"],
           durations: [5, 10, 12],
           credits: 20,
@@ -508,10 +512,6 @@ export default function VideoGenerate() {
         formData.append("video", uploadedVideo);
       }
 
-      if (uploadedAudio && currentModel?.supportsAudio) {
-        formData.append("audio", uploadedAudio);
-      }
-
       const response = await fetch("/api/fal/video-generate", {
         method: "POST",
         body: formData,
@@ -572,7 +572,6 @@ export default function VideoGenerate() {
                 setEndFrame(null);
                 setElementImages([]);
                 setUploadedVideo(null);
-                setUploadedAudio(null);
                 const newModel = videoModels.find(m => m.id === e.target.value);
                 if (newModel) {
                   setAspectRatio(newModel.aspectRatios[0]);
@@ -876,72 +875,11 @@ export default function VideoGenerate() {
 
               {/* Video Upload for LTX-2 */}
               {currentModel?.supportsVideo && (
-                <div className="space-y-2">
-                  <label className="block text-sm text-white/80">Upload Video (LTX-2 Multimodal)</label>
-                  <div className="bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl p-6 flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
-                    {uploadedVideo ? (
-                      <div className="relative w-full h-full">
-                        <img
-                          src={URL.createObjectURL(uploadedVideo)}
-                          alt="Uploaded Video"
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          onClick={() => setUploadedVideo(null)}
-                          className="absolute top-2 right-2 p-1.5 bg-black/80 rounded-full hover:bg-red-500/80 transition-all"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ) : (
-                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer">
-                        <Plus className="w-8 h-8 text-white/40 group-hover:text-cyan-500 transition-colors" />
-                        <input
-                          type="file"
-                          accept="video/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) setUploadedVideo(file);
-                          }}
-                        />
-                      </label>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Audio Upload */}
-              {currentModel?.supportsAudio && (
-                <div className="space-y-2">
-                  <label className="block text-sm text-white/80">Upload Audio (Sora/Veo)</label>
-                  <div className="bg-[#1a1a1c] border-2 border-dashed border-white/10 rounded-xl p-6 flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-all group">
-                    {uploadedAudio ? (
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-white">{uploadedAudio.name}</span>
-                        <button
-                          onClick={() => setUploadedAudio(null)}
-                          className="p-1 hover:bg-white/10 rounded transition-all"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ) : (
-                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer">
-                        <Upload className="w-8 h-8 text-white/40 group-hover:text-cyan-500 transition-all mb-2" />
-                        <span className="text-sm text-white/40 group-hover:text-cyan-500 transition-all">Choose audio file</span>
-                        <input
-                          type="file"
-                          accept="audio/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) setUploadedAudio(file);
-                          }}
-                        />
-                      </label>
-                    )}
-                  </div>
+                <div className="flex justify-center">
+                  <button className="flex items-center gap-2 px-6 py-3 bg-[#1a1a1c] border border-white/10 rounded-full text-sm text-white/80 hover:border-cyan-500/50 transition-all">
+                    <Upload className="w-4 h-4" />
+                    {uploadedVideo ? uploadedVideo.name : "Upload Video"}
+                  </button>
                 </div>
               )}
             </div>
