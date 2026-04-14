@@ -20,9 +20,9 @@ export default function VideoGenerate() {
   const [error, setError] = useState<string | null>(null);
   
   // Media uploads
-  const [startFrame, setStartFrame] = useState<File | null>(null);
-  const [endFrame, setEndFrame] = useState<File | null>(null);
-  const [elementImages, setElementImages] = useState<File[]>([]);
+  const [startFrame, setStartFrame] = useState<string | null>(null);
+  const [endFrame, setEndFrame] = useState<string | null>(null);
+  const [elementImages, setElementImages] = useState<string[]>([]);
   const [uploadedVideo, setUploadedVideo] = useState<File | null>(null);
   
   // Audio toggle (for models that generate audio)
