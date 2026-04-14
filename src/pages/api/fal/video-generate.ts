@@ -203,7 +203,7 @@ export default async function handler(
       onQueueUpdate(update) {
         console.log("Queue update:", update);
       },
-    });
+    }) as any;
 
     console.log("Generation complete:", result);
 
