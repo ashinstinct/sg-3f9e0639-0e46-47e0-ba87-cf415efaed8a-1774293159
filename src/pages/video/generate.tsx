@@ -553,6 +553,15 @@ export default function VideoGenerate() {
     }
   };
 
+  const handleElementImageUpload = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const newElements = [...elementImages];
+      newElements[idx] = file;
+      setElementImages(newElements);
+    }
+  };
+
   const removeElement = (idx: number) => {
     const newElements = [...elementImages];
     newElements.splice(idx, 1);
@@ -811,12 +820,10 @@ export default function VideoGenerate() {
                               </>
                             ) : (
                               <label className="w-full h-full border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-cyan-500/50 hover:bg-white/5 transition-all">
-                                <Upload className="w-5 h-5 text-white/40" />
-                                <span className="text-[10px] text-white/40 mt-1">START</span>
                                 <input
                                   type="file"
                                   accept="image/*"
-                                  onChange={(e) => handleFrameUpload(e, "start")}
+                                  onChange={handleStartFrameUpload}
                                   className="hidden"
                                   id="start-frame-upload"
                                 />
@@ -849,18 +856,16 @@ export default function VideoGenerate() {
                               </>
                             ) : (
                               <label className="w-full h-full border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-cyan-500/50 hover:bg-white/5 transition-all">
-                                <Upload className="w-5 h-5 text-white/40" />
-                                <span className="text-[10px] text-white/40 mt-1">END</span>
                                 <input
                                   type="file"
                                   accept="image/*"
-                                  onChange={(e) => handleFrameUpload(e, "end")}
+                                  onChange={handleEndFrameUpload}
                                   className="hidden"
                                   id="end-frame-upload"
                                 />
                                 <label htmlFor="end-frame-upload" className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
                                   {endFrame ? (
-                                    <img src={endFrame} alt="End frame" className="w-full h-full object-cover rounded-xl" />
+                                    <img src={URL.createObjectURL(endFrame)} alt="End frame" className="w-full h-full object-cover rounded-xl" />
                                   ) : (
                                     <Upload className="w-6 h-6 text-white/40 group-hover:text-cyan-400 transition-colors" />
                                   )}
@@ -894,7 +899,7 @@ export default function VideoGenerate() {
                                     <input
                                       type="file"
                                       accept="image/*"
-                                      onChange={(e) => handleElementUpload(e, idx)}
+                                      onChange={(e) => handleElementImageUpload(e, idx)}
                                       className="hidden"
                                       id={`element-${idx}-upload`}
                                     />
