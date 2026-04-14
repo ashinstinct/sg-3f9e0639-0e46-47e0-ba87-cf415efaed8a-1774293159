@@ -23,81 +23,224 @@ export default function ImageGenerate() {
   const [expandedPrompt, setExpandedPrompt] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
 
-  // Model configurations with exact fal.ai specs
-  const imageModels = [
+  // Image models organized by company
+  const imageModelGroups = [
     {
-      id: "flux-pro",
-      name: "FLUX.1 Pro",
-      logo: "/logos/flux.svg",
-      maxImages: 1,
-      aspectRatios: ["square", "square_hd", "portrait_4_3", "portrait_16_9", "landscape_4_3", "landscape_16_9"],
-      credits: 5,
-      maxBatch: 4
+      company: "FLUX",
+      models: [
+        {
+          id: "flux-pro-1.1",
+          name: "FLUX Pro 1.1",
+          logo: "/logos/flux.svg",
+          maxImages: 1,
+          aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9"],
+          credits: 10,
+          maxBatch: 4
+        },
+        {
+          id: "flux-pro",
+          name: "FLUX Pro",
+          logo: "/logos/flux.svg",
+          maxImages: 1,
+          aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9"],
+          credits: 8,
+          maxBatch: 4
+        },
+        {
+          id: "flux-dev",
+          name: "FLUX Dev",
+          logo: "/logos/flux.svg",
+          maxImages: 1,
+          aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9"],
+          credits: 5,
+          maxBatch: 4
+        },
+        {
+          id: "flux-schnell",
+          name: "FLUX Schnell",
+          logo: "/logos/flux.svg",
+          maxImages: 1,
+          aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9"],
+          credits: 3,
+          maxBatch: 4
+        },
+        {
+          id: "flux-realism",
+          name: "FLUX Realism",
+          logo: "/logos/flux.svg",
+          maxImages: 1,
+          aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
+          credits: 8,
+          maxBatch: 4
+        }
+      ]
     },
     {
-      id: "flux-dev",
-      name: "FLUX.1 Dev",
-      logo: "/logos/flux.svg",
-      maxImages: 1,
-      aspectRatios: ["square", "square_hd", "portrait_4_3", "portrait_16_9", "landscape_4_3", "landscape_16_9"],
-      credits: 3,
-      maxBatch: 4
+      company: "Nano Banana",
+      models: [
+        {
+          id: "nano-banana-2",
+          name: "Nano Banana 2",
+          logo: "/logos/nano-banana.svg",
+          maxImages: 1,
+          aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9"],
+          credits: 6,
+          maxBatch: 4
+        },
+        {
+          id: "nano-banana-1.5-pro",
+          name: "Nano Banana 1.5 Pro",
+          logo: "/logos/nano-banana.svg",
+          maxImages: 1,
+          aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
+          credits: 5,
+          maxBatch: 4
+        }
+      ]
     },
     {
-      id: "flux-schnell",
-      name: "FLUX.1 Schnell",
-      logo: "/logos/flux.svg",
-      maxImages: 1,
-      aspectRatios: ["square", "square_hd", "portrait_4_3", "portrait_16_9", "landscape_4_3", "landscape_16_9"],
-      credits: 1,
-      maxBatch: 4
+      company: "Stable Diffusion",
+      models: [
+        {
+          id: "sd-3.5-large",
+          name: "SD 3.5 Large",
+          logo: "/logos/stability.svg",
+          maxImages: 1,
+          aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9", "9:21"],
+          credits: 5,
+          maxBatch: 4
+        },
+        {
+          id: "sd-xl",
+          name: "SDXL",
+          logo: "/logos/stability.svg",
+          maxImages: 1,
+          aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
+          credits: 3,
+          maxBatch: 4
+        }
+      ]
     },
     {
-      id: "flux-pro-1.1-ultra",
-      name: "FLUX.1.1 Pro Ultra",
-      logo: "/logos/flux.svg",
-      maxImages: 1,
-      aspectRatios: ["21:9", "16:9", "4:3", "1:1", "3:4", "9:16", "9:21"],
-      credits: 8,
-      maxBatch: 1
+      company: "Google",
+      models: [
+        {
+          id: "imagen-4",
+          name: "Imagen 4",
+          logo: "/logos/google.svg",
+          maxImages: 0,
+          aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
+          credits: 12,
+          maxBatch: 4
+        }
+      ]
     },
     {
-      id: "recraft-v3",
-      name: "Recraft V3",
-      logo: "/logos/recraft.svg",
-      maxImages: 0,
-      aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3"],
-      credits: 4,
-      maxBatch: 4
+      company: "Grok",
+      models: [
+        {
+          id: "grok-1.5-image",
+          name: "Grok 1.5 Image",
+          logo: "/logos/grok.svg",
+          maxImages: 1,
+          aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
+          credits: 10,
+          maxBatch: 4
+        }
+      ]
     },
     {
-      id: "stable-diffusion-3-5-large",
-      name: "Stable Diffusion 3.5 Large",
-      logo: "/logos/stability.svg",
-      maxImages: 1,
-      aspectRatios: ["21:9", "16:9", "4:3", "1:1", "3:4", "9:16", "9:21"],
-      credits: 4,
-      maxBatch: 4
+      company: "Seedream",
+      models: [
+        {
+          id: "seedream-4.5",
+          name: "Seedream 4.5",
+          logo: "/logos/seedream.svg",
+          maxImages: 1,
+          aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
+          credits: 7,
+          maxBatch: 4
+        },
+        {
+          id: "seedream-4.5-turbo",
+          name: "Seedream 4.5 Turbo",
+          logo: "/logos/seedream.svg",
+          maxImages: 1,
+          aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
+          credits: 5,
+          maxBatch: 4
+        }
+      ]
     },
     {
-      id: "auraflow",
-      name: "AuraFlow",
-      logo: "/logos/auraflow.svg",
-      maxImages: 0,
-      aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
-      credits: 2,
-      maxBatch: 4
+      company: "Recraft",
+      models: [
+        {
+          id: "recraft-v3",
+          name: "Recraft V3",
+          logo: "/logos/recraft.svg",
+          maxImages: 0,
+          aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9", "9:21"],
+          credits: 6,
+          maxBatch: 4
+        }
+      ]
     },
     {
-      id: "ideogram-v2",
-      name: "Ideogram V2",
-      logo: "/logos/ideogram.svg",
-      maxImages: 0,
-      aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3", "16:10", "10:16"],
-      credits: 3,
-      maxBatch: 4
+      company: "Ideogram",
+      models: [
+        {
+          id: "ideogram-v2",
+          name: "Ideogram V2",
+          logo: "/logos/ideogram.svg",
+          maxImages: 0,
+          aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4", "10:16", "16:10", "3:2", "2:3"],
+          credits: 7,
+          maxBatch: 4
+        },
+        {
+          id: "ideogram-v1",
+          name: "Ideogram V1",
+          logo: "/logos/ideogram.svg",
+          maxImages: 0,
+          aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4", "10:16", "16:10"],
+          credits: 5,
+          maxBatch: 4
+        }
+      ]
+    },
+    {
+      company: "Playground",
+      models: [
+        {
+          id: "playground-v2.5",
+          name: "Playground V2.5",
+          logo: "/logos/playground.svg",
+          maxImages: 0,
+          aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
+          credits: 5,
+          maxBatch: 4
+        }
+      ]
+    },
+    {
+      company: "AuraFlow",
+      models: [
+        {
+          id: "auraflow",
+          name: "AuraFlow",
+          logo: "/logos/auraflow.svg",
+          maxImages: 0,
+          aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"],
+          credits: 4,
+          maxBatch: 4
+        }
+      ]
     }
   ];
+
+  // Flatten for easy lookup
+  const imageModels = imageModelGroups.flatMap(group => group.models);
 
   const currentModel = imageModels.find(m => m.id === selectedModel) || imageModels[0];
   const creditCost = currentModel.credits * numImages;
@@ -297,17 +440,17 @@ export default function ImageGenerate() {
                     onChange={(e) => {
                       setSelectedModel(e.target.value);
                       setUploadedImages([]);
-                      const newModel = imageModels.find(m => m.id === e.target.value);
-                      if (newModel && !newModel.aspectRatios.includes(aspectRatio)) {
-                        setAspectRatio(newModel.aspectRatios[0]);
-                      }
                     }}
                     className="flex-1 bg-black/40 text-white border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-[#c5f04a]/50 focus:ring-[#c5f04a]/20 outline-none"
                   >
-                    {imageModels.map(model => (
-                      <option key={model.id} value={model.id}>
-                        {model.name}
-                      </option>
+                    {imageModelGroups.map(group => (
+                      <optgroup key={group.company} label={group.company}>
+                        {group.models.map(model => (
+                          <option key={model.id} value={model.id}>
+                            {model.name} - 🪙{model.credits}
+                          </option>
+                        ))}
+                      </optgroup>
                     ))}
                   </select>
                 </div>
