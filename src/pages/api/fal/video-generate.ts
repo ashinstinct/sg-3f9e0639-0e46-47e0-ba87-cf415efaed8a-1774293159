@@ -47,8 +47,12 @@ export default async function handler(
     // Map model IDs to Fal.ai endpoints
     const modelEndpoints: Record<string, string> = {
       // Kling models
-      "kling-3.0": "fal-ai/kling-video/v3/pro",
+      "kling-3.0": "fal-ai/kling-video/v3.0/pro",
+      "kling-omni-3.0": "fal-ai/kling-video/v3.0/omni",
+      "kling-motion-3.0": "fal-ai/kling-video/v3.0/motion-control",
       "kling-2.6": "fal-ai/kling-video/v2.6/pro",
+      "kling-2.5": "fal-ai/kling-video/v2.5/pro",
+      "kling-2.1": "fal-ai/kling-video/v2.1/standard",
 
       // Luma models
       "luma-1.6": "fal-ai/luma-dream-machine/v1.6",
@@ -72,10 +76,18 @@ export default async function handler(
 
       // Sora models
       "sora-2-pro-max": "fal-ai/sora/v2-pro-max",
+      "sora-2-pro": "fal-ai/sora/v2-pro",
       "sora-2-max": "fal-ai/sora/v2-max",
+      "sora-2-fast": "fal-ai/sora/v2-fast",
+      "sora-1-pro": "fal-ai/sora/v1-pro",
+      "sora-1-turbo": "fal-ai/sora/v1-turbo",
 
       // Veo models
-      "veo-3.1": "fal-ai/veo/v3.1",
+      "veo-3.1-pro-max": "fal-ai/veo/v3.1-pro-max",
+      "veo-3.1-pro": "fal-ai/veo/v3.1-pro",
+      "veo-3.1-fast": "fal-ai/veo/v3.1-fast",
+      "veo-3.0-pro": "fal-ai/veo/v3.0-pro",
+      "veo-3.0-fast": "fal-ai/veo/v3.0-fast",
 
       // LTX-2 (multimodal)
       "ltx-2-19b": "fal-ai/ltx-video",
