@@ -61,18 +61,81 @@ const PRESET_AVATARS = [
 ];
 
 const VOICES = [
-  { id: "ash", name: "Ash", description: "British Male" },
-  { id: "bella", name: "Bella", description: "American Female" },
-  { id: "charlie", name: "Charlie", description: "American Male" },
-  { id: "luna", name: "Luna", description: "British Female" },
-  { id: "oliver", name: "Oliver", description: "Australian Male" },
-  { id: "sophia", name: "Sophia", description: "Australian Female" }
+  { 
+    id: "ash", 
+    name: "Ash", 
+    accent: "British",
+    gender: "Male",
+    tone: "Professional & Authoritative",
+    bestFor: "Business presentations, corporate videos, educational content"
+  },
+  { 
+    id: "bella", 
+    name: "Bella", 
+    accent: "American",
+    gender: "Female",
+    tone: "Friendly & Engaging",
+    bestFor: "Marketing videos, social media content, tutorials"
+  },
+  { 
+    id: "charlie", 
+    name: "Charlie", 
+    accent: "American",
+    gender: "Male",
+    tone: "Casual & Approachable",
+    bestFor: "Explainer videos, product demos, vlogs"
+  },
+  { 
+    id: "luna", 
+    name: "Luna", 
+    accent: "British",
+    gender: "Female",
+    tone: "Elegant & Sophisticated",
+    bestFor: "Luxury brands, formal content, documentaries"
+  },
+  { 
+    id: "oliver", 
+    name: "Oliver", 
+    accent: "Australian",
+    gender: "Male",
+    tone: "Warm & Charismatic",
+    bestFor: "Travel content, lifestyle videos, entertainment"
+  },
+  { 
+    id: "sophia", 
+    name: "Sophia", 
+    accent: "Australian",
+    gender: "Female",
+    tone: "Friendly & Authentic",
+    bestFor: "Wellness content, personal brands, storytelling"
+  }
 ];
 
 const ASPECT_RATIOS = [
-  { id: "16:9", name: "Landscape", icon: "📺" },
-  { id: "9:16", name: "Portrait", icon: "📱" },
-  { id: "1:1", name: "Square", icon: "⬜" }
+  { 
+    id: "16:9", 
+    name: "Landscape", 
+    icon: "📺",
+    width: "w-16",
+    height: "h-9",
+    description: "Perfect for YouTube, presentations"
+  },
+  { 
+    id: "9:16", 
+    name: "Portrait", 
+    icon: "📱",
+    width: "w-9",
+    height: "h-16",
+    description: "TikTok, Instagram Stories"
+  },
+  { 
+    id: "1:1", 
+    name: "Square", 
+    icon: "⬜",
+    width: "w-12",
+    height: "h-12",
+    description: "Instagram posts, Facebook"
+  }
 ];
 
 export default function AvatarPage() {
@@ -399,29 +462,41 @@ export default function AvatarPage() {
                     onChange={handleAvatarUpload}
                     className="hidden"
                   />
-                  <div className={cn(
-                    "border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all hover:border-cyan-400/50 hover:bg-white/5",
-                    customAvatar ? "border-cyan-400 bg-cyan-400/10" : "border-white/20"
-                  )}>
-                    <Upload className="w-6 h-6 mx-auto mb-2 text-cyan-400" />
-                    <p className="text-sm text-white/80">
-                      {customAvatar ? "Custom photo uploaded" : "Upload Your Photo"}
-                    </p>
-                    {customAvatar && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setShowImagePreview(true);
-                        }}
-                        className="mt-2 text-cyan-400"
-                      >
-                        <Eye className="w-4 h-4 mr-2" />
-                        Preview
-                      </Button>
-                    )}
-                  </div>
+                  {!customAvatar ? (
+                    <div className="border-2 border-dashed border-white/20 rounded-xl p-4 text-center cursor-pointer transition-all hover:border-cyan-400/50 hover:bg-white/5">
+                      <Upload className="w-6 h-6 mx-auto mb-2 text-cyan-400" />
+                      <p className="text-sm text-white/80">Upload Your Photo</p>
+                      <p className="text-xs text-white/40 mt-1">Click to select image</p>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-cyan-400 bg-cyan-400/10 rounded-xl p-3 cursor-pointer transition-all hover:border-cyan-500">
+                      <div className="flex items-center gap-3">
+                        <div className="relative w-16 h-16 flex-shrink-0">
+                          <img
+                            src={customAvatar}
+                            alt="Custom avatar"
+                            className="w-full h-full object-cover rounded-lg border-2 border-cyan-400/50"
+                          />
+                        </div>
+                        <div className="flex-1 text-left">
+                          <p className="text-sm text-white font-semibold">Custom Photo</p>
+                          <p className="text-xs text-white/60">Click to change</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setShowImagePreview(true);
+                          }}
+                          className="text-cyan-400 hover:text-cyan-300"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </label>
               </div>
 
@@ -431,17 +506,48 @@ export default function AvatarPage() {
                   <label className="block text-sm font-medium text-white/80 mb-3">
                     Select Voice
                   </label>
-                  <select
-                    value={selectedVoice.id}
-                    onChange={(e) => setSelectedVoice(VOICES.find(v => v.id === e.target.value) || VOICES[0])}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-400/50"
-                  >
+                  <div className="grid grid-cols-2 gap-3">
                     {VOICES.map((voice) => (
-                      <option key={voice.id} value={voice.id}>
-                        {voice.name} - {voice.description}
-                      </option>
+                      <div key={voice.id} className="relative">
+                        <button
+                          onClick={() => setSelectedVoice(voice)}
+                          className={cn(
+                            "w-full text-left px-4 py-3 rounded-lg border-2 transition-all",
+                            selectedVoice.id === voice.id
+                              ? "border-cyan-400 bg-cyan-400/10"
+                              : "border-white/10 hover:border-white/30 bg-white/5"
+                          )}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <p className="text-sm font-semibold text-white">{voice.name}</p>
+                              <p className="text-xs text-white/60">{voice.description}</p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                previewVoice(voice);
+                              }}
+                              className={cn(
+                                "h-8 w-8 p-0 ml-2",
+                                previewingVoice === voice.id
+                                  ? "text-cyan-400"
+                                  : "text-white/60 hover:text-white"
+                              )}
+                            >
+                              {previewingVoice === voice.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Play className="w-4 h-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </button>
+                      </div>
                     ))}
-                  </select>
+                  </div>
                 </div>
               )}
 
@@ -533,15 +639,39 @@ export default function AvatarPage() {
                       key={ratio.id}
                       onClick={() => setAspectRatio(ratio)}
                       className={cn(
-                        "px-4 py-3 rounded-lg border-2 transition-all",
+                        "px-4 py-4 rounded-lg border-2 transition-all group",
                         aspectRatio.id === ratio.id
-                          ? "border-cyan-400 bg-cyan-400/10 text-cyan-400"
-                          : "border-white/10 text-white/60 hover:border-white/30"
+                          ? "border-cyan-400 bg-cyan-400/10"
+                          : "border-white/10 hover:border-white/30 bg-white/5"
                       )}
                     >
-                      <div className="text-2xl mb-1">{ratio.icon}</div>
-                      <div className="text-xs font-medium">{ratio.name}</div>
-                      <div className="text-[10px] opacity-60">{ratio.id}</div>
+                      {/* Visual Preview */}
+                      <div className="flex items-center justify-center mb-2">
+                        <div className={cn(
+                          "border-2 rounded transition-all",
+                          aspectRatio.id === ratio.id
+                            ? "border-cyan-400 bg-cyan-400/20"
+                            : "border-white/30 bg-white/5 group-hover:border-white/50",
+                          ratio.width,
+                          ratio.height
+                        )} />
+                      </div>
+                      {/* Text */}
+                      <div className={cn(
+                        "text-xs font-semibold mb-1",
+                        aspectRatio.id === ratio.id ? "text-cyan-400" : "text-white"
+                      )}>
+                        {ratio.name}
+                      </div>
+                      <div className={cn(
+                        "text-[10px]",
+                        aspectRatio.id === ratio.id ? "text-cyan-400/80" : "text-white/40"
+                      )}>
+                        {ratio.id}
+                      </div>
+                      <div className="text-[9px] text-white/30 mt-1">
+                        {ratio.description}
+                      </div>
                     </button>
                   ))}
                 </div>
