@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import * as fal from "@fal-ai/serverless-client";
 
-// Initialize fal.ai client
 fal.config({
   credentials: process.env.FAL_KEY,
 });
@@ -15,40 +14,24 @@ export default async function handler(
   }
 
   try {
-    const {
-      prompt,
-      make_instrumental = false,
-      wait_audio = false,
-      model_version = "chirp-v3-5",
-      duration = 30,
-    } = req.body;
+    const { prompt, make_instrumental = false } = req.body;
 
-    if (!prompt || !prompt.trim()) {
+    if (!prompt || typeof prompt !== "string") {
       return res.status(400).json({ error: "Prompt is required" });
     }
 
-    console.log("Generating music with SUNO via fal.ai:", {
-      prompt: prompt.trim(),
-      make_instrumental,
-      wait_audio,
-      model_version,
-      duration,
-    });
+    console.log("Generating music with SUNO:", { prompt, make_instrumental });
 
-    // Call fal.ai SUNO API
+    // Use fal.ai's SUNO v3.5 model
     const result = await fal.subscribe("fal-ai/suno", {
       input: {
         prompt: prompt.trim(),
         make_instrumental,
-        wait_audio,
-        model_version,
-        duration,
+        wait_audio: true,
       },
       logs: true,
       onQueueUpdate: (update) => {
-        if (update.status === "IN_PROGRESS") {
-          console.log("SUNO generation in progress:", update.logs);
-        }
+        console.log("Queue update:", update.status);
       },
     });
 
@@ -68,6 +51,7 @@ export default async function handler(
   } catch (error: unknown) {
     console.error("SUNO generation error:", error);
     return res.status(500).json({
+      success: false,
       error: error instanceof Error ? error.message : "Failed to generate music",
     });
   }
