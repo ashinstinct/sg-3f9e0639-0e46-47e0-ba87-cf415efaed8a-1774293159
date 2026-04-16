@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import Head from "next/head";
-import { SEO } from "@/components/SEO";
+import { Navigation } from "@/components/Navigation";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Download, Trash2, Play, Image as ImageIcon, Video, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -12,12 +12,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { Database } from "@/integrations/supabase/types";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import {
-  Download,
-  Trash2,
-  ImageIcon,
-  Video,
   Clock,
   Filter,
   Search,
@@ -168,27 +168,13 @@ export default function Library() {
 
   return (
     <>
-      <SEO title="Library - Back2Life.Studio" />
-      <Head>
-        <title>Library - Back2Life.Studio</title>
-      </Head>
-
-      <main className="min-h-screen bg-background pt-24 pb-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">My Library</h1>
-              <p className="text-muted-foreground mt-1">
-                View and manage all your AI-generated content
-              </p>
-            </div>
-            <Link href="/dashboard">
-              <Button className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700">
-                <Wand2 className="w-4 h-4 mr-2" />
-                Create New
-              </Button>
-            </Link>
+      <Navigation />
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 pt-24">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+              My Library
+            </h1>
           </div>
 
           {/* Filters & Search */}
@@ -439,7 +425,7 @@ export default function Library() {
             </div>
           )}
         </div>
-      </main>
+      </div>
     </>
   );
 }
