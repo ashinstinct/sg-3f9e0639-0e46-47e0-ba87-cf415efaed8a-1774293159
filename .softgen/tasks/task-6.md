@@ -1,6 +1,6 @@
 ---
 title: Remove Screen Recorder & Video Editor Pages
-status: todo
+status: done
 priority: low
 type: chore
 tags: [cleanup]

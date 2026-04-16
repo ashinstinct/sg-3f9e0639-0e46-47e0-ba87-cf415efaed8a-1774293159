@@ -1,6 +1,6 @@
 ---
 title: Fix UI Title Issues on Edit & Library Pages
-status: todo
+status: done
 priority: medium
 type: bug
 tags: [ui, title]

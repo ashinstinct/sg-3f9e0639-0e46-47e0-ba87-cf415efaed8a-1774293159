@@ -1,6 +1,6 @@
 ---
 title: Clean Up Library Navigation Menu
-status: todo
+status: done
 priority: low
 type: chore
 tags: [navigation, library]

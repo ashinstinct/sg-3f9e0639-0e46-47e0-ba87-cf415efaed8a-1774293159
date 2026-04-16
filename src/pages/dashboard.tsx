@@ -5,28 +5,21 @@ import { SEO } from "@/components/SEO";
 import { 
   getCreditBalance, 
   getCreditHistory, 
-  subscribeToCreditsUpdates,
-  getTotalCreditsSpent 
+  subscribeToCreditsUpdates 
 } from "@/services/creditsService";
-import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { 
   Coins, 
   TrendingDown, 
   TrendingUp, 
-  Calendar,
-  Image as ImageIcon,
-  Video,
-  Music,
-  Wand2,
   Activity,
-  DollarSign,
-  Loader2,
-  PieChart
+  Plus,
+  ShoppingCart
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SubscriptionModal } from "@/components/SubscriptionModal";
 
-// Use the type from creditsService or define a compatible one
 interface CreditTransaction {
   id: string;
   amount: number;
@@ -36,50 +29,25 @@ interface CreditTransaction {
   tool_type?: string;
 }
 
-interface DailySpending {
-  date: string;
-  amount: number;
-}
-
-interface ToolBreakdown {
-  tool: string;
-  amount: number;
-  count: number;
-  percentage: number;
-}
-
 export default function Dashboard() {
   const router = useRouter();
   const [credits, setCredits] = useState<number>(0);
-  const [totalSpent, setTotalSpent] = useState<number>(0);
   const [transactions, setTransactions] = useState<CreditTransaction[]>([]);
-  const [dailySpending, setDailySpending] = useState<DailySpending[]>([]);
-  const [toolBreakdown, setToolBreakdown] = useState<ToolBreakdown[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [subscriptionModalOpen, setSubscriptionModalOpen] = useState(false);
 
   useEffect(() => {
-    // Temporarily disabled auth check for development
     fetchDashboardData();
-
-    // Real-time credit updates (disabled for now)
-    // const channel = subscribeToCreditsUpdates((newBalance) => {
-    //   setCredits(newBalance);
-    // });
-
-    // return () => {
-    //   channel.unsubscribe();
-    // };
   }, []);
 
   const fetchDashboardData = async () => {
     try {
       setIsLoading(true);
       
-      // Use mock data for development (no auth required)
+      // Use mock data for development
       setCredits(1000);
-      setTotalSpent(2500);
       
-      // Mock transaction history
+      // Mock transaction history - last 5 only
       const mockTransactions = [
         {
           id: "1",
@@ -104,89 +72,30 @@ export default function Dashboard() {
           created_at: new Date(Date.now() - 172800000).toISOString(),
           tool_type: "Image Generation"
         },
+        {
+          id: "4",
+          amount: -15,
+          type: "deduct" as const,
+          description: "Avatar video - Hedra",
+          created_at: new Date(Date.now() - 259200000).toISOString(),
+          tool_type: "Avatar"
+        },
+        {
+          id: "5",
+          amount: -3,
+          type: "deduct" as const,
+          description: "Voice cloning - Fish Audio",
+          created_at: new Date(Date.now() - 345600000).toISOString(),
+          tool_type: "Voice"
+        },
       ];
       
       setTransactions(mockTransactions);
-
-      // Calculate daily spending for chart
-      const daily = calculateDailySpending(mockTransactions);
-      setDailySpending(daily);
-
-      // Calculate tool breakdown
-      const breakdown = calculateToolBreakdown(mockTransactions);
-      setToolBreakdown(breakdown);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const calculateDailySpending = (transactions: CreditTransaction[]): DailySpending[] => {
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - (6 - i));
-      return date.toISOString().split("T")[0];
-    });
-
-    const spendingMap = new Map<string, number>();
-    
-    transactions
-      .filter(t => t.type === "deduct")
-      .forEach(t => {
-        const date = new Date(t.created_at).toISOString().split("T")[0];
-        const current = spendingMap.get(date) || 0;
-        spendingMap.set(date, current + Math.abs(t.amount));
-      });
-
-    return last7Days.map(date => ({
-      date,
-      amount: spendingMap.get(date) || 0
-    }));
-  };
-
-  const calculateToolBreakdown = (transactions: CreditTransaction[]): ToolBreakdown[] => {
-    const toolMap = new Map<string, { amount: number; count: number }>();
-    
-    const deductions = transactions.filter(t => t.type === "deduct");
-    const totalDeducted = deductions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
-
-    deductions.forEach(t => {
-      const tool = t.tool_type || "Other";
-      const current = toolMap.get(tool) || { amount: 0, count: 0 };
-      toolMap.set(tool, {
-        amount: current.amount + Math.abs(t.amount),
-        count: current.count + 1
-      });
-    });
-
-    return Array.from(toolMap.entries())
-      .map(([tool, data]) => ({
-        tool,
-        amount: data.amount,
-        count: data.count,
-        percentage: totalDeducted > 0 ? (data.amount / totalDeducted) * 100 : 0
-      }))
-      .sort((a, b) => b.amount - a.amount);
-  };
-
-  const getToolIcon = (toolType: string) => {
-    const type = toolType.toLowerCase();
-    if (type.includes("image") || type.includes("photo")) return <ImageIcon className="w-4 h-4" />;
-    if (type.includes("video")) return <Video className="w-4 h-4" />;
-    if (type.includes("audio") || type.includes("music") || type.includes("voice")) return <Music className="w-4 h-4" />;
-    return <Wand2 className="w-4 h-4" />;
-  };
-
-  const getToolColor = (index: number) => {
-    const colors = [
-      "from-purple-500 to-indigo-500",
-      "from-blue-500 to-cyan-500",
-      "from-emerald-500 to-teal-500",
-      "from-orange-500 to-red-500",
-      "from-pink-500 to-rose-500",
-    ];
-    return colors[index % colors.length];
   };
 
   const formatDate = (dateString: string) => {
@@ -200,8 +109,6 @@ export default function Dashboard() {
     
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
-
-  const maxSpending = Math.max(...dailySpending.map(d => d.amount), 1);
 
   if (isLoading) {
     return (
@@ -223,172 +130,83 @@ export default function Dashboard() {
       <SEO title="Dashboard - Back2Life.Studio" />
       <Navigation />
       
-      <main className="min-h-screen pt-20 pb-16 px-4">
-        <div className="container mx-auto max-w-7xl">
+      <main className="min-h-screen pt-20 pb-4 px-4">
+        <div className="container mx-auto max-w-2xl">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
               Credit Dashboard
             </h1>
-            <p className="text-muted-foreground">
-              Track your credit usage and spending patterns
+            <p className="text-sm text-muted-foreground">
+              Manage your credits and view recent activity
             </p>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            {/* Current Balance */}
-            <Card className="p-6">
-              <div className="flex items-center gap-3 mb-2">
+          {/* Current Balance Card */}
+          <Card className="p-6 mb-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
                 <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg">
                   <Coins className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-sm font-medium text-muted-foreground">Current Balance</h3>
+                <div>
+                  <p className="text-sm text-muted-foreground">Current Balance</p>
+                  <p className="text-3xl font-bold">{credits.toLocaleString()}</p>
+                </div>
               </div>
-              <p className="text-3xl font-bold">{credits.toLocaleString()}</p>
-              <p className="text-sm text-muted-foreground mt-1">credits available</p>
-            </Card>
+              <Button
+                onClick={() => setSubscriptionModalOpen(true)}
+                className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Top Up
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Purchase more credits to continue creating amazing content
+            </p>
+          </Card>
 
-            {/* Total Spent */}
-            <Card className="p-6">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-lg">
-                  <TrendingDown className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="text-sm font-medium text-muted-foreground">Total Spent</h3>
-              </div>
-              <p className="text-3xl font-bold">{totalSpent.toLocaleString()}</p>
-              <p className="text-sm text-muted-foreground mt-1">lifetime credits</p>
-            </Card>
-          </div>
-
-          <div className="grid lg:grid-cols-2 gap-8 mb-8">
-            {/* Spending Chart */}
-            <Card className="p-6 col-span-2">
-              <h2 className="text-lg font-semibold mb-4">Credit Usage (Last 7 Days)</h2>
-              {isLoading ? (
-                <div className="h-64 flex items-center justify-center">
-                  <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-                </div>
-              ) : dailySpending.length > 0 ? (
-                <div className="h-64">
-                  <div className="flex items-end justify-between h-full gap-2">
-                    {dailySpending.map((day, idx) => {
-                      const maxSpending = Math.max(...dailySpending.map(d => Math.abs(d.amount)));
-                      const height = maxSpending > 0 ? (Math.abs(day.amount) / maxSpending) * 100 : 0;
-                      
-                      return (
-                        <div key={idx} className="flex-1 flex flex-col items-center gap-2">
-                          <div className="flex-1 flex items-end w-full">
-                            <div
-                              className="w-full bg-gradient-to-t from-purple-500 to-indigo-500 rounded-t-lg transition-all hover:opacity-80"
-                              style={{ height: `${height}%`, minHeight: day.amount !== 0 ? '4px' : '0' }}
-                              title={`${day.date}: ${Math.abs(day.amount)} credits`}
-                            />
-                          </div>
-                          <div className="text-xs text-muted-foreground text-center">
-                            {day.date}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : (
-                <div className="h-64 flex items-center justify-center text-muted-foreground">
-                  <div className="text-center">
-                    <Activity className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                    <p>No spending data yet</p>
-                  </div>
-                </div>
-              )}
-            </Card>
-
-            {/* Tool Breakdown */}
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold mb-4">Usage by Tool Type</h2>
-              {isLoading ? (
-                <div className="h-64 flex items-center justify-center">
-                  <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-                </div>
-              ) : toolBreakdown.length > 0 ? (
-                <div className="space-y-3">
-                  {toolBreakdown.map((tool, idx) => {
-                    const total = toolBreakdown.reduce((sum, t) => sum + t.amount, 0);
-                    const percentage = total > 0 ? ((tool.amount / total) * 100).toFixed(1) : 0;
-                    
-                    return (
-                      <div key={idx}>
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-medium">{tool.tool}</span>
-                          <span className="text-sm text-muted-foreground">{tool.amount} credits</span>
-                        </div>
-                        <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-purple-500 to-indigo-500"
-                            style={{ width: `${percentage}%` }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="h-64 flex items-center justify-center text-muted-foreground">
-                  <div className="text-center">
-                    <PieChart className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                    <p>No tool usage data yet</p>
-                  </div>
-                </div>
-              )}
-            </Card>
-          </div>
-
-          {/* Transaction History */}
+          {/* Recent Transactions */}
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
-              <Activity className="w-5 h-5 text-primary" />
+            <h3 className="text-base font-semibold mb-4 flex items-center gap-2">
+              <Activity className="w-4 h-4 text-primary" />
               Recent Transactions
             </h3>
             {transactions.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Coins className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>No transactions yet</p>
+              <div className="text-center py-8 text-muted-foreground">
+                <Coins className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No transactions yet</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {transactions.slice(0, 10).map((transaction) => (
+              <div className="space-y-2">
+                {transactions.map((transaction) => (
                   <div
                     key={transaction.id}
-                    className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                    className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div className={cn(
-                        "p-2 rounded-lg",
+                        "p-1.5 rounded-lg flex-shrink-0",
                         transaction.type === "add"
                           ? "bg-emerald-500/10"
                           : "bg-orange-500/10"
                       )}>
                         {transaction.type === "add" ? (
-                          <TrendingUp className="w-4 h-4 text-emerald-500" />
+                          <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
                         ) : (
-                          <TrendingDown className="w-4 h-4 text-orange-500" />
+                          <TrendingDown className="w-3.5 h-3.5 text-orange-500" />
                         )}
                       </div>
-                      <div>
-                        <p className="font-medium text-sm">{transaction.description}</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">{transaction.description}</p>
                         <p className="text-xs text-muted-foreground">
-                          {new Date(transaction.created_at).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit"
-                          })}
+                          {formatDate(transaction.created_at)}
                         </p>
                       </div>
                     </div>
                     <div className={cn(
-                      "font-semibold",
+                      "font-semibold text-sm flex-shrink-0 ml-2",
                       transaction.type === "add" ? "text-emerald-500" : "text-orange-500"
                     )}>
                       {transaction.type === "add" ? "+" : "-"}
@@ -401,6 +219,12 @@ export default function Dashboard() {
           </Card>
         </div>
       </main>
+
+      {/* Subscription Modal */}
+      <SubscriptionModal
+        isOpen={subscriptionModalOpen}
+        onClose={() => setSubscriptionModalOpen(false)}
+      />
     </>
   );
 }

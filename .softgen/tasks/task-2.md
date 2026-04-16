@@ -1,6 +1,6 @@
 ---
 title: Simplify Credit Dashboard for Mobile
-status: todo
+status: done
 priority: high
 type: feature
 tags: [dashboard, credits, mobile]
