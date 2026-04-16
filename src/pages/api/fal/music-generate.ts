@@ -54,14 +54,16 @@ export default async function handler(
 
     console.log("SUNO generation complete:", result);
 
+    const falResult = result as any;
+
     // Return the generated music data
     return res.status(200).json({
       success: true,
-      audio_url: result.audio_url || result.data?.audio_url,
-      video_url: result.video_url || result.data?.video_url,
-      title: result.title || result.data?.title,
-      duration: result.duration || result.data?.duration,
-      data: result,
+      audio_url: falResult.audio_url || falResult.data?.audio_url,
+      video_url: falResult.video_url || falResult.data?.video_url,
+      title: falResult.title || falResult.data?.title,
+      duration: falResult.duration || falResult.data?.duration,
+      data: falResult,
     });
   } catch (error: unknown) {
     console.error("SUNO generation error:", error);
