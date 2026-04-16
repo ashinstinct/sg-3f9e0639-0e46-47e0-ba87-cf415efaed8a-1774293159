@@ -1,6 +1,6 @@
 ---
 title: Create Music Generation Page with SUNO API
-status: todo
+status: done
 priority: high
 type: feature
 tags: [music, suno, fal.ai]

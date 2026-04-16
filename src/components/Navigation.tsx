@@ -69,7 +69,7 @@ export function Navigation() {
     { name: "Generate", href: "/images/generate", icon: Wand2 },
     { name: "Avatar", href: "/avatar", icon: UserCircle },
     { name: "Audio", href: "/audio", icon: Mic },
-    { name: "Music", href: "/generate", icon: Music },
+    { name: "Music", href: "/music", icon: Music },
     { name: "Apps", href: "/tools", icon: Grid3x3 },
     { name: "Agents", href: "/dashboard", icon: Sparkles },
     { name: "Free Tools", href: "/free-tools", icon: Sparkles },
