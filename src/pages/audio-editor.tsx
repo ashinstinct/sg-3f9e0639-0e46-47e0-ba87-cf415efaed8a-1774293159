@@ -4,47 +4,39 @@ import { SEO } from "@/components/SEO";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Play, Pause, Download, Upload, X, RotateCcw, Scissors, Music, Repeat } from "lucide-react";
+import { Play, Pause, Download, Upload, X, Volume2, RotateCcw, Scissors, Music, Repeat } from "lucide-react";
 
 export default function AudioEditorPage() {
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLooping, setIsLooping] = useState(true);
-  const [volume, setVolume] = useState(0); // dB scale
+  const [volume, setVolume] = useState(0);
   const [duration, setDuration] = useState(0);
   const [trimStart, setTrimStart] = useState(0);
   const [trimEnd, setTrimEnd] = useState(0);
   const [fadeIn, setFadeIn] = useState(0);
   const [fadeOut, setFadeOut] = useState(0);
+  const [filename, setFilename] = useState("edited-audio");
   const [showTrimControls, setShowTrimControls] = useState(false);
   const [showFadeControls, setShowFadeControls] = useState(false);
-  const [filename, setFilename] = useState("");
 
   const wavesurferRef = useRef<any>(null);
   const waveformRef = useRef<HTMLDivElement>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
   const scriptLoadedRef = useRef(false);
 
-  // dB to gain conversion
-  const dbToGain = (db: number) => Math.pow(10, db / 20);
-
-  // Handle file upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.type.startsWith("audio/")) {
+    if (file) {
       setAudioFile(file);
       setAudioUrl(URL.createObjectURL(file));
       setFilename(file.name.replace(/\.[^/.]+$/, ""));
-      setTrimStart(0);
-      setFadeIn(0);
-      setFadeOut(0);
     }
   };
 
-  // Initialize WaveSurfer
+  // Initialize WaveSurfer with Web Audio API
   useEffect(() => {
     if (!audioUrl || !waveformRef.current) return;
 
@@ -58,11 +50,11 @@ export default function AudioEditorPage() {
       if (!WaveSurfer || !waveformRef.current) return;
 
       try {
-        // Create AudioContext and GainNode for volume control
         if (!audioContextRef.current) {
           audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
         }
-        if (!gainNodeRef.current && audioContextRef.current) {
+
+        if (!gainNodeRef.current) {
           gainNodeRef.current = audioContextRef.current.createGain();
           gainNodeRef.current.connect(audioContextRef.current.destination);
         }
@@ -81,27 +73,25 @@ export default function AudioEditorPage() {
           audioContext: audioContextRef.current,
         });
 
-        // Connect WaveSurfer to our gain node
         ws.load(audioUrl);
         
         ws.on('ready', () => {
           const dur = ws.getDuration();
           setDuration(dur);
           setTrimEnd(dur);
-          
-          // Connect audio pipeline: WaveSurfer -> GainNode -> Destination
-          if (gainNodeRef.current && ws.backend && ws.backend.ac) {
-            try {
-              ws.backend.setFilter(gainNodeRef.current);
-            } catch (e) {
-              console.log('Filter connection handled by WaveSurfer');
+
+          if (gainNodeRef.current) {
+            const backend = ws.backend as any;
+            if (backend.gainNode) {
+              backend.gainNode.disconnect();
+              backend.gainNode.connect(gainNodeRef.current);
             }
           }
         });
 
         ws.on('finish', () => {
           if (isLooping) {
-            ws.setTime(trimStart);
+            ws.seekTo(trimStart / duration);
             ws.play();
           } else {
             setIsPlaying(false);
@@ -111,29 +101,37 @@ export default function AudioEditorPage() {
         ws.on('play', () => setIsPlaying(true));
         ws.on('pause', () => setIsPlaying(false));
 
-        // Apply fade effects during playback
         ws.on('audioprocess', (currentTime: number) => {
           if (!gainNodeRef.current) return;
-          
-          const relativeTime = currentTime - trimStart;
-          const trimmedDuration = trimEnd - trimStart;
-          let gain = dbToGain(volume);
 
-          // Apply fade in
+          const trimmedStart = trimStart;
+          const trimmedEnd = trimEnd;
+          const relativeTime = currentTime - trimmedStart;
+          const trimmedDuration = trimmedEnd - trimmedStart;
+
+          let fadeGain = 1;
+
           if (fadeIn > 0 && relativeTime < fadeIn) {
-            const fadeGain = relativeTime / fadeIn;
-            gain *= fadeGain;
+            fadeGain = Math.min(fadeGain, relativeTime / fadeIn);
           }
 
-          // Apply fade out
           if (fadeOut > 0 && relativeTime > trimmedDuration - fadeOut) {
-            const timeLeftInFade = trimmedDuration - relativeTime;
-            const fadeGain = timeLeftInFade / fadeOut;
-            gain *= fadeGain;
+            const fadeOutStart = trimmedDuration - fadeOut;
+            const fadeOutProgress = (relativeTime - fadeOutStart) / fadeOut;
+            fadeGain = Math.min(fadeGain, 1 - fadeOutProgress);
           }
 
-          // Apply volume smoothly
-          gainNodeRef.current.gain.setValueAtTime(gain, audioContextRef.current!.currentTime);
+          const dbGain = Math.pow(10, volume / 20);
+          const finalGain = fadeGain * dbGain;
+
+          try {
+            gainNodeRef.current.gain.setValueAtTime(
+              finalGain,
+              audioContextRef.current!.currentTime
+            );
+          } catch (error) {
+            console.error('Gain setting error:', error);
+          }
         });
 
         wavesurferRef.current = ws;
@@ -151,9 +149,6 @@ export default function AudioEditorPage() {
         scriptLoadedRef.current = true;
         initWaveSurfer();
       };
-      script.onerror = () => {
-        console.error('Failed to load WaveSurfer.js');
-      };
       document.head.appendChild(script);
     }
 
@@ -169,43 +164,37 @@ export default function AudioEditorPage() {
     };
   }, [audioUrl]);
 
-  // Update volume when slider changes
-  useEffect(() => {
-    if (gainNodeRef.current && audioContextRef.current) {
-      try {
-        const gain = dbToGain(volume);
-        gainNodeRef.current.gain.setValueAtTime(gain, audioContextRef.current.currentTime);
-      } catch (error) {
-        console.error('Volume update error:', error);
-      }
-    }
-  }, [volume]);
-
-  // Update loop handling
   useEffect(() => {
     if (wavesurferRef.current) {
       wavesurferRef.current.un('finish');
       wavesurferRef.current.on('finish', () => {
         if (isLooping) {
-          wavesurferRef.current.setTime(trimStart);
-          wavesurferRef.current.play();
+          wavesurferRef.current?.seekTo(trimStart / duration);
+          wavesurferRef.current?.play();
         } else {
           setIsPlaying(false);
         }
       });
     }
-  }, [isLooping, trimStart]);
+  }, [isLooping, trimStart, duration]);
 
-  const togglePlay = () => {
-    if (wavesurferRef.current) {
-      if (isPlaying) {
-        wavesurferRef.current.pause();
-      } else {
-        if (wavesurferRef.current.getCurrentTime() < trimStart || wavesurferRef.current.getCurrentTime() > trimEnd) {
-          wavesurferRef.current.setTime(trimStart);
-        }
-        wavesurferRef.current.play();
+  useEffect(() => {
+    if (gainNodeRef.current && audioContextRef.current) {
+      try {
+        const dbGain = Math.pow(10, volume / 20);
+        gainNodeRef.current.gain.setValueAtTime(
+          dbGain,
+          audioContextRef.current.currentTime
+        );
+      } catch (error) {
+        console.error('Volume adjustment error:', error);
       }
+    }
+  }, [volume]);
+
+  const togglePlayPause = () => {
+    if (wavesurferRef.current) {
+      wavesurferRef.current.playPause();
     }
   };
 
@@ -231,7 +220,7 @@ export default function AudioEditorPage() {
     formData.append('volume', volume.toString());
 
     try {
-      const response = await fetch('/api/audio-edit', {
+      const response = await fetch('/api/audio/edit', {
         method: 'POST',
         body: formData,
       });
@@ -242,9 +231,7 @@ export default function AudioEditorPage() {
         const a = document.createElement('a');
         a.href = url;
         a.download = `${filename}.mp3`;
-        document.body.appendChild(a);
         a.click();
-        document.body.removeChild(a);
         URL.revokeObjectURL(url);
       }
     } catch (error) {
@@ -254,10 +241,7 @@ export default function AudioEditorPage() {
 
   return (
     <>
-      <SEO 
-        title="Audio Editor - Back2Life.Studio"
-        description="Edit audio files with trim, fade, and volume controls"
-      />
+      <SEO title="Audio Editor - Back2Life.Studio" />
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <Navigation />
         <main className="container mx-auto px-4 py-16">
@@ -267,9 +251,9 @@ export default function AudioEditorPage() {
             {!audioFile ? (
               <Card className="bg-slate-800/50 border-slate-700/50">
                 <CardContent className="p-12">
-                  <label className="flex flex-col items-center gap-4 cursor-pointer group">
-                    <div className="p-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 group-hover:scale-110 transition-transform">
-                      <Upload className="w-8 h-8 text-white" />
+                  <label className="flex flex-col items-center gap-4 cursor-pointer">
+                    <div className="p-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500">
+                      <Upload className="w-12 h-12 text-white" />
                     </div>
                     <div className="text-center space-y-2">
                       <p className="text-xl font-semibold text-white">Upload Audio File</p>
@@ -315,11 +299,6 @@ export default function AudioEditorPage() {
                           setAudioUrl(null);
                           setIsPlaying(false);
                           setIsLooping(true);
-                          if (audioContextRef.current) {
-                            audioContextRef.current.close();
-                            audioContextRef.current = null;
-                          }
-                          gainNodeRef.current = null;
                         }}
                         className="border-red-500/50 text-red-400 hover:bg-red-500/10"
                       >
@@ -329,33 +308,46 @@ export default function AudioEditorPage() {
                   </div>
 
                   <div className="relative">
-                    <div ref={waveformRef} />
+                    <div ref={waveformRef} className="rounded-lg overflow-hidden" />
                     
-                    {/* Fade In Overlay */}
+                    {showTrimControls && (
+                      <div 
+                        className="absolute top-0 left-0 h-full bg-purple-500/20 pointer-events-none"
+                        style={{
+                          marginLeft: `${(trimStart / duration) * 100}%`,
+                          width: `${((trimEnd - trimStart) / duration) * 100}%`
+                        }}
+                      />
+                    )}
+
                     {showFadeControls && fadeIn > 0 && (
                       <div 
                         className="absolute top-0 left-0 h-full bg-gradient-to-r from-green-500/30 to-transparent pointer-events-none"
-                        style={{ width: `${(fadeIn / duration) * 100}%` }}
+                        style={{
+                          marginLeft: `${(trimStart / duration) * 100}%`,
+                          width: `${(fadeIn / duration) * 100}%`
+                        }}
                       />
                     )}
-                    
-                    {/* Fade Out Overlay */}
+
                     {showFadeControls && fadeOut > 0 && (
                       <div 
                         className="absolute top-0 right-0 h-full bg-gradient-to-l from-red-500/30 to-transparent pointer-events-none"
-                        style={{ width: `${(fadeOut / duration) * 100}%` }}
+                        style={{
+                          marginRight: `${(1 - trimEnd / duration) * 100}%`,
+                          width: `${(fadeOut / duration) * 100}%`
+                        }}
                       />
                     )}
                   </div>
 
                   <div className="grid grid-cols-4 gap-2">
                     <Button
-                      onClick={togglePlay}
+                      onClick={togglePlayPause}
                       className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
                     >
                       {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                     </Button>
-
                     <Button
                       variant="outline"
                       onClick={() => setShowTrimControls(!showTrimControls)}
@@ -366,9 +358,8 @@ export default function AudioEditorPage() {
                       }`}
                     >
                       <Scissors className="w-4 h-4 mr-1" />
-                      <span className="text-xs">Trim</span>
+                      Trim
                     </Button>
-
                     <Button
                       variant="outline"
                       onClick={() => setShowFadeControls(!showFadeControls)}
@@ -379,9 +370,8 @@ export default function AudioEditorPage() {
                       }`}
                     >
                       <Music className="w-4 h-4 mr-1" />
-                      <span className="text-xs">Fade</span>
+                      Fade
                     </Button>
-
                     <Button
                       variant="outline"
                       onClick={handleReset}
@@ -399,8 +389,7 @@ export default function AudioEditorPage() {
                           {trimStart.toFixed(1)}s - {trimEnd.toFixed(1)}s
                         </span>
                       </div>
-                      <div className="space-y-2">
-                        <Label className="text-xs text-slate-400">Start</Label>
+                      <div className="relative h-10">
                         <input
                           type="range"
                           min="0"
@@ -408,14 +397,14 @@ export default function AudioEditorPage() {
                           step="0.1"
                           value={trimStart}
                           onChange={(e) => {
-                            const val = parseFloat(e.target.value);
-                            if (val < trimEnd) setTrimStart(val);
+                            const newStart = parseFloat(e.target.value);
+                            if (newStart < trimEnd - 0.5) {
+                              setTrimStart(newStart);
+                            }
                           }}
-                          className="w-full"
+                          className="absolute w-full slider-start"
+                          style={{ zIndex: 3 }}
                         />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-xs text-slate-400">End</Label>
                         <input
                           type="range"
                           min="0"
@@ -423,85 +412,105 @@ export default function AudioEditorPage() {
                           step="0.1"
                           value={trimEnd}
                           onChange={(e) => {
-                            const val = parseFloat(e.target.value);
-                            if (val > trimStart) setTrimEnd(val);
+                            const newEnd = parseFloat(e.target.value);
+                            if (newEnd > trimStart + 0.5) {
+                              setTrimEnd(newEnd);
+                            }
                           }}
-                          className="w-full"
+                          className="absolute w-full slider-end"
+                          style={{ zIndex: 2 }}
                         />
+                        <div className="absolute w-full h-2 bg-slate-700 rounded-full top-4">
+                          <div 
+                            className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
+                            style={{
+                              marginLeft: `${(trimStart / duration) * 100}%`,
+                              width: `${((trimEnd - trimStart) / duration) * 100}%`
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
                   )}
 
                   {showFadeControls && (
                     <div className="space-y-3 bg-slate-800/30 rounded-lg p-4 border border-slate-700/50">
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <Label className="text-xs text-slate-400">Fade In</Label>
-                          <span className="text-xs text-slate-500 font-mono">{fadeIn.toFixed(1)}s</span>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-green-400">Fade In</span>
+                            <span className="text-slate-400 font-mono">{fadeIn.toFixed(1)}s</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="10"
+                            step="0.1"
+                            value={fadeIn}
+                            onChange={(e) => setFadeIn(parseFloat(e.target.value))}
+                            className="w-full slider-fade-in"
+                          />
                         </div>
-                        <input
-                          type="range"
-                          min="0"
-                          max="10"
-                          step="0.1"
-                          value={fadeIn}
-                          onChange={(e) => setFadeIn(parseFloat(e.target.value))}
-                          className="w-full"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <Label className="text-xs text-slate-400">Fade Out</Label>
-                          <span className="text-xs text-slate-500 font-mono">{fadeOut.toFixed(1)}s</span>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-red-400">Fade Out</span>
+                            <span className="text-slate-400 font-mono">{fadeOut.toFixed(1)}s</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="10"
+                            step="0.1"
+                            value={fadeOut}
+                            onChange={(e) => setFadeOut(parseFloat(e.target.value))}
+                            className="w-full slider-fade-out"
+                          />
                         </div>
-                        <input
-                          type="range"
-                          min="0"
-                          max="10"
-                          step="0.1"
-                          value={fadeOut}
-                          onChange={(e) => setFadeOut(parseFloat(e.target.value))}
-                          className="w-full"
-                        />
                       </div>
                     </div>
                   )}
 
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-sm text-slate-300">Volume</Label>
-                      <span className="text-sm text-slate-400 font-mono">
-                        {volume > 0 ? '+' : ''}{volume} dB
+                  <div className="space-y-3 bg-slate-800/30 rounded-lg p-4 border border-slate-700/50">
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <Volume2 className="w-4 h-4 text-slate-400" />
+                        <span className="text-slate-300">Volume</span>
+                      </div>
+                      <span className="text-purple-400 font-mono">
+                        {volume > 0 ? '+' : ''}{volume.toFixed(1)} dB
                       </span>
                     </div>
                     <input
                       type="range"
                       min="-60"
                       max="12"
-                      step="1"
+                      step="0.5"
                       value={volume}
                       onChange={(e) => setVolume(parseFloat(e.target.value))}
-                      className="w-full"
+                      className="w-full slider-volume"
                     />
                   </div>
 
                   <div className="space-y-3 bg-slate-800/30 rounded-lg p-4 border border-slate-700/50">
-                    <Label className="text-sm text-slate-300">Save As</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        value={filename}
-                        onChange={(e) => setFilename(e.target.value)}
-                        className="flex-1 bg-slate-900/50 border-slate-700 text-white"
-                        placeholder="filename"
-                      />
-                      <span className="flex items-center text-slate-400 text-sm">.mp3</span>
+                    <div className="space-y-2">
+                      <label className="text-sm text-slate-300">Save As</label>
+                      <div className="flex gap-2">
+                        <Input
+                          value={filename}
+                          onChange={(e) => setFilename(e.target.value)}
+                          className="flex-1 bg-slate-700/50 border-slate-600 text-white"
+                        />
+                        <span className="flex items-center px-3 bg-slate-700/50 border border-slate-600 rounded-md text-slate-400 text-sm">
+                          .mp3
+                        </span>
+                      </div>
                     </div>
                     <Button
                       onClick={handleExport}
                       className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
                     >
                       <Download className="w-4 h-4 mr-2" />
-                      Export
+                      Export Audio
                     </Button>
                   </div>
                 </CardContent>
@@ -515,10 +524,18 @@ export default function AudioEditorPage() {
         input[type="range"] {
           -webkit-appearance: none;
           appearance: none;
+          background: transparent;
+          cursor: pointer;
+        }
+        
+        input[type="range"]::-webkit-slider-runnable-track {
+          background: transparent;
           height: 8px;
-          background: rgb(51, 65, 85);
-          border-radius: 4px;
-          outline: none;
+        }
+        
+        input[type="range"]::-moz-range-track {
+          background: transparent;
+          height: 8px;
         }
         
         input[type="range"]::-webkit-slider-thumb {
@@ -530,6 +547,7 @@ export default function AudioEditorPage() {
           border: 2px solid white;
           border-radius: 50%;
           cursor: pointer;
+          margin-top: -6px;
         }
         
         input[type="range"]::-moz-range-thumb {
@@ -539,6 +557,14 @@ export default function AudioEditorPage() {
           border: 2px solid white;
           border-radius: 50%;
           cursor: pointer;
+        }
+
+        .slider-start::-webkit-slider-thumb {
+          z-index: 3;
+        }
+
+        .slider-end::-webkit-slider-thumb {
+          z-index: 2;
         }
       `}</style>
     </>
