@@ -357,21 +357,65 @@ export default function AudioEditorPage() {
                 </div>
 
                 {activeTool === "trim" && (
-                  <Card className="bg-slate-800/50 border-blue-500/30">
-                    <CardContent className="p-4 pt-6">
-                      <Slider
-                        value={[trimStart, trimEnd]}
-                        min={0}
-                        max={100}
-                        step={0.1}
-                        onValueChange={([start, end]) => {
-                          setTrimStart(start);
-                          setTrimEnd(end);
-                        }}
-                        className="[&>span:first-child]:bg-blue-500/20 [&_[role=slider]]:bg-black [&_[role=slider]]:border-white [&_[role=slider]]:border-2"
-                      />
-                    </CardContent>
-                  </Card>
+                  <div className="space-y-3 bg-slate-800/30 rounded-lg p-4 border border-slate-700/50">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-slate-300">Trim Range</span>
+                        <span className="text-slate-400 font-mono">
+                          {trimStart.toFixed(1)}s - {trimEnd.toFixed(1)}s
+                        </span>
+                      </div>
+                      <div className="relative pt-2 pb-6">
+                        <input
+                          type="range"
+                          min="0"
+                          max={duration}
+                          step="0.1"
+                          value={trimStart}
+                          onChange={(e) => {
+                            const newStart = parseFloat(e.target.value);
+                            if (newStart < trimEnd) {
+                              setTrimStart(newStart);
+                              updateTrimRegion(newStart, trimEnd);
+                            }
+                          }}
+                          className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer"
+                          style={{
+                            background: 'transparent',
+                            zIndex: 2
+                          }}
+                        />
+                        <input
+                          type="range"
+                          min="0"
+                          max={duration}
+                          step="0.1"
+                          value={trimEnd}
+                          onChange={(e) => {
+                            const newEnd = parseFloat(e.target.value);
+                            if (newEnd > trimStart) {
+                              setTrimEnd(newEnd);
+                              updateTrimRegion(trimStart, newEnd);
+                            }
+                          }}
+                          className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer"
+                          style={{
+                            background: 'transparent',
+                            zIndex: 1
+                          }}
+                        />
+                        <div className="w-full h-2 bg-slate-700 rounded-full">
+                          <div 
+                            className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all"
+                            style={{
+                              marginLeft: `${(trimStart / duration) * 100}%`,
+                              width: `${((trimEnd - trimStart) / duration) * 100}%`
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 )}
 
                 {activeTool === "fade" && (
@@ -445,6 +489,36 @@ export default function AudioEditorPage() {
           </div>
         </main>
       </div>
+      <style jsx>{`
+        input[type="range"] {
+          -webkit-appearance: none;
+          appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 20px;
+          height: 20px;
+          background: #1e293b;
+          border: 2px solid white;
+          border-radius: 50%;
+          cursor: pointer;
+          position: relative;
+          z-index: 10;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+          width: 20px;
+          height: 20px;
+          background: #1e293b;
+          border: 2px solid white;
+          border-radius: 50%;
+          cursor: pointer;
+          position: relative;
+          z-index: 10;
+        }
+      `}</style>
     </>
   );
 }
