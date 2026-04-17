@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Upload, Play, Pause, Scissors, Volume2, Download, RefreshCw, X, SlidersHorizontal } from "lucide-react";
+import { Play, Pause, Download, Upload, X, Volume2, RotateCcw, Scissors, Music, Repeat, RefreshCw, SlidersHorizontal } from "lucide-react";
 import WaveSurfer from "wavesurfer.js";
 import RegionsPlugin from "wavesurfer.js/dist/plugins/regions.esm.js";
 
@@ -13,7 +14,8 @@ export default function AudioEditorPage() {
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(1);
+  const [isLooping, setIsLooping] = useState(false);
+  const [volume, setVolume] = useState(100);
   const [activeTool, setActiveTool] = useState<"trim" | "fade" | null>(null);
   const [trimStart, setTrimStart] = useState(0);
   const [trimEnd, setTrimEnd] = useState(100);
@@ -314,17 +316,46 @@ export default function AudioEditorPage() {
                       <div className="truncate max-w-[200px] text-sm text-white font-medium">
                         {audioFile.name}
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setAudioFile(null);
-                          setAudioUrl(null);
-                        }}
-                        className="text-slate-400 hover:text-white"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setIsLooping(!isLooping);
+                            if (wavesurfer.current) {
+                              const ws = wavesurfer.current;
+                              ws.on('finish', () => {
+                                if (isLooping) {
+                                  ws.play();
+                                }
+                              });
+                            }
+                          }}
+                          className={`border-slate-600 ${
+                            isLooping 
+                              ? 'bg-purple-500/20 text-purple-300 border-purple-500/50' 
+                              : 'text-slate-400 hover:bg-slate-700/50'
+                          }`}
+                        >
+                          <Repeat className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setAudioFile(null);
+                            setAudioUrl(null);
+                            setIsPlaying(false);
+                            if (wavesurfer.current) {
+                              wavesurfer.current.destroy();
+                              wavesurfer.current = null;
+                            }
+                          }}
+                          className="border-red-500/50 text-red-400 hover:bg-red-500/10"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                     
                     <div className="relative w-full bg-slate-900/80 p-4">
