@@ -26,7 +26,8 @@ import {
   Gift,
   Wrench,
   LayoutDashboard,
-  FolderOpen
+  FolderOpen,
+  Bot
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeSwitch } from "@/components/ThemeSwitch";
@@ -71,7 +72,7 @@ export function Navigation() {
     { name: "Audio", href: "/audio", icon: Mic },
     { name: "Music", href: "/music", icon: Music },
     { name: "Apps", href: "/tools", icon: Grid3x3 },
-    { name: "Agents", href: "/dashboard", icon: Sparkles },
+    { name: "Agents", href: "/dashboard", icon: Bot },
     { name: "Free Tools", href: "/free-tools", icon: Sparkles },
   ];
 
