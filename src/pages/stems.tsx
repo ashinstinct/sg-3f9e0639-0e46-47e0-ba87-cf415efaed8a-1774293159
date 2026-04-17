@@ -1,12 +1,13 @@
 import { useState, useRef } from "react";
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
+import { WaveformVisualizer } from "@/components/WaveformVisualizer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Upload, FileAudio, Download, Loader2, Music, Mic2, Drum, Guitar, Piano, CheckCircle2, AlertCircle } from "lucide-react";
+import { Upload, FileAudio, Download, Loader2, Music, Mic2, Drum, Guitar, Piano, CheckCircle2, AlertCircle, X } from "lucide-react";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL || "http://localhost:5000";
 
@@ -211,13 +212,42 @@ export default function StemSeparator() {
                     )}
 
                     {audioUrl && (
-                      <audio
-                        ref={audioRef}
-                        src={audioUrl}
-                        controls
-                        onLoadedMetadata={handleAudioLoad}
-                        className="w-full"
-                      />
+                      <Card className="bg-slate-800/50 border-slate-700/50">
+                        <CardContent className="p-6 space-y-4">
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                              <p className="text-sm font-medium text-white">{audioFile.name}</p>
+                              <p className="text-xs text-slate-400">
+                                {(audioFile.size / 1024 / 1024).toFixed(2)} MB
+                              </p>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setAudioFile(null);
+                                setAudioUrl(null);
+                              }}
+                              className="border-red-500/50 text-red-400 hover:bg-red-500/10"
+                            >
+                              <X className="w-4 h-4 mr-2" />
+                              Remove
+                            </Button>
+                          </div>
+
+                          {audioUrl && (
+                            <WaveformVisualizer audioUrl={audioUrl} height={100} />
+                          )}
+
+                          <audio
+                            ref={audioRef}
+                            src={audioUrl}
+                            controls
+                            onLoadedMetadata={handleAudioLoad}
+                            className="w-full"
+                          />
+                        </CardContent>
+                      </Card>
                     )}
 
                     {isSeparating && (

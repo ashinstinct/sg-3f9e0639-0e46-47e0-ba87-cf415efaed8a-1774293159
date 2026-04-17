@@ -2,12 +2,13 @@ import { useState, useRef, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Upload, Loader2, Download, Scissors, Play, Pause, Volume2, RotateCcw, Sparkles } from "lucide-react";
+import { Upload, Loader2, Download, Scissors, Play, Pause, Volume2, RotateCcw, Sparkles, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
+import { WaveformVisualizer } from "@/components/WaveformVisualizer";
 
 export default function AudioEditor() {
   const [audioFile, setAudioFile] = useState<File | null>(null);
@@ -324,13 +325,44 @@ export default function AudioEditor() {
                   </div>
 
                   {audioFile && (
-                    <div className="bg-slate-900/50 rounded-lg p-4">
-                      <p className="text-sm text-slate-400 mb-2">Loaded File:</p>
-                      <p className="text-white font-medium truncate">{audioFile.name}</p>
-                      <p className="text-sm text-slate-500 mt-1">
-                        {(audioFile.size / 1024 / 1024).toFixed(2)} MB • {formatTime(duration)}
-                      </p>
-                    </div>
+                    <Card className="bg-slate-800/50 border-slate-700/50">
+                      <CardContent className="p-6 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-1">
+                            <p className="text-sm font-medium text-white">{audioFile.name}</p>
+                            <p className="text-xs text-slate-400">
+                              {(audioFile.size / 1024 / 1024).toFixed(2)} MB
+                            </p>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setAudioFile(null);
+                              setAudioURL("");
+                              setIsPlaying(false);
+                            }}
+                            className="border-red-500/50 text-red-400 hover:bg-red-500/10"
+                          >
+                            <X className="w-4 h-4 mr-2" />
+                            Remove
+                          </Button>
+                        </div>
+
+                        {audioURL && (
+                          <WaveformVisualizer audioUrl={audioURL} height={100} />
+                        )}
+
+                        <audio
+                          ref={audioRef}
+                          src={audioURL}
+                          onLoadedMetadata={handleLoadedMetadata}
+                          onTimeUpdate={handleTimeUpdate}
+                          onEnded={() => setIsPlaying(false)}
+                          className="hidden"
+                        />
+                      </CardContent>
+                    </Card>
                   )}
                 </div>
               </CardContent>

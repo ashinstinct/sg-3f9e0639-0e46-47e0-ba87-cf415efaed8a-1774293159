@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
+import { WaveformVisualizer } from "@/components/WaveformVisualizer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { FileAudio, Mic, Link as LinkIcon, Download, Loader2, AlertCircle, FileText, Square, Copy, Check } from "lucide-react";
+import { FileAudio, Mic, Link as LinkIcon, Download, Loader2, AlertCircle, FileText, Square, Copy, Check, X } from "lucide-react";
 
 type TranscriptionSource = "upload" | "record" | "url";
 type ExportFormat = "txt" | "srt";

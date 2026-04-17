@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
+import { WaveformVisualizer } from "@/components/WaveformVisualizer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Upload, Mic, Download, Loader2, Sparkles, CheckCircle2, AlertCircle, Wand2 } from "lucide-react";
+import { Upload, Mic, Download, Loader2, Sparkles, CheckCircle2, AlertCircle, Wand2, X } from "lucide-react";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_PYTHON_BACKEND_URL || "http://localhost:5000";
 const OPENAI_API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY || "";
@@ -267,12 +268,41 @@ export default function VoiceCloner() {
                         </div>
                         
                         {referenceUrl && (
-                          <audio
-                            ref={audioRef}
-                            src={referenceUrl}
-                            controls
-                            className="w-full"
-                          />
+                          <Card className="bg-slate-800/50 border-slate-700/50">
+                            <CardContent className="p-6 space-y-4">
+                              <div className="flex items-center justify-between">
+                                <div className="space-y-1">
+                                  <p className="text-sm font-medium text-white">{referenceFile.name}</p>
+                                  <p className="text-xs text-slate-400">
+                                    {(referenceFile.size / 1024 / 1024).toFixed(2)} MB
+                                  </p>
+                                </div>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setReferenceFile(null);
+                                    setReferenceUrl("");
+                                  }}
+                                  className="border-red-500/50 text-red-400 hover:bg-red-500/10"
+                                >
+                                  <X className="w-4 h-4 mr-2" />
+                                  Remove
+                                </Button>
+                              </div>
+
+                              {referenceUrl && (
+                                <WaveformVisualizer audioUrl={referenceUrl} height={100} />
+                              )}
+
+                              <audio
+                                ref={audioRef}
+                                src={referenceUrl}
+                                controls
+                                className="w-full"
+                              />
+                            </CardContent>
+                          </Card>
                         )}
                       </div>
                     )}

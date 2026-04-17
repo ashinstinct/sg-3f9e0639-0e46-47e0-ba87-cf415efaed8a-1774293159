@@ -2,11 +2,12 @@ import { useState, useRef, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Mic, Square, Play, Pause, Download, Trash2, Share2, Edit, Sparkles, Volume2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
+import { WaveformVisualizer } from "@/components/WaveformVisualizer";
 
 export default function RecordVoice() {
   const [isRecording, setIsRecording] = useState(false);
