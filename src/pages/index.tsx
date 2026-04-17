@@ -126,11 +126,12 @@ export default function Home() {
               <Button
                 onClick={() => router.push("/generate")}
                 size="lg"
-                asChild
                 className="text-lg px-8 py-6 bg-purple-500 hover:bg-purple-600"
               >
-                Generate Now
-                <ArrowRight className="w-5 h-5 ml-2" />
+                <span className="flex items-center">
+                  Generate Now
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </span>
               </Button>
 
               {/* Stats */}

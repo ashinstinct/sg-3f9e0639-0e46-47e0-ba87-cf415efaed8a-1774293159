@@ -38,7 +38,7 @@ export function WaveformVisualizer({ audioUrl, height = 80 }: WaveformVisualizer
         const multiplier = Math.pow(Math.max(...filteredData), -1);
         const normalizedData = filteredData.map(n => n * multiplier);
 
-        // Draw waveform with gradient
+        // Draw waveform with solid purple color
         const dpr = window.devicePixelRatio || 1;
         canvas.width = canvas.offsetWidth * dpr;
         canvas.height = canvas.offsetHeight * dpr;
@@ -48,12 +48,6 @@ export function WaveformVisualizer({ audioUrl, height = 80 }: WaveformVisualizer
         const height = canvas.offsetHeight;
         const barWidth = width / samples;
 
-        // Create gradient
-        const gradient = ctx.createLinearGradient(0, 0, width, 0);
-        gradient.addColorStop(0, "#a855f7"); // purple-500
-        gradient.addColorStop(0.5, "#ec4899"); // pink-500
-        gradient.addColorStop(1, "#06b6d4"); // cyan-500
-
         ctx.clearRect(0, 0, width, height);
         
         normalizedData.forEach((value, index) => {
@@ -61,7 +55,7 @@ export function WaveformVisualizer({ audioUrl, height = 80 }: WaveformVisualizer
           const x = barWidth * index;
           const y = (height - barHeight) / 2;
 
-          ctx.fillStyle = gradient;
+          ctx.fillStyle = "rgb(168, 85, 247)"; // solid purple-500
           ctx.fillRect(x, y, barWidth - 1, barHeight);
         });
       })

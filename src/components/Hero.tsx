@@ -60,11 +60,12 @@ export function Hero() {
           <Button
             onClick={() => router.push("/generate")}
             size="lg"
-            asChild
             className="text-lg px-10 py-7 bg-purple-500 hover:bg-purple-600"
           >
-            Generate for Free
-            <ArrowRight className="w-5 h-5 ml-2" />
+            <span className="flex items-center">
+              Generate for Free
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </span>
           </Button>
           
           {/* Secondary ghost link */}
