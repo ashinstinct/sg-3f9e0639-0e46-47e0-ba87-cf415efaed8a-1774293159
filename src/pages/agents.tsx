@@ -12,7 +12,7 @@ export default function AgentsPage() {
       title: "Customer Support Agent",
       description: "24/7 AI-powered customer support for your website",
       icon: Headphones,
-      color: "from-blue-500 to-cyan-500",
+      color: "bg-blue-500",
       features: ["Instant responses", "Multi-language support", "CRM integration"],
       pricing: "Premium"
     },
@@ -20,7 +20,7 @@ export default function AgentsPage() {
       title: "Sales Assistant",
       description: "Convert visitors into customers with intelligent conversations",
       icon: MessageSquare,
-      color: "from-purple-500 to-pink-500",
+      color: "bg-purple-500",
       features: ["Lead qualification", "Product recommendations", "Calendar booking"],
       pricing: "Premium"
     },
@@ -28,7 +28,7 @@ export default function AgentsPage() {
       title: "Voice Agent",
       description: "Natural voice conversations for phone support",
       icon: Phone,
-      color: "from-green-500 to-emerald-500",
+      color: "bg-green-500",
       features: ["Human-like voice", "Call routing", "Voicemail transcription"],
       pricing: "Premium"
     },
@@ -36,7 +36,7 @@ export default function AgentsPage() {
       title: "Website Assistant",
       description: "Help visitors navigate your site and find information",
       icon: Globe,
-      color: "from-orange-500 to-red-500",
+      color: "bg-orange-500",
       features: ["Page navigation", "Search assistance", "FAQ automation"],
       pricing: "Premium"
     },
@@ -48,7 +48,7 @@ export default function AgentsPage() {
         title="AI Agents - Back2Life.Studio"
         description="Deploy AI-powered agents for customer support, sales, and website assistance"
       />
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen bg-slate-950">
         <Navigation />
         <main className="container mx-auto px-4 py-24">
           <div className="max-w-7xl mx-auto space-y-12">
@@ -58,7 +58,7 @@ export default function AgentsPage() {
                 <Bot className="w-4 h-4 text-purple-400" />
                 <span className="text-sm font-medium text-purple-300">AI Agents</span>
               </div>
-              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+              <h1 className="text-5xl md:text-6xl font-bold text-purple-400">
                 Deploy AI Agents
               </h1>
               <p className="text-xl text-slate-300 max-w-2xl mx-auto">
@@ -67,7 +67,7 @@ export default function AgentsPage() {
             </div>
 
             {/* Coming Soon Banner */}
-            <Card className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-500/20">
+            <Card className="bg-slate-800/50 border-purple-500/20">
               <CardContent className="p-8 text-center space-y-4">
                 <div className="inline-flex items-center gap-2 text-purple-400">
                   <Sparkles className="w-6 h-6" />
@@ -77,7 +77,7 @@ export default function AgentsPage() {
                   AI Agents are currently in development. Sign up for premium access to get early access when they launch!
                 </p>
                 <Link href="/dashboard">
-                  <Button size="lg" className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                  <Button size="lg" className="bg-purple-500 hover:bg-purple-600">
                     Get Early Access
                   </Button>
                 </Link>
@@ -90,7 +90,7 @@ export default function AgentsPage() {
                 <Card key={agent.title} className="bg-slate-800/50 border-slate-700/50 hover:border-purple-500/50 transition-all">
                   <CardContent className="p-6 space-y-4">
                     <div className="flex items-start justify-between">
-                      <div className={`p-3 rounded-xl bg-gradient-to-br ${agent.color}`}>
+                      <div className={`p-3 rounded-xl ${agent.color}`}>
                         <agent.icon className="w-6 h-6 text-white" />
                       </div>
                       <Badge variant="outline" className="border-purple-500/50 text-purple-300">

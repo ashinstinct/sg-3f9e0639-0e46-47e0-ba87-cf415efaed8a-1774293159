@@ -242,9 +242,9 @@ export default function AudioEditorPage() {
   return (
     <>
       <SEO title="Audio Editor - Back2Life.Studio" />
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen bg-slate-950">
         <Navigation />
-        <main className="container mx-auto px-4 py-16">
+        <main className="container mx-auto px-4 py-16 max-w-4xl">
           <div className="max-w-4xl mx-auto space-y-6">
             <h1 className="text-3xl font-bold text-white text-center">Audio Editor</h1>
 
