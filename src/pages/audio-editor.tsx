@@ -376,7 +376,6 @@ export default function AudioEditorPage() {
                             const newStart = parseFloat(e.target.value);
                             if (newStart < trimEnd) {
                               setTrimStart(newStart);
-                              updateTrimRegion(newStart, trimEnd);
                             }
                           }}
                           className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer"
@@ -395,7 +394,6 @@ export default function AudioEditorPage() {
                             const newEnd = parseFloat(e.target.value);
                             if (newEnd > trimStart) {
                               setTrimEnd(newEnd);
-                              updateTrimRegion(trimStart, newEnd);
                             }
                           }}
                           className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer"
