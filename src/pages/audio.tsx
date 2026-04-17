@@ -17,7 +17,7 @@ const FREE_TOOLS = [
     title: "Audio Editor",
     description: "Trim, fade, adjust volume and speed",
     icon: Scissors,
-    href: "/edit",
+    href: "/audio-editor",
     color: "from-blue-500 to-indigo-500",
   },
   {

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { 
   Camera, Download, SplitSquareHorizontal, AudioLines, Settings, 
   Music, Wand2, Mic, MonitorPlay, Film, Image as ImageIcon, 
-  FileText, Sparkles
+  FileText, Sparkles, Scissors
 } from "lucide-react";
 
 const audioTools = [
@@ -20,11 +20,10 @@ const audioTools = [
   },
   {
     title: "Audio Editor",
-    description: "Trim, fade, adjust volume and speed like a pro editor",
-    icon: Settings,
-    href: "/edit",
-    free: true,
-    color: "from-orange-500 to-red-500",
+    description: "Trim, fade, adjust volume and speed for professional editing",
+    icon: Scissors,
+    href: "/audio-editor",
+    color: "from-blue-500 to-indigo-500",
   },
   {
     title: "Audio Enhancer",
