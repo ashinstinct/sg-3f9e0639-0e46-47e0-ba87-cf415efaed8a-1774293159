@@ -24,9 +24,12 @@ export default function AudioEditorPage() {
   const [exportName, setExportName] = useState("edited-audio");
   const [duration, setDuration] = useState(0);
   
+  const wavesurferRef = useRef<any>(null);
   const waveformRef = useRef<HTMLDivElement>(null);
-  const wavesurfer = useRef<WaveSurfer | null>(null);
-  const regionsPlugin = useRef<RegionsPlugin | null>(null);
+  const trimRegionRef = useRef<any>(null);
+  const fadeInRegionRef = useRef<any>(null);
+  const fadeOutRegionRef = useRef<any>(null);
+  const scriptLoadedRef = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Use refs for state accessed inside timeupdate event to avoid re-binding
@@ -39,95 +42,99 @@ export default function AudioEditorPage() {
   useEffect(() => {
     if (!audioUrl || !waveformRef.current) return;
 
-    // Create plugins
-    const regions = RegionsPlugin.create();
-    regionsPlugin.current = regions;
+    // Cleanup previous instance
+    if (wavesurferRef.current) {
+      wavesurferRef.current.destroy();
+      wavesurferRef.current = null;
+    }
 
-    // Initialize WaveSurfer
-    const ws = WaveSurfer.create({
-      container: waveformRef.current,
-      waveColor: 'url(#waveform-gradient)',
-      progressColor: '#ec4899', // pink-500
-      cursorColor: '#06b6d4', // cyan-500
-      barWidth: 2,
-      barGap: 2,
-      barRadius: 2,
-      height: 100,
-      normalize: true,
-      plugins: [regions],
-    });
+    const initWaveSurfer = () => {
+      const WaveSurfer = (window as any).WaveSurfer;
+      if (!WaveSurfer || !waveformRef.current) return;
 
-    wavesurfer.current = ws;
+      try {
+        const ws = WaveSurfer.create({
+          container: waveformRef.current,
+          waveColor: 'rgb(148, 163, 184)',
+          progressColor: 'rgb(168, 85, 247)',
+          cursorColor: 'rgb(236, 72, 153)',
+          barWidth: 2,
+          barGap: 1,
+          barRadius: 2,
+          height: 128,
+          normalize: true,
+        });
 
-    // Add gradient definition to container
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.style.position = 'absolute';
-    svg.style.width = '0';
-    svg.style.height = '0';
-    svg.innerHTML = `
-      <defs>
-        <linearGradient id="waveform-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#a855f7" />
-          <stop offset="50%" stop-color="#ec4899" />
-          <stop offset="100%" stop-color="#06b6d4" />
-        </linearGradient>
-      </defs>
-    `;
-    waveformRef.current.appendChild(svg);
+        ws.load(audioUrl);
+        
+        ws.on('ready', () => {
+          const dur = ws.getDuration();
+          setDuration(dur);
+          setTrimEnd(dur);
+        });
 
-    // Event listeners
-    ws.on('ready', () => {
-      ws.setVolume(volume);
-      const d = ws.getDuration();
-      setDuration(d);
-      
-      // Default trim region
-      regions.addRegion({
-        start: 0,
-        end: d,
-        color: 'rgba(168, 85, 247, 0.3)', // purple
-        drag: false,
-        resize: false, // controlled by slider
-        id: 'trim-region'
-      });
+        ws.on('finish', () => {
+          if (isLooping) {
+            ws.play();
+          } else {
+            setIsPlaying(false);
+          }
+        });
 
-      // Default fade in region (invisible initially)
-      regions.addRegion({
-        start: 0,
-        end: 0,
-        color: 'rgba(34, 197, 94, 0.4)', // green
-        drag: false,
-        resize: false,
-        id: 'fade-in'
-      });
+        ws.on('play', () => setIsPlaying(true));
+        ws.on('pause', () => setIsPlaying(false));
 
-      // Default fade out region
-      regions.addRegion({
-        start: d,
-        end: d,
-        color: 'rgba(239, 68, 68, 0.4)', // red
-        drag: false,
-        resize: false,
-        id: 'fade-out'
-      });
-    });
+        wavesurferRef.current = ws;
+      } catch (error) {
+        console.error('WaveSurfer initialization error:', error);
+      }
+    };
 
-    ws.on('play', () => setIsPlaying(true));
-    ws.on('pause', () => setIsPlaying(false));
-    ws.on('finish', () => setIsPlaying(false));
-
-    // Load audio
-    ws.load(audioUrl);
+    if (scriptLoadedRef.current) {
+      initWaveSurfer();
+    } else {
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/wavesurfer.js@7';
+      script.onload = () => {
+        scriptLoadedRef.current = true;
+        initWaveSurfer();
+      };
+      script.onerror = () => {
+        console.error('Failed to load WaveSurfer.js');
+      };
+      document.head.appendChild(script);
+    }
 
     return () => {
-      ws.destroy();
+      if (wavesurferRef.current) {
+        try {
+          wavesurferRef.current.destroy();
+        } catch (error) {
+          console.error('Error destroying WaveSurfer:', error);
+        }
+        wavesurferRef.current = null;
+      }
     };
   }, [audioUrl]);
 
+  // Handle loop state changes
   useEffect(() => {
-    if (!wavesurfer.current) return;
+    if (wavesurferRef.current) {
+      wavesurferRef.current.un('finish');
+      wavesurferRef.current.on('finish', () => {
+        if (isLooping) {
+          wavesurferRef.current?.play();
+        } else {
+          setIsPlaying(false);
+        }
+      });
+    }
+  }, [isLooping]);
+
+  useEffect(() => {
+    if (!wavesurferRef.current) return;
     
-    const ws = wavesurfer.current;
+    const ws = wavesurferRef.current;
     
     const onTimeUpdate = (currentTime: number) => {
       const d = ws.getDuration();
@@ -177,39 +184,37 @@ export default function AudioEditorPage() {
 
   // Update regions when sliders change
   useEffect(() => {
-    if (!regionsPlugin.current || !wavesurfer.current || !duration) return;
+    if (!trimRegionRef.current || !fadeInRegionRef.current || !fadeOutRegionRef.current || !wavesurferRef.current || !duration) return;
     
-    const regions = regionsPlugin.current.getRegions();
+    const trimRegion = trimRegionRef.current;
+    const fadeInRegion = fadeInRegionRef.current;
+    const fadeOutRegion = fadeOutRegionRef.current;
     
-    const trimRegion = regions.find(r => r.id === 'trim-region');
-    if (trimRegion) {
-      trimRegion.setOptions({
-        start: (trimStart / 100) * duration,
-        end: (trimEnd / 100) * duration
-      });
-    }
+    const startSec = (trimStart / 100) * duration;
+    const endSec = (trimEnd / 100) * duration;
+    const fadeInSec = startSec + fadeIn;
+    const fadeOutSec = endSec - fadeOut;
 
-    const fadeInRegion = regions.find(r => r.id === 'fade-in');
-    if (fadeInRegion) {
-      fadeInRegion.setOptions({
-        start: (trimStart / 100) * duration,
-        end: (trimStart / 100) * duration + fadeIn
-      });
-    }
+    trimRegion.setOptions({
+      start: startSec,
+      end: endSec
+    });
 
-    const fadeOutRegion = regions.find(r => r.id === 'fade-out');
-    if (fadeOutRegion) {
-      fadeOutRegion.setOptions({
-        start: (trimEnd / 100) * duration - fadeOut,
-        end: (trimEnd / 100) * duration
-      });
-    }
+    fadeInRegion.setOptions({
+      start: startSec,
+      end: fadeInSec
+    });
+
+    fadeOutRegion.setOptions({
+      start: fadeOutSec,
+      end: endSec
+    });
   }, [trimStart, trimEnd, fadeIn, fadeOut, duration]);
 
   // Volume updates manually if not playing
   useEffect(() => {
-    if (wavesurfer.current && !isPlaying) {
-      wavesurfer.current.setVolume(volume);
+    if (wavesurferRef.current && !isPlaying) {
+      wavesurferRef.current.setVolume(volume);
     }
   }, [volume, isPlaying]);
 
@@ -240,9 +245,9 @@ export default function AudioEditorPage() {
   };
 
   const togglePlayback = () => {
-    if (wavesurfer.current) {
+    if (wavesurferRef.current) {
       // If we are currently outside trim bounds, jump to trimStart
-      const ws = wavesurfer.current;
+      const ws = wavesurferRef.current;
       const d = ws.getDuration();
       const startSec = (trimStart / 100) * d;
       const endSec = (trimEnd / 100) * d;
@@ -320,17 +325,7 @@ export default function AudioEditorPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => {
-                            setIsLooping(!isLooping);
-                            if (wavesurfer.current) {
-                              const ws = wavesurfer.current;
-                              ws.on('finish', () => {
-                                if (isLooping) {
-                                  ws.play();
-                                }
-                              });
-                            }
-                          }}
+                          onClick={() => setIsLooping(!isLooping)}
                           className={`border-slate-600 ${
                             isLooping 
                               ? 'bg-purple-500/20 text-purple-300 border-purple-500/50' 
@@ -346,10 +341,7 @@ export default function AudioEditorPage() {
                             setAudioFile(null);
                             setAudioUrl(null);
                             setIsPlaying(false);
-                            if (wavesurfer.current) {
-                              wavesurfer.current.destroy();
-                              wavesurfer.current = null;
-                            }
+                            setIsLooping(false);
                           }}
                           className="border-red-500/50 text-red-400 hover:bg-red-500/10"
                         >
