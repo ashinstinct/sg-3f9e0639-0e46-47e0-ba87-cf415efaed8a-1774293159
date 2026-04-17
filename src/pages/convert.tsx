@@ -1,4 +1,4 @@
-<![CDATA[import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,7 @@ export default function ConvertPage() {
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number>(undefined);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   
@@ -231,10 +231,10 @@ export default function ConvertPage() {
         title="Audio Converter - Convert Between MP3, WAV, M4A & More"
         description="Free online audio converter. Convert between MP3, WAV, M4A, AIFF, OGG, FLAC, and Opus formats"
       />
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 pt-24">
         <Navigation />
         
-        <main className="container mx-auto px-4 py-12 max-w-4xl pt-24">
+        <main className="container mx-auto px-4 py-12 max-w-4xl">
           <div className="mb-8 text-center">
             <h1 className="font-heading font-bold text-4xl mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               Audio Converter
@@ -245,7 +245,6 @@ export default function ConvertPage() {
           </div>
 
           <div className="grid gap-8">
-            {/* Upload & Convert Section */}
             <Card className="bg-card/50 backdrop-blur-sm border-border/50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -257,7 +256,6 @@ export default function ConvertPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* File Upload */}
                 <div>
                   <label
                     htmlFor="audio-upload"
@@ -288,7 +286,6 @@ export default function ConvertPage() {
                   </label>
                 </div>
 
-                {/* Format Selection */}
                 {audioFile && (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -315,7 +312,6 @@ export default function ConvertPage() {
                   </div>
                 )}
 
-                {/* Convert Button */}
                 <Button
                   onClick={handleConvert}
                   disabled={!audioFile || isConverting}
@@ -337,7 +333,6 @@ export default function ConvertPage() {
               </CardContent>
             </Card>
 
-            {/* Converted Audio Section */}
             {convertedUrl && (
               <Card className="bg-card/50 backdrop-blur-sm border-border/50">
                 <CardHeader>
@@ -347,13 +342,12 @@ export default function ConvertPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* Waveform Visualization */}
                   <div className="relative">
                     <canvas
                       ref={canvasRef}
                       width={800}
                       height={200}
-                      className="w-full h-[200px] rounded-lg bg-slate-950 border border-border/50"
+                      className="w-full h-[150px] rounded-lg bg-slate-900 border border-purple-500/30"
                     />
                     <audio
                       ref={audioRef}
@@ -363,53 +357,60 @@ export default function ConvertPage() {
                     />
                   </div>
 
-                  {/* Playback Controls */}
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex items-center justify-center gap-3">
                     <Button
                       onClick={handlePlay}
-                      variant="outline"
-                      className="flex-1 min-w-[140px]"
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                      size="lg"
                     >
                       {isPlaying ? "⏸️ Pause" : "▶️ Play"}
                     </Button>
                     <Button
                       onClick={handleDownload}
                       variant="outline"
-                      className="flex-1 min-w-[140px]"
+                      size="lg"
                     >
-                      <Download className="w-4 h-4 mr-2" />
+                      <Download className="w-5 h-5 mr-2" />
                       Download
                     </Button>
                     <Button
                       onClick={handleShare}
                       variant="outline"
-                      className="flex-1 min-w-[140px]"
+                      size="lg"
                     >
-                      <Share2 className="w-4 h-4 mr-2" />
+                      <Share2 className="w-5 h-5 mr-2" />
                       Share
                     </Button>
                   </div>
 
-                  {/* Action Buttons */}
-                  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-border/50">
-                    <Link href="/edit">
-                      <Button variant="outline" className="w-full border-blue-500/50 text-blue-400 hover:bg-blue-500/10">
-                        <Edit className="w-4 h-4 mr-2" />
+                  <div className="flex items-center justify-center gap-3 pt-4 border-t border-border">
+                    <Button
+                      asChild
+                      variant="secondary"
+                      size="lg"
+                      className="bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border-blue-500/30"
+                    >
+                      <Link href="/edit">
+                        <Edit className="w-5 h-5 mr-2" />
                         Edit Audio
-                      </Button>
-                    </Link>
-                    <Link href="/enhance">
-                      <Button variant="outline" className="w-full border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10">
-                        <Sparkles className="w-4 h-4 mr-2" />
+                      </Link>
+                    </Button>
+                    <Button
+                      asChild
+                      variant="secondary"
+                      size="lg"
+                      className="bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border-emerald-500/30"
+                    >
+                      <Link href="/enhance">
+                        <Sparkles className="w-5 h-5 mr-2" />
                         Enhance Audio
-                      </Button>
-                    </Link>
+                      </Link>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
             )}
 
-            {/* Supported Formats Info */}
             <Card className="bg-card/50 backdrop-blur-sm border-border/50">
               <CardHeader>
                 <CardTitle className="text-base">Supported Formats</CardTitle>
@@ -434,4 +435,3 @@ export default function ConvertPage() {
     </>
   );
 }
-</![CDATA[>
