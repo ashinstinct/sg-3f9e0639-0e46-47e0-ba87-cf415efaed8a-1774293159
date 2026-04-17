@@ -156,12 +156,16 @@ export default function FreeTools() {
         
         <div className="container mx-auto px-4 pt-24 pb-12">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-12 text-center">
-              <h1 className="font-heading font-bold text-5xl mb-4 bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                Free Tools
+            <div className="text-center space-y-4">
+              <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-2">
+                <Sparkles className="w-4 h-4 text-emerald-400" />
+                <span className="text-sm font-medium text-emerald-300">100% Free Forever</span>
+              </div>
+              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                12 FREE Tools
               </h1>
-              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-                14 powerful AI tools completely free. No signup, no limits. Tools marked with Pro badge have enhanced paid features.
+              <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+                Professional audio, video, and image tools. No credit card required. No limits.
               </p>
             </div>
 
