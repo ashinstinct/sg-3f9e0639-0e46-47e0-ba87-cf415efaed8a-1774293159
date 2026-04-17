@@ -2,7 +2,7 @@ import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Mic, Wand2, FileAudio, Scissors, Volume2, Eraser, SplitSquare, Repeat, Music } from "lucide-react";
+import { Mic, Wand2, FileAudio, Scissors, Volume2, Eraser, Layers, Repeat, Music } from "lucide-react";
 import Link from "next/link";
 
 const FREE_TOOLS = [
@@ -30,7 +30,7 @@ const FREE_TOOLS = [
   {
     title: "Stem Separator",
     description: "Split vocals, drums, bass and instruments",
-    icon: SplitSquare,
+    icon: Layers,
     href: "/stems",
     color: "from-orange-500 to-red-500",
   },
