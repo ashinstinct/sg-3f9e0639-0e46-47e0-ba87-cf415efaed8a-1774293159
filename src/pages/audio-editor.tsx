@@ -220,15 +220,15 @@ export default function AudioEditorPage() {
           <div className="max-w-5xl mx-auto space-y-8">
             {/* Header */}
             <div className="text-center space-y-4">
-              <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/20 rounded-full px-4 py-2">
-                <Scissors className="w-4 h-4 text-purple-400" />
-                <span className="text-sm font-medium text-purple-300">Audio Editor</span>
+              <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-2">
+                <Scissors className="w-4 h-4 text-blue-400" />
+                <span className="text-sm font-medium text-blue-300">Audio Editor</span>
               </div>
-              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
-                Edit Audio
+              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                Audio Editor
               </h1>
               <p className="text-xl text-slate-300 max-w-2xl mx-auto">
-                Trim, fade, adjust volume and speed with professional waveform editing
+                Professional audio editing with real-time waveform visualization
               </p>
             </div>
 
