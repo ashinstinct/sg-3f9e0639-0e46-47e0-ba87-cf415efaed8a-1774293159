@@ -150,7 +150,7 @@ export default function ConvertPage() {
         title="Audio Converter - Convert MP3, WAV, M4A, FLAC & More"
         description="Free audio converter supporting MP3, WAV, M4A, AIFF, OGG, FLAC, Opus formats. Convert MP4 videos to MP3 audio."
       />
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen bg-slate-950">
         <Navigation />
         <main className="container mx-auto px-4 py-24">
           <div className="max-w-4xl mx-auto space-y-8">
@@ -160,7 +160,7 @@ export default function ConvertPage() {
                 <Repeat className="w-4 h-4 text-cyan-400" />
                 <span className="text-sm font-medium text-cyan-300">Free Tool</span>
               </div>
-              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+              <h1 className="text-5xl md:text-6xl font-bold text-cyan-400">
                 Audio Converter
               </h1>
               <p className="text-xl text-slate-300 max-w-2xl mx-auto">
@@ -192,7 +192,7 @@ export default function ConvertPage() {
                     className="hidden"
                   />
                   <div className="space-y-4">
-                    <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
+                    <div className="mx-auto w-16 h-16 rounded-full bg-cyan-500 flex items-center justify-center">
                       {file ? (
                         <FileAudio className="w-8 h-8 text-white" />
                       ) : (
@@ -259,7 +259,7 @@ export default function ConvertPage() {
                   <Button
                     onClick={handleConvert}
                     disabled={!file || loading}
-                    className="flex-1 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
+                    className="flex-1 bg-cyan-500 hover:bg-cyan-600"
                   >
                     {loading ? (
                       <>
@@ -286,14 +286,14 @@ export default function ConvertPage() {
 
                 {/* Download Section */}
                 {convertedUrl && (
-                  <div className="space-y-4 p-6 rounded-lg bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border border-emerald-500/20">
+                  <div className="space-y-4 p-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-5 h-5 text-emerald-400" />
                       <span className="font-semibold text-white">Conversion Complete!</span>
                     </div>
                     <Button
                       onClick={handleDownload}
-                      className="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600"
+                      className="w-full bg-emerald-500 hover:bg-emerald-600"
                     >
                       <Download className="w-4 h-4 mr-2" />
                       Download {outputFormat.toUpperCase()}

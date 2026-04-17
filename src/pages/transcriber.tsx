@@ -272,7 +272,7 @@ export default function Transcriber() {
           <div className="max-w-5xl mx-auto">
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-gradient-to-r from-violet-500 to-purple-500">
+                <div className="p-2 rounded-lg bg-violet-500">
                   <FileText className="w-6 h-6 text-white" />
                 </div>
                 <h1 className="font-heading font-bold text-4xl">AI Transcriber</h1>
@@ -341,7 +341,7 @@ export default function Transcriber() {
                         onClick={transcribeFile}
                         disabled={!audioFile || isTranscribing}
                         size="lg"
-                        className="w-full bg-gradient-to-r from-violet-500 to-purple-500 hover:opacity-90"
+                        className="w-full bg-violet-500 hover:bg-violet-600"
                       >
                         {isTranscribing ? (
                           <>
@@ -363,7 +363,7 @@ export default function Transcriber() {
                           <Button
                             onClick={startRecording}
                             size="lg"
-                            className="w-full h-32 bg-gradient-to-r from-red-500 to-rose-500 hover:opacity-90"
+                            className="w-full h-32 bg-red-500 hover:bg-red-600"
                           >
                             <div className="text-center">
                               <Mic className="w-8 h-8 mx-auto mb-2" />
@@ -396,7 +396,7 @@ export default function Transcriber() {
                               onClick={transcribeFile}
                               disabled={isTranscribing}
                               size="lg"
-                              className="w-full bg-gradient-to-r from-violet-500 to-purple-500 hover:opacity-90"
+                              className="w-full bg-violet-500 hover:bg-violet-600"
                             >
                               {isTranscribing ? (
                                 <>
@@ -430,7 +430,7 @@ export default function Transcriber() {
                         onClick={transcribeYouTube}
                         disabled={!youtubeUrl.trim() || isTranscribing}
                         size="lg"
-                        className="w-full bg-gradient-to-r from-violet-500 to-purple-500 hover:opacity-90"
+                        className="w-full bg-violet-500 hover:bg-violet-600"
                       >
                         {isTranscribing ? (
                           <>
@@ -543,7 +543,7 @@ export default function Transcriber() {
                           <Button
                             onClick={downloadTranscript}
                             size="lg"
-                            className="bg-gradient-to-r from-violet-500 to-purple-500 hover:opacity-90"
+                            className="bg-violet-500 hover:bg-violet-600"
                           >
                             <Download className="w-5 h-5 mr-2" />
                             Download

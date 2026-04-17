@@ -64,7 +64,7 @@ export default function Home() {
         }
       `}</style>
 
-      <main className="min-h-screen">
+      <main className="min-h-screen bg-slate-950">
         <Hero />
 
         {/* Scrolling Model Ticker */}
@@ -87,8 +87,8 @@ export default function Home() {
         <div className="container mx-auto px-4 py-20">
           <div className="mb-12 text-center">
             <h1 className="text-5xl md:text-7xl font-bold leading-tight">
-              <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
-                12 Free Tools
+              <span className="text-purple-400">
+                AI-Powered Media Studio
               </span>
               <br />
               <span className="text-white">+ Premium AI Models</span>
@@ -107,7 +107,7 @@ export default function Home() {
         </div>
 
         {/* Dark CTA Section */}
-        <section className="py-24 bg-gradient-to-b from-background via-slate-950 to-black border-t border-border/40">
+        <section className="py-24 bg-slate-950 border-t border-border/40">
           <div className="container mx-auto px-4 text-center">
             <div className="max-w-3xl mx-auto space-y-8">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-sm font-medium mb-4">
@@ -126,7 +126,8 @@ export default function Home() {
               <Button
                 onClick={() => router.push("/generate")}
                 size="lg"
-                className="text-lg px-8 py-6 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 shadow-[0_8px_30px_rgb(168,85,247,0.4)] hover:shadow-[0_8px_40px_rgb(168,85,247,0.6)] transition-all"
+                asChild
+                className="text-lg px-8 py-6 bg-purple-500 hover:bg-purple-600"
               >
                 Generate Now
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -135,7 +136,7 @@ export default function Home() {
               {/* Stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
                 <div className="text-center">
-                  <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  <div className="text-4xl md:text-5xl font-bold text-purple-400">
                     12
                   </div>
                   <div className="text-slate-400 mt-2">Free Tools</div>

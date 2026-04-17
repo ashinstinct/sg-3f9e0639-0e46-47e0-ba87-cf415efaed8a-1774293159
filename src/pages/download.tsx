@@ -273,7 +273,7 @@ export default function VideoDownloader() {
         <div className="max-w-4xl mx-auto px-4">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan-500 to-primary mb-4 shadow-lg shadow-primary/20">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-cyan-500 mb-4 shadow-lg shadow-cyan-500/20">
               <Download className="w-10 h-10 text-white" />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
@@ -369,7 +369,7 @@ export default function VideoDownloader() {
                 {/* Video Preview Card */}
                 <Card className="border-2 border-primary/20 overflow-hidden">
                   {result.metadata?.thumbnail && (
-                    <div className="relative aspect-video bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+                    <div className="relative aspect-video bg-slate-900">
                       <div className="absolute inset-0 flex items-center justify-center">
                         <Film className="w-24 h-24 text-cyan-500/30" />
                       </div>

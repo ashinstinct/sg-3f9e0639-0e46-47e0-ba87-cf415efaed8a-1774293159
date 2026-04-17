@@ -134,7 +134,7 @@ export default function Dashboard() {
         <div className="container mx-auto max-w-2xl">
           {/* Header */}
           <div className="mb-6">
-            <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold mb-1 text-purple-400">
               Credit Dashboard
             </h1>
             <p className="text-sm text-muted-foreground">
@@ -146,7 +146,7 @@ export default function Dashboard() {
           <Card className="p-6 mb-4">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg">
+                <div className="p-2 bg-emerald-500 rounded-lg">
                   <Coins className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -156,7 +156,7 @@ export default function Dashboard() {
               </div>
               <Button
                 onClick={() => setSubscriptionModalOpen(true)}
-                className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+                className="bg-purple-500 hover:bg-purple-600"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Top Up

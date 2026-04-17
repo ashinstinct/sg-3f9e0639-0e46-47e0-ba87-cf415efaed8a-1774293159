@@ -379,12 +379,12 @@ export default function RecordVoice() {
         title="Audio Recorder - Record Voice"
         description="Record high-quality audio with MP3 output"
       />
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="min-h-screen bg-slate-950">
         <Navigation />
         
         <main className="container mx-auto px-4 py-12 pt-24 max-w-6xl">
           <div className="mb-8">
-            <h1 className="font-heading font-bold text-4xl mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <h1 className="font-heading font-bold text-4xl mb-2 text-purple-400">
               Audio Recorder
             </h1>
             <p className="text-muted-foreground">
@@ -409,7 +409,7 @@ export default function RecordVoice() {
                       className={`w-24 h-24 rounded-full ${
                         isRecording
                           ? "bg-red-500 hover:bg-red-600"
-                          : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                          : "bg-purple-500 hover:bg-purple-600"
                       }`}
                     >
                       {isRecording ? (
@@ -458,7 +458,7 @@ export default function RecordVoice() {
                         <Button
                           onClick={togglePlayback}
                           size="lg"
-                          className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                          className="w-16 h-16 rounded-full bg-purple-500 hover:bg-purple-600"
                         >
                           {isPlaying ? (
                             <Pause className="w-6 h-6" />

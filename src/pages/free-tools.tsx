@@ -160,7 +160,7 @@ export default function FreeTools() {
                 <Sparkles className="w-4 h-4 text-emerald-400" />
                 <span className="text-sm font-medium text-emerald-300">100% Free Forever</span>
               </div>
-              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent">
+              <h1 className="text-5xl md:text-6xl font-bold text-emerald-400">
                 12 FREE Tools
               </h1>
               <p className="text-xl text-slate-300 max-w-2xl mx-auto">
@@ -171,7 +171,7 @@ export default function FreeTools() {
             {/* Audio Tools */}
             <section className="mb-16">
               <div className="flex items-center gap-3 mb-6">
-                <div className="h-1 w-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full" />
+                <div className="h-1 w-12 bg-green-500 rounded-full" />
                 <h2 className="font-heading font-bold text-3xl">Audio Tools</h2>
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -182,7 +182,7 @@ export default function FreeTools() {
                       <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
                         <CardHeader>
                           <div className="flex items-start justify-between mb-2">
-                            <div className={`p-3 rounded-lg bg-gradient-to-r ${tool.color}`}>
+                            <div className={`p-3 rounded-lg ${tool.color}`}>
                               <Icon className="w-6 h-6 text-white" />
                             </div>
                             <div className="flex gap-2">
@@ -213,7 +213,7 @@ export default function FreeTools() {
             {/* Video Tools */}
             <section className="mb-16">
               <div className="flex items-center gap-3 mb-6">
-                <div className="h-1 w-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full" />
+                <div className="h-1 w-12 bg-blue-500 rounded-full" />
                 <h2 className="font-heading font-bold text-3xl">Video Tools</h2>
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -224,7 +224,7 @@ export default function FreeTools() {
                       <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
                         <CardHeader>
                           <div className="flex items-start justify-between mb-2">
-                            <div className={`p-3 rounded-lg bg-gradient-to-r ${tool.color}`}>
+                            <div className={`p-3 rounded-lg ${tool.color}`}>
                               <Icon className="w-6 h-6 text-white" />
                             </div>
                             <div className="flex gap-2">
@@ -255,7 +255,7 @@ export default function FreeTools() {
             {/* Image Tools */}
             <section>
               <div className="flex items-center gap-3 mb-6">
-                <div className="h-1 w-12 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full" />
+                <div className="h-1 w-12 bg-pink-500 rounded-full" />
                 <h2 className="font-heading font-bold text-3xl">Image Tools</h2>
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -266,7 +266,7 @@ export default function FreeTools() {
                       <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
                         <CardHeader>
                           <div className="flex items-start justify-between mb-2">
-                            <div className={`p-3 rounded-lg bg-gradient-to-r ${tool.color}`}>
+                            <div className={`p-3 rounded-lg ${tool.color}`}>
                               <Icon className="w-6 h-6 text-white" />
                             </div>
                             <div className="flex gap-2">

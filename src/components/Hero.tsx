@@ -26,7 +26,7 @@ export function Hero() {
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight">
           Create Stunning AI
           <br />
-          <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
+          <span className="text-purple-400">
             Images & Videos
           </span>
         </h1>
@@ -60,7 +60,8 @@ export function Hero() {
           <Button
             onClick={() => router.push("/generate")}
             size="lg"
-            className="text-lg px-10 py-7 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 shadow-[0_10px_40px_-10px_rgba(168,85,247,0.8)] hover:shadow-[0_15px_50px_-10px_rgba(168,85,247,1)] transition-all hover:scale-105"
+            asChild
+            className="text-lg px-10 py-7 bg-purple-500 hover:bg-purple-600"
           >
             Generate for Free
             <ArrowRight className="w-5 h-5 ml-2" />

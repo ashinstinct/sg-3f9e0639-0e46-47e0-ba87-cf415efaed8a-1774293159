@@ -237,7 +237,7 @@ export default function VideoSplitter() {
           <div className="max-w-5xl mx-auto">
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-gradient-to-r from-orange-500 to-red-500">
+                <div className="p-2 rounded-lg bg-orange-500">
                   <Scissors className="w-6 h-6 text-white" />
                 </div>
                 <h1 className="font-heading font-bold text-4xl">Social Video Splitter</h1>
@@ -365,7 +365,7 @@ export default function VideoSplitter() {
                         <Button
                           onClick={handleSplit}
                           disabled={isSplitting || !videoFile || !ffmpegLoaded}
-                          className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:opacity-90"
+                          className="flex-1 bg-orange-500 hover:bg-orange-600"
                         >
                           {isSplitting ? (
                             <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Splitting...</>

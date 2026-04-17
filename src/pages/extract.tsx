@@ -255,7 +255,7 @@ export default function FrameExtractor() {
           <div className="max-w-6xl mx-auto">
             <div className="mb-8 text-center">
               <div className="flex items-center gap-3 mb-4 justify-center">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl bg-purple-500 flex items-center justify-center">
                   <Camera className="w-6 h-6 text-white" />
                 </div>
                 <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-green-500/20">
@@ -363,7 +363,7 @@ export default function FrameExtractor() {
                             variant={mode === "start" ? "default" : "outline"}
                             size="sm"
                             onClick={() => setMode("start")}
-                            className={mode === "start" ? "bg-gradient-to-r from-purple-500 to-pink-500" : ""}
+                            className={mode === "start" ? "bg-purple-500" : ""}
                           >
                             Start Frame
                           </Button>
@@ -371,7 +371,7 @@ export default function FrameExtractor() {
                             variant={mode === "pick" ? "default" : "outline"}
                             size="sm"
                             onClick={() => setMode("pick")}
-                            className={mode === "pick" ? "bg-gradient-to-r from-purple-500 to-pink-500" : ""}
+                            className={mode === "pick" ? "bg-purple-500" : ""}
                           >
                             Pick Frame
                           </Button>
@@ -379,7 +379,7 @@ export default function FrameExtractor() {
                             variant={mode === "end" ? "default" : "outline"}
                             size="sm"
                             onClick={() => setMode("end")}
-                            className={mode === "end" ? "bg-gradient-to-r from-purple-500 to-pink-500" : ""}
+                            className={mode === "end" ? "bg-purple-500" : ""}
                           >
                             End Frame
                           </Button>
@@ -413,7 +413,7 @@ export default function FrameExtractor() {
                             />
                             {/* Progress indicator glow */}
                             <div 
-                              className="absolute top-1/2 left-0 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 pointer-events-none transition-all duration-150 rounded-full"
+                              className="absolute top-1/2 left-0 h-0.5 bg-purple-500 pointer-events-none transition-all duration-150 rounded-full"
                               style={{ 
                                 width: `${sliderValue}%`,
                                 transform: "translateY(-50%)",
@@ -439,7 +439,7 @@ export default function FrameExtractor() {
                         onClick={handleExtract}
                         disabled={isExtracting}
                         size="lg"
-                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                        className="w-full bg-purple-500 hover:bg-purple-600 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
                       >
                         {isExtracting ? (
                           <>
@@ -492,7 +492,7 @@ export default function FrameExtractor() {
                       <Button
                         onClick={downloadFrame}
                         size="sm"
-                        className="bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 transition-all duration-300 hover:scale-105 active:scale-95"
+                        className="bg-purple-500 hover:bg-purple-600 transition-all duration-300 hover:scale-105 active:scale-95"
                       >
                         <Download className="w-4 h-4 mr-2" />
                         Download
@@ -518,7 +518,7 @@ export default function FrameExtractor() {
                           className="w-full h-auto transition-transform duration-300 group-hover:scale-[1.02]"
                         />
                         {/* Hover overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       </div>
                       <div className="flex justify-between items-center text-xs text-muted-foreground">
                         <span>
