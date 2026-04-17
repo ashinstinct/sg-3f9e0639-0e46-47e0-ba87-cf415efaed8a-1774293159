@@ -245,9 +245,10 @@ export default function AudioEditorPage() {
       <div className="min-h-screen bg-slate-950">
         <Navigation />
         <main className="container mx-auto px-4 py-16 max-w-4xl">
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-white">— Audio Editor</h1>
+          </div>
           <div className="max-w-4xl mx-auto space-y-6">
-            <h1 className="text-3xl font-bold text-white text-center">Audio Editor</h1>
-
             {!audioFile ? (
               <Card className="bg-slate-800/50 border-slate-700/50">
                 <CardContent className="p-12">

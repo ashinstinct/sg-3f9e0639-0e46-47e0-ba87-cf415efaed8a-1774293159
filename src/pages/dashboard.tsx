@@ -134,7 +134,7 @@ export default function Dashboard() {
         <div className="container mx-auto max-w-2xl">
           {/* Header */}
           <div className="mb-6">
-            <h1 className="text-3xl font-bold mb-1 text-purple-400">
+            <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
               Credit Dashboard
             </h1>
             <p className="text-sm text-muted-foreground">

@@ -189,7 +189,7 @@ export default function AudioEditor() {
         
         <main className="container mx-auto px-4 py-12 pt-24 max-w-6xl">
           <div className="mb-8">
-            <h1 className="font-heading font-bold text-4xl mb-2 bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+            <h1 className="font-heading font-bold text-4xl mb-2 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
               Audio Editor
             </h1>
             <p className="text-muted-foreground">Upload and edit your audio files</p>

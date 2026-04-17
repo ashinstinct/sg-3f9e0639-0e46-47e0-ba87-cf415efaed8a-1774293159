@@ -1,203 +1,108 @@
-import { Card } from "@/components/ui/card";
+import Link from "next/link";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
+  Image as ImageIcon, 
   Video, 
-  Download, 
-  Scissors, 
   Music, 
-  Volume2, 
-  Mic, 
-  MonitorPlay,
-  Wand2,
-  FileText,
-  Camera,
-  Sparkles,
-  ImageIcon,
-  Layers,
-  Edit
+  Wand2, 
+  Mic,
+  Grid3x3,
+  UserCircle,
+  Wrench
 } from "lucide-react";
-import Link from "next/link";
 
 const tools = [
   {
-    id: "generate",
-    name: "AI Generator",
-    description: "Generate images & videos with 20+ AI models",
-    icon: Sparkles,
-    href: "/generate",
-    badge: "HOT",
-    badgeColor: "bg-red-500/10 text-red-500 border-red-500/20",
-    preview: "linear-gradient(135deg, rgb(168, 85, 247), rgb(99, 102, 241))",
+    name: "AI Image Generation",
+    description: "Create stunning images from text with FLUX.1",
+    icon: ImageIcon,
+    href: "/images/generate",
+    color: "from-pink-500 to-purple-500",
+    badge: "Popular"
   },
   {
-    id: "extract",
-    name: "Frame Extractor",
-    description: "Extract frames from videos instantly",
-    icon: Camera,
-    href: "/extract",
-    badge: "FREE",
-    badgeColor: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-    preview: "linear-gradient(135deg, rgb(16, 185, 129), rgb(5, 150, 105))",
+    name: "AI Video Generation",
+    description: "Generate videos from text prompts",
+    icon: Video,
+    href: "/video/generate",
+    color: "from-purple-500 to-indigo-500",
+    badge: "New"
   },
   {
-    id: "download",
-    name: "Video Downloader",
-    description: "Download videos from YouTube & more",
-    icon: Download,
-    href: "/download",
-    badge: "FREE",
-    badgeColor: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-    preview: "linear-gradient(135deg, rgb(59, 130, 246), rgb(37, 99, 235))",
+    name: "AI Avatar Videos",
+    description: "Create talking avatars from photos",
+    icon: UserCircle,
+    href: "/avatar",
+    color: "from-indigo-500 to-cyan-500",
+    badge: "Hot"
   },
   {
-    id: "split",
-    name: "Video Splitter",
-    description: "Split videos into timed segments",
-    icon: Scissors,
-    href: "/split",
-    badge: "FREE",
-    badgeColor: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-    preview: "linear-gradient(135deg, rgb(236, 72, 153), rgb(219, 39, 119))",
-  },
-  {
-    id: "convert",
-    name: "Audio Converter",
-    description: "Convert audio between formats",
+    name: "AI Music Generator",
+    description: "Compose original music with AI",
     icon: Music,
-    href: "/convert",
-    badge: "FREE",
-    badgeColor: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-    preview: "linear-gradient(135deg, rgb(251, 146, 60), rgb(249, 115, 22))",
+    href: "/music",
+    color: "from-cyan-500 to-blue-500",
+    badge: "Popular"
   },
   {
-    id: "edit",
-    name: "Audio Editor",
-    description: "Trim, fade, adjust volume & speed",
-    icon: Edit,
-    href: "/edit",
-    badge: "NEW",
-    badgeColor: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    preview: "linear-gradient(135deg, rgb(34, 211, 238), rgb(6, 182, 212))",
-  },
-  {
-    id: "stems",
-    name: "Stem Separator",
-    description: "Extract vocals, drums, bass & more",
-    icon: Layers,
-    href: "/stems",
-    badge: "HOT",
-    badgeColor: "bg-red-500/10 text-red-500 border-red-500/20",
-    preview: "linear-gradient(135deg, rgb(139, 92, 246), rgb(124, 58, 237))",
-  },
-  {
-    id: "enhance",
-    name: "Audio Enhancer",
-    description: "AI-powered audio enhancement",
-    icon: Volume2,
-    href: "/enhance",
-    badge: "NEW",
-    badgeColor: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    preview: "linear-gradient(135deg, rgb(245, 158, 11), rgb(217, 119, 6))",
-  },
-  {
-    id: "clone",
-    name: "Voice Cloner",
+    name: "Voice Cloning",
     description: "Clone any voice with AI",
     icon: Mic,
     href: "/clone",
-    badge: "HOT",
-    badgeColor: "bg-red-500/10 text-red-500 border-red-500/20",
-    preview: "linear-gradient(135deg, rgb(244, 63, 94), rgb(225, 29, 72))",
+    color: "from-blue-500 to-purple-500",
+    badge: "New"
   },
   {
-    id: "record-voice",
-    name: "Voice Recorder",
-    description: "Record audio in your browser",
-    icon: Mic,
-    href: "/record-voice",
-    badge: "FREE",
-    badgeColor: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-    preview: "linear-gradient(135deg, rgb(14, 165, 233), rgb(2, 132, 199))",
+    name: "Image Enhancement",
+    description: "Upscale and enhance images",
+    icon: Wand2,
+    href: "/edit/inpaint",
+    color: "from-purple-500 to-pink-500"
   },
   {
-    id: "record-screen",
-    name: "Screen Recorder",
-    description: "Record your screen instantly",
-    icon: MonitorPlay,
-    href: "/record-screen",
-    badge: "FREE",
-    badgeColor: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-    preview: "linear-gradient(135deg, rgb(168, 85, 247), rgb(147, 51, 234))",
+    name: "Free Tools",
+    description: "14 free audio, video & image tools",
+    icon: Wrench,
+    href: "/free-tools",
+    color: "from-emerald-500 to-green-500",
+    badge: "Free"
   },
   {
-    id: "video-editor",
-    name: "Video Editor",
-    description: "Professional video editing",
-    icon: Video,
-    href: "/video-editor",
-    badge: "NEW",
-    badgeColor: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    preview: "linear-gradient(135deg, rgb(249, 115, 22), rgb(234, 88, 12))",
-  },
-  {
-    id: "transcriber",
-    name: "Transcriber",
-    description: "Convert speech to text with AI",
-    icon: FileText,
-    href: "/transcriber",
-    badge: "FREE",
-    badgeColor: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-    preview: "linear-gradient(135deg, rgb(52, 211, 153), rgb(16, 185, 129))",
-  },
-  {
-    id: "image-gen",
-    name: "Image Generator",
-    description: "Create images with AI",
-    icon: ImageIcon,
-    href: "/images/generate",
-    badge: "HOT",
-    badgeColor: "bg-red-500/10 text-red-500 border-red-500/20",
-    preview: "linear-gradient(135deg, rgb(236, 72, 153), rgb(219, 39, 119))",
+    name: "All Tools",
+    description: "Browse all AI tools",
+    icon: Grid3x3,
+    href: "/tools",
+    color: "from-slate-500 to-slate-600"
   },
 ];
 
 export function ToolsGrid() {
   return (
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {tools.map((tool) => {
         const Icon = tool.icon;
         return (
-          <Link key={tool.id} href={tool.href}>
-            <Card className="group relative overflow-hidden border-2 border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 cursor-pointer h-full">
-              {/* Visual preview */}
-              <div 
-                className="h-32 relative overflow-hidden"
-                style={{ background: tool.preview }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Icon className="w-12 h-12 text-white/80 group-hover:scale-110 transition-transform" />
+          <Link key={tool.name} href={tool.href}>
+            <Card className="h-full hover:shadow-lg hover:border-primary/50 transition-all duration-300 cursor-pointer group bg-card/50 backdrop-blur-sm">
+              <CardHeader>
+                <div className="flex items-start justify-between mb-3">
+                  <div className={`p-3 rounded-xl bg-gradient-to-br ${tool.color} group-hover:scale-110 transition-transform`}>
+                    <Icon className="w-6 h-6 text-white" />
+                  </div>
+                  {tool.badge && (
+                    <Badge variant="secondary" className="text-xs">
+                      {tool.badge}
+                    </Badge>
+                  )}
                 </div>
-                
-                {/* Badge */}
-                {tool.badge && (
-                  <Badge
-                    className={`absolute top-2 right-2 ${tool.badgeColor} font-semibold text-xs px-2 py-0.5`}
-                  >
-                    {tool.badge}
-                  </Badge>
-                )}
-              </div>
-
-              {/* Content */}
-              <div className="p-4 space-y-2">
-                <h3 className="font-bold text-lg leading-tight group-hover:text-primary transition-colors">
+                <CardTitle className="text-lg group-hover:text-primary transition-colors">
                   {tool.name}
-                </h3>
-                <p className="text-sm text-muted-foreground leading-snug">
+                </CardTitle>
+                <CardDescription className="text-sm">
                   {tool.description}
-                </p>
-              </div>
+                </CardDescription>
+              </CardHeader>
             </Card>
           </Link>
         );

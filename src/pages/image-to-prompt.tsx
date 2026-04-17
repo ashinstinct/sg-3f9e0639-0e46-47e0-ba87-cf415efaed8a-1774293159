@@ -267,7 +267,7 @@ export default function ImageToPrompt() {
                 <div className="p-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500">
                   <ImageIcon className="w-6 h-6 text-white" />
                 </div>
-                <h1 className="font-heading font-bold text-4xl">Image to Prompt</h1>
+                <h1 className="font-heading font-bold text-4xl md:text-5xl mb-4 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Image to Prompt</h1>
                 <Badge variant="secondary" className="bg-green-500/10 text-green-600 border-green-500/20">
                   Free
                 </Badge>

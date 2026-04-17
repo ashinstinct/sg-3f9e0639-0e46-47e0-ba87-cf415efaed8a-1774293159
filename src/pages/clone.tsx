@@ -200,7 +200,7 @@ export default function VoiceCloner() {
                 <div className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500">
                   <Mic className="w-6 h-6 text-white" />
                 </div>
-                <h1 className="font-heading font-bold text-4xl">AI Voice Cloner</h1>
+                <h1 className="font-heading font-bold text-4xl md:text-5xl mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">AI Voice Cloner</h1>
                 <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20">
                   Pro
                 </Badge>

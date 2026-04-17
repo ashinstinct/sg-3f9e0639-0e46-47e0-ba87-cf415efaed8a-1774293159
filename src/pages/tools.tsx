@@ -179,7 +179,7 @@ export default function ToolsPage() {
               <span className="text-sm font-medium text-green-500">100% Free Forever</span>
             </div>
             
-            <h1 className="font-heading font-bold text-4xl md:text-5xl bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 bg-clip-text text-transparent">
+            <h1 className="font-heading font-bold text-4xl md:text-5xl bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
               ALL TOOLS
             </h1>
             

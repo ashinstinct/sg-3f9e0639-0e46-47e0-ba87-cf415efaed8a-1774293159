@@ -88,7 +88,7 @@ export default function AudioPage() {
                 <Mic className="w-4 h-4 text-purple-400" />
                 <span className="text-sm font-medium text-purple-300">Audio Tools</span>
               </div>
-              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                 Audio Tools
               </h1>
               <p className="text-xl text-slate-300 max-w-2xl mx-auto">

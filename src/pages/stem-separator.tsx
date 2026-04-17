@@ -172,7 +172,7 @@ export default function ProStemSeparator() {
               <span className="text-sm font-medium">Professional Stem Separation</span>
             </div>
             
-            <h1 className="font-heading font-bold text-5xl mb-4 bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+            <h1 className="font-heading font-bold text-5xl mb-4 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
               Pro Stem Separator by lalal.ai
             </h1>
             

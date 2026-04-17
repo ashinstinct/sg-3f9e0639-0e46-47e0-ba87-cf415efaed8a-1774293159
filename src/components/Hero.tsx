@@ -26,7 +26,7 @@ export function Hero() {
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight">
           Create Stunning AI
           <br />
-          <span className="text-purple-400">
+          <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
             Images & Videos
           </span>
         </h1>

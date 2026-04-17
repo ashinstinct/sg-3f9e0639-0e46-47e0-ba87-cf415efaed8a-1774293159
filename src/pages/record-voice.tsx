@@ -384,7 +384,7 @@ export default function RecordVoice() {
         
         <main className="container mx-auto px-4 py-12 pt-24 max-w-6xl">
           <div className="mb-8">
-            <h1 className="font-heading font-bold text-4xl mb-2 text-purple-400">
+            <h1 className="font-heading font-bold text-4xl mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               Audio Recorder
             </h1>
             <p className="text-muted-foreground">

@@ -160,7 +160,7 @@ export default function FreeTools() {
                 <Sparkles className="w-4 h-4 text-emerald-400" />
                 <span className="text-sm font-medium text-emerald-300">100% Free Forever</span>
               </div>
-              <h1 className="text-5xl md:text-6xl font-bold text-emerald-400">
+              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent">
                 12 FREE Tools
               </h1>
               <p className="text-xl text-slate-300 max-w-2xl mx-auto">

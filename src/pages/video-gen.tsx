@@ -213,7 +213,7 @@ export default function VideoGenerator() {
         <div className="container mx-auto px-4 py-24">
           <div className="max-w-6xl mx-auto space-y-8">
             <div className="text-center space-y-4">
-              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-pink-600 via-rose-600 to-red-600 bg-clip-text text-transparent">
+              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
                 AI Video Generator
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">

@@ -160,7 +160,7 @@ export default function ConvertPage() {
                 <Repeat className="w-4 h-4 text-cyan-400" />
                 <span className="text-sm font-medium text-cyan-300">Free Tool</span>
               </div>
-              <h1 className="text-5xl md:text-6xl font-bold text-cyan-400">
+              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
                 Audio Converter
               </h1>
               <p className="text-xl text-slate-300 max-w-2xl mx-auto">

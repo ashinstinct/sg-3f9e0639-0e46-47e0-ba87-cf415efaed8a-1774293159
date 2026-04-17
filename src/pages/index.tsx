@@ -87,7 +87,7 @@ export default function Home() {
         <div className="container mx-auto px-4 py-20">
           <div className="mb-12 text-center">
             <h1 className="text-5xl md:text-7xl font-bold leading-tight">
-              <span className="text-purple-400">
+              <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
                 AI-Powered Media Studio
               </span>
               <br />
@@ -137,7 +137,7 @@ export default function Home() {
               {/* Stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
                 <div className="text-center">
-                  <div className="text-4xl md:text-5xl font-bold text-purple-400">
+                  <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
                     12
                   </div>
                   <div className="text-slate-400 mt-2">Free Tools</div>
