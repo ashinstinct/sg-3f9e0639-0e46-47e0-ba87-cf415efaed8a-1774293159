@@ -133,7 +133,13 @@ export default function Home() {
               </Button>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-8 pt-16 max-w-2xl mx-auto">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+                <div className="text-center">
+                  <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    12
+                  </div>
+                  <div className="text-slate-400 mt-2">Free Tools</div>
+                </div>
                 <div>
                   <div className="text-4xl font-bold text-white mb-2">240K+</div>
                   <div className="text-sm text-slate-400">Creations Made</div>
