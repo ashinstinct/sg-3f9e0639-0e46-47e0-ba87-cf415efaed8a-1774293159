@@ -1,4 +1,3 @@
-
 import Head from "next/head";
 
 interface SEOProps {
@@ -15,20 +14,20 @@ export function SEO({
   url = "https://back2life.studio",
 }: SEOProps) {
   return (
-    &lt;Head&gt;
-      &lt;title&gt;{title}&lt;/title&gt;
-      &lt;meta name="description" content={description} /&gt;
-      &lt;meta property="og:title" content={title} /&gt;
-      &lt;meta property="og:description" content={description} /&gt;
-      &lt;meta property="og:image" content={image} /&gt;
-      &lt;meta property="og:url" content={url} /&gt;
-      &lt;meta property="og:type" content="website" /&gt;
-      &lt;meta name="twitter:card" content="summary_large_image" /&gt;
-      &lt;meta name="twitter:title" content={title} /&gt;
-      &lt;meta name="twitter:description" content={description} /&gt;
-      &lt;meta name="twitter:image" content={image} /&gt;
-      &lt;link rel="icon" href="/favicon.ico" /&gt;
-    &lt;/Head&gt;
+    <Head>
+      <title>{title}</title>
+      <meta name="description" content={description} />
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:image" content={image} />
+      <meta property="og:url" content={url} />
+      <meta property="og:type" content="website" />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={image} />
+      <link rel="icon" href="/favicon.ico" />
+    </Head>
   );
 }
 
@@ -39,18 +38,18 @@ export function SEOElements({
   url = "https://back2life.studio",
 }: SEOProps) {
   return (
-    &lt;&gt;
-      &lt;meta name="description" content={description} /&gt;
-      &lt;meta property="og:title" content={title} /&gt;
-      &lt;meta property="og:description" content={description} /&gt;
-      &lt;meta property="og:image" content={image} /&gt;
-      &lt;meta property="og:url" content={url} /&gt;
-      &lt;meta property="og:type" content="website" /&gt;
-      &lt;meta name="twitter:card" content="summary_large_image" /&gt;
-      &lt;meta name="twitter:title" content={title} /&gt;
-      &lt;meta name="twitter:description" content={description} /&gt;
-      &lt;meta name="twitter:image" content={image} /&gt;
-      &lt;title&gt;{title}&lt;/title&gt;
-    &lt;/&gt;
+    <>
+      <meta name="description" content={description} />
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:image" content={image} />
+      <meta property="og:url" content={url} />
+      <meta property="og:type" content="website" />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={image} />
+      <title>{title}</title>
+    </>
   );
 }
