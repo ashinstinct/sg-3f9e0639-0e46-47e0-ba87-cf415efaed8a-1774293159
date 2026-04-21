@@ -117,7 +117,7 @@ export function Navigation() {
               </Button>
               <Link
                 href="/"
-                className="text-xl font-bold text-purple-400"
+                className="text-xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent"
               >
                 Back2Life.Studio
               </Link>

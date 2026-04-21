@@ -13,7 +13,7 @@ export function SEOElements({
   description = "Bring your imagination to life — the all-in-one AI platform for images and videos.",
   image = "/og-image.png",
   url,
-}: SEOProps) {
+ {
   return (
     <>
       <title>{title}</title>
