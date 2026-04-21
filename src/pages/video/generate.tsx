@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { SEO } from "@/components/SEO";
 import { Navigation } from "@/components/Navigation";
+import { ModelSelector, ModelOption } from "@/components/ModelSelector";
 import { ImageIcon, Video, Grid3x3, Clock, Monitor, Gauge, Plus, Upload, X, Check, Loader2, Wand2, Maximize2, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -520,6 +521,15 @@ export default function VideoGenerate() {
   ];
 
   const videoModels = videoModelGroups.flatMap(group => group.models);
+  // Build ModelOption array for the selector
+  const modelOptions: ModelOption[] = videoModels.map(m => ({
+    id: m.id,
+    name: m.name,
+    description: `${m.credits} credits · ${m.durations?.join("/")}s · ${m.qualities?.join("/")}`,
+    logo: m.logo,
+    tier: m.credits >= 25 ? "pro" as const : "free" as const,
+  }));
+
   const currentModel = videoModels.find(m => m.id === selectedModel);
   const creditCost = currentModel?.credits || 0;
 
@@ -737,27 +747,18 @@ export default function VideoGenerate() {
                 <div className="max-w-2xl mx-auto px-4 pt-8 pb-8">
                   {/* Model Dropdown */}
                   <div className="mb-3">
-                    <select
-                      value={selectedModel}
-                      onChange={(e) => {
-                        setSelectedModel(e.target.value);
+                    <ModelSelector
+                      models={modelOptions}
+                      selected={selectedModel}
+                      onSelect={(id) => {
+                        setSelectedModel(id);
                         setStartFrame(null);
                         setEndFrame(null);
                         setElementImages([]);
                         setUploadedVideo(null);
                       }}
-                      className="model-select w-full bg-[#0d0d0d] text-white border border-white/10 rounded-lg px-3 py-2 text-xs focus:border-cyan-500/50 focus:ring-cyan-500/20 outline-none"
-                    >
-                      {videoModelGroups.map(group => (
-                        <optgroup key={group.company} label={group.company}>
-                          {group.models.map(model => (
-                            <option key={model.id} value={model.id}>
-                              {model.name}
-                            </option>
-                          ))}
-                        </optgroup>
-                      ))}
-                    </select>
+                      className="w-full flex justify-center"
+                    />
                   </div>
 
                   {/* Prompt with Expand Button */}
