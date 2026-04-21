@@ -86,7 +86,6 @@ export function Navigation() {
 
   return (
     <>
-      {/* Floating Hamburger Button */}
       <button
         onClick={() => setSidebarOpen(true)}
         className="fixed top-3 left-3 z-50 flex items-center justify-center w-10 h-10 rounded-xl bg-[#1a1a1c]/80 backdrop-blur-sm border border-white/5 hover:bg-[#252528] transition-colors"
@@ -94,14 +93,12 @@ export function Navigation() {
         <Menu className="w-5 h-5 text-white/70" />
       </button>
 
-      {/* Slide-out Sidebar */}
       <div
         className={cn(
           "fixed top-0 left-0 bottom-0 z-[60] w-72 bg-[#0e0e10] border-r border-white/5 transition-transform duration-300 ease-in-out flex flex-col",
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        {/* Sidebar Header - Branding */}
         <div className="flex items-center justify-between px-4 h-14 border-b border-white/5 flex-shrink-0">
           <Link
             href="/"
@@ -125,7 +122,6 @@ export function Navigation() {
           </div>
         </div>
 
-        {/* Sidebar Navigation */}
         <div className="flex-1 overflow-y-auto py-4 px-3">
           {navSections.map((section) => (
             <div key={section.title} className="mb-6">
@@ -159,9 +155,7 @@ export function Navigation() {
           ))}
         </div>
 
-        {/* Sidebar Footer - Credits, Go Pro, Settings, User */}
         <div className="flex-shrink-0 border-t border-white/5 p-3 space-y-2">
-          {/* Credits Display */}
           <button
             onClick={() => {
               setSidebarOpen(false);
@@ -178,7 +172,6 @@ export function Navigation() {
             </div>
           </button>
 
-          {/* Go Pro Button */}
           <button
             onClick={() => {
               setSidebarOpen(false);
@@ -190,7 +183,6 @@ export function Navigation() {
             <span className="text-sm font-medium text-indigo-400">Go Pro</span>
           </button>
 
-          {/* Settings */}
           <Link
             href="/dashboard"
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 transition-colors text-sm text-white/60"
@@ -199,7 +191,6 @@ export function Navigation() {
             <span>Settings</span>
           </Link>
 
-          {/* User Profile */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 transition-colors w-full text-left">
@@ -231,7 +222,6 @@ export function Navigation() {
         </div>
       </div>
 
-      {/* Backdrop Overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[55]"
@@ -239,7 +229,6 @@ export function Navigation() {
         />
       )}
 
-      {/* Subscription Modal */}
       <SubscriptionModal
         isOpen={subscriptionModalOpen}
         onClose={() => setSubscriptionModalOpen(false)}

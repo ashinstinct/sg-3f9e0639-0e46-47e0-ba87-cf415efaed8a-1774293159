@@ -92,7 +92,7 @@ export default function ChatPage() {
         <Navigation />
 
         {/* Top Bar with Model Selector */}
-        <div className="fixed top-14 left-0 right-0 z-40 bg-background/80 backdrop-blur-md border-b border-border/30">
+        <div className="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-md border-b border-border/30">
           <div className="flex items-center justify-center py-2 px-4">
             <ModelSelector
               models={chatModels}
@@ -103,7 +103,7 @@ export default function ChatPage() {
         </div>
 
         {/* Chat Area */}
-        <main className="flex-1 pt-28 pb-48 px-4">
+        <main className="flex-1 pt-14 pb-48 px-4">
           <div className="max-w-2xl mx-auto">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
