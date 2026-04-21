@@ -1,25 +1,20 @@
 ---
 title: Top-bar model dropdown for image and video generation pages
-status: todo
+status: in_progress
 priority: high
 type: feature
-tags: [ui, images, video, dropdown]
+tags: [ui, models, dropdown]
 created_by: agent
 created_at: 2026-04-21
-position: 2
+position: 14
 ---
 
 ## Notes
 Inspired by use.ai: On image and video generation pages, replace the settings panel model selector with a centered top-bar dropdown. Shows current model name with chevron, clicking opens dark dropdown with model logo, name, and subtitle description. Dropdown has scrollable list with dark background.
 
 ## Checklist
-- [ ] Create ModelDropdown component with logo, name, description per model
-- [ ] Integrate into images/generate.tsx replacing the select element
-- [ ] Integrate into video/generate.tsx replacing any model selector
-- [ ] Dark background dropdown with smooth open/close animation
-- [ ] Mobile-friendly touch targets
-
-## Acceptance
-- Model name appears centered in top bar with up/down chevron
-- Dropdown shows all models with logos and descriptions
-- Selected model updates generation endpoint
+- [x] Create reusable ModelSelector component with dark dropdown, logos, descriptions, PRO badges
+- [ ] Add model selector to image generation page (top bar, centered)
+- [ ] Add model selector to video generation page (top bar, centered)
+- [ ] Move model selection out of settings panel into top dropdown
+- [ ] Each model option shows logo, name, description, and free/pro badge

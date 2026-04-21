@@ -1,12 +1,12 @@
 ---
 title: Redesign navigation - move branding into slide-out menu
-status: in_progress
+status: done
 priority: urgent
 type: feature
 tags: [navigation, mobile, ui]
 created_by: agent
 created_at: 2026-04-21
-position: 1
+position: 13
 ---
 
 ## Notes
@@ -17,7 +17,7 @@ Inspired by use.ai: Move "Back2Life.Studio" title into the left slide-out sideba
 - [x] Move Back2Life.Studio branding into slide-out sidebar header
 - [x] Sidebar has: branding at top, nav links (Start new, Images, Video, Chat, Audio, Tools, etc.), Go Pro button at bottom, user profile at bottom
 - [x] Ensure sidebar works on mobile and desktop
-- [ ] Update all pages to use the new navigation layout
+- [x] Update all pages to use the new navigation layout
 
 ## Acceptance
 - Top bar is minimal with just hamburger + centered area + icons
