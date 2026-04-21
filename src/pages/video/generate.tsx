@@ -150,31 +150,14 @@ export default function VideoGenerate() {
       <div className="min-h-screen bg-[#0a0a0a] flex flex-col">
         <Navigation />
 
-        {/* Top Bar: Mode Toggle + Model Selector — identical to image page */}
+        {/* Top Bar: Model Selector only — no mode toggle */}
         <div className="fixed top-0 left-0 right-0 z-40 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-white/5">
-          <div className="flex items-center justify-between px-4 py-2">
-            <div className="w-10" />
-            <div className="flex items-center gap-3">
-              <div className="flex items-center bg-[#1a1a1c] p-1 rounded-full border border-white/5">
-                <button
-                  onClick={() => window.location.href = "/images/generate"}
-                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium text-white/50 hover:text-white/80"
-                >
-                  <ImageIcon className="w-3.5 h-3.5" />
-                  Image
-                </button>
-                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium bg-white/10 text-white">
-                  <Video className="w-3.5 h-3.5" />
-                  Video
-                </button>
-              </div>
-              <ModelSelector
-                models={modelOptions}
-                selected={selectedModel}
-                onSelect={(id) => { setSelectedModel(id); setStartFrame(null); setEndFrame(null); }}
-              />
-            </div>
-            <div className="w-10" />
+          <div className="flex items-center justify-center px-4 py-2">
+            <ModelSelector
+              models={modelOptions}
+              selected={selectedModel}
+              onSelect={(id) => { setSelectedModel(id); setStartFrame(null); setEndFrame(null); }}
+            />
           </div>
         </div>
 
