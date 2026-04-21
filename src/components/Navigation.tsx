@@ -6,31 +6,29 @@ import {
   Video,
   Image as ImageIcon,
   Music,
-  Grid3x3,
-  Wand2,
   Mic,
   Users,
-  MapPin,
-  Box,
   User,
   CreditCard,
   LogOut,
   Menu,
   X,
-  Home,
   ChevronDown,
   Coins,
   UserCircle,
-  Briefcase,
   Settings,
-  Gift,
   Wrench,
   LayoutDashboard,
   FolderOpen,
-  Bot
+  Bot,
+  MessageSquare,
+  PenLine,
+  Sun,
+  Moon,
+  Grid3x3,
+  Wand2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { SubscriptionModal } from "@/components/SubscriptionModal";
 import { cn } from "@/lib/utils";
 import {
@@ -40,315 +38,248 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getCreditBalance, subscribeToCreditsUpdates } from "@/services/creditsService";
-import { supabase } from "@/integrations/supabase/client";
+import { useTheme } from "@/contexts/ThemeProvider";
 
 export function Navigation() {
   const router = useRouter();
-  const [isScrolled, setIsScrolled] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [subscriptionModalOpen, setSubscriptionModalOpen] = useState(false);
-  const [credits, setCredits] = useState<number>(1000); // Default credits for dev
-  const [isLoadingCredits, setIsLoadingCredits] = useState(false);
+  const [credits] = useState<number>(1000);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
+    const handleRouteChange = () => setSidebarOpen(false);
+    router.events.on("routeChangeStart", handleRouteChange);
+    return () => router.events.off("routeChangeStart", handleRouteChange);
+  }, [router]);
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Temporarily disabled authentication for development
-  useEffect(() => {
-    // No auth checks - just use default credits
-  }, []);
-
-  const toolsItems = [
-    { name: "Generate", href: "/images/generate", icon: Wand2 },
-    { name: "Avatar", href: "/avatar", icon: UserCircle },
-    { name: "Audio", href: "/audio", icon: Mic },
-    { name: "Music", href: "/music", icon: Music },
-    { name: "Apps", href: "/tools", icon: Grid3x3 },
-    { name: "Agents", href: "/agents", icon: Bot },
-    { name: "Free Tools", href: "/free-tools", icon: Sparkles },
+  const navSections = [
+    {
+      title: "Create",
+      items: [
+        { name: "Start new", href: "/images/generate", icon: PenLine },
+        { name: "Images", href: "/images", icon: ImageIcon },
+        { name: "Video", href: "/video", icon: Video },
+        { name: "Chat", href: "/chat", icon: MessageSquare },
+        { name: "Audio", href: "/audio", icon: Music },
+        { name: "Avatar", href: "/avatar", icon: UserCircle },
+      ],
+    },
+    {
+      title: "Tools",
+      items: [
+        { name: "All Tools", href: "/tools", icon: Grid3x3 },
+        { name: "Free Tools", href: "/free-tools", icon: Wrench },
+        { name: "Music", href: "/music", icon: Music },
+        { name: "Voice Clone", href: "/clone", icon: Mic },
+        { name: "Agents", href: "/agents", icon: Bot },
+      ],
+    },
+    {
+      title: "Library",
+      items: [
+        { name: "My Library", href: "/library", icon: FolderOpen },
+        { name: "Gallery", href: "/gallery", icon: Grid3x3 },
+        { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+      ],
+    },
   ];
 
-  const elementsItems = [
-    { name: "Characters", href: "/elements/characters", icon: Users },
-    { name: "Scenes", href: "/elements/scenes", icon: MapPin },
-    { name: "Objects", href: "/elements/objects", icon: Box },
-  ];
-
-  const menuItems = [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Free Tools", href: "/free-tools", icon: Wrench },
-    { name: "Images", href: "/images", icon: ImageIcon },
-    { name: "Video", href: "/video", icon: Video },
-    { name: "Avatar", href: "/avatar", icon: UserCircle },
-    { name: "Library", href: "/library", icon: FolderOpen },
-    { name: "Gallery", href: "/gallery", icon: Grid3x3 },
-  ];
+  const getPageTitle = () => {
+    const path = router.pathname;
+    if (path.startsWith("/images")) return "Images";
+    if (path.startsWith("/video")) return "Video";
+    if (path === "/chat") return "Chat";
+    if (path.startsWith("/audio") || path === "/audio-editor") return "Audio";
+    if (path === "/avatar") return "Avatar";
+    if (path === "/music") return "Music";
+    if (path === "/clone") return "Voice Clone";
+    if (path === "/tools") return "Tools";
+    if (path === "/free-tools") return "Free Tools";
+    if (path === "/library") return "Library";
+    if (path === "/gallery") return "Gallery";
+    if (path === "/dashboard") return "Dashboard";
+    if (path === "/agents") return "Agents";
+    if (path === "/generate") return "Generate";
+    if (path === "/transcriber") return "Transcriber";
+    if (path === "/extract") return "Frame Extractor";
+    if (path === "/download") return "Downloader";
+    if (path === "/split") return "Splitter";
+    if (path === "/convert") return "Converter";
+    if (path === "/edit") return "Editor";
+    if (path === "/stems" || path === "/stem-separator") return "Stems";
+    if (path === "/enhance") return "Enhancer";
+    if (path === "/record-voice") return "Recorder";
+    if (path === "/image-to-prompt") return "Image to Prompt";
+    return "";
+  };
 
   return (
     <>
-      {/* Top Navigation Bar */}
-      <nav
-        className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-          isScrolled
-            ? "bg-background backdrop-blur-xl border-b border-border/50 shadow-lg"
-            : "bg-background border-b border-border/50"
-        )}
-      >
-        <div className="px-4">
-          <div className="flex items-center justify-between h-16">
-            {/* Left: Menu + Logo */}
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2"
-              >
-                {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </Button>
-              <Link
-                href="/"
-                className="text-xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent"
-              >
-                Back2Life.Studio
-              </Link>
-            </div>
+      {/* Minimal Top Bar */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border/50 h-14">
+        <div className="flex items-center justify-between h-full px-4">
+          {/* Left: Hamburger */}
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-muted transition-colors"
+          >
+            <Menu className="w-5 h-5 text-foreground" />
+          </button>
 
-            {/* Right: Credits + User Menu */}
-            <div className="flex items-center gap-3">
-              {/* Credits Display - Clickable */}
-              <button
-                onClick={() => setSubscriptionModalOpen(true)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full hover:bg-muted transition-colors"
-              >
-                <Coins className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold">
-                  {credits.toLocaleString()}
-                </span>
-              </button>
+          {/* Center: Page Title */}
+          <div className="absolute left-1/2 -translate-x-1/2">
+            <span className="text-sm font-medium text-muted-foreground">
+              {getPageTitle()}
+            </span>
+          </div>
 
-              {/* User Menu */}
-              <DropdownMenu open={userMenuOpen} onOpenChange={setUserMenuOpen}>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="relative rounded-full w-9 h-9 bg-muted/50 hover:bg-muted"
-                  >
-                    <UserCircle className="w-5 h-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem onClick={() => router.push("/dashboard")}>
-                    <UserCircle className="w-4 h-4 mr-2" />
-                    My Account
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Users className="w-4 h-4 mr-2" />
-                    Teams
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSubscriptionModalOpen(true)}>
-                    <CreditCard className="w-4 h-4 mr-2" />
-                    Subscription
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-red-600">
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sign out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+          {/* Right: Credits + New */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setSubscriptionModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/50 rounded-full hover:bg-muted transition-colors"
+            >
+              <Coins className="w-3.5 h-3.5 text-primary" />
+              <span className="text-xs font-semibold">{credits.toLocaleString()}</span>
+            </button>
+            <button
+              onClick={() => router.push("/images/generate")}
+              className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-muted transition-colors"
+            >
+              <PenLine className="w-5 h-5 text-foreground" />
+            </button>
           </div>
         </div>
       </nav>
 
-      {/* Left Sidebar Menu */}
+      {/* Slide-out Sidebar */}
       <div
         className={cn(
-          "fixed top-0 left-0 bottom-0 z-40 w-72 bg-background border-r border-border transition-transform duration-300",
+          "fixed top-0 left-0 bottom-0 z-[60] w-72 bg-background border-r border-border/50 transition-transform duration-300 ease-in-out flex flex-col",
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex flex-col h-full">
-          {/* Sidebar Header */}
-          <div className="flex items-center justify-between px-4 h-16 border-b border-border">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-primary" />
-              <span className="text-lg font-bold">Back2Life.Studio</span>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSidebarOpen(false)}
-              className="p-2"
+        {/* Sidebar Header - Branding */}
+        <div className="flex items-center justify-between px-4 h-14 border-b border-border/50 flex-shrink-0">
+          <span className="text-lg font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+            Back2Life.Studio
+          </span>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-muted transition-colors"
             >
-              <X className="w-5 h-5" />
-            </Button>
+              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-muted transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-muted transition-colors"
+            >
+              <ChevronDown className="w-4 h-4" />
+            </button>
           </div>
+        </div>
 
-          {/* Sidebar Content */}
-          <div className="flex-1 overflow-y-auto py-6 px-4 space-y-6">
-            {/* TOOLS Section */}
-            <div className="space-y-2">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2">
-                Tools
+        {/* Sidebar Navigation */}
+        <div className="flex-1 overflow-y-auto py-4 px-3">
+          {navSections.map((section) => (
+            <div key={section.title} className="mb-6">
+              <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest px-3 mb-2">
+                {section.title}
               </h3>
-              <div className="space-y-1">
-                {toolsItems.map((item) => {
+              <div className="space-y-0.5">
+                {section.items.map((item) => {
                   const Icon = item.icon;
-                  const isActive = router.pathname === item.href;
+                  const isActive =
+                    router.pathname === item.href ||
+                    (item.href !== "/" && router.pathname.startsWith(item.href));
                   return (
                     <Link
                       key={item.name}
                       href={item.href}
-                      onClick={() => setSidebarOpen(false)}
                       className={cn(
-                        "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium",
+                        "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm",
                         isActive
-                          ? "bg-primary text-primary-foreground"
-                          : "hover:bg-muted text-foreground"
+                          ? "bg-primary/10 text-primary font-medium"
+                          : "text-foreground hover:bg-muted"
                       )}
                     >
-                      <Icon className="w-5 h-5" />
+                      <Icon className="w-5 h-5 flex-shrink-0" />
                       <span>{item.name}</span>
                     </Link>
                   );
                 })}
               </div>
             </div>
+          ))}
+        </div>
 
-            {/* ELEMENTS Section */}
-            <div className="space-y-2">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2">
-                Elements
-              </h3>
-              <div className="space-y-1">
-                {elementsItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = router.pathname === item.href;
-                  return (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      onClick={() => setSidebarOpen(false)}
-                      className={cn(
-                        "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium",
-                        isActive
-                          ? "bg-primary text-primary-foreground"
-                          : "hover:bg-muted text-foreground"
-                      )}
-                    >
-                      <Icon className="w-5 h-5" />
-                      <span>{item.name}</span>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
+        {/* Sidebar Footer */}
+        <div className="flex-shrink-0 border-t border-border/50 p-3 space-y-2">
+          {/* Go Pro Button */}
+          <button
+            onClick={() => {
+              setSidebarOpen(false);
+              setSubscriptionModalOpen(true);
+            }}
+            className="flex items-center gap-2 px-3 py-2 rounded-full bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors w-auto"
+          >
+            <Sparkles className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium text-primary">Go Pro</span>
+          </button>
 
-            {/* PROFILE Section */}
-            <div className="space-y-2">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2">
-                Profile
-              </h3>
-              <div className="space-y-1">
-                <Link
-                  href="/dashboard"
-                  onClick={() => setSidebarOpen(false)}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium",
-                    router.pathname === "/dashboard"
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-muted text-foreground"
-                  )}
-                >
-                  <UserCircle className="w-5 h-5" />
-                  <span>My Account</span>
-                </Link>
-                <Link
-                  href="/library"
-                  onClick={() => setSidebarOpen(false)}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium",
-                    router.pathname === "/library"
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-muted text-foreground"
-                  )}
-                >
-                  <Briefcase className="w-5 h-5" />
-                  <span>Library</span>
-                </Link>
-                <div className="flex items-center gap-6">
-                  <Link
-                    href="/images"
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                      router.pathname.startsWith("/images")
-                        ? "bg-cyan-500/20 text-cyan-400"
-                        : "text-white/60 hover:text-white hover:bg-white/5"
-                    }`}
-                  >
-                    <ImageIcon className="w-4 h-4" />
-                    <span>Images</span>
-                  </Link>
-                  <Link
-                    href="/video"
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                      router.pathname.startsWith("/video")
-                        ? "bg-cyan-500/20 text-cyan-400"
-                        : "text-white/60 hover:text-white hover:bg-white/5"
-                    }`}
-                  >
-                    <Video className="w-4 h-4" />
-                    <span>Video</span>
-                  </Link>
-                  <Link
-                    href="/avatar"
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                      router.pathname === "/avatar"
-                        ? "bg-cyan-500/20 text-cyan-400"
-                        : "text-white/60 hover:text-white hover:bg-white/5"
-                    }`}
-                  >
-                    <UserCircle className="w-4 h-4" />
-                    <span>Avatar</span>
-                  </Link>
+          {/* Settings */}
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors text-sm text-foreground"
+          >
+            <Settings className="w-5 h-5 flex-shrink-0" />
+            <span>Settings</span>
+          </Link>
+
+          {/* User Profile */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors w-full text-left">
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                  <User className="w-4 h-4" />
                 </div>
-                <Link
-                  href="/dashboard"
-                  onClick={() => setSidebarOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium hover:bg-muted text-foreground"
-                >
-                  <Settings className="w-5 h-5" />
-                  <span>Settings</span>
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Sidebar Footer - Theme Switch */}
-          <div className="px-4 py-4 border-t border-border">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Theme</span>
-              <ThemeSwitch />
-            </div>
-          </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">Guest User</p>
+                </div>
+                <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" side="top" className="w-56">
+              <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+                <UserCircle className="w-4 h-4 mr-2" />
+                My Account
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSubscriptionModalOpen(true)}>
+                <CreditCard className="w-4 h-4 mr-2" />
+                Subscription
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => router.push("/auth/login")}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign in
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
-      {/* Overlay */}
+      {/* Backdrop Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-30"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[55]"
           onClick={() => setSidebarOpen(false)}
         />
       )}
