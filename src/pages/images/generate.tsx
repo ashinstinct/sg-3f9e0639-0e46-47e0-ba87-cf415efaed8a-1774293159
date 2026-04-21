@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { ModelSelector, ModelOption } from "@/components/ModelSelector";
 import { SEO } from "@/components/SEO";
-import { Image as ImageIcon, Video, Grid3x3, Sparkles, Upload, X, Loader2, Download, Maximize2, Wand2 } from "lucide-react";
+import { Image as ImageIcon, Video, Sparkles, Upload, X, Loader2, Download, Maximize2, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -138,7 +138,7 @@ export default function ImageGenerate() {
         <Navigation />
 
         {/* Top Bar: Mode Toggle + Model Selector */}
-        <div className="fixed top-14 left-0 right-0 z-40 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-white/5">
+        <div className="fixed top-0 left-0 right-0 z-40 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-white/5">
           <div className="flex items-center justify-between px-4 py-2">
             <div className="w-10" />
             <div className="flex items-center gap-3">
@@ -169,7 +169,7 @@ export default function ImageGenerate() {
         </div>
 
         {/* Canvas Area */}
-        <div className="flex-1 pt-28 pb-64 md:pb-52 relative">
+        <div className="flex-1 pt-14 pb-64 md:pb-52 relative">
           <div className="flex items-center justify-center min-h-[40vh] p-4">
             {isGenerating ? (
               <div className="text-center">
