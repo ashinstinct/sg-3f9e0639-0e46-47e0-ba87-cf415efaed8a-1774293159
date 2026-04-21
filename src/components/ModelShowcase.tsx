@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { ChevronLeft, ChevronRight, Play, ExternalLink, Crown } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { ChevronLeft, ChevronRight, Play, ExternalLink, Crown, Clock, Mic, Layers, Image as ImageIcon, Download, Scissors, Repeat, SlidersHorizontal, Wand2, UserRound, Sparkles, Film, Brush } from "lucide-react";
 import Link from "next/link";
 
 interface ModelTrailer {
@@ -364,9 +364,159 @@ function CarouselRow({ title, models, icon }: { title: string; models: ModelTrai
   );
 }
 
+// --- Recently Used Tools ---
+const ALL_RECENT_TOOLS = [
+  { id: "flux", name: "FLUX.1", category: "image", href: "/images/generate", logo: "/logos/flux.svg" },
+  { id: "kling", name: "Kling 3.0", category: "video", href: "/video/generate", logo: "/logos/kling.svg" },
+  { id: "whisper", name: "Transcriber", category: "audio", href: "/transcriber", icon: "Mic" },
+  { id: "spleeter", name: "Stem Separator", category: "audio", href: "/stems", icon: "Layers" },
+  { id: "extractor", name: "Frame Extractor", category: "free", href: "/extract", icon: "Image" },
+  { id: "downloader", name: "Video Downloader", category: "free", href: "/download", icon: "Download" },
+  { id: "splitter", name: "Video Splitter", category: "free", href: "/split", icon: "Scissors" },
+  { id: "converter", name: "Audio Converter", category: "free", href: "/convert", icon: "Repeat" },
+  { id: "editor", name: "Audio Editor", category: "free", href: "/audio-editor", icon: "SlidersHorizontal" },
+  { id: "enhancer", name: "Audio Enhancer", category: "audio", href: "/enhance", icon: "Wand2" },
+  { id: "clone", name: "Voice Cloner", category: "audio", href: "/clone", icon: "UserRound" },
+  { id: "recorder", name: "Voice Recorder", category: "free", href: "/record-voice", icon: "Mic" },
+  { id: "image-gen", name: "AI Image Gen", category: "image", href: "/images/generate", icon: "Sparkles" },
+  { id: "video-gen", name: "AI Video Gen", category: "video", href: "/video-gen", icon: "Film" },
+  { id: "inpaint", name: "Inpaint Editor", category: "edit-image", href: "/edit/inpaint", icon: "Brush" },
+  { id: "seedream", name: "Seedream 4.0", category: "image", href: "/images/generate", logo: "/logos/seedream.svg" },
+  { id: "grok", name: "Grok Aurora", category: "image", href: "/images/generate", logo: "/logos/grok.svg" },
+  { id: "luma", name: "Luma Dream Machine", category: "video", href: "/video/generate", logo: "/logos/luma.svg" },
+  { id: "runway", name: "Runway Gen-4", category: "video", href: "/video/generate", logo: "/logos/runway.svg" },
+  { id: "ideogram", name: "Ideogram 3.0", category: "image", href: "/images/generate", logo: "/logos/ideogram.svg" },
+];
+
+const RECENT_STORAGE_KEY = "b2l_recent_tools";
+const MAX_RECENT = 12;
+
+function getRecentTools(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(RECENT_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+
+function addRecentTool(toolId: string) {
+  if (typeof window === "undefined") return;
+  const recent = getRecentTools().filter(id => id !== toolId);
+  recent.unshift(toolId);
+  localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(recent.slice(0, MAX_RECENT)));
+}
+
+export { addRecentTool };
+
+function RecentToolCard({ tool }: { tool: typeof ALL_RECENT_TOOLS[number] }) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <Link
+      href={tool.href}
+      className="flex-none w-[160px] md:w-[180px] snap-start group"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={() => addRecentTool(tool.id)}
+    >
+      <div className="relative rounded-xl overflow-hidden bg-[#161618] border border-white/5 hover:border-emerald-500/30 transition-all duration-300 hover:scale-[1.03] hover:shadow-lg hover:shadow-emerald-500/10">
+        <div className="aspect-[4/3] bg-gradient-to-br from-[#1a1a1e] to-[#0e0e10] flex items-center justify-center relative">
+          {tool.logo ? (
+            <img src={tool.logo} alt="" className={`w-10 h-10 md:w-12 md:h-12 object-contain transition-transform ${hovered ? "scale-110" : ""}`} />
+          ) : (
+            <div className={`w-11 h-11 md:w-13 md:h-13 rounded-xl bg-emerald-500/10 flex items-center justify-center transition-all ${hovered ? "bg-emerald-500/20 scale-110" : ""}`}>
+              {tool.icon === "Mic" && <Mic className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
+              {tool.icon === "Layers" && <Layers className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
+              {tool.icon === "Image" && <ImageIcon className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
+              {tool.icon === "Download" && <Download className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
+              {tool.icon === "Scissors" && <Scissors className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
+              {tool.icon === "Repeat" && <Repeat className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
+              {tool.icon === "SlidersHorizontal" && <SlidersHorizontal className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
+              {tool.icon === "Wand2" && <Wand2 className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
+              {tool.icon === "UserRound" && <UserRound className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
+              {tool.icon === "Sparkles" && <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
+              {tool.icon === "Film" && <Film className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
+              {tool.icon === "Brush" && <Brush className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
+            </div>
+          )}
+          {/* Green generate button */}
+          <button
+            onClick={(e) => { e.preventDefault(); window.location.href = tool.href; }}
+            className="absolute bottom-2 right-2 w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-emerald-400 hover:scale-105"
+          >
+            <Sparkles className="w-4 h-4 text-white" fill="white" />
+          </button>
+        </div>
+        <div className="p-2.5 md:p-3">
+          <p className="text-xs md:text-sm font-medium text-white truncate">{tool.name}</p>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function RecentCarousel() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [recentIds, setRecentIds] = useState<string[]>([]);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  useEffect(() => {
+    setRecentIds(getRecentTools());
+  }, []);
+
+  const recentTools = recentIds.map(id => ALL_RECENT_TOOLS.find(t => t.id === id)).filter(Boolean) as typeof ALL_RECENT_TOOLS;
+
+  if (recentTools.length === 0) return null;
+
+  const checkScroll = () => {
+    if (!scrollRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+    setCanScrollLeft(scrollLeft > 10);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+  };
+
+  const scroll = (direction: "left" | "right") => {
+    if (!scrollRef.current) return;
+    const amount = scrollRef.current.clientWidth * 0.75;
+    scrollRef.current.scrollBy({ left: direction === "left" ? -amount : amount, behavior: "smooth" });
+  };
+
+  return (
+    <div className="mb-8 md:mb-12">
+      <div className="flex items-center gap-3 mb-3 md:mb-4 px-4 md:px-8">
+        <Clock className="w-5 h-5 text-emerald-400" />
+        <h2 className="text-lg md:text-xl font-bold text-white">Recently Used</h2>
+        <span className="text-xs text-white/30 ml-auto">{recentTools.length} tools</span>
+      </div>
+
+      <div className="relative group">
+        {canScrollLeft && (
+          <button onClick={() => scroll("left")} className="hidden md:flex absolute left-0 top-0 bottom-0 z-10 w-10 items-center justify-center bg-gradient-to-r from-[#0a0a0a] to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+            <ChevronLeft className="w-6 h-6 text-white" />
+          </button>
+        )}
+
+        <div ref={scrollRef} onScroll={checkScroll} className="flex gap-3 md:gap-4 overflow-x-auto px-4 md:px-8 pb-3 scrollbar-hide snap-x snap-mandatory" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+          {recentTools.map((tool) => (
+            <RecentToolCard key={tool.id} tool={tool} />
+          ))}
+        </div>
+
+        {canScrollRight && (
+          <button onClick={() => scroll("right")} className="hidden md:flex absolute right-0 top-0 bottom-0 z-10 w-10 items-center justify-center bg-gradient-to-l from-[#0a0a0a] to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+            <ChevronRight className="w-6 h-6 text-white" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function ModelShowcase() {
   return (
-    <section className="py-10 md:py-16">
+    <section className="py-8 md:py-12">
+      <RecentCarousel />
       <CarouselRow
         title="AI Video Models"
         models={videoModels}
