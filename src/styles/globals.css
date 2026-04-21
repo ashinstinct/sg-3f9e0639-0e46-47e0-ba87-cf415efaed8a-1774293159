@@ -6,67 +6,66 @@
 
 @layer base {
   :root {
-    /* Existing shadcn tokens - keeping intact */
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --foreground: 0 0% 7%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 0 0% 7%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover-foreground: 0 0% 7%;
     --primary: 263 70% 50%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
     --ring: 263 70% 50%;
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    /* Custom brand colors */
-    --brand-indigo: 243 75% 59%;
-    --brand-cyan: 189 94% 43%;
-    --brand-purple: 263 70% 50%;
-    --surface-tint: 250 50% 98%;
-    
-    /* Gradient tokens */
-    --gradient-hero: linear-gradient(135deg, hsl(243 75% 59% / 0.1) 0%, hsl(263 70% 50% / 0.1) 50%, hsl(189 94% 43% / 0.1) 100%);
-    --gradient-mesh: radial-gradient(at 40% 20%, hsl(243 75% 59% / 0.3) 0px, transparent 50%),
-                     radial-gradient(at 80% 0%, hsl(189 94% 43% / 0.2) 0px, transparent 50%),
-                     radial-gradient(at 0% 50%, hsl(263 70% 50% / 0.2) 0px, transparent 50%);
+    --neon-purple: 263 90% 60%;
+    --neon-cyan: 185 100% 50%;
+    --neon-pink: 330 100% 60%;
+    --neon-green: 150 100% 45%;
+    --neon-blue: 220 100% 60%;
+    --neon-orange: 25 100% 55%;
+
+    --surface-elevated: 0 0% 98%;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 263 70% 50%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 263 70% 50%;
-    
-    --surface-tint: 240 10% 8%;
-    --gradient-hero: linear-gradient(135deg, hsl(243 75% 59% / 0.2) 0%, hsl(263 70% 50% / 0.2) 50%, hsl(189 94% 43% / 0.15) 100%);
-    --gradient-mesh: radial-gradient(at 40% 20%, hsl(243 75% 59% / 0.4) 0px, transparent 50%),
-                     radial-gradient(at 80% 0%, hsl(189 94% 43% / 0.3) 0px, transparent 50%),
-                     radial-gradient(at 0% 50%, hsl(263 70% 50% / 0.3) 0px, transparent 50%);
+    --background: 0 0% 4%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 263 90% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 55%;
+    --accent: 0 0% 12%;
+    --accent-foreground: 0 0% 95%;
+    --destructive: 0 84% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 14%;
+    --input: 0 0% 14%;
+    --ring: 263 90% 60%;
+
+    --neon-purple: 263 90% 65%;
+    --neon-cyan: 185 100% 55%;
+    --neon-pink: 330 100% 65%;
+    --neon-green: 150 100% 50%;
+    --neon-blue: 220 100% 65%;
+    --neon-orange: 25 100% 60%;
+
+    --surface-elevated: 0 0% 8%;
   }
 }
 
@@ -75,12 +74,32 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground font-sans antialiased;
   }
 }
 
 @layer utilities {
-  .text-gradient {
-    @apply bg-gradient-to-r from-brand-indigo via-brand-purple to-brand-cyan bg-clip-text text-transparent;
+  .neon-glow-purple {
+    box-shadow: 0 0 20px hsl(263 90% 60% / 0.3), 0 0 60px hsl(263 90% 60% / 0.1);
+  }
+  .neon-glow-cyan {
+    box-shadow: 0 0 20px hsl(185 100% 50% / 0.3), 0 0 60px hsl(185 100% 50% / 0.1);
+  }
+  .neon-glow-pink {
+    box-shadow: 0 0 20px hsl(330 100% 60% / 0.3), 0 0 60px hsl(330 100% 60% / 0.1);
+  }
+  .text-neon-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(263 90% 65%), hsl(185 100% 55%), hsl(330 100% 65%));
+  }
+  .border-neon {
+    border-image: linear-gradient(135deg, hsl(263 90% 60% / 0.5), hsl(185 100% 50% / 0.5)) 1;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
