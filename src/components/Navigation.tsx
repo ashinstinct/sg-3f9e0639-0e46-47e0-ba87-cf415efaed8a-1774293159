@@ -28,7 +28,6 @@ import {
   Grid3x3,
   Wand2
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { SubscriptionModal } from "@/components/SubscriptionModal";
 import { cn } from "@/lib/utils";
 import {
@@ -85,104 +84,43 @@ export function Navigation() {
     },
   ];
 
-  const getPageTitle = () => {
-    const path = router.pathname;
-    if (path.startsWith("/images")) return "Images";
-    if (path.startsWith("/video")) return "Video";
-    if (path === "/chat") return "Chat";
-    if (path.startsWith("/audio") || path === "/audio-editor") return "Audio";
-    if (path === "/avatar") return "Avatar";
-    if (path === "/music") return "Music";
-    if (path === "/clone") return "Voice Clone";
-    if (path === "/tools") return "Tools";
-    if (path === "/free-tools") return "Free Tools";
-    if (path === "/library") return "Library";
-    if (path === "/gallery") return "Gallery";
-    if (path === "/dashboard") return "Dashboard";
-    if (path === "/agents") return "Agents";
-    if (path === "/generate") return "Generate";
-    if (path === "/transcriber") return "Transcriber";
-    if (path === "/extract") return "Frame Extractor";
-    if (path === "/download") return "Downloader";
-    if (path === "/split") return "Splitter";
-    if (path === "/convert") return "Converter";
-    if (path === "/edit") return "Editor";
-    if (path === "/stems" || path === "/stem-separator") return "Stems";
-    if (path === "/enhance") return "Enhancer";
-    if (path === "/record-voice") return "Recorder";
-    if (path === "/image-to-prompt") return "Image to Prompt";
-    return "";
-  };
-
   return (
     <>
-      {/* Minimal Top Bar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border/50 h-14">
-        <div className="flex items-center justify-between h-full px-4">
-          {/* Left: Hamburger */}
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-muted transition-colors"
-          >
-            <Menu className="w-5 h-5 text-foreground" />
-          </button>
-
-          {/* Center: Page Title */}
-          <div className="absolute left-1/2 -translate-x-1/2">
-            <span className="text-sm font-medium text-muted-foreground">
-              {getPageTitle()}
-            </span>
-          </div>
-
-          {/* Right: Credits + New */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setSubscriptionModalOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/50 rounded-full hover:bg-muted transition-colors"
-            >
-              <Coins className="w-3.5 h-3.5 text-primary" />
-              <span className="text-xs font-semibold">{credits.toLocaleString()}</span>
-            </button>
-            <button
-              onClick={() => router.push("/images/generate")}
-              className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-muted transition-colors"
-            >
-              <PenLine className="w-5 h-5 text-foreground" />
-            </button>
-          </div>
-        </div>
-      </nav>
+      {/* Floating Hamburger Button */}
+      <button
+        onClick={() => setSidebarOpen(true)}
+        className="fixed top-3 left-3 z-50 flex items-center justify-center w-10 h-10 rounded-xl bg-[#1a1a1c]/80 backdrop-blur-sm border border-white/5 hover:bg-[#252528] transition-colors"
+      >
+        <Menu className="w-5 h-5 text-white/70" />
+      </button>
 
       {/* Slide-out Sidebar */}
       <div
         className={cn(
-          "fixed top-0 left-0 bottom-0 z-[60] w-72 bg-background border-r border-border/50 transition-transform duration-300 ease-in-out flex flex-col",
+          "fixed top-0 left-0 bottom-0 z-[60] w-72 bg-[#0e0e10] border-r border-white/5 transition-transform duration-300 ease-in-out flex flex-col",
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {/* Sidebar Header - Branding */}
-        <div className="flex items-center justify-between px-4 h-14 border-b border-border/50 flex-shrink-0">
-          <span className="text-lg font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+        <div className="flex items-center justify-between px-4 h-14 border-b border-white/5 flex-shrink-0">
+          <Link
+            href="/"
+            className="text-lg font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent"
+          >
             Back2Life.Studio
-          </span>
+          </Link>
           <div className="flex items-center gap-1">
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-muted transition-colors"
+              className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/5 transition-colors"
             >
-              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {theme === "dark" ? <Sun className="w-4 h-4 text-white/50" /> : <Moon className="w-4 h-4 text-white/50" />}
             </button>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-muted transition-colors"
+              className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/5 transition-colors"
             >
-              <X className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-muted transition-colors"
-            >
-              <ChevronDown className="w-4 h-4" />
+              <X className="w-4 h-4 text-white/50" />
             </button>
           </div>
         </div>
@@ -191,7 +129,7 @@ export function Navigation() {
         <div className="flex-1 overflow-y-auto py-4 px-3">
           {navSections.map((section) => (
             <div key={section.title} className="mb-6">
-              <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest px-3 mb-2">
+              <h3 className="text-[10px] font-semibold text-white/30 uppercase tracking-widest px-3 mb-2">
                 {section.title}
               </h3>
               <div className="space-y-0.5">
@@ -207,8 +145,8 @@ export function Navigation() {
                       className={cn(
                         "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm",
                         isActive
-                          ? "bg-primary/10 text-primary font-medium"
-                          : "text-foreground hover:bg-muted"
+                          ? "bg-white/10 text-white font-medium"
+                          : "text-white/60 hover:bg-white/5 hover:text-white/80"
                       )}
                     >
                       <Icon className="w-5 h-5 flex-shrink-0" />
@@ -221,24 +159,41 @@ export function Navigation() {
           ))}
         </div>
 
-        {/* Sidebar Footer */}
-        <div className="flex-shrink-0 border-t border-border/50 p-3 space-y-2">
+        {/* Sidebar Footer - Credits, Go Pro, Settings, User */}
+        <div className="flex-shrink-0 border-t border-white/5 p-3 space-y-2">
+          {/* Credits Display */}
+          <button
+            onClick={() => {
+              setSidebarOpen(false);
+              setSubscriptionModalOpen(true);
+            }}
+            className="flex items-center gap-2 w-full px-3 py-2.5 rounded-lg hover:bg-white/5 transition-colors"
+          >
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500/10 flex-shrink-0">
+              <Coins className="w-4 h-4 text-amber-400" />
+            </div>
+            <div className="flex-1 text-left">
+              <p className="text-sm font-semibold text-white">{credits.toLocaleString()} credits</p>
+              <p className="text-[11px] text-white/40">Click to buy more</p>
+            </div>
+          </button>
+
           {/* Go Pro Button */}
           <button
             onClick={() => {
               setSidebarOpen(false);
               setSubscriptionModalOpen(true);
             }}
-            className="flex items-center gap-2 px-3 py-2 rounded-full bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors w-auto"
+            className="flex items-center gap-2 px-3 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 hover:bg-indigo-500/20 transition-colors w-auto"
           >
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-primary">Go Pro</span>
+            <Sparkles className="w-4 h-4 text-indigo-400" />
+            <span className="text-sm font-medium text-indigo-400">Go Pro</span>
           </button>
 
           {/* Settings */}
           <Link
             href="/dashboard"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors text-sm text-foreground"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 transition-colors text-sm text-white/60"
           >
             <Settings className="w-5 h-5 flex-shrink-0" />
             <span>Settings</span>
@@ -247,14 +202,14 @@ export function Navigation() {
           {/* User Profile */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors w-full text-left">
-                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                  <User className="w-4 h-4" />
+              <button className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 transition-colors w-full text-left">
+                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
+                  <User className="w-4 h-4 text-white/50" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">Guest User</p>
+                  <p className="text-sm font-medium text-white/80 truncate">Guest User</p>
                 </div>
-                <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                <ChevronDown className="w-4 h-4 text-white/30 flex-shrink-0" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" side="top" className="w-56">
