@@ -1,4 +1,5 @@
-import Head from 'next/head';
+
+import Head from "next/head";
 
 interface SEOProps {
   title?: string;
@@ -7,61 +8,49 @@ interface SEOProps {
   url?: string;
 }
 
-// SEO elements that can be used in _document.tsx (returns JSX without Head wrapper)
-export function SEOElements({
-  title = "Back2Life-Studio",
-  description = "Bring your imagination to life — the all-in-one AI platform for images and videos.",
+export function SEO({
+  title = "Back2Life.Studio - AI-Powered Media Studio",
+  description = "Create stunning AI images, videos, audio, and more with Back2Life.Studio",
   image = "/og-image.png",
-  url,
- {
+  url = "https://back2life.studio",
+}: SEOProps) {
   return (
-    <>
-      <title>{title}</title>
-      <meta name="description" content={description} />
-      <link rel="icon" href="/favicon.ico" />
-
-      {/* Open Graph */}
-      <meta property="og:title" content={title} />
-      <meta property="og:description" content={description} />
-      {image && <meta property="og:image" content={image} />}
-      {url && <meta property="og:url" content={url} />}
-      <meta property="og:type" content="website" />
-
-      {/* Twitter */}
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={title} />
-      <meta name="twitter:description" content={description} />
-      {image && <meta name="twitter:image" content={image} />}
-    </>
+    &lt;Head&gt;
+      &lt;title&gt;{title}&lt;/title&gt;
+      &lt;meta name="description" content={description} /&gt;
+      &lt;meta property="og:title" content={title} /&gt;
+      &lt;meta property="og:description" content={description} /&gt;
+      &lt;meta property="og:image" content={image} /&gt;
+      &lt;meta property="og:url" content={url} /&gt;
+      &lt;meta property="og:type" content="website" /&gt;
+      &lt;meta name="twitter:card" content="summary_large_image" /&gt;
+      &lt;meta name="twitter:title" content={title} /&gt;
+      &lt;meta name="twitter:description" content={description} /&gt;
+      &lt;meta name="twitter:image" content={image} /&gt;
+      &lt;link rel="icon" href="/favicon.ico" /&gt;
+    &lt;/Head&gt;
   );
 }
 
-// SEO component for use in pages/_app.tsx or individual pages (uses next/head)
-// Note: Flattened structure (no fragment) for better Next.js Head compatibility during hot reload
-export function SEO({
-  title = "Hello World",
-  description = "Welcome to my app",
+export function SEOElements({
+  title = "Back2Life.Studio - AI-Powered Media Studio",
+  description = "Create stunning AI images, videos, audio, and more with Back2Life.Studio",
   image = "/og-image.png",
-  url,
+  url = "https://back2life.studio",
 }: SEOProps) {
   return (
-    <Head>
-      <title>{title}</title>
-      <meta name="description" content={description} />
-      <link rel="icon" href="/favicon.ico" />
-
-      {/* Open Graph */}
-      <meta property="og:title" content={title} />
-      <meta property="og:description" content={description} />
-      {image && <meta property="og:image" content={image} />}
-      {url && <meta property="og:url" content={url} />}
-      <meta property="og:type" content="website" />
-
-      {/* Twitter */}
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={title} />
-      <meta name="twitter:description" content={description} />
-      {image && <meta name="twitter:image" content={image} />}
-    </Head>
+    &lt;&gt;
+      &lt;meta name="description" content={description} /&gt;
+      &lt;meta property="og:title" content={title} /&gt;
+      &lt;meta property="og:description" content={description} /&gt;
+      &lt;meta property="og:image" content={image} /&gt;
+      &lt;meta property="og:url" content={url} /&gt;
+      &lt;meta property="og:type" content="website" /&gt;
+      &lt;meta name="twitter:card" content="summary_large_image" /&gt;
+      &lt;meta name="twitter:title" content={title} /&gt;
+      &lt;meta name="twitter:description" content={description} /&gt;
+      &lt;meta name="twitter:image" content={image} /&gt;
+      &lt;title&gt;{title}&lt;/title&gt;
+    &lt;/&gt;
   );
 }
