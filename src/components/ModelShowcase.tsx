@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Play, ExternalLink, Crown, Clock, Mic, Layers, Image as ImageIcon, Download, Scissors, Repeat, SlidersHorizontal, Wand2, UserRound, Sparkles, Film, Brush, Music, Volume2, Palette, type LucideIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play, Crown, Clock, Mic, Layers, Image as ImageIcon, Download, Scissors, Repeat, SlidersHorizontal, Wand2, UserRound, Sparkles, Film, Brush, Music, Volume2, Palette, type LucideIcon } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 /* ─── Types ─── */
 interface ModelCard {
@@ -127,14 +128,21 @@ function IconOrLogo({ tool }: { tool: typeof ALL_RECENT_TOOLS[number] }) {
 }
 
 function RecentToolCard({ tool }: { tool: typeof ALL_RECENT_TOOLS[number] }) {
+  const router = useRouter();
+  
+  const handleClick = () => {
+    addRecentTool(tool.id);
+    router.push(tool.href);
+  };
+
   return (
-    <Link href={tool.href} className="flex-none w-[150px] md:w-[170px] snap-start group" onClick={() => addRecentTool(tool.id)}>
+    <button onClick={handleClick} className="flex-none w-[150px] md:w-[170px] snap-start group text-left">
       <div className="relative rounded-xl overflow-hidden bg-[#161618] border border-white/5 hover:border-emerald-500/30 transition-all duration-300 hover:scale-[1.03] hover:shadow-lg hover:shadow-emerald-500/10">
         <div className="aspect-[4/3] bg-gradient-to-br from-[#1a1a1e] to-[#0e0e10] flex items-center justify-center relative">
           <div className="w-11 h-11 rounded-xl bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500/20 group-hover:scale-110 transition-all">
             <IconOrLogo tool={tool} />
           </div>
-          <button onClick={e => { e.preventDefault(); window.location.href = tool.href; }}
+          <button onClick={(e) => { e.stopPropagation(); handleClick(); }}
             className="absolute bottom-2 right-2 w-8 h-8 rounded-xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-emerald-400 hover:scale-105">
             <Sparkles className="w-4 h-4 text-white" fill="white" />
           </button>
@@ -143,7 +151,7 @@ function RecentToolCard({ tool }: { tool: typeof ALL_RECENT_TOOLS[number] }) {
           <p className="text-xs font-medium text-white truncate">{tool.name}</p>
         </div>
       </div>
-    </Link>
+    </button>
   );
 }
 
@@ -184,6 +192,7 @@ function CardBadge({ card }: { card: ModelCard }) {
 }
 
 function GenerateButton({ href, neonColor }: { href: string; neonColor: "purple" | "cyan" | "pink" | "green" | "orange" }) {
+  const router = useRouter();
   const colors = {
     purple: "bg-purple-500 hover:bg-purple-400 shadow-purple-500/30",
     cyan: "bg-cyan-500 hover:bg-cyan-400 shadow-cyan-500/30",
@@ -193,10 +202,9 @@ function GenerateButton({ href, neonColor }: { href: string; neonColor: "purple"
   };
   
   return (
-    <Link href={href} className={`absolute bottom-2 right-2 w-9 h-9 rounded-xl ${colors[neonColor]} flex items-center justify-center shadow-lg opacity-0 group-hover/card:opacity-100 transition-all duration-200 hover:scale-105`}
-      onClick={(e) => e.stopPropagation()}>
+    <button onClick={() => router.push(href)} className={`absolute bottom-2 right-2 w-9 h-9 rounded-xl ${colors[neonColor]} flex items-center justify-center shadow-lg opacity-0 group-hover/card:opacity-100 transition-all duration-200 hover:scale-105`}>
       <Sparkles className="w-4.5 h-4.5 text-white" fill="white" />
-    </Link>
+    </button>
   );
 }
 
