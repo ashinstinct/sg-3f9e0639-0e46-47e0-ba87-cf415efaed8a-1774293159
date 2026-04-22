@@ -379,183 +379,185 @@ export default function RecordVoice() {
         title="Audio Recorder - Record Voice"
         description="Record high-quality audio with MP3 output"
       />
-      <div className="min-h-screen bg-slate-950">
+      <div className="min-h-screen bg-background">
         <Navigation />
         
-        <main className="container mx-auto px-4 py-12 pt-24 max-w-6xl">
-          <div className="mb-8">
-            <h1 className="font-heading font-bold text-4xl mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-              Audio Recorder
-            </h1>
-            <p className="text-muted-foreground">
-              Record high-quality audio with one click
-            </p>
-          </div>
+        <div className="container mx-auto px-4 pt-20 pb-12">
+          <div className="max-w-5xl mx-auto">
+            <div className="mb-8">
+              <h1 className="font-heading font-bold text-4xl mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                Audio Recorder
+              </h1>
+              <p className="text-muted-foreground">
+                Record high-quality audio with one click
+              </p>
+            </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card className="p-8 bg-card/50 backdrop-blur-sm">
-              <CardContent className="p-0">
-                <div className="flex flex-col items-center justify-center space-y-6">
-                  <div className="relative">
-                    <canvas
-                      ref={volumeCanvasRef}
-                      width={200}
-                      height={200}
-                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-                    />
-                    <Button
-                      onClick={isRecording ? stopRecording : startRecording}
-                      size="lg"
-                      className={`w-24 h-24 rounded-full ${
-                        isRecording
-                          ? "bg-red-500 hover:bg-red-600"
-                          : "bg-purple-500 hover:bg-purple-600"
-                      }`}
-                    >
-                      {isRecording ? (
-                        <Square className="w-10 h-10" />
-                      ) : (
-                        <Mic className="w-10 h-10" />
-                      )}
-                    </Button>
-                  </div>
-
-                  <div className="text-4xl font-bold text-center">
-                    {formatTime(duration)}
-                  </div>
-
-                  {audioURL && !isRecording && (
-                    <Button
-                      onClick={() => {
-                        setAudioURL("");
-                        setDuration(0);
-                      }}
-                      variant="outline"
-                      className="w-full"
-                    >
-                      New Recording
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="p-8 bg-card/50 backdrop-blur-sm">
-              <CardContent className="p-0">
-                {audioURL ? (
-                  <div className="space-y-6">
-                    <div className="relative rounded-lg overflow-hidden bg-muted/20 border">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <Card className="p-8 bg-card/50 backdrop-blur-sm">
+                <CardContent className="p-0">
+                  <div className="flex flex-col items-center justify-center space-y-6">
+                    <div className="relative">
                       <canvas
-                        ref={waveformCanvasRef}
-                        width={800}
+                        ref={volumeCanvasRef}
+                        width={200}
                         height={200}
-                        className="w-full h-[200px]"
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
                       />
-                    </div>
-
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-center">
-                        <Button
-                          onClick={togglePlayback}
-                          size="lg"
-                          className="w-16 h-16 rounded-full bg-purple-500 hover:bg-purple-600"
-                        >
-                          {isPlaying ? (
-                            <Pause className="w-6 h-6" />
-                          ) : (
-                            <Play className="w-6 h-6 ml-1" />
-                          )}
-                        </Button>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Slider
-                          value={[currentTime]}
-                          max={duration || 100}
-                          step={0.1}
-                          onValueChange={handleSeek}
-                          className="w-full"
-                        />
-                        <div className="flex justify-between text-xs text-muted-foreground">
-                          <span>{formatTime(currentTime)}</span>
-                          <span>{formatTime(duration)}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <Volume2 className="w-4 h-4 text-muted-foreground" />
-                        <Slider
-                          value={[volume]}
-                          max={1}
-                          step={0.1}
-                          onValueChange={handleVolumeChange}
-                          className="w-full"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <Button
-                          asChild
-                          variant="outline"
-                          className="w-full"
-                        >
-                          <a href={audioURL} download={`recording-${Date.now()}.mp3`}>
-                            <Download className="w-4 h-4 mr-2" />
-                            Download
-                          </a>
-                        </Button>
-                        <Button
-                          onClick={handleShare}
-                          variant="outline"
-                          className="w-full"
-                        >
-                          <Share2 className="w-4 h-4 mr-2" />
-                          Share
-                        </Button>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <Button
-                          asChild
-                          variant="outline"
-                          className="w-full border-blue-500/50 hover:bg-blue-500/10"
-                        >
-                          <Link href="/edit">
-                            <Edit className="w-4 h-4 mr-2" />
-                            Edit Audio
-                          </Link>
-                        </Button>
-                        <Button
-                          asChild
-                          variant="outline"
-                          className="w-full border-emerald-500/50 hover:bg-emerald-500/10"
-                        >
-                          <Link href="/enhance">
-                            <Sparkles className="w-4 h-4 mr-2" />
-                            Enhance
-                          </Link>
-                        </Button>
-                      </div>
-
                       <Button
-                        onClick={handleDelete}
-                        variant="outline"
-                        className="w-full border-red-500/50 hover:bg-red-500/10 text-red-500"
+                        onClick={isRecording ? stopRecording : startRecording}
+                        size="lg"
+                        className={`w-24 h-24 rounded-full ${
+                          isRecording
+                            ? "bg-red-500 hover:bg-red-600"
+                            : "bg-purple-500 hover:bg-purple-600"
+                        }`}
                       >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete
+                        {isRecording ? (
+                          <Square className="w-10 h-10" />
+                        ) : (
+                          <Mic className="w-10 h-10" />
+                        )}
                       </Button>
                     </div>
+
+                    <div className="text-4xl font-bold text-center">
+                      {formatTime(duration)}
+                    </div>
+
+                    {audioURL && !isRecording && (
+                      <Button
+                        onClick={() => {
+                          setAudioURL("");
+                          setDuration(0);
+                        }}
+                        variant="outline"
+                        className="w-full"
+                      >
+                        New Recording
+                      </Button>
+                    )}
                   </div>
-                ) : (
-                  <div className="h-full flex items-center justify-center text-muted-foreground py-20">
-                    {isRecording ? "Recording in progress..." : "Your recording will appear here"}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+
+              <Card className="p-8 bg-card/50 backdrop-blur-sm">
+                <CardContent className="p-0">
+                  {audioURL ? (
+                    <div className="space-y-6">
+                      <div className="relative rounded-lg overflow-hidden bg-muted/20 border">
+                        <canvas
+                          ref={waveformCanvasRef}
+                          width={800}
+                          height={200}
+                          className="w-full h-[200px]"
+                        />
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-center">
+                          <Button
+                            onClick={togglePlayback}
+                            size="lg"
+                            className="w-16 h-16 rounded-full bg-purple-500 hover:bg-purple-600"
+                          >
+                            {isPlaying ? (
+                              <Pause className="w-6 h-6" />
+                            ) : (
+                              <Play className="w-6 h-6 ml-1" />
+                            )}
+                          </Button>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Slider
+                            value={[currentTime]}
+                            max={duration || 100}
+                            step={0.1}
+                            onValueChange={handleSeek}
+                            className="w-full"
+                          />
+                          <div className="flex justify-between text-xs text-muted-foreground">
+                            <span>{formatTime(currentTime)}</span>
+                            <span>{formatTime(duration)}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Volume2 className="w-4 h-4 text-muted-foreground" />
+                          <Slider
+                            value={[volume]}
+                            max={1}
+                            step={0.1}
+                            onValueChange={handleVolumeChange}
+                            className="w-full"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <Button
+                            asChild
+                            variant="outline"
+                            className="w-full"
+                          >
+                            <a href={audioURL} download={`recording-${Date.now()}.mp3`}>
+                              <Download className="w-4 h-4 mr-2" />
+                              Download
+                            </a>
+                          </Button>
+                          <Button
+                            onClick={handleShare}
+                            variant="outline"
+                            className="w-full"
+                          >
+                            <Share2 className="w-4 h-4 mr-2" />
+                            Share
+                          </Button>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <Button
+                            asChild
+                            variant="outline"
+                            className="w-full border-blue-500/50 hover:bg-blue-500/10"
+                          >
+                            <Link href="/edit">
+                              <Edit className="w-4 h-4 mr-2" />
+                              Edit Audio
+                            </Link>
+                          </Button>
+                          <Button
+                            asChild
+                            variant="outline"
+                            className="w-full border-emerald-500/50 hover:bg-emerald-500/10"
+                          >
+                            <Link href="/enhance">
+                              <Sparkles className="w-4 h-4 mr-2" />
+                              Enhance
+                            </Link>
+                          </Button>
+                        </div>
+
+                        <Button
+                          onClick={handleDelete}
+                          variant="outline"
+                          className="w-full border-red-500/50 hover:bg-red-500/10 text-red-500"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="h-full flex items-center justify-center text-muted-foreground py-20">
+                      {isRecording ? "Recording in progress..." : "Your recording will appear here"}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        </main>
+        </div>
       </div>
     </>
   );

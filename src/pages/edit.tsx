@@ -184,125 +184,127 @@ export default function AudioEditor() {
   return (
     <>
       <SEO title="Audio Editor - Edit & Trim Audio" description="Edit and modify your audio files" />
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="min-h-screen bg-background">
         <Navigation />
         
-        <main className="container mx-auto px-4 py-12 pt-24 max-w-6xl">
-          <div className="mb-8">
-            <h1 className="font-heading font-bold text-4xl mb-2 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-              Audio Editor
-            </h1>
-            <p className="text-muted-foreground">Upload and edit your audio files</p>
-          </div>
+        <div className="container mx-auto px-4 pt-20 pb-12">
+          <div className="max-w-6xl mx-auto">
+            <div className="mb-8 text-center">
+              <h1 className="font-heading font-bold text-4xl mb-2 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                Audio Editor
+              </h1>
+              <p className="text-muted-foreground">Upload and edit your audio files</p>
+            </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card className="p-6 bg-card/50 backdrop-blur-sm">
-              <CardContent className="p-0 space-y-6">
-                <div>
-                  <Label className="text-base font-semibold mb-3 block">Upload Audio File</Label>
-                  <div className="flex items-center gap-4">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => document.getElementById("audio-upload")?.click()}
-                      className="flex items-center gap-2"
-                    >
-                      <Upload className="w-4 h-4" />
-                      Choose File
-                    </Button>
-                    {audioFile && (
-                      <div className="flex items-center gap-2">
-                        <FileAudio className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground truncate max-w-[200px]">
-                          {audioFile.name}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <input
-                    id="audio-upload"
-                    type="file"
-                    accept="audio/*"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                </div>
-
-                {audioFile && (
-                  <div className="pt-4 border-t">
-                    <Label className="text-sm mb-4 block font-medium">Editor Tools</Label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <Button variant="secondary" className="w-full flex flex-col h-auto py-4 gap-2">
-                        <Scissors className="w-5 h-5 text-blue-500" />
-                        <span>Trim Audio</span>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <Card className="p-6 bg-card/50 backdrop-blur-sm">
+                <CardContent className="p-0 space-y-6">
+                  <div>
+                    <Label className="text-base font-semibold mb-3 block">Upload Audio File</Label>
+                    <div className="flex items-center gap-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => document.getElementById("audio-upload")?.click()}
+                        className="flex items-center gap-2"
+                      >
+                        <Upload className="w-4 h-4" />
+                        Choose File
                       </Button>
-                      <Button asChild variant="secondary" className="w-full flex flex-col h-auto py-4 gap-2">
-                        <Link href="/enhance">
-                          <Sparkles className="w-5 h-5 text-emerald-500" />
-                          <span>Enhance</span>
-                        </Link>
-                      </Button>
+                      {audioFile && (
+                        <div className="flex items-center gap-2">
+                          <FileAudio className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground truncate max-w-[200px]">
+                            {audioFile.name}
+                          </span>
+                        </div>
+                      )}
                     </div>
+                    <input
+                      id="audio-upload"
+                      type="file"
+                      accept="audio/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
                   </div>
-                )}
-              </CardContent>
-            </Card>
 
-            <Card className="p-6 bg-card/50 backdrop-blur-sm">
-              <CardContent className="p-0">
-                {audioURL ? (
-                  <div className="space-y-6">
-                    <div className="relative rounded-lg overflow-hidden bg-muted/20 border">
-                      <canvas ref={waveformCanvasRef} width={800} height={200} className="w-full h-[200px]" />
-                    </div>
-
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-center">
-                        <Button
-                          onClick={togglePlayback}
-                          size="lg"
-                          className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white"
-                        >
-                          {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-1" />}
+                  {audioFile && (
+                    <div className="pt-4 border-t">
+                      <Label className="text-sm mb-4 block font-medium">Editor Tools</Label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Button variant="secondary" className="w-full flex flex-col h-auto py-4 gap-2">
+                          <Scissors className="w-5 h-5 text-blue-500" />
+                          <span>Trim Audio</span>
+                        </Button>
+                        <Button asChild variant="secondary" className="w-full flex flex-col h-auto py-4 gap-2">
+                          <Link href="/enhance">
+                            <Sparkles className="w-5 h-5 text-emerald-500" />
+                            <span>Enhance</span>
+                          </Link>
                         </Button>
                       </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
-                      <div className="space-y-2">
-                        <Slider value={[currentTime]} max={duration || 100} step={0.1} onValueChange={handleSeek} className="w-full" />
-                        <div className="flex justify-between text-xs text-muted-foreground">
-                          <span>{formatTime(currentTime)}</span>
-                          <span>{formatTime(duration)}</span>
+              <Card className="p-6 bg-card/50 backdrop-blur-sm">
+                <CardContent className="p-0">
+                  {audioURL ? (
+                    <div className="space-y-6">
+                      <div className="relative rounded-lg overflow-hidden bg-muted/20 border">
+                        <canvas ref={waveformCanvasRef} width={800} height={200} className="w-full h-[200px]" />
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-center">
+                          <Button
+                            onClick={togglePlayback}
+                            size="lg"
+                            className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white"
+                          >
+                            {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-1" />}
+                          </Button>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Slider value={[currentTime]} max={duration || 100} step={0.1} onValueChange={handleSeek} className="w-full" />
+                          <div className="flex justify-between text-xs text-muted-foreground">
+                            <span>{formatTime(currentTime)}</span>
+                            <span>{formatTime(duration)}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Volume2 className="w-4 h-4 text-muted-foreground" />
+                          <Slider value={[volume]} max={1} step={0.1} onValueChange={handleVolumeChange} className="w-full" />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <Button asChild variant="outline" className="w-full">
+                            <a href={audioURL} download={`edited-${Date.now()}.mp3`}>
+                              <Download className="w-4 h-4 mr-2" />
+                              Download
+                            </a>
+                          </Button>
+                          <Button onClick={handleShare} variant="outline" className="w-full">
+                            <Share2 className="w-4 h-4 mr-2" />
+                            Share
+                          </Button>
                         </div>
                       </div>
-
-                      <div className="flex items-center gap-2">
-                        <Volume2 className="w-4 h-4 text-muted-foreground" />
-                        <Slider value={[volume]} max={1} step={0.1} onValueChange={handleVolumeChange} className="w-full" />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <Button asChild variant="outline" className="w-full">
-                          <a href={audioURL} download={`edited-${Date.now()}.mp3`}>
-                            <Download className="w-4 h-4 mr-2" />
-                            Download
-                          </a>
-                        </Button>
-                        <Button onClick={handleShare} variant="outline" className="w-full">
-                          <Share2 className="w-4 h-4 mr-2" />
-                          Share
-                        </Button>
-                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="h-full flex items-center justify-center text-muted-foreground py-20">
-                    Upload an audio file to start editing
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                  ) : (
+                    <div className="h-full flex items-center justify-center text-muted-foreground py-20">
+                      Upload an audio file to start editing
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        </main>
+        </div>
       </div>
     </>
   );

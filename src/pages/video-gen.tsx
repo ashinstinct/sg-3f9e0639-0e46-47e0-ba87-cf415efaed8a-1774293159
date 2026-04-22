@@ -208,11 +208,12 @@ export default function VideoGenerator() {
         title="AI Video Generator - Back2Life.Studio"
         description="Generate videos from text prompts or images using cutting-edge AI models"
       />
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-pink-500/5">
+      <div className="min-h-screen bg-background">
         <Navigation />
-        <div className="container mx-auto px-4 py-24">
-          <div className="max-w-6xl mx-auto space-y-8">
-            <div className="text-center space-y-4">
+        
+        <div className="container mx-auto px-4 pt-20 pb-12">
+          <div className="max-w-5xl mx-auto">
+            <div className="mb-8 text-center">
               <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
                 AI Video Generator
               </h1>
