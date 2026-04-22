@@ -62,7 +62,7 @@ export default function Home() {
             <div className="max-w-2xl mx-auto space-y-4">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-sm font-medium">
                 <Zap className="w-4 h-4" />
-                Join 240,000+ creators
+                Join 5,000+ creators
               </div>
 
               <h2 className="text-3xl md:text-5xl font-bold text-white">
@@ -70,7 +70,7 @@ export default function Home() {
               </h2>
 
               <p className="text-base md:text-lg text-white/40 max-w-xl mx-auto">
-                No credit card required. Instant access to 14 free tools and premium AI models.
+                No credit card required. Instant access to 12 free tools and premium AI models.
               </p>
 
               <Button
@@ -88,11 +88,11 @@ export default function Home() {
                   <div className="text-xs md:text-sm text-white/40 mt-1">AI Models</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl md:text-4xl font-bold text-white">240K+</div>
-                  <div className="text-xs md:text-sm text-white/40 mt-1">Creations</div>
+                  <div className="text-2xl md:text-4xl font-bold text-white">5,000+</div>
+                  <div className="text-xs md:text-sm text-white/40 mt-1">Creators</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl md:text-4xl font-bold text-white">14</div>
+                  <div className="text-2xl md:text-4xl font-bold text-white">12</div>
                   <div className="text-xs md:text-sm text-white/40 mt-1">Free Tools</div>
                 </div>
               </div>
