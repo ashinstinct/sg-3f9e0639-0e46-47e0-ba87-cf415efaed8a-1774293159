@@ -1,19 +1,19 @@
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { useRouter } from "next/router";
-import { ArrowRight, Sparkles, Image as ImageIcon, Video, Music, Mic, PenLine, Wand2 } from "lucide-react";
+import { ArrowRight, Sparkles, PenLine, ImageIcon, Video, Music, Mic, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function StartNew() {
   const router = useRouter();
 
   const quickActions = [
-    { icon: PenLine, label: "Start New", href: "/images/generate", color: "from-indigo-500 to-purple-500" },
-    { icon: ImageIcon, label: "Generate Image", href: "/images/generate", color: "from-pink-500 to-rose-500" },
-    { icon: Video, label: "Generate Video", href: "/video/generate", color: "from-orange-500 to-amber-500" },
-    { icon: Music, label: "Generate Music", href: "/music", color: "from-cyan-500 to-blue-500" },
-    { icon: Mic, label: "Clone Voice", href: "/clone", color: "from-emerald-500 to-teal-500" },
-    { icon: Wand2, label: "Edit Image", href: "/edit/inpaint", color: "from-violet-500 to-purple-500" },
+    { icon: PenLine, label: "Start New", href: "/images/generate", color: "from-purple-500 to-purple-600", neon: "neon-purple" },
+    { icon: ImageIcon, label: "Generate Image", href: "/images/generate", color: "from-pink-500 to-rose-600", neon: "neon-pink" },
+    { icon: Video, label: "Generate Video", href: "/video/generate", color: "from-cyan-500 to-cyan-600", neon: "neon-cyan" },
+    { icon: Music, label: "Generate Music", href: "/music", color: "from-emerald-500 to-emerald-600", neon: "neon-green" },
+    { icon: Mic, label: "Clone Voice", href: "/clone", color: "from-blue-500 to-blue-600", neon: "neon-blue" },
+    { icon: Wand2, label: "Edit Image", href: "/edit/inpaint", color: "from-orange-500 to-orange-600", neon: "neon-orange" },
   ];
 
   return (
@@ -25,7 +25,8 @@ export default function StartNew() {
       <Navigation />
 
       <main className="min-h-screen bg-[#0a0a0a] flex flex-col">
-        <section className="flex-1 flex items-center justify-center px-4 py-8">
+        {/* Reduced padding to align with burger menu */}
+        <section className="flex-1 flex items-center justify-center px-4 py-8 pt-12 md:pt-20">
           <div className="max-w-4xl w-full">
             <div className="text-center mb-12">
               <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
@@ -45,11 +46,12 @@ export default function StartNew() {
                     onClick={() => router.push(action.href)}
                     className="relative group overflow-hidden rounded-2xl bg-[#161618] border border-white/5 hover:border-white/15 transition-all duration-300 hover:scale-[1.02]"
                   >
+                    {/* Neon gradient overlay on hover */}
                     <div className={`absolute inset-0 bg-gradient-to-br ${action.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
                     
                     <div className="relative p-6 md:p-8">
-                      <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <Icon className="w-7 h-7 md:w-8 md:h-8 text-white" />
+                      <div className={`w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-${action.neon}/10 border border-${action.neon}/30 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-[0_0_30px_var(--${action.neon})] transition-all`}>
+                        <Icon className={`w-7 h-7 md:w-8 md:h-8 text-${action.neon}`} />
                       </div>
                       
                       <h3 className="text-lg md:text-xl font-semibold text-white mb-2 text-left">

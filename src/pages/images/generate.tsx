@@ -138,7 +138,7 @@ export default function ImageGenerate() {
         <Navigation />
 
         {/* Top Bar: Model Selector only — no mode toggle */}
-        <div className="fixed top-0 left-0 right-0 z-40 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-white/5">
+        <div className="fixed top-0 left-0 right-0 z-40 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-white/5 pt-12">
           <div className="flex items-center justify-center px-4 py-2">
             <ModelSelector
               models={imageModels}
@@ -152,11 +152,11 @@ export default function ImageGenerate() {
         </div>
 
         {/* Canvas Area */}
-        <div className="flex-1 pt-14 pb-64 md:pb-52 relative">
+        <div className="flex-1 pt-32 pb-64 md:pb-52 relative">
           <div className="flex items-center justify-center min-h-[40vh] p-4">
             {isGenerating ? (
               <div className="text-center">
-                <Loader2 className="w-12 h-12 animate-spin text-[#c5f04a] mx-auto mb-4" />
+                <Loader2 className="w-12 h-12 animate-spin text-purple-400 mx-auto mb-4" />
                 <p className="text-xl font-light text-gray-400">Generating images...</p>
                 <p className="text-sm text-gray-600 mt-2">This may take 10-30 seconds</p>
               </div>
@@ -178,7 +178,7 @@ export default function ImageGenerate() {
                             a.download = "generated-" + Date.now() + ".png";
                             a.click();
                           }}
-                          className="bg-[#c5f04a] text-black hover:bg-[#b5e03a]"
+                          className="bg-purple-500 hover:bg-purple-600 text-white"
                         >
                           <Download className="w-4 h-4 mr-2" />
                           Download
@@ -214,7 +214,7 @@ export default function ImageGenerate() {
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   placeholder="Type a description for the image..."
-                  className="w-full bg-black/40 border-white/10 text-white placeholder:text-gray-600 min-h-[60px] resize-none focus:border-[#c5f04a]/50 focus:ring-[#c5f04a]/20 pr-20"
+                  className="w-full bg-black/40 border-white/10 text-white placeholder:text-gray-600 min-h-[60px] resize-none focus:border-purple-500/50 focus:ring-purple-500/20 pr-20"
                 />
                 <div className="absolute right-2 top-2 flex gap-1">
                   <Button
@@ -222,7 +222,7 @@ export default function ImageGenerate() {
                     variant="ghost"
                     onClick={handleEnhancePrompt}
                     disabled={isEnhancing || !prompt.trim()}
-                    className="h-8 w-8 p-0 text-[#c5f04a] hover:text-[#b5e03a] hover:bg-white/5"
+                    className="h-8 w-8 p-0 text-purple-400 hover:text-purple-300 hover:bg-white/5"
                     title="Enhance prompt with AI"
                   >
                     {isEnhancing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
@@ -255,9 +255,9 @@ export default function ImageGenerate() {
                       </div>
                     ))}
                     {uploadedImages.length < config.maxImages && (
-                      <label className="flex-shrink-0 w-16 h-16 border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-[#c5f04a]/50 hover:bg-white/5 transition-all">
-                        <Upload className="w-4 h-4 text-white/40" />
-                        <span className="text-[9px] text-white/40 mt-0.5">IMAGE</span>
+                      <label className="flex-shrink-0 w-16 h-16 border-2 border-dashed border-purple-500/30 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-purple-500/50 hover:bg-purple-500/5 transition-all">
+                        <Upload className="w-4 h-4 text-purple-400/50" />
+                        <span className="text-[9px] text-purple-400/50 mt-0.5">IMAGE</span>
                         <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
                       </label>
                     )}
@@ -273,10 +273,10 @@ export default function ImageGenerate() {
                     <button
                       key={ratio}
                       onClick={() => setAspectRatio(ratio)}
-                      className={"flex-shrink-0 px-2.5 py-1 rounded-lg text-xs font-medium transition-all " + (
+                      className={"flex-shrink-0 px-2.5 py-1 rounded-lg text-xs font-medium transition-all border " + (
                         aspectRatio === ratio
-                          ? "bg-white/10 text-white border border-white/20"
-                          : "bg-black/20 text-white/50 border border-white/5 hover:bg-white/5"
+                          ? "bg-purple-500/20 text-purple-300 border-purple-500/40"
+                          : "bg-black/40 text-white/50 border-white/10 hover:bg-white/5"
                       )}
                     >
                       {ratio}
@@ -305,11 +305,11 @@ export default function ImageGenerate() {
                   </button>
                 </div>
 
-                {/* Generate Button */}
+                {/* Generate Button - Neon Purple */}
                 <button
                   onClick={handleGenerate}
                   disabled={isGenerating || !prompt.trim()}
-                  className="flex items-center justify-center gap-2 bg-[#c5f04a] hover:bg-[#bcf135] disabled:bg-[#c5f04a]/50 disabled:cursor-not-allowed text-black font-bold text-sm h-[40px] px-5 rounded-xl transition-all shadow-[0_0_20px_rgba(197,240,74,0.15)]"
+                  className="flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-400 disabled:bg-purple-500/30 disabled:cursor-not-allowed text-white font-bold text-sm h-[40px] px-5 rounded-xl transition-all shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:shadow-[0_0_30px_rgba(168,85,247,0.4)]"
                 >
                   {isGenerating ? (
                     <><Loader2 className="w-4 h-4 animate-spin" />Generating...</>
@@ -332,7 +332,7 @@ export default function ImageGenerate() {
                   size="sm"
                   onClick={handleEnhancePrompt}
                   disabled={isEnhancing || !prompt.trim()}
-                  className="bg-[#c5f04a] text-black hover:bg-[#b5e03a]"
+                  className="bg-purple-500 hover:bg-purple-600 text-white"
                 >
                   {isEnhancing ? (
                     <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Enhancing...</>
@@ -346,7 +346,7 @@ export default function ImageGenerate() {
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Describe your image in detail..."
-              className="min-h-[300px] bg-black/40 border-white/10 text-white placeholder:text-gray-600 resize-none focus:border-[#c5f04a]/50 focus:ring-[#c5f04a]/20"
+              className="min-h-[300px] bg-black/40 border-white/10 text-white placeholder:text-gray-600 resize-none focus:border-purple-500/50 focus:ring-purple-500/20"
             />
           </DialogContent>
         </Dialog>
