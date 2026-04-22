@@ -172,7 +172,7 @@ export default function ToolsPage() {
       <div className="min-h-screen bg-background">
         <Navigation />
         
-        <main className="container mx-auto px-4 py-4 max-w-7xl">
+        <main className="container mx-auto px-4 py-4 pt-20 max-w-7xl">
           <div className="text-center space-y-3 mb-4">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-green-500/10 border border-green-500/20">
               <Wrench className="w-4 h-4 text-green-500" />

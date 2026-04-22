@@ -153,7 +153,7 @@ export default function FreeTools() {
       <div className="min-h-screen bg-background">
         <Navigation />
         
-        <div className="container mx-auto px-4 pt-24 pb-12">
+        <div className="container mx-auto px-4 pt-20 pb-12">
           <div className="max-w-7xl mx-auto">
             <div className="text-center space-y-4">
               <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-2">

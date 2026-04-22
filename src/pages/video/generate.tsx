@@ -150,8 +150,8 @@ export default function VideoGenerate() {
       <div className="min-h-screen bg-[#0a0a0a] flex flex-col">
         <Navigation />
 
-        {/* Top Bar: Model Selector only — no mode toggle */}
-        <div className="fixed top-0 left-0 right-0 z-40 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-white/5">
+        {/* Top Bar: Model Selector - standardized spacing */}
+        <div className="fixed top-0 left-0 right-0 z-40 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-white/5 pt-14">
           <div className="flex items-center justify-center px-4 py-2">
             <ModelSelector
               models={modelOptions}
@@ -161,8 +161,8 @@ export default function VideoGenerate() {
           </div>
         </div>
 
-        {/* Canvas Area */}
-        <div className="flex-1 pt-14 pb-64 md:pb-52 relative">
+        {/* Canvas Area - standardized padding */}
+        <div className="flex-1 pt-28 pb-64 md:pb-52 relative">
           <div className="flex items-center justify-center min-h-[40vh] p-4">
             {isGenerating ? (
               <div className="text-center">

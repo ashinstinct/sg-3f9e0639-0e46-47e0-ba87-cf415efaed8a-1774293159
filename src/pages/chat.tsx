@@ -25,8 +25,8 @@ export default function StartNew() {
       <Navigation />
 
       <main className="min-h-screen bg-[#0a0a0a] flex flex-col">
-        {/* Reduced padding to align with burger menu */}
-        <section className="flex-1 flex items-center justify-center px-4 py-8 pt-12 md:pt-20">
+        {/* Standardized padding to align with burger menu */}
+        <section className="flex-1 flex items-center justify-center px-4 py-8 pt-14">
           <div className="max-w-4xl w-full">
             <div className="text-center mb-12">
               <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
