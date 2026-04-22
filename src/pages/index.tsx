@@ -18,7 +18,7 @@ export default function Home() {
 
       <main className="min-h-screen bg-[#0a0a0a]">
         {/* Hero - Compressed spacing */}
-        <section className="relative pt-14 pb-2 md:pb-2 px-4 md:px-8">
+        <section className="relative pt-4 pb-2 md:pb-2 px-4 md:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-medium mb-2">
               <Sparkles className="w-3.5 h-3.5" />
