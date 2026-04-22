@@ -1,7 +1,6 @@
 import { Navigation } from "@/components/Navigation";
 import { SEO } from "@/components/SEO";
 import { ModelShowcase } from "@/components/ModelShowcase";
-import { ToolsGrid } from "@/components/ToolsGrid";
 import { useRouter } from "next/router";
 import { ArrowRight, Sparkles, Zap, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,13 +12,13 @@ export default function Home() {
     <>
       <SEO
         title="Back2Life.Studio - Free AI Image & Video Generator"
-        description="Create stunning AI images and videos for free. 14 free tools + premium AI models. 240K+ creations made."
+        description="Create stunning images and videos with AI. 14 free tools + premium AI models. 240K+ creations made."
       />
       <Navigation />
 
       <main className="min-h-screen bg-[#0a0a0a]">
-        {/* Hero - Centered, aligned with burger menu */}
-        <section className="relative pt-14 pb-8 md:pt-16 md:pb-12 px-4 md:px-8">
+        {/* Hero - Reduced top padding for burger menu alignment */}
+        <section className="relative pt-2 pb-8 md:pb-12 px-4 md:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-medium mb-4">
               <Sparkles className="w-3.5 h-3.5" />
@@ -56,15 +55,6 @@ export default function Home() {
 
         {/* Netflix-Style Model Showcase */}
         <ModelShowcase />
-
-        {/* Tools Grid */}
-        <div className="px-4 md:px-8 py-12 md:py-20">
-          <div className="mb-8 md:mb-12">
-            <h2 className="text-2xl md:text-4xl font-bold text-white mb-2">All Tools</h2>
-            <p className="text-sm md:text-base text-white/50">Everything you need to create AI content</p>
-          </div>
-          <ToolsGrid />
-        </div>
 
         {/* CTA Section */}
         <section className="py-16 md:py-24 border-t border-white/5">

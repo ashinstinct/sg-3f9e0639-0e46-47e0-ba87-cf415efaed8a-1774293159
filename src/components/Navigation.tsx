@@ -58,7 +58,6 @@ export function Navigation() {
         { name: "Start new", href: "/images/generate", icon: PenLine },
         { name: "Images", href: "/images", icon: ImageIcon },
         { name: "Video", href: "/video", icon: Video },
-        { name: "Chat", href: "/chat", icon: MessageSquare },
         { name: "Audio", href: "/audio", icon: Music },
         { name: "Avatar", href: "/avatar", icon: UserCircle },
       ],
@@ -85,9 +84,10 @@ export function Navigation() {
 
   return (
     <>
+      {/* Floating burger menu - no background bar */}
       <button
         onClick={() => setSidebarOpen(true)}
-        className="fixed top-3 left-3 z-50 flex items-center justify-center w-10 h-10 rounded-xl bg-[#1a1a1c]/80 backdrop-blur-sm border border-white/5 hover:bg-[#252528] transition-colors"
+        className="fixed top-3 left-3 z-50 flex items-center justify-center w-10 h-10 rounded-xl hover:bg-[#1a1a1c]/80 border border-white/5 transition-colors"
       >
         <Menu className="w-5 h-5 text-white/70" />
       </button>
