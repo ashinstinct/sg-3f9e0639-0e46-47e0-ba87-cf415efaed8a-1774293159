@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
 
 interface VideoModelConfig {
   id: string;
@@ -60,6 +61,16 @@ export default function VideoGenerate() {
   const [showRatioDropdown, setShowRatioDropdown] = useState(false);
   const [showDurationDropdown, setShowDurationDropdown] = useState(false);
   const [showQualityDropdown, setShowQualityDropdown] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (router.isReady && router.query.model && typeof router.query.model === "string") {
+      const exists = videoModels.some(m => m.id === router.query.model);
+      if (exists) {
+        setSelectedModel(router.query.model);
+      }
+    }
+  }, [router.isReady, router.query.model]);
 
   useEffect(() => {
     const close = () => { setShowRatioDropdown(false); setShowDurationDropdown(false); setShowQualityDropdown(false); };

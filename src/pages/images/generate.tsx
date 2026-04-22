@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { ModelSelector, ModelOption } from "@/components/ModelSelector";
 import { SEO } from "@/components/SEO";
@@ -6,6 +6,7 @@ import { Image as ImageIcon, Video, Sparkles, Upload, X, Loader2, Download, Maxi
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
 
 const imageModels: ModelOption[] = [
   { id: "nano-banana-2", name: "Nano Banana 2", description: "Improved quality", logo: "/logos/nano-banana.svg", tier: "pro" },
@@ -58,6 +59,16 @@ export default function ImageGenerate() {
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [expandedPrompt, setExpandedPrompt] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (router.isReady && router.query.model && typeof router.query.model === "string") {
+      const exists = imageModels.some(m => m.id === router.query.model);
+      if (exists) {
+        setSelectedModel(router.query.model);
+      }
+    }
+  }, [router.isReady, router.query.model]);
 
   const config = modelConfig[selectedModel] || modelConfig["nano-banana-2"];
   const creditCost = config.credits * numImages;
