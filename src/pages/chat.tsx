@@ -8,12 +8,12 @@ export default function StartNew() {
   const router = useRouter();
 
   const quickActions = [
-    { icon: PenLine, label: "Start New", href: "/images/generate", color: "from-purple-500 to-purple-600", neon: "neon-purple" },
-    { icon: ImageIcon, label: "Generate Image", href: "/images/generate", color: "from-pink-500 to-rose-600", neon: "neon-pink" },
-    { icon: Video, label: "Generate Video", href: "/video/generate", color: "from-cyan-500 to-cyan-600", neon: "neon-cyan" },
-    { icon: Music, label: "Generate Music", href: "/music", color: "from-emerald-500 to-emerald-600", neon: "neon-green" },
-    { icon: Mic, label: "Clone Voice", href: "/clone", color: "from-blue-500 to-blue-600", neon: "neon-blue" },
-    { icon: Wand2, label: "Edit Image", href: "/edit/inpaint", color: "from-orange-500 to-orange-600", neon: "neon-orange" },
+    { icon: PenLine, label: "Start New", href: "/images/generate", color: "from-purple-500 to-purple-600", neonClass: "text-purple-400", neonBg: "bg-purple-500/10", neonBorder: "border-purple-500/30", shadow: "shadow-[0_0_30px_rgba(168,85,247,0.3)]" },
+    { icon: ImageIcon, label: "Generate Image", href: "/images/generate", color: "from-pink-500 to-rose-600", neonClass: "text-pink-400", neonBg: "bg-pink-500/10", neonBorder: "border-pink-500/30", shadow: "shadow-[0_0_30px_rgba(244,114,182,0.3)]" },
+    { icon: Video, label: "Generate Video", href: "/video/generate", color: "from-cyan-500 to-cyan-600", neonClass: "text-cyan-400", neonBg: "bg-cyan-500/10", neonBorder: "border-cyan-500/30", shadow: "shadow-[0_0_30px_rgba(34,211,238,0.3)]" },
+    { icon: Music, label: "Generate Music", href: "/music", color: "from-emerald-500 to-emerald-600", neonClass: "text-emerald-400", neonBg: "bg-emerald-500/10", neonBorder: "border-emerald-500/30", shadow: "shadow-[0_0_30px_rgba(16,185,129,0.3)]" },
+    { icon: Mic, label: "Clone Voice", href: "/clone", color: "from-blue-500 to-blue-600", neonClass: "text-blue-400", neonBg: "bg-blue-500/10", neonBorder: "border-blue-500/30", shadow: "shadow-[0_0_30px_rgba(59,130,246,0.3)]" },
+    { icon: Wand2, label: "Edit Image", href: "/edit/inpaint", color: "from-orange-500 to-orange-600", neonClass: "text-orange-400", neonBg: "bg-orange-500/10", neonBorder: "border-orange-500/30", shadow: "shadow-[0_0_30px_rgba(249,115,22,0.3)]" },
   ];
 
   return (
@@ -50,8 +50,8 @@ export default function StartNew() {
                     <div className={`absolute inset-0 bg-gradient-to-br ${action.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
                     
                     <div className="relative p-6 md:p-8">
-                      <div className={`w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-${action.neon}/10 border border-${action.neon}/30 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-[0_0_30px_var(--${action.neon})] transition-all`}>
-                        <Icon className={`w-7 h-7 md:w-8 md:h-8 text-${action.neon}`} />
+                      <div className={`w-14 h-14 md:w-16 md:h-16 rounded-2xl ${action.neonBg} border ${action.neonBorder} flex items-center justify-center mb-4 group-hover:scale-110 group-hover:${action.shadow} transition-all`}>
+                        <Icon className={`w-7 h-7 md:w-8 md:h-8 ${action.neonClass}`} />
                       </div>
                       
                       <h3 className="text-lg md:text-xl font-semibold text-white mb-2 text-left">
