@@ -6,7 +6,7 @@ import { Image as ImageIcon, Video, Sparkles, Upload, X, Loader2, Download, Maxi
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 
 const imageModels: ModelOption[] = [
   { id: "nano-banana-2", name: "Nano Banana 2", description: "Improved quality", logo: "/logos/nano-banana.svg", tier: "pro" },

@@ -57,7 +57,7 @@ const VIDEO_TOOLS: ModelCard[] = [
   { id: "download", name: "Video Downloader", description: "Save from any platform", thumbnail: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&h=340&fit=crop&q=80", tier: "free", href: "/download", icon: "Download" },
   { id: "split", name: "Video Splitter", description: "Cut & segment videos", thumbnail: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=600&h=340&fit=crop&q=80", tier: "free", href: "/split", icon: "Scissors" },
   { id: "screen-record", name: "Screen Recorder", description: "Record your screen", thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&h=340&fit=crop&q=80", tier: "free", href: "/record-screen", icon: "Film" },
-  { id: "video-gen-free", name: "AI Video Gen (Free)", description: "Free video generation", thumbnail: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600&h=340&fit=crop&q=80", tier: "free", href: "/video-gen", icon: "Film" },
+  { id: "video-gen-free", name: "AI Video Gen (Free)", description: "Free video generation", thumbnail: "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=600&h=340&fit=crop&q=80", tier: "free", href: "/video-gen", icon: "Film" },
 ];
 
 const AUDIO_TOOLS: ModelCard[] = [
@@ -66,11 +66,11 @@ const AUDIO_TOOLS: ModelCard[] = [
   { id: "music", name: "Music Generator", description: "AI music composition", thumbnail: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/music", icon: "Music" },
   { id: "sfx", name: "Sound FX for Video", description: "Cinematic sound effects", thumbnail: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/enhance", icon: "Volume2" },
   { id: "record-voice", name: "Voice Recorder", description: "Record in browser", thumbnail: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&h=340&fit=crop&q=80", tier: "free", href: "/record-voice", icon: "Mic", badge: "FREE" },
-  { id: "transcriber", name: "Transcriber", description: "Audio/video to text", thumbnail: "https://images.unsplash.com/photo-1516223725307-6f76b9ec8742?w=600&h=340&fit=crop&q=80", tier: "free", href: "/transcriber", icon: "Mic" },
+  { id: "transcriber", name: "Transcriber", description: "Audio/video to text", thumbnail: "https://images.unsplash.com/photo-1499159058454-750670592483?w=600&h=340&fit=crop&q=80", tier: "free", href: "/transcriber", icon: "Mic" },
   { id: "audio-editor", name: "Audio Editor", description: "Trim, fade, adjust audio", thumbnail: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=600&h=340&fit=crop&q=80", tier: "free", href: "/audio-editor", icon: "SlidersHorizontal" },
-  { id: "stems", name: "Stem Separator", description: "Split vocals, drums, bass", thumbnail: "https://images.unsplash.com/photo-1614113489855-66422ad300a4?w=600&h=340&fit=crop&q=80", tier: "free", href: "/stems", icon: "Layers" },
+  { id: "stems", name: "Stem Separator", description: "Split vocals, drums, bass", thumbnail: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce29?w=600&h=340&fit=crop&q=80", tier: "free", href: "/stems", icon: "Layers" },
   { id: "convert", name: "Audio Converter", description: "Convert any audio format", thumbnail: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=600&h=340&fit=crop&q=80", tier: "free", href: "/convert", icon: "Repeat" },
-  { id: "enhance", name: "Audio Enhancer", description: "Denoise & enhance quality", thumbnail: "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=600&h=340&fit=crop&q=80", tier: "free", href: "/enhance", icon: "Wand2" },
+  { id: "enhance", name: "Audio Enhancer", description: "Denoise & enhance quality", thumbnail: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600&h=340&fit=crop&q=80", tier: "free", href: "/enhance", icon: "Wand2" },
 ];
 
 const FREE_TOOLS: ModelCard[] = [
@@ -79,13 +79,13 @@ const FREE_TOOLS: ModelCard[] = [
   { id: "split", name: "Video Splitter", description: "Cut & segment videos", thumbnail: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=600&h=340&fit=crop&q=80", tier: "free", href: "/split", icon: "Scissors" },
   { id: "screen-record", name: "Screen Recorder", description: "Record your screen", thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&h=340&fit=crop&q=80", tier: "free", href: "/record-screen", icon: "Film" },
   { id: "image-to-prompt", name: "Image to Prompt", description: "Describe any image with AI", thumbnail: "https://images.unsplash.com/photo-1547891654-e66ed7ebb968?w=600&h=340&fit=crop&q=80", tier: "free", href: "/image-to-prompt", icon: "Sparkles" },
-  { id: "video-gen-free", name: "AI Video Gen (Free)", description: "Free video generation", thumbnail: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600&h=340&fit=crop&q=80", tier: "free", href: "/video-gen", icon: "Film" },
+  { id: "video-gen-free", name: "AI Video Gen (Free)", description: "Free video generation", thumbnail: "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=600&h=340&fit=crop&q=80", tier: "free", href: "/video-gen", icon: "Film" },
   { id: "record-voice", name: "Voice Recorder", description: "Record in browser", thumbnail: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&h=340&fit=crop&q=80", tier: "free", href: "/record-voice", icon: "Mic" },
-  { id: "transcriber", name: "Transcriber", description: "Audio/video to text", thumbnail: "https://images.unsplash.com/photo-1516223725307-6f76b9ec8742?w=600&h=340&fit=crop&q=80", tier: "free", href: "/transcriber", icon: "Mic" },
+  { id: "transcriber", name: "Transcriber", description: "Audio/video to text", thumbnail: "https://images.unsplash.com/photo-1499159058454-750670592483?w=600&h=340&fit=crop&q=80", tier: "free", href: "/transcriber", icon: "Mic" },
   { id: "audio-editor", name: "Audio Editor", description: "Trim, fade, adjust audio", thumbnail: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=600&h=340&fit=crop&q=80", tier: "free", href: "/audio-editor", icon: "SlidersHorizontal" },
-  { id: "stems", name: "Stem Separator", description: "Split vocals, drums, bass", thumbnail: "https://images.unsplash.com/photo-1614113489855-66422ad300a4?w=600&h=340&fit=crop&q=80", tier: "free", href: "/stems", icon: "Layers" },
+  { id: "stems", name: "Stem Separator", description: "Split vocals, drums, bass", thumbnail: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce29?w=600&h=340&fit=crop&q=80", tier: "free", href: "/stems", icon: "Layers" },
   { id: "convert", name: "Audio Converter", description: "Convert any audio format", thumbnail: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=600&h=340&fit=crop&q=80", tier: "free", href: "/convert", icon: "Repeat" },
-  { id: "enhance", name: "Audio Enhancer", description: "Denoise & enhance quality", thumbnail: "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=600&h=340&fit=crop&q=80", tier: "free", href: "/enhance", icon: "Wand2" },
+  { id: "enhance", name: "Audio Enhancer", description: "Denoise & enhance quality", thumbnail: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600&h=340&fit=crop&q=80", tier: "free", href: "/enhance", icon: "Wand2" },
 ];
 
 /* ─── Recently Used ─── */
@@ -416,14 +416,14 @@ function RecentCarousel() {
 
 export function ModelShowcase() {
   return (
-    <section className="py-2">
+    <section className="pb-12 flex flex-col gap-6 md:gap-8">
       <RecentCarousel />
       
       {/* Image Generators */}
-      <section className="py-3 md:py-4">
-        <div className="flex items-center justify-between mb-2 md:mb-3 px-4 md:px-8">
-          <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
-            <ImageIcon className="w-5 h-5 md:w-6 md:h-6 text-cyan-400" />
+      <section>
+        <div className="flex items-center justify-between mb-1 md:mb-2 px-4 md:px-8">
+          <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
+            <ImageIcon className="w-5 h-5 text-cyan-400" />
             Image Generators
           </h2>
           <Link href="/images" className="text-cyan-400 hover:text-cyan-300 text-xs md:text-sm font-medium flex items-center gap-1 transition-colors">
@@ -434,10 +434,10 @@ export function ModelShowcase() {
       </section>
 
       {/* Video Generators */}
-      <section className="py-3 md:py-4">
-        <div className="flex items-center justify-between mb-2 md:mb-3 px-4 md:px-8">
-          <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
-            <Video className="w-5 h-5 md:w-6 md:h-6 text-purple-400" />
+      <section>
+        <div className="flex items-center justify-between mb-1 md:mb-2 px-4 md:px-8">
+          <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
+            <Video className="w-5 h-5 text-purple-400" />
             Video Generators
           </h2>
           <Link href="/video" className="text-purple-400 hover:text-purple-300 text-xs md:text-sm font-medium flex items-center gap-1 transition-colors">
@@ -448,10 +448,10 @@ export function ModelShowcase() {
       </section>
 
       {/* Image Tools */}
-      <section className="py-3 md:py-4">
-        <div className="flex items-center justify-between mb-2 md:mb-3 px-4 md:px-8">
-          <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
-            <Brush className="w-5 h-5 md:w-6 md:h-6 text-blue-400" />
+      <section>
+        <div className="flex items-center justify-between mb-1 md:mb-2 px-4 md:px-8">
+          <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
+            <Brush className="w-5 h-5 text-blue-400" />
             Image Tools
           </h2>
         </div>
@@ -459,10 +459,10 @@ export function ModelShowcase() {
       </section>
 
       {/* Video Tools */}
-      <section className="py-3 md:py-4">
-        <div className="flex items-center justify-between mb-2 md:mb-3 px-4 md:px-8">
-          <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
-            <Scissors className="w-5 h-5 md:w-6 md:h-6 text-indigo-400" />
+      <section>
+        <div className="flex items-center justify-between mb-1 md:mb-2 px-4 md:px-8">
+          <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
+            <Scissors className="w-5 h-5 text-indigo-400" />
             Video Tools
           </h2>
         </div>
@@ -470,10 +470,10 @@ export function ModelShowcase() {
       </section>
 
       {/* Audio Tools */}
-      <section className="py-3 md:py-4">
-        <div className="flex items-center justify-between mb-2 md:mb-3 px-4 md:px-8">
-          <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
-            <Music className="w-5 h-5 md:w-6 md:h-6 text-pink-400" />
+      <section>
+        <div className="flex items-center justify-between mb-1 md:mb-2 px-4 md:px-8">
+          <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
+            <Music className="w-5 h-5 text-pink-400" />
             Audio Tools
           </h2>
           <Link href="/audio" className="text-pink-400 hover:text-pink-300 text-xs md:text-sm font-medium flex items-center gap-1 transition-colors">
@@ -484,10 +484,10 @@ export function ModelShowcase() {
       </section>
 
       {/* Free Tools */}
-      <section className="py-3 md:py-4">
-        <div className="flex items-center justify-between mb-2 md:mb-3 px-4 md:px-8">
-          <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
-            <Zap className="w-5 h-5 md:w-6 md:h-6 text-green-400" />
+      <section>
+        <div className="flex items-center justify-between mb-1 md:mb-2 px-4 md:px-8">
+          <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
+            <Zap className="w-5 h-5 text-green-400" />
             Free Tools
           </h2>
           <Link href="/free-tools" className="text-green-400 hover:text-green-300 text-xs md:text-sm font-medium flex items-center gap-1 transition-colors">
