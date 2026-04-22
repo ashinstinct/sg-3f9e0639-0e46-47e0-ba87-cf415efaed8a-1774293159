@@ -251,7 +251,7 @@ export default function FrameExtractor() {
       <div className="min-h-screen bg-background">
         <Navigation />
         
-        <div className="container mx-auto px-4 pt-24 pb-12">
+        <div className="container mx-auto px-4 pt-20 pb-12">
           <div className="max-w-6xl mx-auto">
             <div className="mb-8 text-center">
               <div className="flex items-center gap-3 mb-4 justify-center">

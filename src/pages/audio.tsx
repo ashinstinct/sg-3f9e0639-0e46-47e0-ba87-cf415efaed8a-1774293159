@@ -80,7 +80,7 @@ export default function AudioPage() {
       />
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <Navigation />
-        <main className="container mx-auto px-4 py-24">
+        <main className="container mx-auto px-4 pt-20 pb-12">
           <div className="max-w-7xl mx-auto space-y-12">
             {/* Header - Centered */}
             <div className="text-center space-y-4">

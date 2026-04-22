@@ -169,7 +169,7 @@ export default function MusicPage() {
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950">
         <Navigation />
         
-        <main className="container mx-auto px-4 py-12 pt-24 max-w-5xl">
+        <main className="container mx-auto px-4 pt-20 pb-12 max-w-5xl">
           <div className="mb-8 text-center">
             <h1 className="font-heading font-bold text-5xl mb-3 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
               Make a Song

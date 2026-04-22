@@ -152,7 +152,7 @@ export default function ConvertPage() {
       />
       <div className="min-h-screen bg-slate-950">
         <Navigation />
-        <main className="container mx-auto px-4 py-24">
+        <main className="container mx-auto px-4 pt-20 pb-12">
           <div className="max-w-4xl mx-auto space-y-8">
             {/* Header */}
             <div className="text-center space-y-4">
