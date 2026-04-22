@@ -212,7 +212,7 @@ function ModelCarousel({ models }: { models: ModelCard[] }) {
       )}
 
       <div ref={scrollRef} onScroll={checkScroll}
-        className="flex gap-2.5 md:gap-3 overflow-x-auto px-4 md:px-8 pb-3 scrollbar-hide snap-x snap-mandatory"
+        className="flex gap-2 md:gap-2 overflow-x-auto px-4 md:px-8 pb-2 scrollbar-hide snap-x snap-mandatory"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
         {models.map((m) => (
           <ModelCardComponent key={m.id} card={m} playingId={playingId} setPlayingId={setPlayingId} rowGradient="from-purple-500/20" />
@@ -382,8 +382,8 @@ function RecentCarousel() {
   };
 
   return (
-    <div className="mb-6 md:mb-9">
-      <div className="flex items-center gap-2.5 mb-3 px-4 md:px-8">
+    <div className="mb-2">
+      <div className="flex items-center gap-2.5 mb-1 px-4 md:px-8">
         <Clock className="w-4.5 h-4.5 text-emerald-400" />
         <h2 className="text-sm md:text-base font-bold text-white">Recently Used</h2>
         <span className="text-[10px] text-white/25 ml-auto">{recentTools.length} tools</span>
@@ -397,7 +397,7 @@ function RecentCarousel() {
         )}
 
         <div ref={scrollRef} onScroll={checkScroll}
-          className="flex gap-2.5 md:gap-3 overflow-x-auto px-4 md:px-8 pb-3 scrollbar-hide snap-x snap-mandatory"
+          className="flex gap-2 md:gap-2 overflow-x-auto px-4 md:px-8 pb-2 scrollbar-hide snap-x snap-mandatory"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
           {recentTools.map(t => <RecentToolCard key={t.id} tool={t} />)}
         </div>
@@ -416,12 +416,12 @@ function RecentCarousel() {
 
 export function ModelShowcase() {
   return (
-    <section className="pb-12 flex flex-col gap-6 md:gap-8">
+    <section className="py-0 flex flex-col gap-1 md:gap-1.5">
       <RecentCarousel />
       
       {/* Image Generators */}
       <section>
-        <div className="flex items-center justify-between mb-1 md:mb-2 px-4 md:px-8">
+        <div className="flex items-center justify-between mb-1 px-4 md:px-8">
           <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
             <ImageIcon className="w-5 h-5 text-cyan-400" />
             Image Generators
@@ -435,7 +435,7 @@ export function ModelShowcase() {
 
       {/* Video Generators */}
       <section>
-        <div className="flex items-center justify-between mb-1 md:mb-2 px-4 md:px-8">
+        <div className="flex items-center justify-between mb-1 px-4 md:px-8">
           <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
             <Video className="w-5 h-5 text-purple-400" />
             Video Generators
@@ -449,7 +449,7 @@ export function ModelShowcase() {
 
       {/* Image Tools */}
       <section>
-        <div className="flex items-center justify-between mb-1 md:mb-2 px-4 md:px-8">
+        <div className="flex items-center justify-between mb-1 px-4 md:px-8">
           <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
             <Brush className="w-5 h-5 text-blue-400" />
             Image Tools
@@ -460,7 +460,7 @@ export function ModelShowcase() {
 
       {/* Video Tools */}
       <section>
-        <div className="flex items-center justify-between mb-1 md:mb-2 px-4 md:px-8">
+        <div className="flex items-center justify-between mb-1 px-4 md:px-8">
           <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
             <Scissors className="w-5 h-5 text-indigo-400" />
             Video Tools
@@ -471,7 +471,7 @@ export function ModelShowcase() {
 
       {/* Audio Tools */}
       <section>
-        <div className="flex items-center justify-between mb-1 md:mb-2 px-4 md:px-8">
+        <div className="flex items-center justify-between mb-1 px-4 md:px-8">
           <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
             <Music className="w-5 h-5 text-pink-400" />
             Audio Tools
@@ -485,7 +485,7 @@ export function ModelShowcase() {
 
       {/* Free Tools */}
       <section>
-        <div className="flex items-center justify-between mb-1 md:mb-2 px-4 md:px-8">
+        <div className="flex items-center justify-between mb-1 px-4 md:px-8">
           <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2">
             <Zap className="w-5 h-5 text-green-400" />
             Free Tools

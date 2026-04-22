@@ -17,20 +17,20 @@ export default function Home() {
       <Navigation />
 
       <main className="min-h-screen bg-[#0a0a0a]">
-        {/* Hero - Standardized top padding to align with burger menu */}
-        <section className="relative pt-14 pb-8 md:pb-12 px-4 md:px-8">
+        {/* Hero - Compressed spacing */}
+        <section className="relative pt-14 pb-2 md:pb-2 px-4 md:px-8">
           <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-medium mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-medium mb-2">
               <Sparkles className="w-3.5 h-3.5" />
               20+ AI Models · 14 Free Tools
             </div>
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight mb-3">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight mb-2">
               <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
                 AI-Powered
               </span>
               <span className="text-white"> Media Studio</span>
             </h1>
-            <p className="text-sm md:text-lg text-white/50 max-w-2xl mx-auto mb-6">
+            <p className="text-sm md:text-lg text-white/50 max-w-2xl mx-auto mb-3">
               Generate stunning images and videos with the latest AI models. Free tools included.
             </p>
             <div className="flex flex-wrap justify-center gap-3">
@@ -53,13 +53,13 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Netflix-Style Model Showcase */}
+        {/* Netflix-Style Model Showcase - Compressed top margin */}
         <ModelShowcase />
 
-        {/* CTA Section */}
-        <section className="py-16 md:py-24 border-t border-white/5">
+        {/* CTA Section - Compressed spacing */}
+        <section className="py-8 md:py-12 border-t border-white/5">
           <div className="px-4 md:px-8 text-center">
-            <div className="max-w-2xl mx-auto space-y-6">
+            <div className="max-w-2xl mx-auto space-y-4">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-sm font-medium">
                 <Zap className="w-4 h-4" />
                 Join 240,000+ creators
@@ -82,7 +82,7 @@ export default function Home() {
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
 
-              <div className="grid grid-cols-3 gap-6 max-w-lg mx-auto pt-8">
+              <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto pt-4">
                 <div className="text-center">
                   <div className="text-2xl md:text-4xl font-bold text-white">20+</div>
                   <div className="text-xs md:text-sm text-white/40 mt-1">AI Models</div>
