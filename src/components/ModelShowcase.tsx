@@ -1,386 +1,97 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Play, ExternalLink, Crown, Clock, Mic, Layers, Image as ImageIcon, Download, Scissors, Repeat, SlidersHorizontal, Wand2, UserRound, Sparkles, Film, Brush } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play, ExternalLink, Crown, Clock, Mic, Layers, Image as ImageIcon, Download, Scissors, Repeat, SlidersHorizontal, Wand2, UserRound, Sparkles, Film, Brush, Music, Volume2, Palette, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 
-interface ModelTrailer {
+/* ─── Types ─── */
+interface ModelCard {
   id: string;
   name: string;
-  company: string;
+  company?: string;
   description: string;
-  videoId: string;
   thumbnail: string;
-  category: "video" | "image";
   tier: "free" | "pro";
   href: string;
   badge?: string;
   logo?: string;
+  icon?: string;
 }
 
-const videoModels: ModelTrailer[] = [
-  {
-    id: "seedance",
-    name: "Seedance 2.0",
-    company: "ByteDance",
-    description: "State-of-the-art dance and motion video generation",
-    videoId: "xH2QLkN3fRk",
-    thumbnail: "https://img.youtube.com/vi/xH2QLkN3fRk/maxresdefault.jpg",
-    category: "video",
-    tier: "pro",
-    href: "/video/generate",
-    badge: "NEW",
-    logo: "/logos/seedance.svg",
-  },
-  {
-    id: "kling",
-    name: "Kling 3.0",
-    company: "Kuaishou",
-    description: "Professional cinematic video generation with precise control",
-    videoId: "jMQ3MHp6LYc",
-    thumbnail: "https://img.youtube.com/vi/jMQ3MHp6LYc/maxresdefault.jpg",
-    category: "video",
-    tier: "pro",
-    href: "/video/generate",
-    badge: "POPULAR",
-    logo: "/logos/kling.svg",
-  },
-  {
-    id: "veo",
-    name: "Veo 3",
-    company: "Google DeepMind",
-    description: "Google's most capable video generation model",
-    videoId: "bTFXNBgKFz0",
-    thumbnail: "https://img.youtube.com/vi/bTFXNBgKFz0/maxresdefault.jpg",
-    category: "video",
-    tier: "pro",
-    href: "/video/generate",
-    badge: "HOT",
-    logo: "/logos/veo.svg",
-  },
-  {
-    id: "runway",
-    name: "Runway Gen-4",
-    company: "Runway",
-    description: "Next-generation creative video tools for filmmakers",
-    videoId: "sPAGn6wxbHU",
-    thumbnail: "https://img.youtube.com/vi/sPAGn6wxbHU/maxresdefault.jpg",
-    category: "video",
-    tier: "pro",
-    href: "/video/generate",
-    logo: "/logos/runway.svg",
-  },
-  {
-    id: "wan",
-    name: "Wan 2.1",
-    company: "Alibaba",
-    description: "Open-source video generation with impressive quality",
-    videoId: "LFa5pHSi6ws",
-    thumbnail: "https://img.youtube.com/vi/LFa5pHSi6ws/maxresdefault.jpg",
-    category: "video",
-    tier: "pro",
-    href: "/video/generate",
-    logo: "/logos/wan.svg",
-  },
-  {
-    id: "minimax",
-    name: "MiniMax Video-01",
-    company: "MiniMax",
-    description: "High-quality video generation with natural motion",
-    videoId: "k7zMMJGDfHQ",
-    thumbnail: "https://img.youtube.com/vi/k7zMMJGDfHQ/maxresdefault.jpg",
-    category: "video",
-    tier: "pro",
-    href: "/video/generate",
-    logo: "/logos/minimax.svg",
-  },
-  {
-    id: "luma",
-    name: "Luma Dream Machine",
-    company: "Luma AI",
-    description: "Fast, high-quality video generation from text and images",
-    videoId: "QMVyx_GHpYg",
-    thumbnail: "https://img.youtube.com/vi/QMVyx_GHpYg/maxresdefault.jpg",
-    category: "video",
-    tier: "pro",
-    href: "/video/generate",
-    logo: "/logos/luma.svg",
-  },
-  {
-    id: "hunyuan",
-    name: "HunyuanVideo",
-    company: "Tencent",
-    description: "Open-source video generation with cinematic quality",
-    videoId: "4sMjlGDYaOE",
-    thumbnail: "https://img.youtube.com/vi/4sMjlGDYaOE/maxresdefault.jpg",
-    category: "video",
-    tier: "pro",
-    href: "/video/generate",
-    logo: "/logos/hunyuan.svg",
-  },
-  {
-    id: "ltx",
-    name: "LTX Video",
-    company: "Lightricks",
-    description: "Real-time video generation with creative controls",
-    videoId: "X5SaJJmYp2U",
-    thumbnail: "https://img.youtube.com/vi/X5SaJJmYp2U/maxresdefault.jpg",
-    category: "video",
-    tier: "free",
-    href: "/video/generate",
-    logo: "/logos/ltx.svg",
-  },
+/* ─── Data ─── */
+
+const VIDEO_MODELS: ModelCard[] = [
+  { id: "seedance", name: "Seedance 2.0", company: "ByteDance", description: "State-of-the-art dance and motion generation", thumbnail: "https://img.youtube.com/vi/xH2QLkN3fRk/maxresdefault.jpg", tier: "pro", href: "/video/generate", badge: "NEW", logo: "/logos/seedance.svg" },
+  { id: "kling", name: "Kling 3.0", company: "Kuaishou", description: "Professional cinematic video generation", thumbnail: "https://img.youtube.com/vi/jMQ3MHp6LYc/maxresdefault.jpg", tier: "pro", href: "/video/generate", badge: "POPULAR", logo: "/logos/kling.svg" },
+  { id: "veo", name: "Veo 3", company: "Google DeepMind", description: "Google's most capable video model", thumbnail: "https://img.youtube.com/vi/bTFXNBgKFz0/maxresdefault.jpg", tier: "pro", href: "/video/generate", badge: "HOT", logo: "/logos/veo.svg" },
+  { id: "runway", name: "Runway Gen-4", company: "Runway", description: "Next-gen creative video tools", thumbnail: "https://img.youtube.com/vi/sPAGn6wxbHU/maxresdefault.jpg", tier: "pro", href: "/video/generate", logo: "/logos/runway.svg" },
+  { id: "wan", name: "Wan 2.1", company: "Alibaba", description: "Open-source video generation", thumbnail: "https://img.youtube.com/vi/LFa5pHSi6ws/maxresdefault.jpg", tier: "pro", href: "/video/generate", logo: "/logos/wan.svg" },
+  { id: "minimax", name: "MiniMax Video-01", company: "MiniMax", description: "High-quality natural motion video", thumbnail: "https://img.youtube.com/vi/k7zMMJGDfHQ/maxresdefault.jpg", tier: "pro", href: "/video/generate", logo: "/logos/minimax.svg" },
+  { id: "luma", name: "Luma Dream Machine", company: "Luma AI", description: "Fast text-to-video generation", thumbnail: "https://img.youtube.com/vi/QMVyx_GHpYg/maxresdefault.jpg", tier: "pro", href: "/video/generate", logo: "/logos/luma.svg" },
+  { id: "hunyuan", name: "HunyuanVideo", company: "Tencent", description: "Open-source cinematic quality", thumbnail: "https://img.youtube.com/vi/4sMjlGDYaOE/maxresdefault.jpg", tier: "pro", href: "/video/generate", logo: "/logos/hunyuan.svg" },
+  { id: "ltx", name: "LTX Video", company: "Lightricks", description: "Real-time video generation", thumbnail: "https://img.youtube.com/vi/X5SaJJmYp2U/maxresdefault.jpg", tier: "free", href: "/video/generate", logo: "/logos/ltx.svg" },
 ];
 
-const imageModels: ModelTrailer[] = [
-  {
-    id: "seedream",
-    name: "Seedream 4.0",
-    company: "ByteDance",
-    description: "Ultra-photorealistic image generation",
-    videoId: "W0gXpwVG8BY",
-    thumbnail: "https://img.youtube.com/vi/W0gXpwVG8BY/maxresdefault.jpg",
-    category: "image",
-    tier: "pro",
-    href: "/images/generate",
-    badge: "NEW",
-    logo: "/logos/seedream.svg",
-  },
-  {
-    id: "flux",
-    name: "FLUX.1 Schnell",
-    company: "Black Forest Labs",
-    description: "Lightning-fast free image generation",
-    videoId: "W3kVozEluro",
-    thumbnail: "https://img.youtube.com/vi/W3kVozEluro/maxresdefault.jpg",
-    category: "image",
-    tier: "free",
-    href: "/images/generate",
-    badge: "FREE",
-    logo: "/logos/flux.svg",
-  },
-  {
-    id: "grok",
-    name: "Grok Aurora",
-    company: "xAI",
-    description: "Photorealistic images with natural understanding",
-    videoId: "gEXaJi-i3Eo",
-    thumbnail: "https://img.youtube.com/vi/gEXaJi-i3Eo/maxresdefault.jpg",
-    category: "image",
-    tier: "pro",
-    href: "/images/generate",
-    badge: "HOT",
-    logo: "/logos/grok.svg",
-  },
-  {
-    id: "ideogram",
-    name: "Ideogram 3.0",
-    company: "Ideogram",
-    description: "Best-in-class text rendering in images",
-    videoId: "5X6RwGGAqAw",
-    thumbnail: "https://img.youtube.com/vi/5X6RwGGAqAw/maxresdefault.jpg",
-    category: "image",
-    tier: "pro",
-    href: "/images/generate",
-    logo: "/logos/ideogram.svg",
-  },
-  {
-    id: "recraft",
-    name: "Recraft V3",
-    company: "Recraft",
-    description: "Design-focused generation with brand consistency",
-    videoId: "lQBErT0Dz_Q",
-    thumbnail: "https://img.youtube.com/vi/lQBErT0Dz_Q/maxresdefault.jpg",
-    category: "image",
-    tier: "pro",
-    href: "/images/generate",
-    logo: "/logos/recraft.svg",
-  },
-  {
-    id: "nano-banana",
-    name: "Nano Banana 2.0",
-    company: "Nano Banana",
-    description: "High-quality artistic image generation",
-    videoId: "GNpGp3Y0nUo",
-    thumbnail: "https://img.youtube.com/vi/GNpGp3Y0nUo/maxresdefault.jpg",
-    category: "image",
-    tier: "pro",
-    href: "/images/generate",
-    logo: "/logos/nano-banana.svg",
-  },
-  {
-    id: "playground",
-    name: "Playground V3",
-    company: "Playground",
-    description: "Creative image generation with artistic styles",
-    videoId: "P88ZlJQXbxQ",
-    thumbnail: "https://img.youtube.com/vi/P88ZlJQXbxQ/maxresdefault.jpg",
-    category: "image",
-    tier: "pro",
-    href: "/images/generate",
-    logo: "/logos/playground.svg",
-  },
-  {
-    id: "stable-diffusion",
-    name: "Stable Diffusion XL",
-    company: "Stability AI",
-    description: "Open-source image generation powerhouse",
-    videoId: "nVhmFski3vg",
-    thumbnail: "https://img.youtube.com/vi/nVhmFski3vg/maxresdefault.jpg",
-    category: "image",
-    tier: "free",
-    href: "/images/generate",
-    badge: "FREE",
-    logo: "/logos/stability.svg",
-  },
+const IMAGE_MODELS: ModelCard[] = [
+  { id: "seedream", name: "Seedream 4.0", company: "ByteDance", description: "Ultra-photorealistic images", thumbnail: "https://img.youtube.com/vi/W0gXpwVG8BY/maxresdefault.jpg", tier: "pro", href: "/images/generate", badge: "NEW", logo: "/logos/seedream.svg" },
+  { id: "flux", name: "FLUX.1 Schnell", company: "Black Forest Labs", description: "Lightning-fast free generation", thumbnail: "https://img.youtube.com/vi/W3kVozEluro/maxresdefault.jpg", tier: "free", href: "/images/generate", badge: "FREE", logo: "/logos/flux.svg" },
+  { id: "grok", name: "Grok Aurora", company: "xAI", description: "Photorealistic with natural understanding", thumbnail: "https://img.youtube.com/vi/gEXaJi-i3Eo/maxresdefault.jpg", tier: "pro", href: "/images/generate", badge: "HOT", logo: "/logos/grok.svg" },
+  { id: "ideogram", name: "Ideogram 3.0", company: "Ideogram", description: "Best text rendering in images", thumbnail: "https://img.youtube.com/vi/5X6RwGGAqAw/maxresdefault.jpg", tier: "pro", href: "/images/generate", logo: "/logos/ideogram.svg" },
+  { id: "recraft", name: "Recraft V3", company: "Recraft", description: "Design-focused brand consistency", thumbnail: "https://img.youtube.com/vi/lQBErT0Dz_Q/maxresdefault.jpg", tier: "pro", href: "/images/generate", logo: "/logos/recraft.svg" },
+  { id: "nano-banana", name: "Nano Banana 2.0", company: "Nano Banana", description: "High-quality artistic generation", thumbnail: "https://img.youtube.com/vi/GNpGp3Y0nUo/maxresdefault.jpg", tier: "pro", href: "/images/generate", logo: "/logos/nano-banana.svg" },
+  { id: "playground", name: "Playground V3", company: "Playground", description: "Creative artistic styles", thumbnail: "https://img.youtube.com/vi/P88ZlJQXbxQ/maxresdefault.jpg", tier: "pro", href: "/images/generate", logo: "/logos/playground.svg" },
+  { id: "stable-diffusion", name: "Stable Diffusion XL", company: "Stability AI", description: "Open-source powerhouse", thumbnail: "https://img.youtube.com/vi/nVhmFski3vg/maxresdefault.jpg", tier: "free", href: "/images/generate", badge: "FREE", logo: "/logos/stability.svg" },
 ];
 
-function CarouselRow({ title, models, icon }: { title: string; models: ModelTrailer[]; icon: React.ReactNode }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [playingId, setPlayingId] = useState<string | null>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+const AUDIO_TOOLS: ModelCard[] = [
+  { id: "clone", name: "Voice Cloner", description: "Clone any voice with AI", thumbnail: "https://images.unsplash.com/photo-1598653222000-6b7367ba392e?w=400&h=225&fit=crop", tier: "pro", href: "/clone", icon: "UserRound", badge: "PRO" },
+  { id: "tts", name: "Text-to-Speech", description: "Natural voice synthesis", thumbnail: "https://images.unsplash.com/photo-1589903308904-1010c2294adc?w=400&h=225&fit=crop", tier: "pro", href: "/clone", icon: "Volume2" },
+  { id: "music", name: "Music Generator", description: "AI music composition", thumbnail: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400&h=225&fit=crop", tier: "pro", href: "/music", icon: "Music" },
+  { id: "sfx", name: "Sound FX for Video", description: "Cinematic sound effects", thumbnail: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&h=225&fit=crop", tier: "pro", href: "/enhance", icon: "Volume2" },
+];
 
-  const checkScroll = () => {
-    if (!scrollRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-    setCanScrollLeft(scrollLeft > 10);
-    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
-  };
+const FREE_TOOLS: ModelCard[] = [
+  { id: "extract", name: "Frame Extractor", description: "Pull frames from video", thumbnail: "https://images.unsplash.com/photo-1535016120720-40c646be5580?w=400&h=225&fit=crop", tier: "free", href: "/extract", icon: "ImageIcon" },
+  { id: "download", name: "Video Downloader", description: "Save from any platform", thumbnail: "https://images.unsplash.com/photo-1611532736570-eb8f5cf2d5b1?w=400&h=225&fit=crop", tier: "free", href: "/download", icon: "Download" },
+  { id: "split", name: "Video Splitter", description: "Cut & segment videos", thumbnail: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=400&h=225&fit=crop", tier: "free", href: "/split", icon: "Scissors" },
+  { id: "convert", name: "Audio Converter", description: "Convert any audio format", thumbnail: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=400&h=225&fit=crop", tier: "free", href: "/convert", icon: "Repeat" },
+  { id: "editor", name: "Audio Editor", description: "Trim, fade, adjust audio", thumbnail: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce29?w=400&h=225&fit=crop", tier: "free", href: "/audio-editor", icon: "SlidersHorizontal" },
+  { id: "transcriber", name: "Transcriber", description: "Audio/video to text", thumbnail: "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=400&h=225&fit=crop", tier: "free", href: "/transcriber", icon: "Mic" },
+  { id: "stems", name: "Stem Separator", description: "Split vocals, drums, bass", thumbnail: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=225&fit=crop", tier: "free", href: "/stems", icon: "Layers" },
+  { id: "enhancer", name: "Audio Enhancer", description: "Denoise & enhance quality", thumbnail: "https://images.unsplash.com/photo-1601935111741-ae98b2b23055?w=400&h=225&fit=crop", tier: "free", href: "/enhance", icon: "Wand2" },
+  { id: "recorder", name: "Voice Recorder", description: "Record in browser", thumbnail: "https://images.unsplash.com/photo-1589903308904-1010c2294adc?w=400&h=225&fit=crop", tier: "free", href: "/record-voice", icon: "Mic" },
+  { id: "image-to-prompt", name: "Image to Prompt", description: "Describe any image with AI", thumbnail: "https://images.unsplash.com/photo-1547891654-e66ed7e9b48e?w=400&h=225&fit=crop", tier: "free", href: "/image-to-prompt", icon: "Sparkles" },
+  { id: "image-gen-free", name: "AI Image Gen (Free)", description: "FLUX.1 free generation", thumbnail: "https://images.unsplash.com/photo-1547954575-855750c57bd3?w=400&h=225&fit=crop", tier: "free", href: "/images/generate", icon: "Sparkles" },
+  { id: "video-gen-free", name: "AI Video Gen (Free)", description: "Free video generation", thumbnail: "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=400&h=225&fit=crop", tier: "free", href: "/video-gen", icon: "Film" },
+];
 
-  const scroll = (direction: "left" | "right") => {
-    if (!scrollRef.current) return;
-    const amount = scrollRef.current.clientWidth * 0.75;
-    scrollRef.current.scrollBy({
-      left: direction === "left" ? -amount : amount,
-      behavior: "smooth",
-    });
-  };
+const EDIT_IMAGE_TOOLS: ModelCard[] = [
+  { id: "inpaint", name: "Inpaint Editor", description: "Remove or replace objects", thumbnail: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=225&fit=crop", tier: "pro", href: "/edit/inpaint", icon: "Brush", badge: "AI" },
+  { id: "upscale", name: "Image Upscaler", description: "Enhance resolution with AI", thumbnail: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=225&fit=crop", tier: "pro", href: "/edit/inpaint", icon: "Palette" },
+  { id: "bg-remove", name: "Background Remover", description: "Instant background removal", thumbnail: "https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=400&h=225&fit=crop", tier: "pro", href: "/edit/inpaint", icon: "Brush" },
+];
 
-  return (
-    <div className="mb-10 md:mb-14">
-      <div className="flex items-center gap-3 mb-4 md:mb-6 px-4 md:px-8">
-        {icon}
-        <h2 className="text-xl md:text-2xl font-bold text-white">{title}</h2>
-      </div>
+const EDIT_VIDEO_TOOLS: ModelCard[] = [
+  { id: "kling-edit", name: "Kling Omni Edit", description: "Edit videos with AI prompts", thumbnail: "https://images.unsplash.com/photo-1574717024650-3f2f1e3dd0b5?w=400&h=225&fit=crop", tier: "pro", href: "/video/kling", icon: "Film", badge: "NEW" },
+  { id: "kling-motion", name: "Kling Motion Control", description: "Control movement in videos", thumbnail: "https://images.unsplash.com/photo-1535016120720-40c646be5580?w=400&h=225&fit=crop", tier: "pro", href: "/video/kling", icon: "Film" },
+];
 
-      <div className="relative group">
-        {canScrollLeft && (
-          <button
-            onClick={() => scroll("left")}
-            className="hidden md:flex absolute left-0 top-0 bottom-0 z-10 w-12 items-center justify-center bg-gradient-to-r from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <ChevronLeft className="w-8 h-8 text-white" />
-          </button>
-        )}
+/* ─── Recently Used ─── */
 
-        <div
-          ref={scrollRef}
-          onScroll={checkScroll}
-          className="flex gap-3 md:gap-4 overflow-x-auto px-4 md:px-8 pb-4 scrollbar-hide snap-x snap-mandatory"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {models.map((model) => (
-            <div
-              key={model.id}
-              className="flex-none w-[280px] md:w-[340px] lg:w-[400px] snap-start group/card"
-            >
-              <div className="relative rounded-xl overflow-hidden bg-[#161618] border border-white/5 hover:border-white/15 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-purple-500/10">
-                <div className="relative aspect-video bg-black">
-                  {playingId === model.id ? (
-                    <iframe
-                      src={`https://www.youtube.com/embed/${model.videoId}?autoplay=1&rel=0&modestbranding=1`}
-                      className="absolute inset-0 w-full h-full"
-                      allow="autoplay; encrypted-media"
-                      allowFullScreen
-                    />
-                  ) : (
-                    <>
-                      <img
-                        src={model.thumbnail}
-                        alt={model.name}
-                        className="absolute inset-0 w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-black/30 group-hover/card:bg-black/10 transition-colors" />
-                      <button
-                        onClick={() => setPlayingId(model.id)}
-                        className="absolute inset-0 flex items-center justify-center"
-                      >
-                        <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 group-hover/card:scale-110 group-hover/card:bg-white/30 transition-all">
-                          <Play className="w-6 h-6 md:w-7 md:h-7 text-white ml-1" fill="white" />
-                        </div>
-                      </button>
-                      {model.badge && (
-                        <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-md text-xs font-bold tracking-wide ${
-                          model.badge === "NEW" ? "bg-purple-500 text-white" :
-                          model.badge === "FREE" ? "bg-emerald-500 text-white" :
-                          model.badge === "HOT" ? "bg-orange-500 text-white" :
-                          model.badge === "POPULAR" ? "bg-blue-500 text-white" :
-                          "bg-white/20 text-white"
-                        }`}>
-                          {model.badge}
-                        </span>
-                      )}
-                      {model.tier === "pro" && !model.badge && (
-                        <span className="absolute top-3 right-3 p-1.5 rounded-md bg-amber-500/20 backdrop-blur-sm">
-                          <Crown className="w-3.5 h-3.5 text-amber-400" />
-                        </span>
-                      )}
-                    </>
-                  )}
-                </div>
-
-                <div className="p-3 md:p-4">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    {model.logo && (
-                      <img src={model.logo} alt="" className="w-5 h-5 rounded" />
-                    )}
-                    <h3 className="font-semibold text-white text-sm md:text-base truncate">{model.name}</h3>
-                    <span className="text-[11px] text-white/40 ml-auto flex-shrink-0">{model.company}</span>
-                  </div>
-                  <p className="text-xs md:text-sm text-white/50 line-clamp-1">{model.description}</p>
-                  <Link
-                    href={model.href}
-                    className="mt-3 flex items-center justify-center gap-2 w-full py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 text-sm text-white/70 hover:text-white transition-all"
-                  >
-                    Try it now
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {canScrollRight && (
-          <button
-            onClick={() => scroll("right")}
-            className="hidden md:flex absolute right-0 top-0 bottom-0 z-10 w-12 items-center justify-center bg-gradient-to-l from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <ChevronRight className="w-8 h-8 text-white" />
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// --- Recently Used Tools ---
 const ALL_RECENT_TOOLS = [
   { id: "flux", name: "FLUX.1", category: "image", href: "/images/generate", logo: "/logos/flux.svg" },
   { id: "kling", name: "Kling 3.0", category: "video", href: "/video/generate", logo: "/logos/kling.svg" },
-  { id: "whisper", name: "Transcriber", category: "audio", href: "/transcriber", icon: "Mic" },
-  { id: "spleeter", name: "Stem Separator", category: "audio", href: "/stems", icon: "Layers" },
-  { id: "extractor", name: "Frame Extractor", category: "free", href: "/extract", icon: "Image" },
-  { id: "downloader", name: "Video Downloader", category: "free", href: "/download", icon: "Download" },
-  { id: "splitter", name: "Video Splitter", category: "free", href: "/split", icon: "Scissors" },
-  { id: "converter", name: "Audio Converter", category: "free", href: "/convert", icon: "Repeat" },
-  { id: "editor", name: "Audio Editor", category: "free", href: "/audio-editor", icon: "SlidersHorizontal" },
-  { id: "enhancer", name: "Audio Enhancer", category: "audio", href: "/enhance", icon: "Wand2" },
-  { id: "clone", name: "Voice Cloner", category: "audio", href: "/clone", icon: "UserRound" },
-  { id: "recorder", name: "Voice Recorder", category: "free", href: "/record-voice", icon: "Mic" },
-  { id: "image-gen", name: "AI Image Gen", category: "image", href: "/images/generate", icon: "Sparkles" },
-  { id: "video-gen", name: "AI Video Gen", category: "video", href: "/video-gen", icon: "Film" },
-  { id: "inpaint", name: "Inpaint Editor", category: "edit-image", href: "/edit/inpaint", icon: "Brush" },
+  { id: "whisper", name: "Transcriber", category: "audio", href: "/transcriber", icon: "Mic" as const },
+  { id: "spleeter", name: "Stem Separator", category: "audio", href: "/stems", icon: "Layers" as const },
+  { id: "extractor", name: "Frame Extractor", category: "free", href: "/extract", icon: "ImageIcon" as const },
+  { id: "downloader", name: "Video Downloader", category: "free", href: "/download", icon: "Download" as const },
+  { id: "splitter", name: "Video Splitter", category: "free", href: "/split", icon: "Scissors" as const },
+  { id: "converter", name: "Audio Converter", category: "free", href: "/convert", icon: "Repeat" as const },
+  { id: "editor", name: "Audio Editor", category: "free", href: "/audio-editor", icon: "SlidersHorizontal" as const },
+  { id: "enhancer", name: "Audio Enhancer", category: "audio", href: "/enhance", icon: "Wand2" as const },
+  { id: "clone", name: "Voice Cloner", category: "audio", href: "/clone", icon: "UserRound" as const },
+  { id: "recorder", name: "Voice Recorder", category: "free", href: "/record-voice", icon: "Mic" as const },
+  { id: "image-gen", name: "AI Image Gen", category: "image", href: "/images/generate", icon: "Sparkles" as const },
+  { id: "video-gen", name: "AI Video Gen", category: "video", href: "/video-gen", icon: "Film" as const },
+  { id: "inpaint", name: "Inpaint Editor", category: "edit-image", href: "/edit/inpaint", icon: "Brush" as const },
   { id: "seedream", name: "Seedream 4.0", category: "image", href: "/images/generate", logo: "/logos/seedream.svg" },
   { id: "grok", name: "Grok Aurora", category: "image", href: "/images/generate", logo: "/logos/grok.svg" },
   { id: "luma", name: "Luma Dream Machine", category: "video", href: "/video/generate", logo: "/logos/luma.svg" },
@@ -393,81 +104,180 @@ const MAX_RECENT = 12;
 
 function getRecentTools(): string[] {
   if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(RECENT_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch { return []; }
+  try { return JSON.parse(localStorage.getItem(RECENT_STORAGE_KEY) || "[]"); }
+  catch { return []; }
 }
 
-function addRecentTool(toolId: string) {
+export function addRecentTool(toolId: string) {
   if (typeof window === "undefined") return;
   const recent = getRecentTools().filter(id => id !== toolId);
   recent.unshift(toolId);
   localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(recent.slice(0, MAX_RECENT)));
 }
 
-export { addRecentTool };
+const ICON_MAP: Record<string, LucideIcon> = {
+  Mic, Layers, ImageIcon, Download, Scissors, Repeat, SlidersHorizontal,
+  Wand2, UserRound, Sparkles, Film, Brush, Music, Volume2, Palette,
+};
+
+function IconOrLogo({ tool }: { tool: typeof ALL_RECENT_TOOLS[number] }) {
+  if (tool.logo) return <img src={tool.logo} alt="" className="w-10 h-10 md:w-12 md:h-12 object-contain" />;
+  const Icon = ICON_MAP[tool.icon || ""];
+  return Icon ? <Icon className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" /> : null;
+}
 
 function RecentToolCard({ tool }: { tool: typeof ALL_RECENT_TOOLS[number] }) {
-  const [hovered, setHovered] = useState(false);
-
   return (
-    <Link
-      href={tool.href}
-      className="flex-none w-[160px] md:w-[180px] snap-start group"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onClick={() => addRecentTool(tool.id)}
-    >
+    <Link href={tool.href} className="flex-none w-[150px] md:w-[170px] snap-start group" onClick={() => addRecentTool(tool.id)}>
       <div className="relative rounded-xl overflow-hidden bg-[#161618] border border-white/5 hover:border-emerald-500/30 transition-all duration-300 hover:scale-[1.03] hover:shadow-lg hover:shadow-emerald-500/10">
         <div className="aspect-[4/3] bg-gradient-to-br from-[#1a1a1e] to-[#0e0e10] flex items-center justify-center relative">
-          {tool.logo ? (
-            <img src={tool.logo} alt="" className={`w-10 h-10 md:w-12 md:h-12 object-contain transition-transform ${hovered ? "scale-110" : ""}`} />
-          ) : (
-            <div className={`w-11 h-11 md:w-13 md:h-13 rounded-xl bg-emerald-500/10 flex items-center justify-center transition-all ${hovered ? "bg-emerald-500/20 scale-110" : ""}`}>
-              {tool.icon === "Mic" && <Mic className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
-              {tool.icon === "Layers" && <Layers className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
-              {tool.icon === "Image" && <ImageIcon className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
-              {tool.icon === "Download" && <Download className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
-              {tool.icon === "Scissors" && <Scissors className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
-              {tool.icon === "Repeat" && <Repeat className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
-              {tool.icon === "SlidersHorizontal" && <SlidersHorizontal className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
-              {tool.icon === "Wand2" && <Wand2 className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
-              {tool.icon === "UserRound" && <UserRound className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
-              {tool.icon === "Sparkles" && <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
-              {tool.icon === "Film" && <Film className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
-              {tool.icon === "Brush" && <Brush className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />}
-            </div>
-          )}
-          {/* Green generate button */}
-          <button
-            onClick={(e) => { e.preventDefault(); window.location.href = tool.href; }}
-            className="absolute bottom-2 right-2 w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-emerald-400 hover:scale-105"
-          >
+          <div className="w-11 h-11 rounded-xl bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500/20 group-hover:scale-110 transition-all">
+            <IconOrLogo tool={tool} />
+          </div>
+          <button onClick={e => { e.preventDefault(); window.location.href = tool.href; }}
+            className="absolute bottom-2 right-2 w-8 h-8 rounded-xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-emerald-400 hover:scale-105">
             <Sparkles className="w-4 h-4 text-white" fill="white" />
           </button>
         </div>
-        <div className="p-2.5 md:p-3">
-          <p className="text-xs md:text-sm font-medium text-white truncate">{tool.name}</p>
+        <div className="p-2.5">
+          <p className="text-xs font-medium text-white truncate">{tool.name}</p>
         </div>
       </div>
     </Link>
   );
 }
 
-function RecentCarousel() {
+/* ─── Generic Carousel Row ─── */
+
+function SectionHeader({ number, title, icon }: { number: string; title: string; icon: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-2.5 mb-3 px-4 md:px-8">
+      <span className="text-xs font-bold text-white/25 tabular-nums w-5">{number}</span>
+      {icon}
+      <h2 className="text-base md:text-lg font-bold text-white tracking-tight">{title}</h2>
+    </div>
+  );
+}
+
+function CardBadge({ card }: { card: ModelCard }) {
+  if (!card.badge) {
+    if (card.tier === "pro") return (
+      <span className="absolute top-2 right-2 p-1 rounded-md bg-amber-500/20 backdrop-blur-sm">
+        <Crown className="w-3 h-3 text-amber-400" />
+      </span>
+    );
+    return null;
+  }
+  const colors: Record<string, string> = {
+    NEW: "bg-purple-500 text-white",
+    FREE: "bg-emerald-500 text-white",
+    HOT: "bg-orange-500 text-white",
+    POPULAR: "bg-blue-500 text-white",
+    PRO: "bg-purple-500/80 text-white",
+    AI: "bg-cyan-500 text-black",
+  };
+  return (
+    <span className={`absolute top-2 left-2 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider ${colors[card.badge] || "bg-white/20 text-white"}`}>
+      {card.badge}
+    </span>
+  );
+}
+
+function GenerateButton({ href }: { href: string }) {
+  return (
+    <Link href={href} className="absolute bottom-2 right-2 w-9 h-9 rounded-xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30 opacity-0 group-hover/card:opacity-100 transition-all duration-200 hover:bg-emerald-400 hover:scale-105"
+      onClick={(e) => e.stopPropagation()}>
+      <Sparkles className="w-4.5 h-4.5 text-white" fill="white" />
+    </Link>
+  );
+}
+
+function VideoCardContent({ card, playingId, setPlayingId }: { card: ModelCard; playingId: string | null; setPlayingId: (id: string | null) => void }) {
+  const isVideo = card.thumbnail.includes("youtube");
+  if (!isVideo) return null;
+
+  if (playingId === card.id) {
+    return (
+      <iframe
+        src={`https://www.youtube.com/embed/${card.thumbnail.match(/vi\/([^/]+)/)?.[1]}?autoplay=1&rel=0&modestbranding=1`}
+        className="absolute inset-0 w-full h-full"
+        allow="autoplay; encrypted-media" allowFullScreen
+      />
+    );
+  }
+
+  return (
+    <>
+      <img src={card.thumbnail} alt={card.name} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+      <div className="absolute inset-0 bg-black/30 group-hover/card:bg-black/10 transition-colors" />
+      <button onClick={() => setPlayingId(card.id)} className="absolute inset-0 flex items-center justify-center">
+        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 group-hover/card:scale-110 group-hover/card:bg-white/30 transition-all">
+          <Play className="w-5 h-5 text-white ml-0.5" fill="white" />
+        </div>
+      </button>
+    </>
+  );
+}
+
+function ImageCardContent({ card }: { card: ModelCard }) {
+  const isVideo = card.thumbnail.includes("youtube");
+  if (isVideo) return null;
+
+  const Icon = card.icon ? ICON_MAP[card.icon] : null;
+
+  return (
+    <>
+      <img src={card.thumbnail} alt={card.name} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+      {card.logo && (
+        <div className="absolute top-2.5 left-2.5 w-8 h-8 rounded-lg bg-black/60 backdrop-blur-sm flex items-center justify-center border border-white/10">
+          <img src={card.logo} alt="" className="w-5 h-5 object-contain" />
+        </div>
+      )}
+      {!card.logo && Icon && (
+        <div className="absolute top-2.5 left-2.5 w-8 h-8 rounded-lg bg-black/60 backdrop-blur-sm flex items-center justify-center border border-white/10">
+          <Icon className="w-4 h-4 text-white/80" />
+        </div>
+      )}
+    </>
+  );
+}
+
+function ModelCardComponent({ card, playingId, setPlayingId }: { card: ModelCard; playingId: string | null; setPlayingId: (id: string | null) => void }) {
+  const isVideo = card.thumbnail.includes("youtube");
+
+  return (
+    <Link key={card.id} href={card.href} className="flex-none w-[240px] md:w-[280px] lg:w-[320px] snap-start group/card">
+      <div className="relative rounded-xl overflow-hidden bg-[#161618] border border-white/5 hover:border-white/15 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-purple-500/5">
+        {/* Thumbnail area */}
+        <div className={`relative ${isVideo ? "aspect-video" : "aspect-[16/10]"} bg-black`}>
+          <VideoCardContent card={card} playingId={playingId} setPlayingId={setPlayingId} />
+          <ImageCardContent card={card} />
+          <CardBadge card={card} />
+          <GenerateButton href={card.href} />
+        </div>
+
+        {/* Info */}
+        <div className="p-2.5 md:p-3">
+          <div className="flex items-center gap-1.5 mb-0.5">
+            {card.logo && !isVideo && (
+              <img src={card.logo} alt="" className="w-4 h-4 rounded hidden" />
+            )}
+            <h3 className="font-semibold text-white text-xs md:text-sm truncate">{card.name}</h3>
+            {card.company && <span className="text-[10px] text-white/30 ml-auto flex-shrink-0">{card.company}</span>}
+          </div>
+          <p className="text-[11px] md:text-xs text-white/40 line-clamp-1">{card.description}</p>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function CarouselRow({ number, title, models, icon }: { number: string; title: string; models: ModelCard[]; icon: React.ReactNode }) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [recentIds, setRecentIds] = useState<string[]>([]);
+  const [playingId, setPlayingId] = useState<string | null>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
-
-  useEffect(() => {
-    setRecentIds(getRecentTools());
-  }, []);
-
-  const recentTools = recentIds.map(id => ALL_RECENT_TOOLS.find(t => t.id === id)).filter(Boolean) as typeof ALL_RECENT_TOOLS;
-
-  if (recentTools.length === 0) return null;
 
   const checkScroll = () => {
     if (!scrollRef.current) return;
@@ -476,19 +286,20 @@ function RecentCarousel() {
     setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
   };
 
-  const scroll = (direction: "left" | "right") => {
+  const scroll = (dir: "left" | "right") => {
     if (!scrollRef.current) return;
-    const amount = scrollRef.current.clientWidth * 0.75;
-    scrollRef.current.scrollBy({ left: direction === "left" ? -amount : amount, behavior: "smooth" });
+    scrollRef.current.scrollBy({ left: dir === "left" ? -1 : 1, behavior: "smooth" });
+    // Use pixel amount
+    setTimeout(() => {
+      if (!scrollRef.current) return;
+      const amount = scrollRef.current.clientWidth * 0.75;
+      scrollRef.current.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
+    }, 0);
   };
 
   return (
-    <div className="mb-8 md:mb-12">
-      <div className="flex items-center gap-3 mb-3 md:mb-4 px-4 md:px-8">
-        <Clock className="w-5 h-5 text-emerald-400" />
-        <h2 className="text-lg md:text-xl font-bold text-white">Recently Used</h2>
-        <span className="text-xs text-white/30 ml-auto">{recentTools.length} tools</span>
-      </div>
+    <div className="mb-6 md:mb-9">
+      <SectionHeader number={number} title={title} icon={icon} />
 
       <div className="relative group">
         {canScrollLeft && (
@@ -497,9 +308,11 @@ function RecentCarousel() {
           </button>
         )}
 
-        <div ref={scrollRef} onScroll={checkScroll} className="flex gap-3 md:gap-4 overflow-x-auto px-4 md:px-8 pb-3 scrollbar-hide snap-x snap-mandatory" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-          {recentTools.map((tool) => (
-            <RecentToolCard key={tool.id} tool={tool} />
+        <div ref={scrollRef} onScroll={checkScroll}
+          className="flex gap-2.5 md:gap-3 overflow-x-auto px-4 md:px-8 pb-3 scrollbar-hide snap-x snap-mandatory"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+          {models.map((m) => (
+            <ModelCardComponent key={m.id} card={m} playingId={playingId} setPlayingId={setPlayingId} />
           ))}
         </div>
 
@@ -513,20 +326,75 @@ function RecentCarousel() {
   );
 }
 
+/* ─── Recently Used Carousel ─── */
+
+function RecentCarousel() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [recentIds, setRecentIds] = useState<string[]>([]);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  useEffect(() => { setRecentIds(getRecentTools()); }, []);
+
+  const recentTools = recentIds.map(id => ALL_RECENT_TOOLS.find(t => t.id === id)).filter(Boolean) as typeof ALL_RECENT_TOOLS;
+  if (recentTools.length === 0) return null;
+
+  const checkScroll = () => {
+    if (!scrollRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+    setCanScrollLeft(scrollLeft > 10);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+  };
+
+  const scroll = (dir: "left" | "right") => {
+    if (!scrollRef.current) return;
+    const amount = scrollRef.current.clientWidth * 0.75;
+    scrollRef.current.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
+  };
+
+  return (
+    <div className="mb-6 md:mb-9">
+      <div className="flex items-center gap-2.5 mb-3 px-4 md:px-8">
+        <Clock className="w-4.5 h-4.5 text-emerald-400" />
+        <h2 className="text-sm md:text-base font-bold text-white">Recently Used</h2>
+        <span className="text-[10px] text-white/25 ml-auto">{recentTools.length} tools</span>
+      </div>
+
+      <div className="relative group">
+        {canScrollLeft && (
+          <button onClick={() => scroll("left")} className="hidden md:flex absolute left-0 top-0 bottom-0 z-10 w-10 items-center justify-center bg-gradient-to-r from-[#0a0a0a] to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+            <ChevronLeft className="w-5 h-5 text-white" />
+          </button>
+        )}
+
+        <div ref={scrollRef} onScroll={checkScroll}
+          className="flex gap-2.5 md:gap-3 overflow-x-auto px-4 md:px-8 pb-3 scrollbar-hide snap-x snap-mandatory"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+          {recentTools.map(t => <RecentToolCard key={t.id} tool={t} />)}
+        </div>
+
+        {canScrollRight && (
+          <button onClick={() => scroll("right")} className="hidden md:flex absolute right-0 top-0 bottom-0 z-10 w-10 items-center justify-center bg-gradient-to-l from-[#0a0a0a] to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+            <ChevronRight className="w-5 h-5 text-white" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Main Export ─── */
+
 export function ModelShowcase() {
   return (
-    <section className="py-8 md:py-12">
+    <section className="py-6 md:py-8">
       <RecentCarousel />
-      <CarouselRow
-        title="AI Video Models"
-        models={videoModels}
-        icon={<Play className="w-6 h-6 text-purple-400" fill="currentColor" />}
-      />
-      <CarouselRow
-        title="AI Image Models"
-        models={imageModels}
-        icon={<div className="w-6 h-6 rounded bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center text-[10px] font-bold text-white">AI</div>}
-      />
+      <CarouselRow number="01" title="AI Video Generators" models={VIDEO_MODELS} icon={<Play className="w-4.5 h-4.5 text-purple-400" fill="currentColor" />} />
+      <CarouselRow number="02" title="AI Image Generators" models={IMAGE_MODELS} icon={<div className="w-4.5 h-4.5 rounded bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center text-[8px] font-bold text-white">AI</div>} />
+      <CarouselRow number="03" title="Audio Tools" models={AUDIO_TOOLS} icon={<Music className="w-4.5 h-4.5 text-cyan-400" />} />
+      <CarouselRow number="04" title="Free Tools" models={FREE_TOOLS} icon={<Sparkles className="w-4.5 h-4.5 text-emerald-400" />} />
+      <CarouselRow number="05" title="Edit Images" models={EDIT_IMAGE_TOOLS} icon={<Palette className="w-4.5 h-4.5 text-pink-400" />} />
+      <CarouselRow number="06" title="Edit Video" models={EDIT_VIDEO_TOOLS} icon={<Film className="w-4.5 h-4.5 text-orange-400" />} />
     </section>
   );
 }
