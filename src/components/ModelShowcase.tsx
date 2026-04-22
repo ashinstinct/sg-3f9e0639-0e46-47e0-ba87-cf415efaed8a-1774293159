@@ -52,7 +52,7 @@ const IMAGE_TOOLS: ModelCard[] = [
 
 const VIDEO_TOOLS: ModelCard[] = [
   { id: "kling-edit", name: "Kling Omni Edit", description: "Edit videos with AI prompts", thumbnail: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/video/kling", icon: "Film", badge: "NEW" },
-  { id: "kling-motion", name: "Kling Motion Control", description: "Control movement in videos", thumbnail: "https://images.unsplash.com/photo-1535016120720-40c646be5580?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/video/kling", icon: "Film" },
+  { id: "kling-motion", name: "Kling Motion Control", description: "Control movement in videos", thumbnail: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/video/kling", icon: "Film" },
   { id: "extract", name: "Frame Extractor", description: "Pull frames from video", thumbnail: "https://images.unsplash.com/photo-1535016120720-40c646be5580?w=600&h=340&fit=crop&q=80", tier: "free", href: "/extract", icon: "ImageIcon" },
   { id: "download", name: "Video Downloader", description: "Save from any platform", thumbnail: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&h=340&fit=crop&q=80", tier: "free", href: "/download", icon: "Download" },
   { id: "split", name: "Video Splitter", description: "Cut & segment videos", thumbnail: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=600&h=340&fit=crop&q=80", tier: "free", href: "/split", icon: "Scissors" },
