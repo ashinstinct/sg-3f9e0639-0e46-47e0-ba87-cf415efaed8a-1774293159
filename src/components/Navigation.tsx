@@ -55,7 +55,8 @@ export function Navigation() {
     {
       title: "Create",
       items: [
-        { name: "Start new", href: "/images/generate", icon: PenLine },
+        { name: "Chat", href: "/chat", icon: MessageSquare },
+        { name: "Generate", href: "/images/generate", icon: PenLine },
         { name: "Images", href: "/images", icon: ImageIcon },
         { name: "Video", href: "/video", icon: Video },
         { name: "Audio", href: "/audio", icon: Music },
