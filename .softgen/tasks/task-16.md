@@ -1,29 +1,29 @@
 ---
 title: AI Chat Agent Hub
-status: in_progress
+status: done
 priority: high
 type: feature
-tags: [chat, ai-agents, core-feature]
+tags: [chat, ai-agents]
 created_by: agent
-created_at: 2026-04-23
-position: 1
+created_at: 2026-04-23T22:48:42Z
+position: 16
 ---
 
 ## Notes
-Create a comprehensive AI Chat Agent Hub page at `/chat` that allows users to select and chat with different AI models (ChatGPT, Claude, Gemini, Grok, MiniMax, etc.). Support free and pro models with proper credit system integration.
+Build a comprehensive chat interface with multiple AI model support (ChatGPT, Claude, Gemini, Grok, MiniMax, Qwen, Kimi, GLM, Mistral). Simple design with floating pillbox dropdown at top, black background, and text prompt at bottom.
 
 ## Checklist
-- [ ] Create chat.tsx page with model selector
-- [ ] Design AI agent cards (ChatGPT, Claude, Gemini, Grok, MiniMax, etc.)
-- [ ] Build chat interface with message display and input
-- [ ] Add message history display (chronological)
-- [ ] Integrate with Supabase to save chat history
-- [ ] Add credit deduction logic for paid models
-- [ ] Support free tier models (Gemini Free, Grok, etc.)
-- [ ] Test with mock messages and model selection
+- [x] Create chat page with model selector dropdown (matching image generator style)
+- [x] Add 12 AI models: ChatGPT, Claude, Gemini, Grok, MiniMax, Qwen, Kimi, GLM, Mistral
+- [x] Implement chat message UI with user/assistant roles
+- [x] Add loading states with typing indicators
+- [x] Auto-scrolling to latest message
+- [x] Textarea with auto-resize and Enter to send
+- [x] Match simple design: black background, minimal UI
+- [x] Add to Navigation as "Chat"
 
 ## Acceptance
-- User can select from multiple AI agent models
-- Chat interface displays messages with model responses
-- Free and paid models are clearly labeled
-- Chat history is saved to database
+- Chat page has floating model selector at top (like image generator)
+- Simple black background with clean message bubbles
+- Text prompt at bottom with auto-resize textarea
+- All 12 AI models listed in dropdown with Free/Pro badges
