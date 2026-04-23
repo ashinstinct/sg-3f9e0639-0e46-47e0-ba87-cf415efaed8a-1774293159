@@ -376,9 +376,9 @@ export default function AvatarPage() {
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950">
         <Navigation />
         
-        <div className="container mx-auto px-4 pt-20 pb-8">
+        <div className="container mx-auto px-4 pt-4 pb-8">
           {/* Header */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-4">
               AI Avatar Generator
             </h1>

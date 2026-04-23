@@ -80,10 +80,10 @@ export default function AudioPage() {
       />
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <Navigation />
-        <main className="container mx-auto px-4 pt-20 pb-12">
-          <div className="max-w-7xl mx-auto space-y-12">
+        <main className="container mx-auto px-4 pt-4 pb-12">
+          <div className="max-w-7xl mx-auto space-y-4">
             {/* Header - Centered */}
-            <div className="text-center space-y-4">
+            <div className="text-center space-y-2">
               <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/20 rounded-full px-4 py-2">
                 <Mic className="w-4 h-4 text-purple-400" />
                 <span className="text-sm font-medium text-purple-300">Audio Tools</span>
