@@ -33,7 +33,7 @@ const IMAGE_GENERATORS: ModelCard[] = [
 
 const VIDEO_GENERATORS: ModelCard[] = [
   { id: "seedance", name: "Seedance 1.5 Pro", company: "ByteDance", description: "State-of-the-art dance and motion generation", thumbnail: "/SEEDANCE_1.5_PRO_Cyan_Ice_.png", tier: "pro", href: "/video/generate?model=seedance-1.5-pro", badge: "NEW", logo: "/logos/seedance.svg" },
-  { id: "seedance-2", name: "Seedance 2.0", company: "ByteDance", description: "Next-gen motion and animation synthesis", thumbnail: "/SEEDREAM_2.0_Deep_Rose_Coral_.png", tier: "pro", href: "/video/generate?model=seedance-2.0", badge: "HOT", logo: "/logos/seedance.svg" },
+  { id: "seedance-2", name: "Seedance 2.0", company: "ByteDance", description: "Next-gen motion and animation synthesis", thumbnail: "/Seedance_2.0.png", tier: "pro", href: "/video/generate?model=seedance-2.0", badge: "HOT", logo: "/logos/seedance.svg" },
   { id: "kling", name: "Kling 3.0", company: "Kuaishou", description: "Professional cinematic video generation", thumbnail: "/Kling_Video_3.0.png", tier: "pro", href: "/video/generate?model=kling-3.0", badge: "POPULAR", logo: "/logos/kling.svg" },
   { id: "veo", name: "Veo 3.1 Pro", company: "Google DeepMind", description: "Google's most capable video model", thumbnail: "/VEO_3.1_Google_Multicolour_.png", tier: "pro", href: "/video/generate?model=veo-3.1-pro", badge: "HOT", logo: "/logos/veo.svg" },
   { id: "runway", name: "Runway Gen-3", company: "Runway", description: "Next-gen creative video tools", thumbnail: "/RUNWAY_GEN-3_Hot_Magenta_Pink_.png", tier: "pro", href: "/video/generate?model=runway-gen3-alpha", logo: "/logos/runway.svg" },
