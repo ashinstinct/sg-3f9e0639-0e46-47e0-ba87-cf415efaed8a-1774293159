@@ -24,7 +24,7 @@ const IMAGE_GENERATORS: ModelCard[] = [
   { id: "flux", name: "FLUX.1 Schnell", company: "Black Forest Labs", description: "Lightning-fast free generation", thumbnail: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&h=340&fit=crop&q=80", tier: "free", href: "/images/generate?model=flux-schnell", badge: "FREE", logo: "/logos/flux.svg" },
   { id: "grok", name: "Grok Aurora", company: "xAI", description: "Photorealistic with natural understanding", thumbnail: "/Grok_Image.png", tier: "pro", href: "/images/generate?model=grok-1.5-image", badge: "HOT", logo: "/logos/grok.svg" },
   { id: "ideogram", name: "Ideogram 3.0", company: "Ideogram", description: "Best text rendering in images", thumbnail: "/Ideogram_V2.png", tier: "pro", href: "/images/generate?model=ideogram-v2", logo: "/logos/ideogram.svg" },
-  { id: "recraft", name: "Recraft V3", company: "Recraft", description: "Design-focused brand consistency", thumbnail: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/images/generate?model=recraft-v3", logo: "/logos/recraft.svg" },
+  { id: "auraflow", name: "Auraflow", company: "Auraflow", description: "Advanced image synthesis", thumbnail: "/Auraflow.png", tier: "pro", href: "/images/generate?model=auraflow", logo: "/logos/auraflow.svg" },
   { id: "nano-banana", name: "Nano Banana 2.0", company: "Nano Banana", description: "High-quality artistic generation", thumbnail: "/Nano_banana_2.png", tier: "pro", href: "/images/generate?model=nano-banana-2", logo: "/logos/nano-banana.svg" },
   { id: "playground", name: "Playground V3", company: "Playground", description: "Creative artistic styles", thumbnail: "/Playground_v2.5.png", tier: "pro", href: "/images/generate?model=playground-v2.5", logo: "/logos/playground.svg" },
   { id: "stable-diffusion", name: "Stable Diffusion XL", company: "Stability AI", description: "Open-source powerhouse", thumbnail: "/Stable_diffusion_3.5.png", tier: "free", href: "/images/generate?model=sd-xl", badge: "FREE", logo: "/logos/stability.svg" },
@@ -45,10 +45,10 @@ const VIDEO_GENERATORS: ModelCard[] = [
 ];
 
 const IMAGE_TOOLS: ModelCard[] = [
-  { id: "inpaint", name: "Inpaint Editor", description: "Remove or replace objects", thumbnail: "https://images.unsplash.com/photo-1552168324-d612d77725e3?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/edit/inpaint", icon: "Brush", badge: "AI" },
-  { id: "upscale", name: "Image Upscaler", description: "Enhance resolution with AI", thumbnail: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/edit/inpaint", icon: "Palette" },
-  { id: "bg-remove", name: "Background Remover", description: "Instant background removal", thumbnail: "/Background_Remover.png", tier: "pro", href: "/edit/inpaint", icon: "Brush" },
-  { id: "image-to-prompt", name: "Image to Prompt", description: "Describe any image with AI", thumbnail: "https://images.unsplash.com/photo-1547891654-e66ed7ebb968?w=600&h=340&fit=crop&q=80", tier: "free", href: "/image-to-prompt", icon: "Sparkles" },
+  { id: "image-to-image", name: "Image to Image", description: "Transform images with prompts", thumbnail: "/Image_to_Image.png", tier: "pro", href: "/edit/inpaint", icon: "ImageIcon" },
+  { id: "inpaint", name: "AI Inpainting", description: "Remove or replace objects", thumbnail: "/AI_Inpainting.png", tier: "pro", href: "/edit/inpaint", icon: "Brush", badge: "AI" },
+  { id: "upscale", name: "Image Upscaler", description: "Enhance resolution with AI", thumbnail: "/Image_Upscaler.png", tier: "pro", href: "/edit/inpaint", icon: "Palette" },
+  { id: "image-to-prompt", name: "Image to Prompt", description: "Describe any image with AI", thumbnail: "/Image_to_Prompt.png", tier: "free", href: "/image-to-prompt", icon: "Sparkles" },
 ];
 
 const VIDEO_TOOLS: ModelCard[] = [
