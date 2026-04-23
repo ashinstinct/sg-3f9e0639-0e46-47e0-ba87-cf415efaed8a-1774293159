@@ -32,12 +32,12 @@ const IMAGE_GENERATORS: ModelCard[] = [
 
 const VIDEO_GENERATORS: ModelCard[] = [
   { id: "seedance", name: "Seedance 1.5 Pro", company: "ByteDance", description: "State-of-the-art dance and motion generation", thumbnail: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/video/generate?model=seedance-1.5-pro", badge: "NEW", logo: "/logos/seedance.svg" },
-  { id: "kling", name: "Kling 3.0", company: "Kuaishou", description: "Professional cinematic video generation", thumbnail: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/video/generate?model=kling-3.0", badge: "POPULAR", logo: "/logos/kling.svg" },
+  { id: "kling", name: "Kling 3.0", company: "Kuaishou", description: "Professional cinematic video generation", thumbnail: "/Kling_Video_3.0.png", tier: "pro", href: "/video/generate?model=kling-3.0", badge: "POPULAR", logo: "/logos/kling.svg" },
   { id: "veo", name: "Veo 3.1 Pro", company: "Google DeepMind", description: "Google's most capable video model", thumbnail: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/video/generate?model=veo-3.1-pro", badge: "HOT", logo: "/logos/veo.svg" },
   { id: "runway", name: "Runway Gen-3", company: "Runway", description: "Next-gen creative video tools", thumbnail: "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/video/generate?model=runway-gen3-alpha", logo: "/logos/runway.svg" },
   { id: "wan", name: "Wan 2.2", company: "Alibaba", description: "Open-source video generation", thumbnail: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/video/generate?model=wan-2.2", logo: "/logos/wan.svg" },
   { id: "minimax", name: "MiniMax 02", company: "MiniMax", description: "High-quality natural motion video", thumbnail: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/video/generate?model=minimax-02", logo: "/logos/minimax.svg" },
-  { id: "luma", name: "Luma Dream Machine", company: "Luma AI", description: "Fast text-to-video generation", thumbnail: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/video/generate?model=luma-1.6", logo: "/logos/luma.svg" },
+  { id: "luma", name: "Luma Dream Machine", company: "Luma AI", description: "Fast text-to-video generation", thumbnail: "/LUMA_DREAM_MACHINE.png", tier: "pro", href: "/video/generate?model=luma-1.6", logo: "/logos/luma.svg" },
   { id: "hunyuan", name: "HunyuanVideo", company: "Tencent", description: "Open-source cinematic quality", thumbnail: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/video/generate?model=hunyuan-1.0", logo: "/logos/hunyuan.svg" },
   { id: "ltx", name: "LTX-2-19B", company: "Lightricks", description: "Real-time video generation", thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=340&fit=crop&q=80", tier: "free", href: "/video/generate?model=ltx-2-19b", logo: "/logos/ltx.svg" },
   { id: "heygen", name: "HeyGen AI Avatar", company: "HeyGen", description: "AI-powered talking avatars", thumbnail: "https://images.unsplash.com/photo-1620321023374-d1a68fbc720d?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/avatar", badge: "NEW", logo: "/logos/heygen.svg" },
@@ -46,7 +46,7 @@ const VIDEO_GENERATORS: ModelCard[] = [
 const IMAGE_TOOLS: ModelCard[] = [
   { id: "inpaint", name: "Inpaint Editor", description: "Remove or replace objects", thumbnail: "https://images.unsplash.com/photo-1552168324-d612d77725e3?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/edit/inpaint", icon: "Brush", badge: "AI" },
   { id: "upscale", name: "Image Upscaler", description: "Enhance resolution with AI", thumbnail: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/edit/inpaint", icon: "Palette" },
-  { id: "bg-remove", name: "Background Remover", description: "Instant background removal", thumbnail: "https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/edit/inpaint", icon: "Brush" },
+  { id: "bg-remove", name: "Background Remover", description: "Instant background removal", thumbnail: "/Background_Remover.png", tier: "pro", href: "/edit/inpaint", icon: "Brush" },
   { id: "image-to-prompt", name: "Image to Prompt", description: "Describe any image with AI", thumbnail: "https://images.unsplash.com/photo-1547891654-e66ed7ebb968?w=600&h=340&fit=crop&q=80", tier: "free", href: "/image-to-prompt", icon: "Sparkles" },
 ];
 
@@ -55,7 +55,7 @@ const VIDEO_TOOLS: ModelCard[] = [
   { id: "kling-motion", name: "Kling Motion Control", description: "Control movement in videos", thumbnail: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/video/kling", icon: "Film" },
   { id: "extract", name: "Frame Extractor", description: "Pull frames from video", thumbnail: "https://images.unsplash.com/photo-1535016120720-40c646be5580?w=600&h=340&fit=crop&q=80", tier: "free", href: "/extract", icon: "ImageIcon" },
   { id: "download", name: "Video Downloader", description: "Save from any platform", thumbnail: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&h=340&fit=crop&q=80", tier: "free", href: "/download", icon: "Download" },
-  { id: "split", name: "Video Splitter", description: "Cut & segment videos", thumbnail: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=600&h=340&fit=crop&q=80", tier: "free", href: "/split", icon: "Scissors" },
+  { id: "split", name: "Video Splitter", description: "Cut & segment videos", thumbnail: "/Video_Splitter.png", tier: "free", href: "/split", icon: "Scissors" },
   { id: "screen-record", name: "Screen Recorder", description: "Record your screen", thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&h=340&fit=crop&q=80", tier: "free", href: "/record-screen", icon: "Film" },
   { id: "video-gen-free", name: "AI Video Gen (Free)", description: "Free video generation", thumbnail: "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=600&h=340&fit=crop&q=80", tier: "free", href: "/video-gen", icon: "Film" },
 ];
@@ -68,7 +68,7 @@ const AUDIO_TOOLS: ModelCard[] = [
   { id: "record-voice", name: "Voice Recorder", description: "Record in browser", thumbnail: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&h=340&fit=crop&q=80", tier: "free", href: "/record-voice", icon: "Mic", badge: "FREE" },
   { id: "transcriber", name: "Transcriber", description: "Audio/video to text", thumbnail: "https://images.unsplash.com/photo-1499159058454-750670592483?w=600&h=340&fit=crop&q=80", tier: "free", href: "/transcriber", icon: "Mic" },
   { id: "audio-editor", name: "Audio Editor", description: "Trim, fade, adjust audio", thumbnail: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=600&h=340&fit=crop&q=80", tier: "free", href: "/audio-editor", icon: "SlidersHorizontal" },
-  { id: "stems", name: "Stem Separator", description: "Split vocals, drums, bass", thumbnail: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce29?w=600&h=340&fit=crop&q=80", tier: "free", href: "/stems", icon: "Layers" },
+  { id: "stems", name: "Stem Separator", description: "Split vocals, drums, bass", thumbnail: "/Stem_Separator.png", tier: "free", href: "/stems", icon: "Layers" },
   { id: "convert", name: "Audio Converter", description: "Convert any audio format", thumbnail: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=600&h=340&fit=crop&q=80", tier: "free", href: "/convert", icon: "Repeat" },
   { id: "enhance", name: "Audio Enhancer", description: "Denoise & enhance quality", thumbnail: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600&h=340&fit=crop&q=80", tier: "free", href: "/enhance", icon: "Wand2" },
 ];
