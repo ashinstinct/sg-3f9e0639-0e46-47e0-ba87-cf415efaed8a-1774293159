@@ -66,12 +66,12 @@ const AUDIO_TOOLS: ModelCard[] = [
   { id: "clone", name: "Voice Cloner", description: "Clone any voice with AI", thumbnail: "/Voice_cloner.png", tier: "pro", href: "/clone", icon: "UserRound", badge: "PRO" },
   { id: "tts", name: "Text-to-Speech", description: "Natural voice synthesis", thumbnail: "/Text_to_speech.png", tier: "pro", href: "/clone", icon: "Volume2" },
   { id: "music", name: "Music Generator", description: "AI music composition", thumbnail: "/Music_generator.png", tier: "pro", href: "/music", icon: "Music" },
-  { id: "sfx", name: "Sound FX for Video", description: "Cinematic sound effects", thumbnail: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/enhance", icon: "Volume2" },
-  { id: "record-voice", name: "Voice Recorder", description: "Record in browser", thumbnail: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&h=340&fit=crop&q=80", tier: "free", href: "/record-voice", icon: "Mic", badge: "FREE" },
-  { id: "transcriber", name: "Transcriber", description: "Audio/video to text", thumbnail: "https://images.unsplash.com/photo-1499159058454-750670592483?w=600&h=340&fit=crop&q=80", tier: "free", href: "/transcriber", icon: "Mic" },
-  { id: "audio-editor", name: "Audio Editor", description: "Trim, fade, adjust audio", thumbnail: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=600&h=340&fit=crop&q=80", tier: "free", href: "/audio-editor", icon: "SlidersHorizontal" },
+  { id: "sfx", name: "Sound FX for Video", description: "Cinematic sound effects", thumbnail: "/SFX_for_Video.png", tier: "pro", href: "/enhance", icon: "Volume2" },
+  { id: "record-voice", name: "Voice Recorder", description: "Record in browser", thumbnail: "/Voice_recorder.png", tier: "free", href: "/record-voice", icon: "Mic", badge: "FREE" },
+  { id: "transcriber", name: "Transcriber", description: "Audio/video to text", thumbnail: "/Transcriber.png", tier: "free", href: "/transcriber", icon: "Mic" },
+  { id: "audio-editor", name: "Audio Editor", description: "Trim, fade, adjust audio", thumbnail: "/Audio_editor.png", tier: "free", href: "/audio-editor", icon: "SlidersHorizontal" },
   { id: "stems", name: "Stem Separator", description: "Split vocals, drums, bass", thumbnail: "/Stem_Separator.png", tier: "free", href: "/stems", icon: "Layers" },
-  { id: "convert", name: "Audio Converter", description: "Convert any audio format", thumbnail: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=600&h=340&fit=crop&q=80", tier: "free", href: "/convert", icon: "Repeat" },
+  { id: "convert", name: "Audio Converter", description: "Convert any audio format", thumbnail: "/Audio_converter.png", tier: "free", href: "/convert", icon: "Repeat" },
   { id: "enhance", name: "Audio Enhancer", description: "Denoise & enhance quality", thumbnail: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600&h=340&fit=crop&q=80", tier: "free", href: "/enhance", icon: "Wand2" },
 ];
 
@@ -82,11 +82,11 @@ const FREE_TOOLS: ModelCard[] = [
   { id: "screen-record", name: "Screen Recorder", description: "Record your screen", thumbnail: "/Screen_Recorder.png", tier: "free", href: "/record-screen", icon: "Film" },
   { id: "image-to-prompt", name: "Image to Prompt", description: "Describe any image with AI", thumbnail: "/Image_to_Prompt.png", tier: "free", href: "/image-to-prompt", icon: "Sparkles" },
   { id: "video-gen-free", name: "AI Video Gen (Free)", description: "Free video generation", thumbnail: "/AI_Video_Gen_Free.png", tier: "free", href: "/video-gen", icon: "Film" },
-  { id: "record-voice", name: "Voice Recorder", description: "Record in browser", thumbnail: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&h=340&fit=crop&q=80", tier: "free", href: "/record-voice", icon: "Mic" },
-  { id: "transcriber", name: "Transcriber", description: "Audio/video to text", thumbnail: "https://images.unsplash.com/photo-1499159058454-750670592483?w=600&h=340&fit=crop&q=80", tier: "free", href: "/transcriber", icon: "Mic" },
-  { id: "audio-editor", name: "Audio Editor", description: "Trim, fade, adjust audio", thumbnail: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=600&h=340&fit=crop&q=80", tier: "free", href: "/audio-editor", icon: "SlidersHorizontal" },
+  { id: "record-voice", name: "Voice Recorder", description: "Record in browser", thumbnail: "/Voice_recorder.png", tier: "free", href: "/record-voice", icon: "Mic" },
+  { id: "transcriber", name: "Transcriber", description: "Audio/video to text", thumbnail: "/Transcriber.png", tier: "free", href: "/transcriber", icon: "Mic" },
+  { id: "audio-editor", name: "Audio Editor", description: "Trim, fade, adjust audio", thumbnail: "/Audio_editor.png", tier: "free", href: "/audio-editor", icon: "SlidersHorizontal" },
   { id: "stems", name: "Stem Separator", description: "Split vocals, drums, bass", thumbnail: "/Stem_Separator.png", tier: "free", href: "/stems", icon: "Layers" },
-  { id: "convert", name: "Audio Converter", description: "Convert any audio format", thumbnail: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=600&h=340&fit=crop&q=80", tier: "free", href: "/convert", icon: "Repeat" },
+  { id: "convert", name: "Audio Converter", description: "Convert any audio format", thumbnail: "/Audio_converter.png", tier: "free", href: "/convert", icon: "Repeat" },
   { id: "enhance", name: "Audio Enhancer", description: "Denoise & enhance quality", thumbnail: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600&h=340&fit=crop&q=80", tier: "free", href: "/enhance", icon: "Wand2" },
 ];
 
