@@ -24,6 +24,7 @@ const IMAGE_GENERATORS: ModelCard[] = [
   { id: "flux", name: "FLUX.1 Schnell", company: "Black Forest Labs", description: "Lightning-fast free generation", thumbnail: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&h=340&fit=crop&q=80", tier: "free", href: "/images/generate?model=flux-schnell", badge: "FREE", logo: "/logos/flux.svg" },
   { id: "grok", name: "Grok Aurora", company: "xAI", description: "Photorealistic with natural understanding", thumbnail: "/Grok_Image.png", tier: "pro", href: "/images/generate?model=grok-1.5-image", badge: "HOT", logo: "/logos/grok.svg" },
   { id: "ideogram", name: "Ideogram 3.0", company: "Ideogram", description: "Best text rendering in images", thumbnail: "/Ideogram_V2.png", tier: "pro", href: "/images/generate?model=ideogram-v2", logo: "/logos/ideogram.svg" },
+  { id: "recraft", name: "Recraft V3", company: "Recraft", description: "Design-focused brand consistency", thumbnail: "/Recraft_v3.png", tier: "pro", href: "/images/generate?model=recraft-v3", logo: "/logos/recraft.svg" },
   { id: "auraflow", name: "Auraflow", company: "Auraflow", description: "Advanced image synthesis", thumbnail: "/Auraflow.png", tier: "pro", href: "/images/generate?model=auraflow", logo: "/logos/auraflow.svg" },
   { id: "nano-banana", name: "Nano Banana 2.0", company: "Nano Banana", description: "High-quality artistic generation", thumbnail: "/Nano_banana_2.png", tier: "pro", href: "/images/generate?model=nano-banana-2", logo: "/logos/nano-banana.svg" },
   { id: "playground", name: "Playground V3", company: "Playground", description: "Creative artistic styles", thumbnail: "/Playground_v2.5.png", tier: "pro", href: "/images/generate?model=playground-v2.5", logo: "/logos/playground.svg" },
@@ -52,12 +53,12 @@ const IMAGE_TOOLS: ModelCard[] = [
 ];
 
 const VIDEO_TOOLS: ModelCard[] = [
-  { id: "kling-edit", name: "Kling Omni Edit", description: "Edit videos with AI prompts", thumbnail: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/video/kling", icon: "Film", badge: "NEW" },
+  { id: "kling-edit", name: "Kling Omni Edit", description: "Edit videos with AI prompts", thumbnail: "/KLING_OMNI_EDIT.png", tier: "pro", href: "/video/kling", icon: "Film", badge: "NEW" },
   { id: "kling-motion", name: "Kling Motion Control", description: "Control movement in videos", thumbnail: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/video/kling", icon: "Film" },
-  { id: "extract", name: "Frame Extractor", description: "Pull frames from video", thumbnail: "https://images.unsplash.com/photo-1535016120720-40c646be5580?w=600&h=340&fit=crop&q=80", tier: "free", href: "/extract", icon: "ImageIcon" },
-  { id: "download", name: "Video Downloader", description: "Save from any platform", thumbnail: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&h=340&fit=crop&q=80", tier: "free", href: "/download", icon: "Download" },
+  { id: "extract", name: "Frame Extractor", description: "Pull frames from video", thumbnail: "/Frame_Extractor.png", tier: "free", href: "/extract", icon: "ImageIcon" },
+  { id: "download", name: "Video Downloader", description: "Save from any platform", thumbnail: "/Video_Downloader.png", tier: "free", href: "/download", icon: "Download" },
   { id: "split", name: "Video Splitter", description: "Cut & segment videos", thumbnail: "/Video_Splitter.png", tier: "free", href: "/split", icon: "Scissors" },
-  { id: "screen-record", name: "Screen Recorder", description: "Record your screen", thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&h=340&fit=crop&q=80", tier: "free", href: "/record-screen", icon: "Film" },
+  { id: "screen-record", name: "Screen Recorder", description: "Record your screen", thumbnail: "/Screen_Recorder.png", tier: "free", href: "/record-screen", icon: "Film" },
   { id: "video-gen-free", name: "AI Video Gen (Free)", description: "Free video generation", thumbnail: "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=600&h=340&fit=crop&q=80", tier: "free", href: "/video-gen", icon: "Film" },
 ];
 
@@ -75,10 +76,10 @@ const AUDIO_TOOLS: ModelCard[] = [
 ];
 
 const FREE_TOOLS: ModelCard[] = [
-  { id: "extract", name: "Frame Extractor", description: "Pull frames from video", thumbnail: "https://images.unsplash.com/photo-1535016120720-40c646be5580?w=600&h=340&fit=crop&q=80", tier: "free", href: "/extract", icon: "ImageIcon" },
-  { id: "download", name: "Video Downloader", description: "Save from any platform", thumbnail: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&h=340&fit=crop&q=80", tier: "free", href: "/download", icon: "Download" },
-  { id: "split", name: "Video Splitter", description: "Cut & segment videos", thumbnail: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=600&h=340&fit=crop&q=80", tier: "free", href: "/split", icon: "Scissors" },
-  { id: "screen-record", name: "Screen Recorder", description: "Record your screen", thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&h=340&fit=crop&q=80", tier: "free", href: "/record-screen", icon: "Film" },
+  { id: "extract", name: "Frame Extractor", description: "Pull frames from video", thumbnail: "/Frame_Extractor.png", tier: "free", href: "/extract", icon: "ImageIcon" },
+  { id: "download", name: "Video Downloader", description: "Save from any platform", thumbnail: "/Video_Downloader.png", tier: "free", href: "/download", icon: "Download" },
+  { id: "split", name: "Video Splitter", description: "Cut & segment videos", thumbnail: "/Video_Splitter.png", tier: "free", href: "/split", icon: "Scissors" },
+  { id: "screen-record", name: "Screen Recorder", description: "Record your screen", thumbnail: "/Screen_Recorder.png", tier: "free", href: "/record-screen", icon: "Film" },
   { id: "image-to-prompt", name: "Image to Prompt", description: "Describe any image with AI", thumbnail: "https://images.unsplash.com/photo-1547891654-e66ed7ebb968?w=600&h=340&fit=crop&q=80", tier: "free", href: "/image-to-prompt", icon: "Sparkles" },
   { id: "video-gen-free", name: "AI Video Gen (Free)", description: "Free video generation", thumbnail: "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=600&h=340&fit=crop&q=80", tier: "free", href: "/video-gen", icon: "Film" },
   { id: "record-voice", name: "Voice Recorder", description: "Record in browser", thumbnail: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&h=340&fit=crop&q=80", tier: "free", href: "/record-voice", icon: "Mic" },
