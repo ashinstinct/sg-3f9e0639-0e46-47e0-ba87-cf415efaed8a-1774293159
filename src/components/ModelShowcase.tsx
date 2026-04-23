@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import { ChevronLeft, ChevronRight, Play, Crown, Clock, Mic, Layers, Image as ImageIcon, Download, Scissors, Repeat, SlidersHorizontal, Wand2, UserRound, Sparkles, Film, Brush, Music, Volume2, Palette, type LucideIcon, ArrowRight, Video, Zap } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -138,7 +139,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
 };
 
 function IconOrLogo({ tool }: { tool: typeof ALL_RECENT_TOOLS[number] }) {
-  if (tool.logo) return <img src={tool.logo} alt="" className="w-10 h-10 md:w-12 md:h-12 object-contain" />;
+  if (tool.logo) return <Image src={tool.logo} alt="" width={40} height={40} className="w-10 h-10 md:w-12 md:h-12 object-contain" />;
   const Icon = ICON_MAP[tool.icon || ""];
   return Icon ? <Icon className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" /> : null;
 }
@@ -288,7 +289,7 @@ function VideoCardContent({ card, playingId, setPlayingId }: { card: ModelCard; 
 
   return (
     <>
-      <img src={card.thumbnail} alt={card.name} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+      <Image src={card.thumbnail} alt={card.name} fill className="absolute inset-0 w-full h-full object-cover" />
       <div className="absolute inset-0 bg-black/30 group-hover/card:bg-black/10 transition-colors" />
       <button onClick={() => setPlayingId(card.id)} className="absolute inset-0 flex items-center justify-center">
         <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 group-hover/card:scale-110 group-hover/card:bg-white/30 transition-all">
@@ -307,11 +308,11 @@ function ImageCardContent({ card }: { card: ModelCard }) {
 
   return (
     <>
-      <img src={card.thumbnail} alt={card.name} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+      <Image src={card.thumbnail} alt={card.name} fill className="absolute inset-0 w-full h-full object-cover" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
       {card.logo && (
         <div className="absolute top-2.5 left-2.5 w-8 h-8 rounded-lg bg-black/60 backdrop-blur-sm flex items-center justify-center border border-white/10">
-          <img src={card.logo} alt="" className="w-5 h-5 object-contain" />
+          <Image src={card.logo} alt="" width={20} height={20} className="w-5 h-5 object-contain" />
         </div>
       )}
       {!card.logo && Icon && (
@@ -346,7 +347,7 @@ function ModelCardComponent({ card, playingId, setPlayingId, rowGradient }: { ca
         <div className="p-2.5 md:p-3">
           <div className="flex items-center gap-1.5 mb-0.5">
             {card.logo && !isVideo && (
-              <img src={card.logo} alt="" className="w-4 h-4 rounded hidden" />
+              <Image src={card.logo} alt="" width={16} height={16} className="w-4 h-4 rounded hidden" />
             )}
             <h3 className="font-semibold text-white text-xs md:text-sm truncate">{card.name}</h3>
             {card.company && <span className="text-[10px] text-white/30 ml-auto flex-shrink-0">{card.company}</span>}
