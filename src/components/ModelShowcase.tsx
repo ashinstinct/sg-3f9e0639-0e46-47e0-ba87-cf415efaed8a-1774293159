@@ -37,13 +37,13 @@ const VIDEO_GENERATORS: ModelCard[] = [
   { id: "kling", name: "Kling 3.0", company: "Kuaishou", description: "Professional cinematic video generation", thumbnail: "/Kling_Video_3.0.png", tier: "pro", href: "/video/generate?model=kling-3.0", badge: "POPULAR", logo: "/logos/kling.svg" },
   { id: "veo", name: "Veo 3.1 Pro", company: "Google DeepMind", description: "Google's most capable video model", thumbnail: "/VEO_3.1_Google_Multicolour_.png", tier: "pro", href: "/video/generate?model=veo-3.1-pro", badge: "HOT", logo: "/logos/veo.svg" },
   { id: "runway", name: "Runway Gen-3", company: "Runway", description: "Next-gen creative video tools", thumbnail: "/RUNWAY_GEN-3_Hot_Magenta_Pink_.png", tier: "pro", href: "/video/generate?model=runway-gen3-alpha", logo: "/logos/runway.svg" },
-  { id: "wan", name: "Wan 2.2", company: "Alibaba", description: "Open-source video generation", thumbnail: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/video/generate?model=wan-2.2", logo: "/logos/wan.svg" },
+  { id: "wan", name: "Wan 2.2", company: "Alibaba", description: "Open-source video generation", thumbnail: "/Wan_2.2_Video.png", tier: "pro", href: "/video/generate?model=wan-2.2", logo: "/logos/wan.svg" },
   { id: "minimax", name: "MiniMax 02", company: "MiniMax", description: "High-quality natural motion video", thumbnail: "/MINIMAX_VIDEO.png", tier: "pro", href: "/video/generate?model=minimax-02", logo: "/logos/minimax.svg" },
   { id: "luma", name: "Luma Dream Machine", company: "Luma AI", description: "Fast text-to-video generation", thumbnail: "/LUMA_DREAM_MACHINE.png", tier: "pro", href: "/video/generate?model=luma-1.6", logo: "/logos/luma.svg" },
   { id: "hunyuan", name: "HunyuanVideo", company: "Tencent", description: "Open-source cinematic quality", thumbnail: "/HUNYUAN_VIDEO.png", tier: "pro", href: "/video/generate?model=hunyuan-1.0", logo: "/logos/hunyuan.svg" },
   { id: "sora", name: "Sora 2.0", company: "OpenAI", description: "Cinematic AI video generation", thumbnail: "/SORA_2.0_Cinematic_Gold_.png", tier: "pro", href: "/video/generate?model=sora-2.0", badge: "NEW", logo: "/logos/sora.svg" },
-  { id: "ltx", name: "LTX-2-19B", company: "Lightricks", description: "Real-time video generation", thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=340&fit=crop&q=80", tier: "free", href: "/video/generate?model=ltx-2-19b", logo: "/logos/ltx.svg" },
-  { id: "heygen", name: "HeyGen AI Avatar", company: "HeyGen", description: "AI-powered talking avatars", thumbnail: "https://images.unsplash.com/photo-1620321023374-d1a68fbc720d?w=600&h=340&fit=crop&q=80", tier: "pro", href: "/avatar", badge: "NEW", logo: "/logos/heygen.svg" },
+  { id: "ltx", name: "LTX-2-19B", company: "Lightricks", description: "Real-time video generation", thumbnail: "/LTX_2_Video.png", tier: "free", href: "/video/generate?model=ltx-2-19b", logo: "/logos/ltx.svg" },
+  { id: "heygen", name: "HeyGen AI Avatar", company: "HeyGen", description: "AI-powered talking avatars", thumbnail: "/Heygen_Avatar.png", tier: "pro", href: "/avatar", badge: "NEW", logo: "/logos/heygen.svg" },
 ];
 
 const IMAGE_TOOLS: ModelCard[] = [
