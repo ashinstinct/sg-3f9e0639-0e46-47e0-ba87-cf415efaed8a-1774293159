@@ -72,7 +72,7 @@ const AUDIO_TOOLS: ModelCard[] = [
   { id: "audio-editor", name: "Audio Editor", description: "Trim, fade, adjust audio", thumbnail: "/Audio_editor.png", tier: "free", href: "/audio-editor", icon: "SlidersHorizontal" },
   { id: "stems", name: "Stem Separator", description: "Split vocals, drums, bass", thumbnail: "/Stem_Separator.png", tier: "free", href: "/stems", icon: "Layers" },
   { id: "convert", name: "Audio Converter", description: "Convert any audio format", thumbnail: "/Audio_converter.png", tier: "free", href: "/convert", icon: "Repeat" },
-  { id: "enhance", name: "Audio Enhancer", description: "Denoise & enhance quality", thumbnail: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600&h=340&fit=crop&q=80", tier: "free", href: "/enhance", icon: "Wand2" },
+  { id: "enhance", name: "Audio Enhancer", description: "Denoise & enhance quality", thumbnail: "/Audio_enhancer.png", tier: "free", href: "/enhance", icon: "Wand2" },
 ];
 
 const FREE_TOOLS: ModelCard[] = [
@@ -87,7 +87,7 @@ const FREE_TOOLS: ModelCard[] = [
   { id: "audio-editor", name: "Audio Editor", description: "Trim, fade, adjust audio", thumbnail: "/Audio_editor.png", tier: "free", href: "/audio-editor", icon: "SlidersHorizontal" },
   { id: "stems", name: "Stem Separator", description: "Split vocals, drums, bass", thumbnail: "/Stem_Separator.png", tier: "free", href: "/stems", icon: "Layers" },
   { id: "convert", name: "Audio Converter", description: "Convert any audio format", thumbnail: "/Audio_converter.png", tier: "free", href: "/convert", icon: "Repeat" },
-  { id: "enhance", name: "Audio Enhancer", description: "Denoise & enhance quality", thumbnail: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600&h=340&fit=crop&q=80", tier: "free", href: "/enhance", icon: "Wand2" },
+  { id: "enhance", name: "Audio Enhancer", description: "Denoise & enhance quality", thumbnail: "/Audio_enhancer.png", tier: "free", href: "/enhance", icon: "Wand2" },
 ];
 
 /* ─── Recently Used ─── */
