@@ -26,7 +26,7 @@ export default function Home() {
             </div>
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight mb-2">
               <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                AI media studio
+                AI Media Studio
               </span>
             </h1>
             <p className="text-sm md:text-lg text-white/50 max-w-2xl mx-auto mb-3">
