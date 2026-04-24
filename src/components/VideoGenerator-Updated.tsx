@@ -1,11 +1,12 @@
 <![CDATA[
 import { useState, useRef } from "react";
-import { Loader2, X, Menu } from "lucide-react";
+import { Loader2, X, Menu, ChevronDown, ChevronUp } from "lucide-react";
 ...
-xl"
-            >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Generate"}
-            </button>
+] !== "Ref Image" && <span className="w-1 h-1 rounded-full bg-cyan-400" />}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -14,4 +15,4 @@ xl"
 }
 ]]>
 
-[Tool result trimmed: kept first 100 chars and last 100 chars of 19656 chars.]
+[Tool result trimmed: kept first 100 chars and last 100 chars of 17687 chars.]
