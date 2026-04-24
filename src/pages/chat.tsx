@@ -7,9 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
 const chatModels: ModelOption[] = [
+  { id: "claude-3.5-sonnet", name: "Claude 3.5 Sonnet", description: "Most capable model", logo: "/logos/anthropic.svg", tier: "pro" },
+  { id: "claude-3.5-haiku", name: "Claude 3.5 Haiku", description: "Fast & efficient", logo: "/logos/anthropic.svg", tier: "pro" },
+  { id: "claude-3.5-opus", name: "Claude 3.5 Opus", description: "Highest intelligence", logo: "/logos/anthropic.svg", tier: "pro" },
+  { id: "claude-3-opus", name: "Claude 3 Opus", description: "Advanced reasoning", logo: "/logos/anthropic.svg", tier: "pro" },
+  { id: "claude-3-sonnet", name: "Claude 3 Sonnet", description: "Balanced performance", logo: "/logos/anthropic.svg", tier: "pro" },
+  { id: "claude-3-haiku", name: "Claude 3 Haiku", description: "Lightning fast", logo: "/logos/anthropic.svg", tier: "free" },
   { id: "chatgpt-4o", name: "ChatGPT-4o", description: "Advanced reasoning", logo: "/logos/openai.svg", tier: "pro" },
   { id: "chatgpt-4o-mini", name: "ChatGPT-4o-mini", description: "Fast & efficient", logo: "/logos/openai.svg", tier: "free" },
-  { id: "claude-3.5-sonnet", name: "Claude 3.5 Sonnet", description: "Deep analysis", logo: "/logos/anthropic.svg", tier: "pro" },
   { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash", description: "Multimodal AI", logo: "/logos/google.svg", tier: "pro" },
   { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro", description: "Long context", logo: "/logos/google.svg", tier: "free" },
   { id: "grok-2", name: "Grok-2", description: "Real-time knowledge", logo: "/logos/grok.svg", tier: "pro" },
