@@ -10,6 +10,7 @@ import { useRouter } from "next/router";
 
 const imageModels: ModelOption[] = [
   { id: "gpt-image-2", name: "GPT Image 2", description: "OpenAI DALL-E 2", tier: "pro" },
+  { id: "imagen-3", name: "Google Imagen 3", description: "Google's state-of-the-art image model", logo: "/logos/google.svg", tier: "pro" },
   { id: "nano-banana-2", name: "Nano Banana 2", description: "Improved quality", logo: "/logos/nano-banana.svg", tier: "pro" },
   { id: "nano-banana-1.5-pro", name: "Nano Banana Pro", description: "Best quality", logo: "/logos/nano-banana.svg", tier: "pro" },
   { id: "seedream-4.5", name: "Seedream 4.5", description: "Photorealistic", logo: "/logos/seedream.svg", tier: "pro" },
@@ -30,6 +31,7 @@ const imageModels: ModelOption[] = [
 ];
 
 const modelConfig: Record<string, { maxImages: number; aspectRatios: string[]; credits: number; maxBatch: number }> = {
+  "imagen-3": { maxImages: 0, aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"], credits: 12, maxBatch: 4 },
   "nano-banana-2": { maxImages: 14, aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9"], credits: 6, maxBatch: 4 },
   "nano-banana-1.5-pro": { maxImages: 8, aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"], credits: 5, maxBatch: 4 },
   "seedream-4.5": { maxImages: 3, aspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"], credits: 7, maxBatch: 4 },
