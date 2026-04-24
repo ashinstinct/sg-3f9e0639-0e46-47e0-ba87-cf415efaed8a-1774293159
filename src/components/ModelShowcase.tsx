@@ -21,13 +21,14 @@ interface ModelCard {
 /* ─── Data ─── */
 
 const IMAGE_GENERATORS: ModelCard[] = [
+  { id: "gpt-image-2", name: "GPT Image 2", company: "OpenAI", description: "High-quality image generation", thumbnail: "/SEEDREAM_2.0_Deep_Rose_Coral_.png", tier: "pro", href: "/images/generate?model=gpt-image-2", badge: "NEW" },
+  { id: "nano-banana", name: "Nano Banana 2.0", company: "Nano Banana", description: "High-quality artistic generation", thumbnail: "/Nano_banana_2.png", tier: "pro", href: "/images/generate?model=nano-banana-2", logo: "/logos/nano-banana.svg" },
   { id: "seedream", name: "Seedream 4.5", company: "ByteDance", description: "Ultra-photorealistic images", thumbnail: "/SEEDREAM_2.0_Deep_Rose_Coral_.png", tier: "pro", href: "/images/generate?model=seedream-4.5", badge: "NEW", logo: "/logos/seedream.svg" },
   { id: "flux", name: "FLUX.1 Schnell", company: "Black Forest Labs", description: "Lightning-fast free generation", thumbnail: "/flux_1_pro.png", tier: "free", href: "/images/generate?model=flux-schnell", badge: "FREE", logo: "/logos/flux.svg" },
   { id: "grok", name: "Grok Aurora", company: "xAI", description: "Photorealistic with natural understanding", thumbnail: "/Grok_Image.png", tier: "pro", href: "/images/generate?model=grok-1.5-image", badge: "HOT", logo: "/logos/grok.svg" },
   { id: "ideogram", name: "Ideogram 3.0", company: "Ideogram", description: "Best text rendering in images", thumbnail: "/Ideogram_V2.png", tier: "pro", href: "/images/generate?model=ideogram-v2", logo: "/logos/ideogram.svg" },
   { id: "recraft", name: "Recraft V3", company: "Recraft", description: "Design-focused brand consistency", thumbnail: "/Recraft_v3.png", tier: "pro", href: "/images/generate?model=recraft-v3", logo: "/logos/recraft.svg" },
   { id: "auraflow", name: "Auraflow", company: "Auraflow", description: "Advanced image synthesis", thumbnail: "/Auraflow.png", tier: "pro", href: "/images/generate?model=auraflow", logo: "/logos/auraflow.svg" },
-  { id: "nano-banana", name: "Nano Banana 2.0", company: "Nano Banana", description: "High-quality artistic generation", thumbnail: "/Nano_banana_2.png", tier: "pro", href: "/images/generate?model=nano-banana-2", logo: "/logos/nano-banana.svg" },
   { id: "playground", name: "Playground V3", company: "Playground", description: "Creative artistic styles", thumbnail: "/Playground_v2.5.png", tier: "pro", href: "/images/generate?model=playground-v2.5", logo: "/logos/playground.svg" },
   { id: "stable-diffusion", name: "Stable Diffusion XL", company: "Stability AI", description: "Open-source powerhouse", thumbnail: "/Stable_diffusion_3.5.png", tier: "free", href: "/images/generate?model=sd-xl", badge: "FREE", logo: "/logos/stability.svg" },
 ];

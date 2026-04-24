@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useRouter } from "next/router";
 
 const imageModels: ModelOption[] = [
+  { id: "gpt-image-2", name: "GPT Image 2", description: "OpenAI DALL-E 2", tier: "pro" },
   { id: "nano-banana-2", name: "Nano Banana 2", description: "Improved quality", logo: "/logos/nano-banana.svg", tier: "pro" },
   { id: "nano-banana-1.5-pro", name: "Nano Banana Pro", description: "Best quality", logo: "/logos/nano-banana.svg", tier: "pro" },
   { id: "seedream-4.5", name: "Seedream 4.5", description: "Photorealistic", logo: "/logos/seedream.svg", tier: "pro" },
