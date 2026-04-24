@@ -21,7 +21,8 @@ interface ModelCard {
 /* ─── Data ─── */
 
 const IMAGE_GENERATORS: ModelCard[] = [
-  { id: "gpt-image-2", name: "GPT Image 2", company: "OpenAI", description: "High-quality image generation", thumbnail: "/SEEDREAM_2.0_Deep_Rose_Coral_.png", tier: "pro", href: "/images/generate?model=gpt-image-2", badge: "NEW" },
+  { id: "gpt-image-2", name: "GPT Image 2", company: "OpenAI", description: "High-quality image generation", thumbnail: "/GPT_IMAGE_2.png", tier: "pro", href: "/images/generate?model=gpt-image-2", badge: "NEW" },
+  { id: "imagen-3", name: "Google Imagen 3", company: "Google", description: "Google's state-of-the-art image model", thumbnail: "/Google_Imagen_3.png", tier: "pro", href: "/images/generate?model=imagen-3", badge: "NEW", logo: "/logos/google.svg" },
   { id: "nano-banana", name: "Nano Banana 2.0", company: "Nano Banana", description: "High-quality artistic generation", thumbnail: "/Nano_banana_2.png", tier: "pro", href: "/images/generate?model=nano-banana-2", logo: "/logos/nano-banana.svg" },
   { id: "seedream", name: "Seedream 4.5", company: "ByteDance", description: "Ultra-photorealistic images", thumbnail: "/SEEDREAM_2.0_Deep_Rose_Coral_.png", tier: "pro", href: "/images/generate?model=seedream-4.5", badge: "NEW", logo: "/logos/seedream.svg" },
   { id: "flux", name: "FLUX.1 Schnell", company: "Black Forest Labs", description: "Lightning-fast free generation", thumbnail: "/flux_1_pro.png", tier: "free", href: "/images/generate?model=flux-schnell", badge: "FREE", logo: "/logos/flux.svg" },
