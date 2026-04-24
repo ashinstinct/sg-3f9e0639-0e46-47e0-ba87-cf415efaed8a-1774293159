@@ -120,32 +120,33 @@ export default function VideoGenerator({ category = "video", onGenerationComplet
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
-      {/* Floating "Create With" Header */}
+      {/* Floating 'Create with' Header */}
       <div className="fixed top-0 left-1/2 -translate-x-1/2 z-50 pt-4">
-        <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-[#161618]/80 border border-white/10 backdrop-blur-md">
-          <span className="text-sm font-light">Create with</span>
+        <div className="flex items-center gap-4 px-4 py-2 rounded-2xl bg-[#161618]/80 border border-white/10 backdrop-blur-md">
+          <span className="text-sm font-light text-white">Create with</span>
           
-          <div className="flex gap-1">
+          <div className="flex gap-2">
             {[
-              { icon: "📹", mode: "video" as const },
-              { icon: "🖼️", mode: "image" as const },
-              { icon: "🎵", mode: "audio" as const },
-            ].map(({ icon, mode }) => (
+              { icon: "📹", label: "Video", mode: "video" as const },
+              { icon: "🖼️", label: "Image", mode: "image" as const },
+              { icon: "🎵", label: "Audio", mode: "audio" as const },
+            ].map(({ icon, label, mode }) => (
               <button
                 key={mode}
                 onClick={() => setCategoryMode(mode)}
-                className={`px-2 py-1 rounded-lg transition-all ${
+                className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all ${
                   categoryMode === mode
-                    ? "bg-purple-500/30 border border-purple-400"
-                    : "bg-white/5 border border-white/10 hover:bg-white/10"
+                    ? "bg-purple-500/30 border border-purple-400 text-white"
+                    : "bg-[#161618]/60 border border-white/10 text-white/50 hover:text-white/70"
                 }`}
               >
-                {icon}
+                <span className="text-sm">{icon}</span>
+                <span className="text-xs font-medium">{label}</span>
               </button>
             ))}
           </div>
 
-          <span className="text-sm font-light">today</span>
+          <span className="text-sm font-light text-white">today</span>
         </div>
       </div>
 
@@ -205,14 +206,36 @@ export default function VideoGenerator({ category = "video", onGenerationComplet
           </p>
         </div>
 
-        {/* Text Prompt */}
-        <div className="w-full max-w-4xl mb-6">
+        {/* Text Prompt + Page Indicator */}
+        <div className="flex gap-4 items-start">
+          {/* Text Prompt */}
           <Textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="Imagine the video you want."
-            className="w-full bg-[#161618] border border-white/10 text-white placeholder:text-white/30 rounded-xl p-4 min-h-[120px] resize-none focus:border-purple-400/50 focus:ring-purple-500/20"
+            className="flex-1 bg-[#161618] border border-white/10 text-white placeholder:text-white/30 rounded-xl p-4 min-h-[120px] resize-none focus:border-purple-400/50 focus:ring-purple-500/20"
           />
+          
+          {/* Page Indicator - Right Side */}
+          <div className="flex flex-col gap-2">
+            {[
+              { icon: "📹", label: "Video", mode: "video" as const },
+              { icon: "🖼️", label: "Image", mode: "image" as const },
+              { icon: "🎵", label: "Audio", mode: "audio" as const },
+            ].map(({ icon, label, mode }) => (
+              <button
+                key={mode}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all whitespace-nowrap ${
+                  categoryMode === mode
+                    ? "bg-purple-500/30 border border-purple-400 text-white"
+                    : "bg-[#161618]/60 border border-white/10 text-white/50 hover:text-white/70"
+                }`}
+              >
+                <span className="text-lg">{icon}</span>
+                <span className="text-xs font-medium">{label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -346,9 +369,8 @@ export default function VideoGenerator({ category = "video", onGenerationComplet
             )}
           </div>
 
-          {/* Credits Badge */}
+          {/* Credits Badge - without 50% Off */}
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-purple-500/20 border border-purple-400/30">
-            <span className="text-xs text-purple-300">50% Off</span>
             <span className="text-sm font-semibold text-purple-300">💜 88</span>
           </div>
 
