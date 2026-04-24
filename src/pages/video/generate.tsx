@@ -401,7 +401,7 @@ export default function VideoGenerate() {
               {/* Reference Type Dropdown (for models that support it) */}
               {(currentModel?.supportsOmniReference || currentModel?.supportsImageReference || currentModel?.supportsCharacterReference) && (
                 <div className="relative">
-                  <button onClick={(e) => { e.stopPropagation(); setShowRefDropdown(!refDropdown); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161618] border border-white/10 hover:border-white/20 transition-all text-xs text-white/70">
+                  <button onClick={(e) => { e.stopPropagation(); setShowRefDropdown(!showRefDropdown); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161618] border border-white/10 hover:border-white/20 transition-all text-xs text-white/70">
                     <Layers className="w-3.5 h-3.5" />
                     <span>Start/End Frame</span>
                     <ChevronUp className="w-3 h-3 text-white/40" />
