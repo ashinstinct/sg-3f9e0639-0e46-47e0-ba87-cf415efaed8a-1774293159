@@ -43,7 +43,7 @@ export default function CreatePage() {
   const [showSettings, setShowSettings] = useState(false);
   const [showGenerations, setShowGenerations] = useState(false);
 
-  const [selectedModel, setSelectedModel] = useState("seedance-2-fast");
+  const [selectedModel, setSelectedModel] = useState("seedance-2");
   const [prompt, setPrompt] = useState("");
   const [expandedPrompt, setExpandedPrompt] = useState(false);
   const [referenceMode, setReferenceMode] = useState("start-end-frame");
@@ -71,9 +71,39 @@ export default function CreatePage() {
 
   const switchTab = (tab: "video" | "image" | "audio") => {
     setActiveTab(tab);
-    if (tab === "video") setSelectedModel("seedance-2-fast");
-    if (tab === "image") setSelectedModel("flux-dev");
-    if (tab === "audio") setSelectedModel("musicgen");
+    if (tab === "video") {
+      setSelectedModel("seedance-2");
+      setAspectRatio("16:9");
+      setDuration("5s");
+      setResolution("1080p");
+    }
+    if (tab === "image") {
+      setSelectedModel("nano-banana-2");
+      setAspectRatio("1:1");
+    }
+    if (tab === "audio") {
+      setSelectedModel("musicgen");
+      setDuration("10s");
+    }
+  };
+
+  const handleModelChange = (modelId: string) => {
+    setSelectedModel(modelId);
+    const newModel = getCurrentModels().find(m => m.id === modelId);
+    if (newModel) {
+      if (activeTab === "video") {
+        const videoModel = newModel as typeof videoModels[0];
+        setAspectRatio(videoModel.defaultRatio);
+        setDuration(videoModel.defaultDuration);
+        setResolution(videoModel.defaultResolution);
+      } else if (activeTab === "image") {
+        const imageModel = newModel as typeof imageModels[0];
+        setAspectRatio(imageModel.defaultRatio);
+      } else if (activeTab === "audio") {
+        const audioModel = newModel as typeof audioModels[0];
+        setDuration(audioModel.defaultDuration.toString() + "s");
+      }
+    }
   };
 
   const referenceOptions = activeTab === "video"
@@ -304,7 +334,7 @@ export default function CreatePage() {
                   <button
                     key={model.id}
                     onClick={() => {
-                      setSelectedModel(model.id);
+                      handleModelChange(model.id);
                       setShowModelSelector(false);
                     }}
                     className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${
