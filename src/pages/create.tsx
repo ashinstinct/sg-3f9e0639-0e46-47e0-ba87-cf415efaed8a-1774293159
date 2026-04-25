@@ -385,7 +385,6 @@ export default function CreatePage() {
               <div className="p-4 border-b border-white/10"><h3 className="text-lg font-semibold">Select Model</h3><p className="text-sm text-gray-400">Choose a {activeTab} generation model</p></div>
               <div className="p-4 overflow-y-auto max-h-[60vh] space-y-2">
                 {getCurrentModels().map((m) => {
-                  // Type assertions for each model type
                   const videoM = m as typeof videoModels[0];
                   const imageM = m as typeof imageModels[0];
                   const audioM = m as typeof audioModels[0];
@@ -397,8 +396,8 @@ export default function CreatePage() {
                         <div className="text-left">
                           <div className="font-medium text-white">{m.name}</div>
                           <div className="text-xs text-gray-400">
-                            {activeTab === "video" && "costPerSec" in m && `${videoM.maxDuration}s max · ${videoM.ratios.join(", ")}`}
-                            {activeTab === "image" && "cost" in m && "ratios" in m && imageM.ratios.join(", ")}
+                            {activeTab === "video" && "costPerSec" in m && "ratios" in videoM && `${videoM.maxDuration}s max · ${videoM.ratios.join(", ")}`}
+                            {activeTab === "image" && "cost" in m && "ratios" in imageM && imageM.ratios.join(", ")}
                             {activeTab === "audio" && "supportsPrompt" in m && `${audioM.maxDuration}s max`}
                           </div>
                         </div>
