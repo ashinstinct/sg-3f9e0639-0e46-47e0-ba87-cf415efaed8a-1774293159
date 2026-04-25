@@ -312,7 +312,8 @@ export const useModelConfig = (mediaType: MediaType, selectedModelId: string) =>
 
   const getDurationOptions = (): string[] => {
     if (!selectedModel || !("minDuration" in selectedModel)) return ["1s", "2s", "3s", "4s", "5s"];
-    const { minDuration, maxDuration } = selectedModel as VideoModel | AudioModel;
+    const modelWithDuration = selectedModel as VideoModel | AudioModel;
+    const { minDuration, maxDuration } = modelWithDuration;
     const options = [];
     for (let i = minDuration; i <= maxDuration; i++) {
       options.push(`${i}s`);
