@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { Loader2, X, Menu, ChevronUp, ChevronDown, Wand2 } from "lucide-react";
+import { Loader2, X, Menu, ChevronUp, Video, Image as ImageIcon, Music, Sparkles, FolderOpen } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -207,27 +208,27 @@ export default function VideoGenerator() {
               </button>
             </div>
             <nav className="space-y-2">
-              <a href="/" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#667eea]/20 text-[#667eea] border border-[#667eea]/30">
+              <Link href="/" className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#667eea]/20 text-[#667eea] border border-[#667eea]/30">
                 <span>🎬</span>
                 <span>Create Video</span>
-              </a>
-              <a href="/images/generate" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all">
+              </Link>
+              <Link href="/images/generate" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all">
                 <span>🖼️</span>
                 <span>Create Image</span>
-              </a>
-              <a href="/audio" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all">
+              </Link>
+              <Link href="/audio" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all">
                 <span>🎵</span>
                 <span>Create Audio</span>
-              </a>
+              </Link>
               <hr className="border-white/10 my-4" />
-              <a href="/free-tools" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all">
+              <Link href="/free-tools" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all">
                 <span>🛠️</span>
                 <span>Free Tools</span>
-              </a>
-              <a href="/library" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all">
+              </Link>
+              <Link href="/library" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-all">
                 <span>📁</span>
                 <span>Library</span>
-              </a>
+              </Link>
             </nav>
           </div>
         </div>
