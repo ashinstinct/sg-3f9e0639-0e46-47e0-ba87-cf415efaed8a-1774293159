@@ -283,6 +283,19 @@ const AUDIO_MODELS: AudioModel[] = [
   { id: "audiogen", name: "AudioGen", category: "standard", cost: 0.02, maxDuration: 10, defaultDuration: 5, supportsPrompt: true },
 ];
 
+// Helper type guards
+function isVideoModel(model: Model): model is VideoModel {
+  return "costPerSec" in model;
+}
+
+function isAudioModel(model: Model): model is AudioModel {
+  return "supportsPrompt" in model;
+}
+
+function isImageModel(model: Model): model is ImageModel {
+  return "cost" in model && "ratios" in model && !("costPerSec" in model);
+}
+
 export const useModelConfig = (mediaType: MediaType, selectedModelId: string) => {
   const getModels = (): Model[] => {
     switch (mediaType) {
@@ -302,23 +315,42 @@ export const useModelConfig = (mediaType: MediaType, selectedModelId: string) =>
   // Get available options for selected model
   const getAvailableRatios = (): string[] => {
     if (!selectedModel) return ["16:9", "1:1", "9:16"];
-    return "ratios" in selectedModel ? selectedModel.ratios : ["16:9", "1:1", "9:16"];
+    if (isVideoModel(selectedModel) || isImageModel(selectedModel)) {
+      return selectedModel.ratios;
+    }
+    return ["16:9", "1:1", "9:16"];
   };
 
   const getAvailableResolutions = (): string[] => {
     if (!selectedModel) return ["720p", "1080p"];
-    return "resolutions" in selectedModel ? selectedModel.resolutions : ["720p", "1080p"];
+    if (isVideoModel(selectedModel) || isImageModel(selectedModel)) {
+      return selectedModel.resolutions;
+    }
+    return ["720p", "1080p"];
   };
 
   const getDurationOptions = (): string[] => {
-    if (!selectedModel || !("minDuration" in selectedModel)) return ["1s", "2s", "3s", "4s", "5s"];
-    const modelWithDuration = selectedModel as VideoModel | AudioModel;
-    const { minDuration, maxDuration } = modelWithDuration;
-    const options = [];
-    for (let i = minDuration; i <= maxDuration; i++) {
-      options.push(`${i}s`);
+    if (!selectedModel) return ["1s", "2s", "3s", "4s", "5s"];
+    
+    if (isVideoModel(selectedModel)) {
+      const { minDuration, maxDuration } = selectedModel;
+      const options = [];
+      for (let i = minDuration; i <= maxDuration; i++) {
+        options.push(`${i}s`);
+      }
+      return options;
     }
-    return options;
+    
+    if (isAudioModel(selectedModel)) {
+      const { maxDuration } = selectedModel;
+      const options = [];
+      for (let i = 1; i <= maxDuration; i++) {
+        options.push(`${i}s`);
+      }
+      return options;
+    }
+    
+    return ["1s", "2s", "3s", "4s", "5s"];
   };
 
   const getDefaultSettings = () => {
