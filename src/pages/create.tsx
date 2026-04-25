@@ -1,16 +1,6 @@
 import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
-import { Crown, Sliders, Layers, Maximize2, Droplet, Check, ArrowLeftRight } from "lucide-react";
-import { 
-  videoModels, 
-  imageModels, 
-  audioModels, 
-  aspectRatios, 
-  resolutions, 
-  durations,
-  calculateCreditCost,
-  getDefaultModelForType
-} from "@/lib/modelConfigs";
+import { Crown, Sliders, Layers, Maximize2, Droplet, Check } from "lucide-react";
 
 const VideoIcon = ({ className = "" }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
