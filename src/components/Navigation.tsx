@@ -55,9 +55,8 @@ export function Navigation() {
     {
       title: "Create",
       items: [
+        { name: "Create", href: "/create", icon: Wand2 },
         { name: "Chat", href: "/chat", icon: MessageSquare },
-        { name: "Generate Video", href: "/video/generate", icon: Video },
-        { name: "Generate Image", href: "/images/generate", icon: Wand2 },
         { name: "Images", href: "/images", icon: ImageIcon },
         { name: "Video", href: "/video", icon: Video },
         { name: "Audio", href: "/audio", icon: Music },
