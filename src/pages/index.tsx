@@ -34,7 +34,7 @@ export default function Home() {
             </p>
             <div className="flex flex-wrap justify-center gap-3">
               <Button
-                onClick={() => router.push("/images/generate")}
+                onClick={() => router.push("/create")}
                 className="bg-purple-500 hover:bg-purple-600 text-sm md:text-base px-5 py-2.5"
               >
                 <Play className="w-4 h-4 mr-2" fill="white" />
@@ -73,7 +73,7 @@ export default function Home() {
               </p>
 
               <Button
-                onClick={() => router.push("/images/generate")}
+                onClick={() => router.push("/create")}
                 size="lg"
                 className="text-base md:text-lg px-8 py-6 bg-purple-500 hover:bg-purple-600"
               >
