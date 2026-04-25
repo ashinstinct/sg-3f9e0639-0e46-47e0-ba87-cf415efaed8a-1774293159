@@ -391,15 +391,15 @@ export default function CreatePage() {
                       <div className="text-left">
                         <div className="font-medium text-white">{m.name}</div>
                         <div className="text-xs text-gray-400">
-                          {activeTab === "video" && "maxDuration" in m && "ratios" in m && `${m.maxDuration}s max · ${m.ratios.join(", ")}`}
-                          {activeTab === "image" && "ratios" in m && m.ratios.join(", ")}
-                          {activeTab === "audio" && "maxDuration" in m && `${m.maxDuration}s max`}
+                          {activeTab === "video" && "maxDuration" in m && "ratios" in m && `${(m as typeof videoModels[0]).maxDuration}s max · ${(m as typeof videoModels[0]).ratios.join(", ")}`}
+                          {activeTab === "image" && "ratios" in m && (m as typeof imageModels[0]).ratios.join(", ")}
+                          {activeTab === "audio" && "maxDuration" in m && `${(m as typeof audioModels[0]).maxDuration}s max`}
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       {m.category === "premium" && <Crown className="w-4 h-4 text-amber-400" />}
-                      <div className="text-right"><div className="text-sm font-semibold text-purple-400">{Math.round((activeTab === "video" && "costPerSec" in m ? m.costPerSec : "cost" in m ? m.cost : 0) * 100)}</div><div className="text-[10px] text-gray-500">credits</div></div>
+                      <div className="text-right"><div className="text-sm font-semibold text-purple-400">{Math.round((activeTab === "video" && "costPerSec" in m ? (m as typeof videoModels[0]).costPerSec : "cost" in m ? (m as typeof imageModels[0] | typeof audioModels[0]).cost : 0) * 100)}</div><div className="text-[10px] text-gray-500">credits</div></div>
                       {selectedModel === m.id && <Check className="w-5 h-5 text-purple-400" />}
                     </div>
                   </button>
