@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
-import { Video, Image as ImageIcon, Music, Wand2 } from "lucide-react";
-import { VideoGenerator } from "@/components/VideoGenerator";
+import { Video, Image as ImageIcon, Music, Wand2, Loader2 } from "lucide-react";
+import VideoGenerator from "@/components/VideoGenerator";
 
 const imageModels = [
   { id: "flux-pro", name: "FLUX.1 Pro", category: "Premium", cost: 0.055 },
