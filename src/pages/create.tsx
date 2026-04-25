@@ -386,7 +386,7 @@ export default function CreatePage() {
               <div className="p-4 overflow-y-auto max-h-[60vh] space-y-2">
                 {getCurrentModels().map((m) => {
                   const isVideo = "costPerSec" in m;
-                  const isImage = "cost" in m && "ratios" in m;
+                  const isImage = "cost" in m && "ratios" in m && !("costPerSec" in m);
                   const isAudio = "supportsPrompt" in m;
                   
                   return (
