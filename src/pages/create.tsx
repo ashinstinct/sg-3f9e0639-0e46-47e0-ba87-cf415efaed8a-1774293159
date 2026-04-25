@@ -646,14 +646,17 @@ export default function CreatePage() {
     setSelectedModel(modelId);
     const newModel = getCurrentModels().find(m => m.id === modelId);
     if (newModel) {
-      if (activeTab === "video" && 'defaultRatio' in newModel) {
-        setAspectRatio(newModel.defaultRatio);
-        setDuration(newModel.defaultDuration);
+      if (activeTab === "video") {
+        const videoModel = newModel as typeof videoModels[0];
+        setAspectRatio(videoModel.defaultRatio);
+        setDuration(videoModel.defaultDuration);
         setResolution("720p");
-      } else if (activeTab === "image" && 'defaultRatio' in newModel) {
-        setAspectRatio(newModel.defaultRatio);
-      } else if (activeTab === "audio" && 'defaultDuration' in newModel) {
-        setDuration(newModel.defaultDuration.toString() + "s");
+      } else if (activeTab === "image") {
+        const imageModel = newModel as typeof imageModels[0];
+        setAspectRatio(imageModel.defaultRatio);
+      } else if (activeTab === "audio") {
+        const audioModel = newModel as typeof audioModels[0];
+        setDuration(audioModel.defaultDuration.toString() + "s");
       }
     }
   };
@@ -835,14 +838,11 @@ export default function CreatePage() {
                 />
                 <button
                   onClick={() => setExpandedPrompt(true)}
-                  className="mt-0.5 p-1 rounded hover:bg-white/10 transition-colors"
+                  className="absolute -top-1 right-3 px-3 py-1 rounded-full bg-[#2a2a2a] text-[11px] text-white/70 hover:bg-[#333] transition-colors border border-white/10"
                 >
-                  <Maximize2 className="w-4 h-4 text-white/40" />
+                  + Refs (0/12)
                 </button>
               </div>
-              <button className="absolute -top-1 right-3 px-3 py-1 rounded-full bg-[#2a2a2a] text-[11px] text-white/70 hover:bg-[#333] transition-colors border border-white/10">
-                + Refs (0/12)
-              </button>
             </div>
 
             {/* Settings - Two Lines */}
