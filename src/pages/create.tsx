@@ -384,26 +384,35 @@ export default function CreatePage() {
             <div className="bg-[#1a1a1a] rounded-t-3xl sm:rounded-3xl w-full max-w-lg max-h-[80vh] overflow-hidden" onClick={e => e.stopPropagation()}>
               <div className="p-4 border-b border-white/10"><h3 className="text-lg font-semibold">Select Model</h3><p className="text-sm text-gray-400">Choose a {activeTab} generation model</p></div>
               <div className="p-4 overflow-y-auto max-h-[60vh] space-y-2">
-                {getCurrentModels().map(m => (
-                  <button key={m.id} onClick={() => { handleModelChange(m.id); setShowModelSelector(false); }} className={`w-full flex items-center justify-between p-4 rounded-2xl ${selectedModel === m.id ? "bg-[#2a2a2a]" : "hover:bg-[#2a2a2a]/50"}`}>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-[#2a2a2a] flex items-center justify-center text-xl">{activeTab === "video" && "🎬"}{activeTab === "image" && "🖼️"}{activeTab === "audio" && "🎵"}</div>
-                      <div className="text-left">
-                        <div className="font-medium text-white">{m.name}</div>
-                        <div className="text-xs text-gray-400">
-                          {activeTab === "video" && "maxDuration" in m && "ratios" in m && `${(m as typeof videoModels[0]).maxDuration}s max · ${(m as typeof videoModels[0]).ratios.join(", ")}`}
-                          {activeTab === "image" && "ratios" in m && (m as typeof imageModels[0]).ratios.join(", ")}
-                          {activeTab === "audio" && "maxDuration" in m && `${(m as typeof audioModels[0]).maxDuration}s max`}
+                {getCurrentModels().map((m) => {
+                  // Type assertions for each model type
+                  const videoM = m as typeof videoModels[0];
+                  const imageM = m as typeof imageModels[0];
+                  const audioM = m as typeof audioModels[0];
+                  
+                  return (
+                    <button key={m.id} onClick={() => { handleModelChange(m.id); setShowModelSelector(false); }} className={`w-full flex items-center justify-between p-4 rounded-2xl ${selectedModel === m.id ? "bg-[#2a2a2a]" : "hover:bg-[#2a2a2a]/50"}`}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-[#2a2a2a] flex items-center justify-center text-xl">{activeTab === "video" && "🎬"}{activeTab === "image" && "🖼️"}{activeTab === "audio" && "🎵"}</div>
+                        <div className="text-left">
+                          <div className="font-medium text-white">{m.name}</div>
+                          <div className="text-xs text-gray-400">
+                            {activeTab === "video" && "costPerSec" in m && `${videoM.maxDuration}s max · ${videoM.ratios.join(", ")}`}
+                            {activeTab === "image" && "cost" in m && "ratios" in m && imageM.ratios.join(", ")}
+                            {activeTab === "audio" && "supportsPrompt" in m && `${audioM.maxDuration}s max`}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      {m.category === "premium" && <Crown className="w-4 h-4 text-amber-400" />}
-                      <div className="text-right"><div className="text-sm font-semibold text-purple-400">{Math.round((activeTab === "video" && "costPerSec" in m ? (m as typeof videoModels[0]).costPerSec : "cost" in m ? (m as typeof imageModels[0] | typeof audioModels[0]).cost : 0) * 100)}</div><div className="text-[10px] text-gray-500">credits</div></div>
-                      {selectedModel === m.id && <Check className="w-5 h-5 text-purple-400" />}
-                    </div>
-                  </button>
-                ))}
+                      <div className="flex items-center gap-3">
+                        {m.category === "premium" && <Crown className="w-4 h-4 text-amber-400" />}
+                        <div className="text-right"><div className="text-sm font-semibold text-purple-400">
+                          {Math.round((activeTab === "video" && "costPerSec" in m ? videoM.costPerSec : "cost" in m ? (imageM.cost || audioM.cost) : 0) * 100)}
+                        </div><div className="text-[10px] text-gray-500">credits</div></div>
+                        {selectedModel === m.id && <Check className="w-5 h-5 text-purple-400" />}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
