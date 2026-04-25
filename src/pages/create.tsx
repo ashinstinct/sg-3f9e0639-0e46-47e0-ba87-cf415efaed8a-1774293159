@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Crown, Sliders, Layers, Maximize2, Droplet, Check } from "lucide-react";
 
+// --- Icons ---
 const VideoIcon = ({ className = "" }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="6" width="14" height="12" rx="2" />
@@ -26,6 +27,86 @@ const AudioIcon = ({ className = "" }: { className?: string }) => (
   </svg>
 );
 
+// --- Video Models (Latest at Top) ---
+const videoModels = [
+  // Latest / Premium Tier
+  { id: "seedance-2", name: "Seedance 2.0", category: "premium", costPerSec: 0.25, maxDuration: 10, defaultDuration: "5s", ratios: ["16:9", "1:1", "9:16"], defaultRatio: "16:9", resolutions: ["720p", "1080p"], defaultResolution: "1080p", supportsReference: true },
+  { id: "seedance-1.5-pro", name: "Seedance 1.5 Pro", category: "premium", costPerSec: 0.30, maxDuration: 10, defaultDuration: "5s", ratios: ["16:9", "1:1", "9:16"], defaultRatio: "16:9", resolutions: ["720p", "1080p"], defaultResolution: "1080p", supportsReference: true },
+  { id: "kling-3-pro", name: "Kling 3.0 Pro", category: "premium", costPerSec: 0.112, maxDuration: 10, defaultDuration: "5s", ratios: ["16:9", "1:1", "9:16"], defaultRatio: "16:9", resolutions: ["720p", "1080p"], defaultResolution: "1080p", supportsReference: true },
+  { id: "kling-3-omni", name: "Kling 3.0 Omni", category: "premium", costPerSec: 0.15, maxDuration: 10, defaultDuration: "5s", ratios: ["16:9", "1:1", "9:16"], defaultRatio: "16:9", resolutions: ["720p", "1080p"], defaultResolution: "1080p", supportsReference: true },
+  { id: "minimax-hailuo-2", name: "MiniMax Hailuo 2", category: "premium", costPerSec: 0.18, maxDuration: 6, defaultDuration: "5s", ratios: ["16:9", "1:1", "9:16"], defaultRatio: "16:9", resolutions: ["720p", "1080p"], defaultResolution: "1080p", supportsReference: true },
+  { id: "veo-3.1", name: "Veo 3.1", category: "premium", costPerSec: 0.35, maxDuration: 8, defaultDuration: "5s", ratios: ["16:9", "1:1", "9:16"], defaultRatio: "16:9", resolutions: ["720p", "1080p"], defaultResolution: "1080p", supportsReference: true },
+  { id: "veo-3", name: "Veo 3", category: "premium", costPerSec: 0.30, maxDuration: 8, defaultDuration: "5s", ratios: ["16:9", "1:1", "9:16"], defaultRatio: "16:9", resolutions: ["720p", "1080p"], defaultResolution: "1080p", supportsReference: true },
+  { id: "sora-2-pro", name: "Sora 2 Pro", category: "premium", costPerSec: 0.30, maxDuration: 20, defaultDuration: "5s", ratios: ["16:9", "1:1", "9:16", "4:3"], defaultRatio: "16:9", resolutions: ["720p", "1080p"], defaultResolution: "1080p", supportsReference: true },
+  { id: "sora-2-turbo", name: "Sora 2 Turbo", category: "standard", costPerSec: 0.25, maxDuration: 20, defaultDuration: "5s", ratios: ["16:9", "1:1", "9:16", "4:3"], defaultRatio: "16:9", resolutions: ["720p", "1080p"], defaultResolution: "1080p", supportsReference: true },
+  { id: "ltx-2", name: "LTX 2", category: "standard", costPerSec: 0.20, maxDuration: 30, defaultDuration: "5s", ratios: ["16:9", "1:1", "9:16"], defaultRatio: "16:9", resolutions: ["720p", "1080p"], defaultResolution: "1080p", supportsReference: true },
+  { id: "grok-video", name: "Grok Video", category: "premium", costPerSec: 0.28, maxDuration: 10, defaultDuration: "5s", ratios: ["16:9", "1:1", "9:16"], defaultRatio: "16:9", resolutions: ["720p", "1080p"], defaultResolution: "1080p", supportsReference: true },
+  // Standard Tier
+  { id: "kling-2.5-turbo", name: "Kling 2.5 Turbo", category: "budget", costPerSec: 0.07, maxDuration: 10, defaultDuration: "5s", ratios: ["16:9", "1:1", "9:16"], defaultRatio: "16:9", resolutions: ["480p", "720p", "1080p"], defaultResolution: "720p", supportsReference: true },
+  { id: "kling-2.6-pro", name: "Kling 2.6 Pro", category: "standard", costPerSec: 0.10, maxDuration: 10, defaultDuration: "5s", ratios: ["16:9", "1:1", "9:16"], defaultRatio: "16:9", resolutions: ["480p", "720p", "1080p"], defaultResolution: "1080p", supportsReference: true },
+  { id: "wan-2.2", name: "Wan 2.2", category: "budget", costPerSec: 0.10, maxDuration: 5, defaultDuration: "5s", ratios: ["16:9", "1:1", "9:16"], defaultRatio: "16:9", resolutions: ["480p", "720p"], defaultResolution: "720p", supportsReference: false },
+  { id: "wan-2.1", name: "Wan 2.1", category: "budget", costPerSec: 0.08, maxDuration: 5, defaultDuration: "5s", ratios: ["16:9", "1:1", "9:16"], defaultRatio: "16:9", resolutions: ["480p", "720p"], defaultResolution: "720p", supportsReference: false },
+  // Additional Models
+  { id: "luma-1.6", name: "Luma 1.6", category: "standard", costPerSec: 0.18, maxDuration: 5, defaultDuration: "5s", ratios: ["16:9", "1:1", "9:16"], defaultRatio: "16:9", resolutions: ["720p", "1080p"], defaultResolution: "1080p", supportsReference: true },
+  { id: "runway-gen-4", name: "Runway Gen-4", category: "premium", costPerSec: 0.22, maxDuration: 10, defaultDuration: "5s", ratios: ["16:9", "1:1", "9:16", "4:3"], defaultRatio: "16:9", resolutions: ["720p", "1080p"], defaultResolution: "1080p", supportsReference: true },
+  { id: "runway-gen-3-turbo", name: "Runway Gen-3 Turbo", category: "standard", costPerSec: 0.14, maxDuration: 10, defaultDuration: "5s", ratios: ["16:9", "1:1", "9:16"], defaultRatio: "16:9", resolutions: ["720p", "1080p"], defaultResolution: "720p", supportsReference: true },
+  { id: "minimax-hailuo", name: "MiniMax Hailuo", category: "standard", costPerSec: 0.12, maxDuration: 6, defaultDuration: "5s", ratios: ["16:9", "1:1", "9:16"], defaultRatio: "16:9", resolutions: ["720p", "1080p"], defaultResolution: "720p", supportsReference: false },
+  { id: "hunyuan-video", name: "Hunyuan Video", category: "standard", costPerSec: 0.10, maxDuration: 5, defaultDuration: "5s", ratios: ["16:9", "1:1", "9:16"], defaultRatio: "16:9", resolutions: ["480p", "720p"], defaultResolution: "720p", supportsReference: false },
+];
+
+// --- Image Models (Latest at Top) ---
+const imageModels = [
+  // Latest / Premium Tier (Top Priority)
+  { id: "nano-banana-2", name: "Nano Banana 2", category: "premium", cost: 0.05, ratios: ["16:9", "4:3", "1:1", "3:4", "9:16"], defaultRatio: "1:1", defaultResolution: "1024", supportsUpscale: true },
+  { id: "gpt-image-2", name: "GPT Image 2", category: "premium", cost: 0.045, ratios: ["16:9", "4:3", "1:1", "3:4", "9:16"], defaultRatio: "1:1", defaultResolution: "1024", supportsUpscale: true },
+  { id: "flux-pro-1.1", name: "FLUX.1 Pro 1.1", category: "premium", cost: 0.06, ratios: ["16:9", "4:3", "1:1", "3:4", "9:16"], defaultRatio: "1:1", defaultResolution: "1024", supportsUpscale: true },
+  { id: "flux-pro", name: "FLUX.1 Pro", category: "premium", cost: 0.055, ratios: ["16:9", "4:3", "1:1", "3:4", "9:16"], defaultRatio: "1:1", defaultResolution: "1024", supportsUpscale: true },
+  // FLUX Tier
+  { id: "flux-dev", name: "FLUX.1 Dev", category: "standard", cost: 0.025, ratios: ["16:9", "4:3", "1:1", "3:4", "9:16"], defaultRatio: "1:1", defaultResolution: "1024", supportsUpscale: false },
+  { id: "flux-schnell", name: "FLUX.1 Schnell", category: "budget", cost: 0.003, ratios: ["16:9", "4:3", "1:1", "3:4", "9:16"], defaultRatio: "1:1", defaultResolution: "1024", supportsUpscale: false },
+  { id: "flux-realism", name: "FLUX.1 Realism", category: "standard", cost: 0.03, ratios: ["16:9", "4:3", "1:1", "3:4", "9:16"], defaultRatio: "1:1", defaultResolution: "1024", supportsUpscale: false },
+  // Stable Diffusion Tier
+  { id: "stable-diffusion-3.5-large", name: "SD 3.5 Large", category: "standard", cost: 0.04, ratios: ["16:9", "4:3", "1:1", "3:4", "9:16"], defaultRatio: "1:1", defaultResolution: "1024", supportsUpscale: true },
+  { id: "stable-diffusion-3.5-medium", name: "SD 3.5 Medium", category: "standard", cost: 0.03, ratios: ["16:9", "4:3", "1:1", "3:4", "9:16"], defaultRatio: "1:1", defaultResolution: "1024", supportsUpscale: true },
+  { id: "stable-diffusion-xl", name: "SD XL", category: "budget", cost: 0.02, ratios: ["16:9", "4:3", "1:1", "3:4", "9:16"], defaultRatio: "1:1", defaultResolution: "1024", supportsUpscale: true },
+  // Other Premium Models
+  { id: "grok-2-image", name: "Grok 2 Image", category: "premium", cost: 0.05, ratios: ["16:9", "4:3", "1:1", "3:4", "9:16"], defaultRatio: "1:1", defaultResolution: "1024", supportsUpscale: true },
+  { id: "nano-banana-1.5-pro", name: "Nano Banana 1.5 Pro", category: "premium", cost: 0.04, ratios: ["16:9", "4:3", "1:1", "3:4", "9:16"], defaultRatio: "1:1", defaultResolution: "1024", supportsUpscale: true },
+  { id: "seedream-4.5", name: "Seedream 4.5", category: "premium", cost: 0.05, ratios: ["16:9", "4:3", "1:1", "3:4", "9:16"], defaultRatio: "1:1", defaultResolution: "1024", supportsUpscale: true },
+  { id: "seedream-4.5-turbo", name: "Seedream 4.5 Turbo", category: "premium", cost: 0.04, ratios: ["16:9", "4:3", "1:1", "3:4", "9:16"], defaultRatio: "1:1", defaultResolution: "1024", supportsUpscale: false },
+  // Standard/Budget Models
+  { id: "recraft-v3", name: "Recraft V3", category: "standard", cost: 0.04, ratios: ["16:9", "4:3", "1:1", "3:4", "9:16"], defaultRatio: "1:1", defaultResolution: "1024", supportsUpscale: true },
+  { id: "ideogram-3.0", name: "Ideogram 3.0", category: "standard", cost: 0.035, ratios: ["16:9", "4:3", "1:1", "3:4", "9:16"], defaultRatio: "1:1", defaultResolution: "1024", supportsUpscale: false },
+  { id: "ideogram-2.0", name: "Ideogram 2.0", category: "standard", cost: 0.03, ratios: ["16:9", "4:3", "1:1", "3:4", "9:16"], defaultRatio: "1:1", defaultResolution: "1024", supportsUpscale: false },
+  { id: "playground-v2.5", name: "Playground v2.5", category: "standard", cost: 0.025, ratios: ["16:9", "4:3", "1:1", "3:4", "9:16"], defaultRatio: "1:1", defaultResolution: "1024", supportsUpscale: false },
+  { id: "auraflow", name: "AuraFlow", category: "standard", cost: 0.025, ratios: ["16:9", "4:3", "1:1", "3:4", "9:16"], defaultRatio: "1:1", defaultResolution: "1024", supportsUpscale: false },
+  { id: "imagen-4", name: "Imagen 4", category: "premium", cost: 0.045, ratios: ["16:9", "4:3", "1:1", "3:4", "9:16"], defaultRatio: "1:1", defaultResolution: "1024", supportsUpscale: true },
+];
+
+// --- Audio Models ---
+const audioModels = [
+  { id: "musicgen", name: "MusicGen", category: "standard", cost: 0.02, defaultDuration: 10 },
+  { id: "audiocraft", name: "AudioCraft", category: "standard", cost: 0.025, defaultDuration: 10 },
+  { id: "stable-audio", name: "Stable Audio", category: "premium", cost: 0.04, defaultDuration: 15 },
+  { id: "audiogen", name: "AudioGen", category: "standard", cost: 0.02, defaultDuration: 5 },
+  { id: "udio-v1.5", name: "Udio v1.5", category: "premium", cost: 0.03, defaultDuration: 30 },
+  { id: "suno-v4", name: "Suno v4", category: "premium", cost: 0.04, defaultDuration: 30 },
+];
+
+const aspectRatios = [
+  { id: "21:9", width: "w-7 h-3" },
+  { id: "16:9", width: "w-6 h-3.5" },
+  { id: "4:3", width: "w-5 h-4" },
+  { id: "1:1", width: "w-4 h-4" },
+  { id: "3:4", width: "w-3.5 h-4.5" },
+  { id: "9:16", width: "w-3 h-5" },
+];
+
+const resolutions = ["480p", "720p", "1080p"];
+const durations = ["4s", "5s", "6s", "7s", "8s", "9s", "10s", "11s", "12s", "13s", "14s", "15s"];
+const referenceOptions = ["omni-reference", "start-end-frame", "image-reference", "character-reference"];
+
+// --- Component ---
 export default function CreatePage() {
   const [activeTab, setActiveTab] = useState<"video" | "image" | "audio">("video");
   const [showModelSelector, setShowModelSelector] = useState(false);
@@ -54,7 +135,7 @@ export default function CreatePage() {
   const calculateCredits = () => {
     if (activeTab === "video") {
       const durationSec = parseInt(duration);
-      return Math.round((currentModel as { costPerSec: number }).costPerSec * durationSec * 100 * generationCount);
+      return Math.round((currentModel as typeof videoModels[0]).costPerSec * durationSec * 100 * generationCount);
     }
     return Math.round((currentModel as { cost: number }).cost * 100 * generationCount);
   };
@@ -96,11 +177,23 @@ export default function CreatePage() {
     }
   };
 
-  const referenceOptions = activeTab === "video"
-    ? ["omni-reference", "start-end-frame", "image-reference", "character-reference"]
-    : activeTab === "image"
-    ? ["image-reference", "character-reference", "style-reference"]
-    : ["voice-reference", "music-reference"];
+  const getFilteredDurations = () => {
+    if (activeTab === "video") {
+      const maxDuration = (currentModel as typeof videoModels[0]).maxDuration;
+      return durations.filter(d => parseInt(d) <= maxDuration);
+    }
+    return durations;
+  };
+
+  const getFilteredRatios = () => {
+    if (activeTab === "video") {
+      return (currentModel as typeof videoModels[0]).ratios;
+    }
+    if (activeTab === "image") {
+      return (currentModel as typeof imageModels[0]).ratios;
+    }
+    return aspectRatios.map(r => r.id);
+  };
 
   return (
     <>
@@ -112,7 +205,7 @@ export default function CreatePage() {
           {/* Intentionally blank - results will display here */}
         </main>
 
-        {/* Static Start/End Frame buttons - Video mode only - positioned above panel top-left corner */}
+        {/* Static Start/End Frame buttons - Video mode only */}
         {activeTab === "video" && (
           <div className="fixed bottom-[280px] left-4 z-30 flex items-center gap-2">
             <button className="w-[88px] h-[100px] rounded-2xl bg-[#2a2a2a]/80 backdrop-blur-sm flex flex-col items-center justify-center -rotate-6 hover:bg-[#333] transition-colors">
@@ -140,7 +233,6 @@ export default function CreatePage() {
             {/* Compact Sliding Tab Switcher - Top Right */}
             <div className="flex justify-end mb-3">
               <div className="inline-flex items-center gap-0.5 p-1 rounded-full bg-[#0e0e0e]/60">
-                {/* Video */}
                 <button
                   onClick={() => switchTab("video")}
                   className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full transition-all ${
@@ -152,7 +244,6 @@ export default function CreatePage() {
                   <VideoIcon className="w-4 h-4" />
                   {activeTab === "video" && <span className="text-sm font-medium">Video</span>}
                 </button>
-                {/* Image */}
                 <button
                   onClick={() => switchTab("image")}
                   className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full transition-all ${
@@ -164,7 +255,6 @@ export default function CreatePage() {
                   <ImgIcon className="w-4 h-4" />
                   {activeTab === "image" && <span className="text-sm font-medium">Image</span>}
                 </button>
-                {/* Audio */}
                 <button
                   onClick={() => switchTab("audio")}
                   className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full transition-all ${
@@ -387,50 +477,45 @@ export default function CreatePage() {
                   <div className="grid grid-cols-6 gap-2">
                     {aspectRatios.map(ratio => (
                       <button
-                        key={ratio}
-                        onClick={() => setAspectRatio(ratio)}
+                        key={ratio.id}
+                        onClick={() => setAspectRatio(ratio.id)}
                         className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-colors ${
-                          aspectRatio === ratio ? "bg-[#2a2a2a]" : "bg-[#0e0e0e] hover:bg-[#2a2a2a]"
+                          aspectRatio === ratio.id ? "bg-[#2a2a2a]" : "bg-[#0e0e0e] hover:bg-[#2a2a2a]"
                         }`}
                       >
-                        <div className={`border-2 border-white/60 rounded ${
-                          ratio === "21:9" ? "w-7 h-3" :
-                          ratio === "16:9" ? "w-6 h-3.5" :
-                          ratio === "4:3" ? "w-5 h-4" :
-                          ratio === "1:1" ? "w-4 h-4" :
-                          ratio === "3:4" ? "w-3.5 h-4.5" :
-                          "w-3 h-5"
-                        }`} />
-                        <span className="text-xs text-white/60">{ratio}</span>
+                        <div className={`border-2 border-white/60 rounded ${ratio.width}`} />
+                        <span className="text-xs text-white/60">{ratio.id}</span>
                       </button>
                     ))}
                   </div>
                 </div>
 
-                {/* Resolution */}
-                <div>
-                  <h4 className="text-sm text-white/50 mb-3">Resolution</h4>
-                  <div className="grid grid-cols-3 gap-2 p-1 rounded-2xl bg-[#0e0e0e]">
-                    {resolutions.map(res => (
-                      <button
-                        key={res}
-                        onClick={() => setResolution(res)}
-                        className={`px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-                          resolution === res ? "bg-[#2a2a2a] text-white" : "text-white/50 hover:text-white/80"
-                        }`}
-                      >
-                        {res}
-                      </button>
-                    ))}
+                {/* Resolution - Video only */}
+                {activeTab === "video" && (
+                  <div>
+                    <h4 className="text-sm text-white/50 mb-3">Resolution</h4>
+                    <div className="grid grid-cols-3 gap-2 p-1 rounded-2xl bg-[#0e0e0e]">
+                      {resolutions.map(res => (
+                        <button
+                          key={res}
+                          onClick={() => setResolution(res)}
+                          className={`px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                            resolution === res ? "bg-[#2a2a2a] text-white" : "text-white/50 hover:text-white/80"
+                          }`}
+                        >
+                          {res}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Duration - Video/Audio only */}
                 {(activeTab === "video" || activeTab === "audio") && (
                   <div>
                     <h4 className="text-sm text-white/50 mb-3">Duration</h4>
                     <div className="grid grid-cols-6 gap-2">
-                      {durations.map(dur => (
+                      {getFilteredDurations().map(dur => (
                         <button
                           key={dur}
                           onClick={() => setDuration(dur)}
