@@ -46,7 +46,7 @@ export function Hero() {
           <div className="w-1 h-1 rounded-full bg-border" />
           <div className="flex items-center gap-2">
             <Check className="w-4 h-4 text-emerald-400" />
-            <span className="font-semibold text-foreground">20+ AI models</span>
+            <span className="font-semibold text-foreground">40+ AI models</span>
           </div>
           <div className="w-1 h-1 rounded-full bg-border" />
           <div className="flex items-center gap-2">

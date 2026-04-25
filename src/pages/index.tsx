@@ -22,7 +22,7 @@ export default function Home() {
           <div className="max-w-3xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-medium mb-2">
               <Sparkles className="w-3.5 h-3.5" />
-              20+ AI Models · 12 Free Tools
+              40+ AI Models · 12 Free Tools
             </div>
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight mb-2">
               <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
@@ -83,7 +83,7 @@ export default function Home() {
 
               <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto pt-4">
                 <div className="text-center">
-                  <div className="text-2xl md:text-4xl font-bold text-white">20+</div>
+                  <div className="text-2xl md:text-4xl font-bold text-white">40+</div>
                   <div className="text-xs md:text-sm text-white/40 mt-1">AI Models</div>
                 </div>
                 <div className="text-center">
