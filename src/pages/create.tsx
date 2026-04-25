@@ -122,15 +122,21 @@ export default function CreatePage() {
   };
 
   const getCurrentResolutionOptions = () => {
-    const model = getCurrentModels().find(m => m.id === selectedModel) as typeof videoModels[0];
+    const model = getCurrentModels().find(m => m.id === selectedModel);
     if (!model) return ["720p", "1080p"];
-    return model.resolutions || ["720p", "1080p"];
+    if ("resolutions" in model) {
+      return (model as { resolutions: string[] }).resolutions || ["720p", "1080p"];
+    }
+    return ["720p", "1080p"];
   };
 
   const getCurrentMaxDuration = () => {
     const model = getCurrentModels().find(m => m.id === selectedModel);
     if (!model) return 5;
-    return model.maxDuration || 5;
+    if ("maxDuration" in model) {
+      return (model as { maxDuration: number }).maxDuration || 5;
+    }
+    return 5;
   };
 
   const getDurationOptions = () => {
@@ -169,16 +175,19 @@ export default function CreatePage() {
     if (!model) return 0;
     let cost = 0;
     if (activeTab === "video") {
-      const vModel = model as typeof videoModels[0];
-      const dur = parseInt(duration);
-      cost = vModel.costPerSec * dur;
+      if ("costPerSec" in model) {
+        const dur = parseInt(duration);
+        cost = (model as { costPerSec: number }).costPerSec * dur;
+      }
     } else if (activeTab === "image") {
-      const iModel = model as typeof imageModels[0];
-      cost = iModel.cost;
+      if ("cost" in model) {
+        cost = (model as { cost: number }).cost;
+      }
     } else {
-      const aModel = model as typeof audioModels[0];
-      const dur = parseInt(duration);
-      cost = aModel.cost * dur;
+      if ("cost" in model && "maxDuration" in model) {
+        const dur = parseInt(duration);
+        cost = (model as { cost: number }).cost * dur;
+      }
     }
     return Math.round(cost * 100 * generations);
   };
@@ -209,16 +218,19 @@ export default function CreatePage() {
     const newModel = getCurrentModels().find(m => m.id === modelId);
     if (newModel) {
       if (activeTab === "video") {
-        const videoModel = newModel as typeof videoModels[0];
-        setAspectRatio(videoModel.defaultRatio);
-        setDuration(videoModel.defaultDuration);
-        setResolution(videoModel.defaultResolution);
+        if ("defaultRatio" in newModel && "defaultDuration" in newModel && "defaultResolution" in newModel) {
+          setAspectRatio((newModel as { defaultRatio: string }).defaultRatio);
+          setDuration((newModel as { defaultDuration: string }).defaultDuration);
+          setResolution((newModel as { defaultResolution: string }).defaultResolution);
+        }
       } else if (activeTab === "image") {
-        const imageModel = newModel as typeof imageModels[0];
-        setAspectRatio(imageModel.defaultRatio);
+        if ("defaultRatio" in newModel) {
+          setAspectRatio((newModel as { defaultRatio: string }).defaultRatio);
+        }
       } else if (activeTab === "audio") {
-        const audioModel = newModel as typeof audioModels[0];
-        setDuration(audioModel.defaultDuration.toString() + "s");
+        if ("defaultDuration" in newModel) {
+          setDuration((newModel as { defaultDuration: number }).defaultDuration.toString() + "s");
+        }
       }
     }
   };
@@ -379,15 +391,15 @@ export default function CreatePage() {
                       <div className="text-left">
                         <div className="font-medium text-white">{m.name}</div>
                         <div className="text-xs text-gray-400">
-                          {activeTab === "video" && `${(m as typeof videoModels[0]).maxDuration}s max · ${(m as typeof videoModels[0]).ratios.join(", ")}`}
-                          {activeTab === "image" && `${m.ratios.join(", ")}`}
-                          {activeTab === "audio" && `${(m as typeof audioModels[0]).maxDuration}s max`}
+                          {activeTab === "video" && "maxDuration" in m && "ratios" in m && `${m.maxDuration}s max · ${m.ratios.join(", ")}`}
+                          {activeTab === "image" && "ratios" in m && m.ratios.join(", ")}
+                          {activeTab === "audio" && "maxDuration" in m && `${m.maxDuration}s max`}
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       {m.category === "premium" && <Crown className="w-4 h-4 text-amber-400" />}
-                      <div className="text-right"><div className="text-sm font-semibold text-purple-400">{Math.round((activeTab === "video" ? (m as typeof videoModels[0]).costPerSec : (m as typeof imageModels[0]).cost || (m as typeof audioModels[0]).cost) * 100)}</div><div className="text-[10px] text-gray-500">credits</div></div>
+                      <div className="text-right"><div className="text-sm font-semibold text-purple-400">{Math.round((activeTab === "video" && "costPerSec" in m ? m.costPerSec : "cost" in m ? m.cost : 0) * 100)}</div><div className="text-[10px] text-gray-500">credits</div></div>
                       {selectedModel === m.id && <Check className="w-5 h-5 text-purple-400" />}
                     </div>
                   </button>
