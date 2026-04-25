@@ -118,7 +118,10 @@ export default function CreatePage() {
   const getCurrentRatioOptions = () => {
     const model = getCurrentModels().find(m => m.id === selectedModel);
     if (!model) return ["16:9", "1:1", "9:16"];
-    return model.ratios || ["16:9", "1:1", "9:16"];
+    if ("ratios" in model) {
+      return (model as { ratios: string[] }).ratios;
+    }
+    return ["16:9", "1:1", "9:16"];
   };
 
   const getCurrentResolutionOptions = () => {
