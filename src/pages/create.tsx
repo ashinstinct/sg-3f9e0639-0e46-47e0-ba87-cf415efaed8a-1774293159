@@ -384,7 +384,7 @@ export default function CreatePage() {
             <div className="bg-[#1a1a1a] rounded-t-3xl sm:rounded-3xl w-full max-w-lg max-h-[80vh] overflow-hidden" onClick={e => e.stopPropagation()}>
               <div className="p-4 border-b border-white/10"><h3 className="text-lg font-semibold">Select Model</h3><p className="text-sm text-gray-400">Choose a {activeTab} generation model</p></div>
               <div className="p-4 overflow-y-auto max-h-[60vh] space-y-2">
-                {getCurrentModels().map((m) => {
+                {getCurrentModels().map((m: any) => {
                   const isVideo = "costPerSec" in m;
                   const isImage = "cost" in m && "ratios" in m && !("costPerSec" in m);
                   const isAudio = "supportsPrompt" in m;
@@ -396,16 +396,16 @@ export default function CreatePage() {
                         <div className="text-left">
                           <div className="font-medium text-white">{m.name}</div>
                           <div className="text-xs text-gray-400">
-                            {isVideo && `${(m as typeof videoModels[0]).maxDuration}s max · ${(m as typeof videoModels[0]).ratios.join(", ")}`}
-                            {isImage && (m as typeof imageModels[0]).ratios.join(", ")}
-                            {isAudio && `${(m as typeof audioModels[0]).maxDuration}s max`}
+                            {isVideo && `${m.maxDuration}s max · ${m.ratios.join(", ")}`}
+                            {isImage && m.ratios.join(", ")}
+                            {isAudio && `${m.maxDuration}s max`}
                           </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
                         {m.category === "premium" && <Crown className="w-4 h-4 text-amber-400" />}
                         <div className="text-right"><div className="text-sm font-semibold text-purple-400">
-                          {Math.round((isVideo ? (m as typeof videoModels[0]).costPerSec : isImage ? (m as typeof imageModels[0]).cost : (m as typeof audioModels[0]).cost) * 100)}
+                          {Math.round((isVideo ? m.costPerSec : isImage ? m.cost : m.cost) * 100)}
                         </div><div className="text-[10px] text-gray-500">credits</div></div>
                         {selectedModel === m.id && <Check className="w-5 h-5 text-purple-400" />}
                       </div>
