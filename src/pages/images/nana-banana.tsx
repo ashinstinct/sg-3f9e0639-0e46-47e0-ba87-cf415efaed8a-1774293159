@@ -21,9 +21,17 @@ const ASPECT_RATIOS: Array<{ value: AspectRatio; label: string }> = [
 ];
 
 const NANA_MODELS = [
-  { id: "fal-ai/nano-banana-2", name: "Nano Banana 2.0", credits: 5, description: "Ultra HD, fastest generation" },
-  { id: "fal-ai/nano-banana-1.5-pro", name: "Nano Banana 1.5 Pro", credits: 4, description: "Artistic, creative styles" },
+  { id: "nano-banana-2", name: "Nano Banana 2.0", credits: 5, description: "Ultra HD, fastest generation" },
+  { id: "nano-banana-1.5-pro", name: "Nano Banana 1.5 Pro", credits: 4, description: "Artistic, creative styles" },
 ];
+
+const ASPECT_RATIO_TO_IMAGE_SIZE: Record<AspectRatio, string> = {
+  "1:1": "square_hd",
+  "16:9": "landscape_16_9",
+  "9:16": "portrait_16_9",
+  "4:3": "landscape_4_3",
+  "3:4": "portrait_4_3",
+};
 
 export default function NanaBananaGenerator() {
   const [selectedModel, setSelectedModel] = useState(NANA_MODELS[0]);
@@ -52,18 +60,38 @@ export default function NanaBananaGenerator() {
     }
 
     setIsGenerating(true);
-    
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      setGeneratedImage("https://images.unsplash.com/photo-1518770660439-4636190af475?w=1024");
-      
-      const newCredits = credits - selectedModel.credits;
-      setCredits(newCredits);
-      localStorage.setItem("userCredits", newCredits.toString());
-    } catch (error) {
+      const res = await fetch("/api/fal/image-generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: selectedModel.id,
+          prompt: prompt.trim(),
+          negativePrompt: negativePrompt.trim() || undefined,
+          image_size: ASPECT_RATIO_TO_IMAGE_SIZE[aspectRatio],
+          numImages: 1,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to generate image");
+      }
+
+      const imageUrl = data.images?.[0]?.url;
+      if (imageUrl) {
+        setGeneratedImage(imageUrl);
+        const newCredits = credits - selectedModel.credits;
+        setCredits(newCredits);
+        localStorage.setItem("userCredits", newCredits.toString());
+      } else {
+        throw new Error("No image returned");
+      }
+    } catch (error: any) {
       console.error("Generation error:", error);
-      alert("Failed to generate image");
+      alert(error.message || "Failed to generate image");
     } finally {
       setIsGenerating(false);
     }
@@ -221,9 +249,11 @@ export default function NanaBananaGenerator() {
                       alt="Generated"
                       className="w-full rounded-xl border-2"
                     />
-                    <Button variant="outline" className="w-full">
-                      <Download className="mr-2 h-4 w-4" />
-                      Download Image
+                    <Button variant="outline" className="w-full" asChild>
+                      <a href={generatedImage} download="nano-banana.png" target="_blank" rel="noopener noreferrer">
+                        <Download className="mr-2 h-4 w-4" />
+                        Download Image
+                      </a>
                     </Button>
                   </div>
                 )}

@@ -17,11 +17,36 @@ export default function NanoBanana() {
     if (!prompt.trim()) return;
     
     setIsGenerating(true);
-    // Simulate API call
-    setTimeout(() => {
-      setGeneratedImage("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800");
+    try {
+      const res = await fetch("/api/fal/image-generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "nano-banana-2",
+          prompt: prompt.trim(),
+          image_size: "square_hd",
+          numImages: 1,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to generate image");
+      }
+
+      const imageUrl = data.images?.[0]?.url;
+      if (imageUrl) {
+        setGeneratedImage(imageUrl);
+      } else {
+        throw new Error("No image returned");
+      }
+    } catch (error: any) {
+      console.error("Generation error:", error);
+      alert(error.message || "Failed to generate image");
+    } finally {
       setIsGenerating(false);
-    }, 3000);
+    }
   };
 
   return (
@@ -113,9 +138,11 @@ export default function NanoBanana() {
                       />
                     </div>
                     
-                    <Button variant="outline" className="w-full">
-                      <Download className="w-4 h-4 mr-2" />
-                      Download Image
+                    <Button variant="outline" className="w-full" asChild>
+                      <a href={generatedImage} download="nano-banana.png" target="_blank" rel="noopener noreferrer">
+                        <Download className="w-4 h-4 mr-2" />
+                        Download Image
+                      </a>
                     </Button>
                   </div>
                 ) : (
