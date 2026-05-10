@@ -121,6 +121,12 @@
       "skillPath": "skills/frontend-design/SKILL.md",
       "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
     },
+    "intelligent-prompt-generator": {
+      "source": "huangserva/skill-prompt-generator",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/intelligent-prompt-generator/SKILL.md",
+      "computedHash": "f4bfb728463c14000473e9175b16d9ab24dc2f611127ca968b0e046e391f7a51"
+    },
     "internal-comms": {
       "source": "anthropics/skills",
       "sourceType": "github",
@@ -187,6 +193,12 @@
       "skillPath": "skills/pptx/SKILL.md",
       "computedHash": "6b8b859d26f93aa059c9870d1ab76b44ab69e3d6757ce4a03cc94cb760888073"
     },
+    "prompt-analyzer": {
+      "source": "huangserva/skill-prompt-generator",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/prompt-analyzer/SKILL.md",
+      "computedHash": "54f24f6879f5f864ef40d58a4453f3e33df3cdecb897e23643c04065b31bf403"
+    },
     "receiving-code-review": {
       "source": "obra/superpowers",
       "sourceType": "github",
@@ -252,6 +264,12 @@
       "sourceType": "github",
       "skillPath": "skills/theme-factory/SKILL.md",
       "computedHash": "598ddfa9784ae2a8c55be5dbb047b98564d875dea6f4669168a87ae1ea1a4ed3"
+    },
+    "universal-learner": {
+      "source": "huangserva/skill-prompt-generator",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/universal-learner/SKILL.md",
+      "computedHash": "25395d23a4d0981068fd900b0462a72785124f471133848001adb04b3a619744"
     },
     "using-git-worktrees": {
       "source": "obra/superpowers",
