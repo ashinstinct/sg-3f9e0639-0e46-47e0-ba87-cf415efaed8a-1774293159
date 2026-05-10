@@ -49,6 +49,12 @@
       "skillPath": "skills/compress/SKILL.md",
       "computedHash": "c91bdf427a68b686ee9d6f63766c72d164b16915434736edfedf13e24dae0e8c"
     },
+    "extract-design-system": {
+      "source": "arvindrk/extract-design-system",
+      "sourceType": "github",
+      "skillPath": "skills/extract-design-system/SKILL.md",
+      "computedHash": "5f231fda377e304b202848f09ecc0fd42839355e76f60e06c3ceb7a643c15500"
+    },
     "seo-audit": {
       "source": "JeffLi1993/seo-audit-skill",
       "sourceType": "github",
