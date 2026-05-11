@@ -13,8 +13,11 @@
  */
 
 import { mkdir, writeFile } from 'fs/promises';
-import { join } from 'path';
+import { join, dirname } from 'path';
 import { homedir } from 'os';
+import { fileURLToPath } from 'url';
+
+const PROJECT_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 function parseGitHubUrl(url) {
   const blobPattern = /^https?:\/\/github\.com\/([^/]+)\/([^/]+)\/blob\/([^/]+)\/(.+)$/;
@@ -115,18 +118,25 @@ async function installSkill(githubUrl) {
 
   const frontmatter = parseFrontmatter(content);
   const skillName = frontmatter.name || parsed.skillDir;
-  const skillsDir = join(homedir(), '.claude', 'skills', skillName);
-  const skillFile = join(skillsDir, 'SKILL.md');
 
-  await mkdir(skillsDir, { recursive: true });
-  await writeFile(skillFile, content, 'utf8');
+  // Install to ~/.claude/skills/ (active this session)
+  const globalSkillDir = join(homedir(), '.claude', 'skills', skillName);
+  await mkdir(globalSkillDir, { recursive: true });
+  await writeFile(join(globalSkillDir, 'SKILL.md'), content, 'utf8');
+
+  // Save to .claude/skills/ in the project repo (restored on each new session by SessionStart hook)
+  const projectSkillDir = join(PROJECT_ROOT, '.claude', 'skills', skillName);
+  await mkdir(projectSkillDir, { recursive: true });
+  await writeFile(join(projectSkillDir, 'SKILL.md'), content, 'utf8');
 
   console.log(`\nSkill installed successfully!`);
   console.log(`  Name:        ${skillName}`);
   if (frontmatter.description) {
     console.log(`  Description: ${frontmatter.description}`);
   }
-  console.log(`  Location:    ${skillFile}`);
+  console.log(`  Active:      ${globalSkillDir}/SKILL.md`);
+  console.log(`  Persisted:   ${projectSkillDir}/SKILL.md`);
+  console.log(`\nThis skill will be restored automatically on each new session.`);
 }
 
 const url = process.argv[2];
