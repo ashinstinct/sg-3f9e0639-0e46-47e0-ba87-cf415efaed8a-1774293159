@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "install-skill": "node scripts/install-skill.mjs"
   },
   "dependencies": {
     "@fal-ai/client": "^1.9.5",
